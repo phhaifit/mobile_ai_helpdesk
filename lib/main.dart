@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'di/service_locator.dart';
+import '../presentation/chat/store/chat_store.dart';
 
-void main() {
-  runApp(const MyApp());
+// Trong hàm main() của lib/main.dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupLocator();
+
+  // Test thử:
+  final chatStore = getIt<ChatStore>();
+  print("ChatStore đã được khởi tạo: ${chatStore.messageList.length}");
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

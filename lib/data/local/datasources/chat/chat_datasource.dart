@@ -1,6 +1,6 @@
 import '../../../../domain/entity/chat/message.dart';
 
-class ChartDataSources {
+class ChatDataSource {
   Future<List<Message>> getMockMessages() async {
     return [
       Message(
