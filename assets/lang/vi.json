@@ -1,0 +1,16 @@
+{
+  "home_tv_title": "Jarvis Helpdesk",
+  "home_tv_welcome": "Chào mừng đến với Jarvis Helpdesk",
+  "home_tv_choose_language": "Chọn ngôn ngữ",
+  "home_tv_error": "Lỗi",
+  "home_tab_dashboard": "Tổng quan",
+  "home_tab_tickets": "Phiếu hỗ trợ",
+  "login_tv_title": "Đăng nhập",
+  "login_tv_email": "Email",
+  "login_tv_password": "Mật khẩu",
+  "login_btn_sign_in": "Đăng nhập",
+  "login_tv_welcome": "Chào mừng đến với Jarvis Helpdesk",
+  "login_tv_subtitle": "Đăng nhập để tiếp tục",
+  "settings_tv_dark_mode": "Chế độ tối",
+  "settings_tv_language": "Ngôn ngữ"
+}

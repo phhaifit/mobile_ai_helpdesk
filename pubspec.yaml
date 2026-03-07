@@ -9,6 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  mobx: ^2.4.0
+  flutter_mobx: ^2.2.1+1
 
   # Networking
   dio: ^5.8.0+1
@@ -30,11 +36,21 @@ dependencies:
 
   # UI
   google_fonts: ^6.2.1
+  another_flushbar: ^1.12.30
+
+  # Serialization
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  json_serializable: ^6.9.5
+  mobx_codegen: ^2.7.1
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/lang/

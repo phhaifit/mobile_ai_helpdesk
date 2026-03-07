@@ -1,0 +1,16 @@
+{
+  "home_tv_title": "Jarvis Helpdesk",
+  "home_tv_welcome": "Welcome to Jarvis Helpdesk",
+  "home_tv_choose_language": "Choose Language",
+  "home_tv_error": "Error",
+  "home_tab_dashboard": "Dashboard",
+  "home_tab_tickets": "Tickets",
+  "login_tv_title": "Sign In",
+  "login_tv_email": "Email",
+  "login_tv_password": "Password",
+  "login_btn_sign_in": "Sign In",
+  "login_tv_welcome": "Welcome to Jarvis Helpdesk",
+  "login_tv_subtitle": "Sign in to continue",
+  "settings_tv_dark_mode": "Dark Mode",
+  "settings_tv_language": "Language"
+}
