@@ -9,6 +9,15 @@ part of 'chat_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$ChatStore on _ChatStore, Store {
+  Computed<List<Message>>? _$filteredMessagesComputed;
+
+  @override
+  List<Message> get filteredMessages =>
+      (_$filteredMessagesComputed ??= Computed<List<Message>>(
+        () => super.filteredMessages,
+        name: '_ChatStore.filteredMessages',
+      )).value;
+
   late final _$messageListAtom = Atom(
     name: '_ChatStore.messageList',
     context: context,
@@ -45,6 +54,42 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
+  late final _$isTypingAtom = Atom(
+    name: '_ChatStore.isTyping',
+    context: context,
+  );
+
+  @override
+  bool get isTyping {
+    _$isTypingAtom.reportRead();
+    return super.isTyping;
+  }
+
+  @override
+  set isTyping(bool value) {
+    _$isTypingAtom.reportWrite(value, super.isTyping, () {
+      super.isTyping = value;
+    });
+  }
+
+  late final _$searchQueryAtom = Atom(
+    name: '_ChatStore.searchQuery',
+    context: context,
+  );
+
+  @override
+  String get searchQuery {
+    _$searchQueryAtom.reportRead();
+    return super.searchQuery;
+  }
+
+  @override
+  set searchQuery(String value) {
+    _$searchQueryAtom.reportWrite(value, super.searchQuery, () {
+      super.searchQuery = value;
+    });
+  }
+
   late final _$getMessagesAsyncAction = AsyncAction(
     '_ChatStore.getMessages',
     context: context,
@@ -61,6 +106,18 @@ mixin _$ChatStore on _ChatStore, Store {
   );
 
   @override
+  void setSearchQuery(String query) {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.setSearchQuery',
+    );
+    try {
+      return super.setSearchQuery(query);
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void sendMessage(String text) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore.sendMessage',
@@ -73,10 +130,37 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
+  void addReactionToMessage(int messageId, String emoji) {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.addReactionToMessage',
+    );
+    try {
+      return super.addReactionToMessage(messageId, emoji);
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _updateMessageReadStatus(int messageId, MessageReadStatus newStatus) {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore._updateMessageReadStatus',
+    );
+    try {
+      return super._updateMessageReadStatus(messageId, newStatus);
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 messageList: ${messageList},
-isLoading: ${isLoading}
+isLoading: ${isLoading},
+isTyping: ${isTyping},
+searchQuery: ${searchQuery},
+filteredMessages: ${filteredMessages}
     ''';
   }
 }

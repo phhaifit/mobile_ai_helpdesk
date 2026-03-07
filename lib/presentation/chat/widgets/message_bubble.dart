@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../domain/entity/chat/message.dart';
+import 'reaction_picker.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -14,12 +15,16 @@ class MessageBubble extends StatelessWidget {
   /// Show the sender's avatar (left side only, on last bubble of group).
   final bool showAvatar;
 
+  /// Callback when a reaction is selected
+  final Function(String emoji)? onReactionAdded;
+
   const MessageBubble({
     super.key,
     required this.message,
     this.isGroupStart = true,
     this.isGroupEnd = true,
     this.showAvatar = true,
+    this.onReactionAdded,
   });
 
   @override
@@ -30,7 +35,7 @@ class MessageBubble extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         top: isGroupStart ? 6 : 2,
-        bottom: isGroupEnd ? 2 : 0,
+        bottom: isGroupEnd ? 8 : 0, // Extra space for reactions
       ),
       child: Row(
         mainAxisAlignment: isMe
@@ -78,28 +83,35 @@ class MessageBubble extends StatelessWidget {
                       const SizedBox(width: 6),
                     ],
 
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: screenWidth * 0.68),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                    GestureDetector(
+                      onLongPress: () => _showReactionPicker(context),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: screenWidth * 0.68,
                         ),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? AppColors.messengerBlue
-                              : AppColors.bubbleGray,
-                          borderRadius: _buildBorderRadius(
-                            isMe,
-                            isGroupStart,
-                            isGroupEnd,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
                           ),
-                        ),
-                        child: Text(
-                          message.content,
-                          style: TextStyle(
-                            color: isMe ? Colors.white : AppColors.textPrimary,
-                            fontSize: 15,
+                          decoration: BoxDecoration(
+                            color: isMe
+                                ? AppColors.messengerBlue
+                                : AppColors.bubbleGray,
+                            borderRadius: _buildBorderRadius(
+                              isMe,
+                              isGroupStart,
+                              isGroupEnd,
+                            ),
+                          ),
+                          child: Text(
+                            message.content,
+                            style: TextStyle(
+                              color: isMe
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                       ),
@@ -109,6 +121,9 @@ class MessageBubble extends StatelessWidget {
                   ],
                 ),
 
+                // Reactions below message
+                if (message.reactions.isNotEmpty) _buildReactions(),
+
                 // Timestamp below last bubble in group
                 if (isGroupEnd)
                   Padding(
@@ -117,9 +132,23 @@ class MessageBubble extends StatelessWidget {
                       left: isMe ? 0 : 46,
                       right: isMe ? 8 : 0,
                     ),
-                    child: Text(
-                      _formatTime(message.timestamp),
-                      style: const TextStyle(color: Colors.grey, fontSize: 11),
+                    child: Row(
+                      mainAxisAlignment: isMe
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatTime(message.timestamp),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 11,
+                          ),
+                        ),
+                        if (isMe) ...[
+                          const SizedBox(width: 4),
+                          _buildReadStatusIcon(),
+                        ],
+                      ],
                     ),
                   ),
               ],
@@ -189,5 +218,79 @@ class MessageBubble extends StatelessWidget {
 
     if (msgDay == today) return timeStr;
     return '${time.day}/${time.month} $timeStr';
+  }
+
+  Widget _buildReadStatusIcon() {
+    switch (message.readStatus) {
+      case MessageReadStatus.sent:
+        return Tooltip(
+          message: 'Sent',
+          child: Icon(Icons.done, size: 14, color: Colors.grey.shade600),
+        );
+      case MessageReadStatus.delivered:
+        return Tooltip(
+          message: 'Delivered',
+          child: Icon(Icons.done_all, size: 14, color: Colors.grey.shade600),
+        );
+      case MessageReadStatus.read:
+        return Tooltip(
+          message: 'Read',
+          child: Icon(Icons.done_all, size: 14, color: AppColors.messengerBlue),
+        );
+    }
+  }
+
+  Widget _buildReactions() {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 4,
+        left: message.isMe ? 0 : 46,
+        right: message.isMe ? 8 : 0,
+      ),
+      child: Wrap(
+        spacing: 4,
+        children: message.reactions.map((reaction) {
+          return GestureDetector(
+            onTap: () => onReactionAdded?.call(reaction.emoji),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${reaction.emoji} ${reaction.userNames.length}',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _showReactionPicker(BuildContext context) {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy,
+        offset.dx + renderBox.size.width,
+        offset.dy + renderBox.size.height,
+      ),
+      items: [
+        PopupMenuItem<String>(
+          child: ReactionPicker(
+            onReactionSelected: (emoji) {
+              onReactionAdded?.call(emoji);
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

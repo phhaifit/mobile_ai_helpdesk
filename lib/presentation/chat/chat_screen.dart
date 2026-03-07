@@ -7,11 +7,13 @@ import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/message_bubble.dart';
+import 'widgets/typing_indicator.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom? room;
+  final int? scrollToMessageId;
 
-  const ChatScreen({super.key, this.room});
+  const ChatScreen({super.key, this.room, this.scrollToMessageId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -26,6 +28,27 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _chatStore.getMessages();
+
+    // If scrollToMessageId is provided, scroll to that message after messages load
+    if (widget.scrollToMessageId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToMessage(widget.scrollToMessageId!);
+      });
+    }
+  }
+
+  void _scrollToMessage(int messageId) {
+    final messageIndex = _chatStore.messageList.indexWhere(
+      (msg) => msg.id == messageId,
+    );
+
+    if (messageIndex != -1) {
+      _scrollController.animateTo(
+        (messageIndex * 80.0), // Approximate height of each message
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -62,6 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
         name: widget.room?.name ?? 'Jarvis AI',
         avatarInitials: widget.room?.avatarInitials ?? 'AI',
         isActive: widget.room?.isActive ?? true,
+        room: widget.room,
       ),
       body: Column(
         children: [
@@ -86,8 +110,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  itemCount: _chatStore.messageList.length,
+                  itemCount:
+                      _chatStore.messageList.length +
+                      (_chatStore.isTyping ? 1 : 0),
                   itemBuilder: (context, index) {
+                    // Show typing indicator if this is the last item and isTyping
+                    if (_chatStore.isTyping &&
+                        index == _chatStore.messageList.length) {
+                      // Auto-scroll to typing indicator
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => _scrollToBottom(),
+                      );
+                      return const TypingIndicator(senderName: "AI Assistant");
+                    }
+
                     final msg = _chatStore.messageList[index];
                     final total = _chatStore.messageList.length;
                     final prevMsg = index > 0
@@ -109,6 +145,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       isGroupStart: isGroupStart,
                       isGroupEnd: isGroupEnd,
                       showAvatar: showAvatar,
+                      onReactionAdded: (emoji) {
+                        _chatStore.addReactionToMessage(msg.id, emoji);
+                      },
                     );
                   },
                 );

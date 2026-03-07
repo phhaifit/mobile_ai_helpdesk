@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
+import '../../../domain/entity/chat/chat_room.dart';
+import '../chat_info_screen.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
   final String avatarInitials;
   final bool isActive;
+  final ChatRoom? room;
 
   const ChatAppBar({
     super.key,
     this.name = 'Jarvis AI',
     this.avatarInitials = 'AI',
     this.isActive = true,
+    this.room,
   });
 
   @override
@@ -73,7 +77,13 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icons.info_outline_rounded,
             color: AppColors.messengerBlue,
           ),
-          onPressed: () {},
+          onPressed: () {
+            if (room != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ChatInfoScreen(room: room!)),
+              );
+            }
+          },
         ),
       ],
       bottom: PreferredSize(

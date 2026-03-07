@@ -1,4 +1,5 @@
 import '../../../../domain/entity/chat/message.dart';
+import '../../../../domain/entity/chat/reaction.dart';
 
 class ChatDataSource {
   Future<List<Message>> getMockMessages() async {
@@ -10,6 +11,10 @@ class ChatDataSource {
         isMe: false,
         senderName: "AI Assistant",
         isPending: false,
+        readStatus: MessageReadStatus.read,
+        reactions: [
+          Reaction(emoji: '👍', userNames: ['You']),
+        ],
       ),
       Message(
         id: 2,
@@ -18,6 +23,28 @@ class ChatDataSource {
         isMe: true,
         senderName: "User",
         isPending: false,
+        readStatus: MessageReadStatus.read,
+        reactions: [
+          Reaction(emoji: '❤️', userNames: ['AI Assistant']),
+        ],
+      ),
+      Message(
+        id: 3,
+        content: "Tôi có thể giúp bạn với cấu trúc Clean Architecture.",
+        timestamp: DateTime.now().subtract(Duration(minutes: 3)),
+        isMe: false,
+        senderName: "AI Assistant",
+        isPending: false,
+        readStatus: MessageReadStatus.read,
+      ),
+      Message(
+        id: 4,
+        content: "Cảm ơn! Tôi sẽ bắt đầu implement features.",
+        timestamp: DateTime.now().subtract(Duration(minutes: 1)),
+        isMe: true,
+        senderName: "User",
+        isPending: false,
+        readStatus: MessageReadStatus.read,
       ),
     ];
   }
