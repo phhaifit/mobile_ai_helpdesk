@@ -1,4 +1,4 @@
-package com.example.ai_helpdesk
+package com.jarvis.helpdesk
 
 import io.flutter.embedding.android.FlutterActivity
 
