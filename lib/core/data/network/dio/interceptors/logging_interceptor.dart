@@ -90,7 +90,7 @@ class LoggingInterceptor extends Interceptor {
       return handler.next(response);
     }
 
-    final data = response.data;
+    final Object? data = response.data;
     if (data != null) {
       if (compact) {
         logPrint('$data');
