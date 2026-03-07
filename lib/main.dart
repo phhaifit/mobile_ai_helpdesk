@@ -1,6 +1,14 @@
+import 'dart:developer';
+
+import 'package:ai_helpdesk/constants/env.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final env = EnvConfig.instance;
+  log('Running in ${env.environment.name} mode — ${env.baseUrl}');
+
   runApp(const MainApp());
 }
 
