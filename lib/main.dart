@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'constants/colors.dart';
 import 'di/service_locator.dart';
-import 'presentation/chat/chat_room_list_screen.dart';
+import 'presentation/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
         useMaterial3: true,
       ),
-      home: const ChatRoomListScreen(),
+      home: const MainScreen(),
     );
   }
 }

@@ -8,6 +8,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String avatarInitials;
   final bool isActive;
   final ChatRoom? room;
+  final VoidCallback? onAIAnalysisTap;
 
   const ChatAppBar({
     super.key,
@@ -15,6 +16,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.avatarInitials = 'AI',
     this.isActive = true,
     this.room,
+    this.onAIAnalysisTap,
   });
 
   @override
@@ -84,6 +86,14 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             }
           },
+        ),
+        IconButton(
+          tooltip: "AI Analysis",
+          icon: const Icon(
+            Icons.analytics_rounded,
+            color: AppColors.messengerBlue,
+          ),
+          onPressed: onAIAnalysisTap,
         ),
       ],
       bottom: PreferredSize(

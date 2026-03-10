@@ -8,7 +8,14 @@ import 'store/chat_room_store.dart';
 import 'widgets/chat_room_tile.dart';
 
 class ChatRoomListScreen extends StatefulWidget {
-  const ChatRoomListScreen({super.key});
+  final String selectedCategory;
+  final VoidCallback onMenuTap;
+
+  const ChatRoomListScreen({
+    super.key,
+    required this.selectedCategory,
+    required this.onMenuTap,
+  });
 
   @override
   State<ChatRoomListScreen> createState() => _ChatRoomListScreenState();
@@ -96,7 +103,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
       ),
       actions: [
         _appBarIconBtn(Icons.camera_alt_outlined, () {}),
-        _appBarIconBtn(Icons.edit_square, () {}),
+        _appBarIconBtn(Icons.menu_rounded, widget.onMenuTap),
         const SizedBox(width: 4),
       ],
       bottom: PreferredSize(

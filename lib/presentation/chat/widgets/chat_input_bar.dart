@@ -4,11 +4,13 @@ import '../../../constants/colors.dart';
 class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
+  final FocusNode? focusNode;
 
   const ChatInputBar({
     super.key,
     required this.controller,
     required this.onSend,
+    this.focusNode,
   });
 
   @override
@@ -70,6 +72,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   ),
                   child: TextField(
                     controller: widget.controller,
+                    focusNode: widget.focusNode,
                     maxLines: null,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
