@@ -22,14 +22,14 @@ class ChatRoomListScreen extends StatefulWidget {
 }
 
 class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
-  final ChatRoomStore _store = getIt<ChatRoomStore>();
+  final ChatRoomStore _chatRoomStore = getIt<ChatRoomStore>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    _store.fetchChatRooms();
+    _chatRoomStore.fetchChatRooms();
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
@@ -42,7 +42,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
   }
 
   void _openRoom(ChatRoom room) {
-    _store.markAsRead(room.id);
+    _chatRoomStore.markAsRead(room.id);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ChatScreen(room: room)),
@@ -80,7 +80,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                 color: AppColors.textPrimary,
               ),
             ),
-            if (_store.totalUnread > 0) ...[
+            if (_chatRoomStore.totalUnread > 0) ...[
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -89,7 +89,7 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
                 child: Text(
-                  '${_store.totalUnread}',
+                  '${_chatRoomStore.totalUnread}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -154,7 +154,9 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
   Widget _buildActiveNowRow() {
     return Observer(
       builder: (_) {
-        final activeRooms = _store.chatRooms.where((r) => r.isActive).toList();
+        final activeRooms = _chatRoomStore.chatRooms
+            .where((r) => r.isActive)
+            .toList();
         if (activeRooms.isEmpty) return const SizedBox.shrink();
 
         return Column(
@@ -259,15 +261,15 @@ class _ChatRoomListScreenState extends State<ChatRoomListScreen> {
   Widget _buildRoomList() {
     return Observer(
       builder: (_) {
-        if (_store.isLoading) {
+        if (_chatRoomStore.isLoading) {
           return const Center(
             child: CircularProgressIndicator(color: AppColors.messengerBlue),
           );
         }
 
         final filtered = _searchQuery.isEmpty
-            ? _store.chatRooms
-            : _store.chatRooms
+            ? _chatRoomStore.chatRooms
+            : _chatRoomStore.chatRooms
                   .where(
                     (r) =>
                         r.name.toLowerCase().contains(_searchQuery) ||

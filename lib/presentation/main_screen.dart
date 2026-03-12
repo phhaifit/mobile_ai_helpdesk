@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import 'chat/chat_room_list_screen.dart';
+import 'customer_management/customer_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -106,6 +107,10 @@ class _MainScreenState extends State<MainScreen> {
         selectedCategory: _selectedCategory,
         onMenuTap: _toggleMobileSidebar,
       );
+    }
+
+    if (_selectedCategory == 'Khách hàng') {
+      return CustomerListScreen(onMenuTap: _toggleMobileSidebar);
     }
 
     // For other categories, show placeholder
