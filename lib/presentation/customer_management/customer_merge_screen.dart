@@ -5,8 +5,15 @@ import 'store/customer_store.dart';
 
 class CustomerMergeScreen extends StatefulWidget {
   final CustomerStore store;
+  final bool showAppBar;
+  final VoidCallback? onBack;
 
-  const CustomerMergeScreen({super.key, required this.store});
+  const CustomerMergeScreen({
+    super.key,
+    required this.store,
+    this.showAppBar = true,
+    this.onBack,
+  });
 
   @override
   State<CustomerMergeScreen> createState() => _CustomerMergeScreenState();
@@ -44,31 +51,72 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.showAppBar) {
+      // Desktop view: no appbar
+      return Column(
+        children: [
+          _buildBackButton(),
+          const SizedBox(height: 8),
+          _buildStepIndicator(),
+          Expanded(child: _step == 2 ? _buildPreview() : _buildSelectStep()),
+        ],
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios,
-              size: 18, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            size: 18,
+            color: AppColors.textPrimary,
+          ),
           onPressed: _step == 0 ? () => Navigator.pop(context) : _goBack,
         ),
         title: const Text(
-          'H\u1ee3p nh\u1ea5t kh\u00e1ch h\u00e0ng',
+          'Hợp nhất khách hàng',
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary),
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
         ),
       ),
       body: Column(
         children: [
           _buildStepIndicator(),
-          Expanded(
-            child: _step == 2 ? _buildPreview() : _buildSelectStep(),
-          ),
+          Expanded(child: _step == 2 ? _buildPreview() : _buildSelectStep()),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBackButton() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: GestureDetector(
+        onTap: _step == 0
+            ? (widget.onBack != null
+                  ? () => widget.onBack!()
+                  : () => Navigator.pop(context))
+            : _goBack,
+        child: Row(
+          children: [
+            const Icon(
+              Icons.arrow_back_ios,
+              size: 16,
+              color: AppColors.textPrimary,
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Quay lại',
+              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -81,11 +129,9 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
       child: Row(
         children: [
           _stepChip(0, 'Ch\u1ecdn ch\u00ednh'),
-          Expanded(
-              child: Container(height: 1, color: Colors.grey.shade300)),
+          Expanded(child: Container(height: 1, color: Colors.grey.shade300)),
           _stepChip(1, 'Ch\u1ecdn ph\u1ee5'),
-          Expanded(
-              child: Container(height: 1, color: Colors.grey.shade300)),
+          Expanded(child: Container(height: 1, color: Colors.grey.shade300)),
           _stepChip(2, 'X\u00e1c nh\u1eadn'),
         ],
       ),
@@ -150,24 +196,31 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
                   hintText: 'T\u00ecm ki\u1ebfm...',
-                  hintStyle:
-                      TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                  prefixIcon: Icon(Icons.search,
-                      color: Colors.grey.shade400, size: 18),
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 13,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.grey.shade400,
+                    size: 18,
+                  ),
                   filled: true,
                   fillColor: AppColors.backgroundGrey,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey.shade200),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: AppColors.primaryBlue),
+                    borderSide: const BorderSide(color: AppColors.primaryBlue),
                   ),
                 ),
               ),
@@ -179,8 +232,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
               ? Center(
                   child: Text(
                     'Kh\u00f4ng t\u00ecm th\u1ea5y kh\u00e1ch h\u00e0ng',
-                    style:
-                        TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                   ),
                 )
               : ListView.separated(
@@ -225,13 +277,21 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                     ),
                   ),
                   if (c.phoneNumber?.isNotEmpty == true)
-                    Text(c.phoneNumber!,
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade500)),
+                    Text(
+                      c.phoneNumber!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                   if (c.email?.isNotEmpty == true)
-                    Text(c.email!,
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade500)),
+                    Text(
+                      c.email!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -269,16 +329,27 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
           Row(
             children: [
               Expanded(
-                  child: _mergeCard(
-                      'Ch\u00ednh (gi\u1eef l\u1ea1i)', primary, Colors.green)),
+                child: _mergeCard(
+                  'Ch\u00ednh (gi\u1eef l\u1ea1i)',
+                  primary,
+                  Colors.green,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.merge_type,
-                    color: AppColors.primaryBlue, size: 28),
+                child: Icon(
+                  Icons.merge_type,
+                  color: AppColors.primaryBlue,
+                  size: 28,
+                ),
               ),
               Expanded(
-                  child: _mergeCard(
-                      'H\u1ee3p nh\u1ea5t v\u00e0o', secondary, Colors.orange)),
+                child: _mergeCard(
+                  'H\u1ee3p nh\u1ea5t v\u00e0o',
+                  secondary,
+                  Colors.orange,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -288,16 +359,18 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: AppColors.primaryBlue.withOpacity(0.3)),
+              border: Border.all(color: AppColors.primaryBlue.withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: const [
-                    Icon(Icons.preview_outlined,
-                        size: 16, color: AppColors.primaryBlue),
+                    Icon(
+                      Icons.preview_outlined,
+                      size: 16,
+                      color: AppColors.primaryBlue,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'K\u1ebft qu\u1ea3 sau h\u1ee3p nh\u1ea5t',
@@ -310,21 +383,25 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _previewRow(Icons.person_outline, 'T\u00ean',
-                    primary.fullName),
+                _previewRow(Icons.person_outline, 'T\u00ean', primary.fullName),
                 if (mergedEmail?.isNotEmpty == true)
-                  _previewRow(
-                      Icons.email_outlined, 'Email', mergedEmail!),
+                  _previewRow(Icons.email_outlined, 'Email', mergedEmail!),
                 if (mergedPhone?.isNotEmpty == true)
-                  _previewRow(Icons.phone_outlined,
-                      '\u0110i\u1ec7n tho\u1ea1i', mergedPhone!),
+                  _previewRow(
+                    Icons.phone_outlined,
+                    '\u0110i\u1ec7n tho\u1ea1i',
+                    mergedPhone!,
+                  ),
                 if (mergedTags.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.label_outline,
-                          size: 16, color: Colors.grey),
+                      const Icon(
+                        Icons.label_outline,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Wrap(
@@ -333,9 +410,10 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                           children: mergedTags
                               .map(
                                 (t) => Chip(
-                                  label: Text(t,
-                                      style:
-                                          const TextStyle(fontSize: 10)),
+                                  label: Text(
+                                    t,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
                                   materialTapTargetSize:
                                       MaterialTapTargetSize.shrinkWrap,
                                   padding: EdgeInsets.zero,
@@ -361,14 +439,19 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: Colors.orange.shade600, size: 18),
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange.shade600,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'H\u00e0nh \u0111\u1ed9ng n\u00e0y kh\u00f4ng th\u1ec3 ho\u00e0n t\u00e1c. Kh\u00e1ch h\u00e0ng ph\u1ee5 s\u1ebd b\u1ecb x\u00f3a.',
                     style: TextStyle(
-                        fontSize: 12, color: Colors.orange.shade800),
+                      fontSize: 12,
+                      color: Colors.orange.shade800,
+                    ),
                   ),
                 ),
               ],
@@ -387,7 +470,8 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               elevation: 0,
             ),
           ),
@@ -407,11 +491,14 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
       ),
       child: Column(
         children: [
-          Text(title,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: color,
-                  fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 8),
           _avatar(c, 44),
           const SizedBox(height: 8),
@@ -438,8 +525,10 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
         children: [
           Icon(icon, size: 16, color: Colors.grey),
           const SizedBox(width: 8),
-          Text('$label: ',
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(
+            '$label: ',
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
           Expanded(
             child: Text(
               value,

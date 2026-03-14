@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../constants/colors.dart';
 import '../../domain/entity/customer/customer.dart';
 import 'store/customer_store.dart';
@@ -6,11 +7,15 @@ import 'store/customer_store.dart';
 class CustomerAddEditScreen extends StatefulWidget {
   final CustomerStore store;
   final Customer? customer; // null = add mode
+  final bool showAppBar;
+  final VoidCallback? onBack;
 
   const CustomerAddEditScreen({
     super.key,
     required this.store,
     this.customer,
+    this.showAppBar = true,
+    this.onBack,
   });
 
   @override
@@ -21,13 +26,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameCtrl;
-  late final TextEditingController _emailCtrl;
-  late final TextEditingController _phoneCtrl;
-  late final TextEditingController _zaloCtrl;
-  late final TextEditingController _messengerCtrl;
-  final TextEditingController _tagCtrl = TextEditingController();
 
-  String? _emailError;
+  // Contact info stored as map: {"type": "email", "value": "..."}
+  final List<Map<String, String>> _contactInfo = [];
+
   List<String> _tags = [];
   String? _selectedSegment;
 
@@ -35,9 +37,9 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
 
   static const List<String> _segments = [
     'VIP',
-    'Th\u01b0\u1eddng xuy\u00ean',
-    'M\u1edbi',
-    'Ti\u1ec1m n\u0103ng',
+    'Thường xuyên',
+    'Mới',
+    'Tiềm năng',
   ];
 
   @override
@@ -45,10 +47,23 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
     super.initState();
     final c = widget.customer;
     _nameCtrl = TextEditingController(text: c?.fullName ?? '');
-    _emailCtrl = TextEditingController(text: c?.email ?? '');
-    _phoneCtrl = TextEditingController(text: c?.phoneNumber ?? '');
-    _zaloCtrl = TextEditingController(text: c?.zalo ?? '');
-    _messengerCtrl = TextEditingController(text: c?.messenger ?? '');
+
+    // Initialize contact info from existing customer
+    if (c != null) {
+      if (c.email?.isNotEmpty == true) {
+        _contactInfo.add({'type': 'Email', 'value': c.email!});
+      }
+      if (c.phoneNumber?.isNotEmpty == true) {
+        _contactInfo.add({'type': 'Phone', 'value': c.phoneNumber!});
+      }
+      if (c.zalo?.isNotEmpty == true) {
+        _contactInfo.add({'type': 'Zalo', 'value': c.zalo!});
+      }
+      if (c.messenger?.isNotEmpty == true) {
+        _contactInfo.add({'type': 'Messenger', 'value': c.messenger!});
+      }
+    }
+
     _tags = List.from(c?.tags ?? []);
     _selectedSegment = c?.segment;
   }
@@ -56,24 +71,59 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    _zaloCtrl.dispose();
-    _messengerCtrl.dispose();
-    _tagCtrl.dispose();
     super.dispose();
   }
 
-  // ─── Email validation ─────────────────────────────────────────────────────────
-  String? _validateEmail(String value) {
-    if (value.isEmpty) return null;
-    final re = RegExp(r'^[\w\-.+]+@[a-zA-Z\d\-.]+\.[a-zA-Z]{2,}$');
-    return re.hasMatch(value) ? null : 'Email kh\u00f4ng h\u1ee3p l\u1ec7';
-  }
-
-  // ─── Build ────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    if (!widget.showAppBar) {
+      // Desktop view: no appbar, show as content panel
+      return Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBackButton(),
+              const SizedBox(height: 12),
+              _buildSection(
+                title: 'Thông tin cơ bản',
+                children: [
+                  _buildTextField(
+                    label: 'Họ tên',
+                    controller: _nameCtrl,
+                    hint: 'Nguyễn Văn A',
+                    required: true,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Vui lòng nhập họ tên'
+                        : null,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildSection(
+                title: 'Thông tin liên lạc',
+                children: [_buildContactInfoSection()],
+              ),
+              const SizedBox(height: 12),
+              _buildSection(
+                title: 'Phân loại',
+                children: [
+                  _buildSegmentDropdown(),
+                  const SizedBox(height: 12),
+                  _buildTagsInput(),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildSaveButton(),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: _buildAppBar(),
@@ -83,43 +133,27 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           padding: const EdgeInsets.all(12),
           children: [
             _buildSection(
-              title: 'Th\u00f4ng tin c\u01a1 b\u1ea3n',
+              title: 'Thông tin cơ bản',
               children: [
                 _buildTextField(
-                  label: 'H\u1ecd t\u00ean',
+                  label: 'Họ tên',
                   controller: _nameCtrl,
-                  hint: 'Nguy\u1ec5n V\u0103n A',
+                  hint: 'Nguyễn Văn A',
                   required: true,
                   validator: (v) => (v == null || v.trim().isEmpty)
-                      ? 'Vui l\u00f2ng nh\u1eadp h\u1ecd t\u00ean'
+                      ? 'Vui lòng nhập họ tên'
                       : null,
-                ),
-                const SizedBox(height: 12),
-                _buildEmailField(),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  label: 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i',
-                  controller: _phoneCtrl,
-                  hint: '0xxxxxxxxx',
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  label: 'Zalo',
-                  controller: _zaloCtrl,
-                  hint: 'S\u1ed1/t\u00ean Zalo',
-                ),
-                const SizedBox(height: 12),
-                _buildTextField(
-                  label: 'Messenger',
-                  controller: _messengerCtrl,
-                  hint: 'Link/t\u00ean Messenger',
                 ),
               ],
             ),
             const SizedBox(height: 12),
             _buildSection(
-              title: 'Ph\u00e2n lo\u1ea1i',
+              title: 'Thông tin liên lạc',
+              children: [_buildContactInfoSection()],
+            ),
+            const SizedBox(height: 12),
+            _buildSection(
+              title: 'Phân loại',
               children: [
                 _buildSegmentDropdown(),
                 const SizedBox(height: 12),
@@ -135,6 +169,31 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
     );
   }
 
+  Widget _buildBackButton() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: widget.onBack != null
+            ? () => widget.onBack!()
+            : () => Navigator.pop(context),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.arrow_back_ios,
+              size: 16,
+              color: AppColors.textPrimary,
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Quay lại',
+              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -143,16 +202,11 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         onTap: () => Navigator.pop(context),
         child: const Row(
           children: [
-            SizedBox(width: 8),
+            SizedBox(width: 25),
             Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textPrimary),
-            Text(
-              'Quay l\u1ea1i',
-              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
-            ),
           ],
         ),
       ),
-      leadingWidth: 110,
       title: Text(
         _isEditMode
             ? 'Ch\u1ec9nh s\u1eeda kh\u00e1ch h\u00e0ng'
@@ -166,8 +220,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
     );
   }
 
-  Widget _buildSection(
-      {required String title, required List<Widget> children}) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -175,9 +231,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.07),
-              blurRadius: 6,
-              offset: const Offset(0, 2)),
+            color: Colors.grey.withOpacity(0.07),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -214,12 +271,16 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
             Text(
               label,
               style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+              ),
             ),
             if (required)
-              const Text(' *', style: TextStyle(color: Colors.red, fontSize: 13)),
+              const Text(
+                ' *',
+                style: TextStyle(color: Colors.red, fontSize: 13),
+              ),
           ],
         ),
         const SizedBox(height: 6),
@@ -233,46 +294,96 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
     );
   }
 
-  // Email field with inline validation icon
-  Widget _buildEmailField() {
+  // ─── Contact info section ────────────────────────────────────────────────────
+  Widget _buildContactInfoSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Email',
-          style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Đã thêm: ${_contactInfo.length} thông tin',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            ElevatedButton.icon(
+              onPressed: _showAddContactModal,
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Thêm', style: TextStyle(fontSize: 12)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _emailCtrl,
-          keyboardType: TextInputType.emailAddress,
-          onChanged: (v) => setState(() => _emailError = _validateEmail(v)),
-          decoration: _inputDecoration('example@email.com').copyWith(
-            errorText: _emailError,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: _emailError != null ? Colors.red : Colors.grey.shade200,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: _emailError != null ? Colors.red : AppColors.primaryBlue,
-              ),
-            ),
-            suffixIcon: _emailCtrl.text.isNotEmpty
-                ? Icon(
-                    _emailError == null ? Icons.check_circle : Icons.error,
-                    color: _emailError == null ? Colors.green : Colors.red,
-                    size: 18,
-                  )
-                : null,
+        const SizedBox(height: 12),
+        if (_contactInfo.isEmpty)
+          Text(
+            'Chưa có thông tin liên lạc',
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          )
+        else
+          Column(
+            children: _contactInfo.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final info = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundGrey,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              info['type']!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              info['value']!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 16),
+                        onPressed: () => setState(() {
+                          _contactInfo.removeAt(idx);
+                        }),
+                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(4),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
           ),
-        ),
       ],
     );
   }
@@ -282,11 +393,12 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Ph\u00e2n kh\u00fac',
+          'Phân khúc',
           style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
         ),
         const SizedBox(height: 6),
         Container(
@@ -299,11 +411,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
             child: DropdownButton<String>(
               value: _selectedSegment,
               hint: Padding(
-                padding: const EdgeInsets.only(left: 12),
+                padding: const EdgeInsets.only(left: 20),
                 child: Text(
-                  'Ch\u1ecdn ph\u00e2n kh\u00fac',
-                  style:
-                      TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  'Chọn phân khúc',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
                 ),
               ),
               padding: const EdgeInsets.only(left: 12, right: 8),
@@ -312,8 +423,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
               items: [
                 const DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Kh\u00f4ng ch\u1ecdn',
-                      style: TextStyle(fontSize: 13)),
+                  child: Text('Không chọn', style: TextStyle(fontSize: 13)),
                 ),
                 ..._segments.map(
                   (s) => DropdownMenuItem<String>(
@@ -331,69 +441,105 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
   }
 
   Widget _buildTagsInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Nh\u00e3n',
-          style: TextStyle(
+    return StatefulBuilder(
+      builder: (context, setTagState) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Nhãn',
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary),
-        ),
-        const SizedBox(height: 6),
-        if (_tags.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: _tags
-                  .map(
-                    (tag) => Chip(
-                      label:
-                          Text(tag, style: const TextStyle(fontSize: 11)),
-                      deleteIcon: const Icon(Icons.close, size: 14),
-                      onDeleted: () => setState(() => _tags.remove(tag)),
-                      backgroundColor:
-                          AppColors.primaryBlue.withOpacity(0.1),
-                      labelStyle:
-                          const TextStyle(color: AppColors.primaryBlue),
-                      side: const BorderSide(color: Colors.transparent),
-                      materialTapTargetSize:
-                          MaterialTapTargetSize.shrinkWrap,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 4),
-                    ),
-                  )
-                  .toList(),
+              color: AppColors.textPrimary,
             ),
           ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _tagCtrl,
-                decoration: _inputDecoration('Th\u00eam nh\u00e3n...'),
+          const SizedBox(height: 6),
+          if (_tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: _tags
+                    .map(
+                      (tag) => Chip(
+                        label: Text(tag, style: const TextStyle(fontSize: 11)),
+                        deleteIcon: const Icon(Icons.close, size: 14),
+                        onDeleted: () => setTagState(() => _tags.remove(tag)),
+                        backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+                        labelStyle: const TextStyle(
+                          color: AppColors.primaryBlue,
+                        ),
+                        side: const BorderSide(color: Colors.transparent),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: AppColors.primaryBlue),
-              onPressed: () {
-                final tag = _tagCtrl.text.trim();
-                if (tag.isNotEmpty && !_tags.contains(tag)) {
-                  setState(() {
-                    _tags.add(tag);
-                    _tagCtrl.clear();
-                  });
-                }
-              },
-            ),
-          ],
-        ),
-      ],
+          Observer(
+            builder: (_) {
+              final availableTags = widget.store.allAvailableTags
+                  .where((t) => !_tags.contains(t))
+                  .toList();
+              return Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundGrey,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          hint: Padding(
+                            padding: const EdgeInsets.only(left: 12),
+                            child: Text(
+                              'Thêm nhãn',
+                              style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          padding: const EdgeInsets.only(left: 12, right: 8),
+                          isExpanded: true,
+                          borderRadius: BorderRadius.circular(8),
+                          items: availableTags
+                              .map(
+                                (tag) => DropdownMenuItem<String>(
+                                  value: tag,
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (selectedTag) {
+                            if (selectedTag != null &&
+                                !_tags.contains(selectedTag)) {
+                              setTagState(() => _tags.add(selectedTag));
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -404,14 +550,14 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(48),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 0,
       ),
       child: Text(
-        _isEditMode ? 'L\u01b0u thay \u0111\u1ed5i' : 'Th\u00eam kh\u00e1ch h\u00e0ng',
-        style:
-            const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        _isEditMode
+            ? 'L\u01b0u thay \u0111\u1ed5i'
+            : 'Th\u00eam kh\u00e1ch h\u00e0ng',
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -422,8 +568,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
       filled: true,
       fillColor: AppColors.backgroundGrey,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade200),
@@ -445,19 +590,45 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
-    if (_emailError != null) return;
+
+    // Validate at least 1 contact info
+    if (_contactInfo.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng thêm tối thiểu 1 thông tin liên lạc'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Extract contact info from list
+    String? email, phoneNumber, zalo, messenger;
+    for (final info in _contactInfo) {
+      switch (info['type']) {
+        case 'Email':
+          email = info['value'];
+          break;
+        case 'Phone':
+          phoneNumber = info['value'];
+          break;
+        case 'Zalo':
+          zalo = info['value'];
+          break;
+        case 'Messenger':
+          messenger = info['value'];
+          break;
+      }
+    }
 
     final now = DateTime.now().millisecondsSinceEpoch.toString();
     final customer = Customer(
       id: widget.customer?.id ?? now,
       fullName: _nameCtrl.text.trim(),
-      email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
-      phoneNumber:
-          _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
-      zalo: _zaloCtrl.text.trim().isEmpty ? null : _zaloCtrl.text.trim(),
-      messenger: _messengerCtrl.text.trim().isEmpty
-          ? null
-          : _messengerCtrl.text.trim(),
+      email: email,
+      phoneNumber: phoneNumber,
+      zalo: zalo,
+      messenger: messenger,
       tags: _tags,
       segment: _selectedSegment,
       isBlocked: widget.customer?.isBlocked ?? false,
@@ -466,21 +637,208 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
 
     if (_isEditMode) {
       widget.store.updateCustomer(customer);
-      Navigator.pop(context, customer);
     } else {
       widget.store.addCustomer(customer);
+    }
+
+    // Desktop: use callback to go back
+    if (widget.onBack != null) {
+      widget.onBack!();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isEditMode ? 'Đã cập nhật khách hàng' : 'Đã thêm khách hàng',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return;
+    }
+
+    // Mobile: pop with result
+    if (_isEditMode) {
+      Navigator.pop(context, customer);
+    } else {
       Navigator.pop(context);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _isEditMode
-              ? '\u0110\u00e3 c\u1eadp nh\u1eadt kh\u00e1ch h\u00e0ng'
-              : '\u0110\u00e3 th\u00eam kh\u00e1ch h\u00e0ng',
+          _isEditMode ? 'Đã cập nhật khách hàng' : 'Đã thêm khách hàng',
         ),
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  void _showAddContactModal() {
+    final ctrlInput = TextEditingController();
+    String contactType = 'Email';
+    String? emailError;
+
+    showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Thêm liên hệ'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundGrey,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: contactType,
+                    padding: const EdgeInsets.only(left: 12, right: 8),
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(8),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Email',
+                        child: Row(
+                          children: [
+                            Icon(Icons.email_outlined, size: 16),
+                            SizedBox(width: 8),
+                            Text('Email', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Phone',
+                        child: Row(
+                          children: [
+                            Icon(Icons.phone_outlined, size: 16),
+                            SizedBox(width: 8),
+                            Text('Điện thoại', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Zalo',
+                        child: Row(
+                          children: [
+                            Icon(Icons.chat_outlined, size: 16),
+                            SizedBox(width: 8),
+                            Text('Zalo', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Messenger',
+                        child: Row(
+                          children: [
+                            Icon(Icons.chat_bubble_outline, size: 16),
+                            SizedBox(width: 8),
+                            Text('Messenger', style: TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) => setDialogState(() {
+                      contactType = value ?? 'Email';
+                      ctrlInput.clear();
+                      emailError = null;
+                    }),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              TextField(
+                controller: ctrlInput,
+                onChanged: (v) {
+                  if (contactType == 'Email') {
+                    setDialogState(() => emailError = _validateEmail(v));
+                  }
+                },
+                keyboardType: contactType == 'Email'
+                    ? TextInputType.emailAddress
+                    : contactType == 'Phone'
+                    ? TextInputType.phone
+                    : TextInputType.text,
+                decoration: InputDecoration(
+                  hintText: contactType == 'Email'
+                      ? 'example@email.com'
+                      : contactType == 'Phone'
+                      ? '0xxxxxxxxx'
+                      : contactType == 'Zalo'
+                      ? 'Số/tên Zalo'
+                      : 'Tên Messenger',
+                  filled: true,
+                  fillColor: AppColors.backgroundGrey,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryBlue),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  errorText: emailError,
+                  suffixIcon:
+                      contactType == 'Email' && ctrlInput.text.isNotEmpty
+                      ? Icon(
+                          emailError == null ? Icons.check_circle : Icons.error,
+                          color: emailError == null ? Colors.green : Colors.red,
+                          size: 18,
+                        )
+                      : null,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = ctrlInput.text.trim();
+                if (value.isEmpty) return;
+                if (contactType == 'Email' && emailError != null) return;
+
+                setState(() {
+                  _contactInfo.add({'type': contactType, 'value': value});
+                });
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+              ),
+              child: const Text(
+                'Xác nhận',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _validateEmail(String value) {
+    if (value.isEmpty) return null;
+    final re = RegExp(r'^[\w\-.+]+@[a-zA-Z\d\-.]+\.[a-zA-Z]{2,}$');
+    return re.hasMatch(value) ? null : 'Email không hợp lệ';
   }
 }

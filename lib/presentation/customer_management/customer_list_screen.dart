@@ -12,8 +12,19 @@ import 'widgets/customer_filter_sheet.dart';
 
 class CustomerListScreen extends StatefulWidget {
   final VoidCallback? onMenuTap;
+  final Function(Customer)? onCustomerSelected;
+  final VoidCallback? onAddCustomer;
+  final Function(Customer)? onEditCustomer;
+  final VoidCallback? onMergeCustomer;
 
-  const CustomerListScreen({super.key, this.onMenuTap});
+  const CustomerListScreen({
+    super.key,
+    this.onMenuTap,
+    this.onCustomerSelected,
+    this.onAddCustomer,
+    this.onEditCustomer,
+    this.onMergeCustomer,
+  });
 
   @override
   State<CustomerListScreen> createState() => _CustomerListScreenState();
@@ -55,10 +66,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildCustomerTab(),
-                  _buildBlockedTab(),
-                ],
+                children: [_buildCustomerTab(), _buildBlockedTab()],
               ),
             ),
           ],
@@ -79,8 +87,11 @@ class _CustomerListScreenState extends State<CustomerListScreen>
               if (widget.onMenuTap != null) ...[
                 GestureDetector(
                   onTap: widget.onMenuTap,
-                  child: const Icon(Icons.menu,
-                      color: AppColors.textPrimary, size: 22),
+                  child: const Icon(
+                    Icons.menu,
+                    color: AppColors.textPrimary,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 10),
               ],
@@ -141,13 +152,20 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                   decoration: InputDecoration(
                     hintText: 'T\u00ecm kh\u00e1ch h\u00e0ng',
                     hintStyle: TextStyle(
-                        color: Colors.grey.shade400, fontSize: 13),
-                    prefixIcon: Icon(Icons.search,
-                        color: Colors.grey.shade400, size: 18),
+                      color: Colors.grey.shade400,
+                      fontSize: 13,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.grey.shade400,
+                      size: 18,
+                    ),
                     filled: true,
                     fillColor: AppColors.backgroundGrey,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(color: Colors.grey.shade200),
@@ -158,8 +176,9 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          const BorderSide(color: AppColors.primaryBlue),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryBlue,
+                      ),
                     ),
                   ),
                 ),
@@ -173,7 +192,9 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: hasFilter
@@ -187,11 +208,13 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.filter_list,
-                              size: 18,
-                              color: hasFilter
-                                  ? AppColors.primaryBlue
-                                  : Colors.grey.shade600),
+                          Icon(
+                            Icons.filter_list,
+                            size: 18,
+                            color: hasFilter
+                                ? AppColors.primaryBlue
+                                : Colors.grey.shade600,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Filter',
@@ -273,12 +296,17 @@ class _CustomerListScreenState extends State<CustomerListScreen>
           children: [
             Icon(icon, size: 15, color: Colors.grey.shade700),
             const SizedBox(width: 4),
-            Text(label,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
             if (hasDropdown) ...[
               const SizedBox(width: 2),
-              Icon(Icons.keyboard_arrow_down,
-                  size: 14, color: Colors.grey.shade600),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 14,
+                color: Colors.grey.shade600,
+              ),
             ],
           ],
         ),
@@ -293,8 +321,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
         controller: _tabController,
         labelColor: AppColors.primaryBlue,
         unselectedLabelColor: Colors.grey.shade600,
-        labelStyle:
-            const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 13),
         indicatorColor: AppColors.primaryBlue,
         indicatorWeight: 2,
@@ -414,19 +441,22 @@ class _CustomerListScreenState extends State<CustomerListScreen>
             ),
             const SizedBox(width: 8),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                 children: [
-                  Text('10',
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.grey.shade700)),
-                  Icon(Icons.keyboard_arrow_down,
-                      size: 14, color: Colors.grey.shade600),
+                  Text(
+                    '10',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ],
               ),
             ),
@@ -434,9 +464,10 @@ class _CustomerListScreenState extends State<CustomerListScreen>
             Text(
               '1',
               style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w600),
+                fontSize: 12,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -445,20 +476,32 @@ class _CustomerListScreenState extends State<CustomerListScreen>
   }
 
   void _navigateToDetail(Customer customer) {
+    // Desktop: use callback to show detail panel
+    if (widget.onCustomerSelected != null) {
+      widget.onCustomerSelected!(customer);
+      return;
+    }
+
+    // Mobile: push detail screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            CustomerDetailScreen(customer: customer, store: _store),
+        builder: (_) => CustomerDetailScreen(customer: customer, store: _store),
       ),
     );
   }
 
   void _navigateToAdd() {
+    // Desktop: use callback to show add form
+    if (widget.onAddCustomer != null) {
+      widget.onAddCustomer!();
+      return;
+    }
+
+    // Mobile: push add screen
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (_) => CustomerAddEditScreen(store: _store)),
+      MaterialPageRoute(builder: (_) => CustomerAddEditScreen(store: _store)),
     );
   }
 
@@ -495,22 +538,29 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                 margin: const EdgeInsets.only(bottom: 8),
               ),
               ListTile(
-                leading: const Icon(Icons.merge_type,
-                    color: AppColors.primaryBlue),
-                title: const Text('H\u1ee3p nh\u1ea5t kh\u00e1ch h\u00e0ng'),
+                leading: const Icon(
+                  Icons.merge_type,
+                  color: AppColors.primaryBlue,
+                ),
+                title: const Text('Hợp nhất khách hàng'),
                 onTap: () {
                   Navigator.pop(context);
+                  // Desktop: use callback
+                  if (widget.onMergeCustomer != null) {
+                    widget.onMergeCustomer!();
+                    return;
+                  }
+                  // Mobile: push merge screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) =>
-                            CustomerMergeScreen(store: _store)),
+                      builder: (_) => CustomerMergeScreen(store: _store),
+                    ),
                   );
                 },
               ),
               ListTile(
-                leading:
-                    Icon(Icons.delete_outline, color: Colors.red.shade400),
+                leading: Icon(Icons.delete_outline, color: Colors.red.shade400),
                 title: Text(
                   'X\u00f3a nhi\u1ec1u',
                   style: TextStyle(color: Colors.red.shade400),
@@ -525,6 +575,8 @@ class _CustomerListScreenState extends State<CustomerListScreen>
   }
 
   void _showLabelsSheet() {
+    final tagController = TextEditingController();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -533,9 +585,14 @@ class _CustomerListScreenState extends State<CustomerListScreen>
       ),
       builder: (_) => DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.5,
+        initialChildSize: 0.6,
         builder: (_, scrollCtrl) => Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -550,12 +607,102 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Danh s\u00e1ch nh\u00e3n',
-                style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Danh s\u00e1ch nh\u00e3n',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.close, color: Colors.grey.shade600),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
+              // Input section for adding new tag
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: tagController,
+                      decoration: InputDecoration(
+                        hintText: 'Th\u00eam nh\u00e3n m\u1edbi...',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 13,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.backgroundGrey,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade200),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade200),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: AppColors.primaryBlue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        final newTag = tagController.text.trim();
+                        if (newTag.isNotEmpty &&
+                            !_store.allAvailableTags.contains(newTag)) {
+                          _store.addTag(newTag);
+                          tagController.clear();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '\u0110\u00e3 th\u00eam nh\u00e3n "$newTag"',
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else if (_store.allAvailableTags.contains(newTag)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Nh\u00e3n n\u00e0y \u0111\u00e3 t\u1ed3n t\u1ea1i',
+                              ),
+                              backgroundColor: Colors.orange,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Tags list
               Expanded(
                 child: Observer(
                   builder: (_) {
@@ -576,14 +723,18 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                         children: tags
                             .map(
                               (tag) => Chip(
-                                label: Text(tag,
-                                    style: const TextStyle(fontSize: 12)),
-                                backgroundColor:
-                                    AppColors.primaryBlue.withOpacity(0.1),
+                                label: Text(
+                                  tag,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                backgroundColor: AppColors.primaryBlue
+                                    .withOpacity(0.1),
                                 labelStyle: const TextStyle(
-                                    color: AppColors.primaryBlue),
+                                  color: AppColors.primaryBlue,
+                                ),
                                 side: const BorderSide(
-                                    color: Colors.transparent),
+                                  color: Colors.transparent,
+                                ),
                               ),
                             )
                             .toList(),
@@ -592,6 +743,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                   },
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

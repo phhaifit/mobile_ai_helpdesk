@@ -8,11 +8,17 @@ import 'customer_add_edit_screen.dart';
 class CustomerDetailScreen extends StatefulWidget {
   final Customer customer;
   final CustomerStore store;
+  final bool showAppBar;
+  final VoidCallback? onBack;
+  final VoidCallback? onEdit;
 
   const CustomerDetailScreen({
     super.key,
     required this.customer,
     required this.store,
+    this.showAppBar = true,
+    this.onBack,
+    this.onEdit,
   });
 
   @override
@@ -38,6 +44,30 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   // ─── Build ───────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    if (!widget.showAppBar) {
+      // Desktop view: no appbar, show as content panel
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBackButton(),
+            const SizedBox(height: 12),
+            _buildCustomerCard(),
+            const SizedBox(height: 12),
+            _buildTagsSection(),
+            const SizedBox(height: 12),
+            _buildContactInfoSection(),
+            if (_customer.ticket != null) ...[
+              const SizedBox(height: 12),
+              _buildSupportTickets(),
+            ],
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: _buildAppBar(),
@@ -62,6 +92,31 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     );
   }
 
+  Widget _buildBackButton() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: widget.onBack != null
+            ? () => widget.onBack!()
+            : () => Navigator.pop(context),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.arrow_back_ios,
+              size: 16,
+              color: AppColors.textPrimary,
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Quay lại',
+              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -70,12 +125,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         onTap: () => Navigator.pop(context),
         child: const Row(
           children: [
-            SizedBox(width: 8),
+            SizedBox(width: 25),
             Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textPrimary),
-            Text(
-              'Quay l\u1ea1i',
-              style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
-            ),
           ],
         ),
       ),
@@ -84,16 +135,12 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Chi ti\u1ebft kh\u00e1ch h\u00e0ng',
+            'Chi tiết khách hàng',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),
-          ),
-          Text(
-            'Xem th\u00f4ng tin chi ti\u1ebft v\u00e0 c\u00e1c phi\u1ebfu h\u1ed7 tr\u1ee3 c\u1ee7a kh\u00e1ch',
-            style: TextStyle(fontSize: 10, color: Colors.grey),
           ),
         ],
       ),
@@ -110,23 +157,23 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    _customer.fullName,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
+                Text(
+                  _customer.fullName,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined,
-                      size: 18, color: Colors.grey),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: Colors.grey,
+                  ),
                   onPressed: _editCustomer,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
@@ -135,15 +182,14 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           ElevatedButton.icon(
             onPressed: _createTicket,
             icon: const Icon(Icons.add, size: 14),
-            label: const Text('T\u1ea1o phi\u1ebfu',
-                style: TextStyle(fontSize: 12)),
+            label: const Text('Tạo phiếu', style: TextStyle(fontSize: 12)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryBlue,
               foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
               elevation: 0,
             ),
           ),
@@ -162,7 +208,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Nh\u00e3n',
+                'Nhãn',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -172,14 +218,16 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               GestureDetector(
                 onTap: _showAddTagSheet,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'Th\u00eam nh\u00e3n',
+                    'Thêm nhãn',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                 ),
@@ -189,7 +237,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           const SizedBox(height: 10),
           _customer.tags.isEmpty
               ? Text(
-                  'Ch\u01b0a c\u00f3 nh\u00e3n n\u00e0o',
+                  'Chưa có nhãn nào',
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                 )
               : Wrap(
@@ -198,21 +246,22 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   children: _customer.tags
                       .map(
                         (tag) => Chip(
-                          label: Text(tag,
-                              style: const TextStyle(fontSize: 11)),
-                          deleteIcon:
-                              const Icon(Icons.close, size: 14),
+                          label: Text(
+                            tag,
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          deleteIcon: const Icon(Icons.close, size: 14),
                           onDeleted: () => _removeTag(tag),
-                          backgroundColor:
-                              AppColors.primaryBlue.withOpacity(0.1),
+                          backgroundColor: AppColors.primaryBlue.withOpacity(
+                            0.1,
+                          ),
                           labelStyle: const TextStyle(
-                              color: AppColors.primaryBlue),
-                          side: const BorderSide(
-                              color: Colors.transparent),
+                            color: AppColors.primaryBlue,
+                          ),
+                          side: const BorderSide(color: Colors.transparent),
                           materialTapTargetSize:
                               MaterialTapTargetSize.shrinkWrap,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
                       )
                       .toList(),
@@ -234,7 +283,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Th\u00f4ng tin li\u00ean l\u1ea1c',
+                'Thông tin liên lạc',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -270,15 +319,14 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             _buildContactRow(
               icon: Icons.phone_outlined,
               iconColor: Colors.green.shade500,
-              label: '\u0110i\u1ec7n tho\u1ea1i',
+              label: 'Điện thoại',
               value: _customer.phoneNumber!,
-              onEdit: () =>
-                  _editContactField('phone', _customer.phoneNumber!),
+              onEdit: () => _editContactField('phone', _customer.phoneNumber!),
               onDelete: () => _deleteContactField('phone'),
             ),
           if (!hasEmail && !hasPhone)
             Text(
-              'Ch\u01b0a c\u00f3 th\u00f4ng tin li\u00ean l\u1ea1c',
+              'Chưa có thông tin liên lạc',
               style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
         ],
@@ -312,9 +360,10 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: TextStyle(
-                        fontSize: 11, color: Colors.grey.shade500)),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
                 Text(
                   value,
                   style: const TextStyle(
@@ -351,7 +400,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Phi\u1ebfu h\u1ed7 tr\u1ee3',
+            'Phiếu hỗ trợ',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -384,8 +433,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   color: AppColors.onlineGreen.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.chat_bubble_outline,
-                    size: 14, color: AppColors.onlineGreen),
+                child: const Icon(
+                  Icons.chat_bubble_outline,
+                  size: 14,
+                  color: AppColors.onlineGreen,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -402,7 +454,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'T\u1ea1o ng\u00e0y: ${_formatDate(ticket.createdAt)}',
+            'Tạo ngày: ${_formatDate(ticket.createdAt)}',
             style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 8),
@@ -411,8 +463,9 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               _badge(_statusLabel(ticket.status), _statusColor(ticket.status)),
               const SizedBox(width: 8),
               _badge(
-                  _priorityLabel(ticket.priority),
-                  _priorityColor(ticket.priority)),
+                _priorityLabel(ticket.priority),
+                _priorityColor(ticket.priority),
+              ),
             ],
           ),
         ],
@@ -428,9 +481,14 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 11, color: color, fontWeight: FontWeight.w500)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
@@ -444,9 +502,10 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.07),
-              blurRadius: 6,
-              offset: const Offset(0, 2)),
+            color: Colors.grey.withOpacity(0.07),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: child,
@@ -481,15 +540,15 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   String _statusLabel(TicketStatus s) {
     switch (s) {
       case TicketStatus.pending:
-        return 'Ch\u1edd x\u1eed l\u00fd';
+        return 'Chờ xử lý';
       case TicketStatus.inProgress:
-        return '\u0110ang h\u1ed7 tr\u1ee3';
+        return 'Đang hỗ trợ';
       case TicketStatus.resolved:
-        return '\u0110\u00e3 gi\u1ea3i quy\u1ebft';
+        return 'Đã giải quyết';
       case TicketStatus.waitingForInfo:
-        return 'Ch\u1edd th\u00f4ng tin';
+        return 'Chờ thông tin';
       case TicketStatus.aiProcessing:
-        return 'AI x\u1eed l\u00fd';
+        return 'AI xử lý';
     }
   }
 
@@ -511,9 +570,9 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   String _priorityLabel(TicketPriority p) {
     switch (p) {
       case TicketPriority.low:
-        return 'Th\u1ea5p';
+        return 'Thấp';
       case TicketPriority.medium:
-        return 'Trung b\u00ecnh';
+        return 'Trung bình';
       case TicketPriority.high:
         return 'Cao';
     }
@@ -532,13 +591,18 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
   // ─── Actions ──────────────────────────────────────────────────────────────────
   void _editCustomer() {
+    // Desktop: use callback
+    if (widget.onEdit != null) {
+      widget.onEdit!();
+      return;
+    }
+
+    // Mobile: push edit screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CustomerAddEditScreen(
-          store: widget.store,
-          customer: _customer,
-        ),
+        builder: (_) =>
+            CustomerAddEditScreen(store: widget.store, customer: _customer),
       ),
     ).then((updated) {
       if (updated is Customer) setState(() => _customer = updated);
@@ -547,8 +611,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
   void _createTicket() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('T\u00ednh n\u0103ng t\u1ea1o phi\u1ebfu s\u1eafp ra m\u1eaft')),
+      const SnackBar(content: Text('Tính năng tạo phiếu sắp ra mắt')),
     );
   }
 
@@ -558,7 +621,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -572,9 +636,10 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           children: [
             _dragHandle(),
             const SizedBox(height: 16),
-            const Text('Th\u00eam nh\u00e3n',
-                style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text(
+              'Thêm nhãn',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 12),
             // Existing tags available
             Wrap(
@@ -584,8 +649,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   .where((t) => !_customer.tags.contains(t))
                   .map(
                     (tag) => ActionChip(
-                      label: Text(tag,
-                          style: const TextStyle(fontSize: 12)),
+                      label: Text(tag, style: const TextStyle(fontSize: 12)),
                       onPressed: () {
                         _addTag(tag);
                         Navigator.pop(context);
@@ -599,12 +663,15 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             TextField(
               controller: ctrl,
               decoration: InputDecoration(
-                hintText: 'T\u1ea1o nh\u00e3n m\u1edbi...',
+                hintText: 'Tạo nhãn mới...',
                 hintStyle: TextStyle(color: Colors.grey.shade400),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -620,10 +687,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('Th\u00eam',
-                    style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Thêm',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -640,8 +710,9 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   }
 
   void _removeTag(String tag) {
-    final updated = _customer
-        .copyWith(tags: _customer.tags.where((t) => t != tag).toList());
+    final updated = _customer.copyWith(
+      tags: _customer.tags.where((t) => t != tag).toList(),
+    );
     setState(() => _customer = updated);
     widget.store.updateCustomer(updated);
   }
@@ -651,7 +722,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => _AddContactSheet(
         onAdd: (type, value) {
           final updated = type == 'email'
@@ -673,7 +745,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => StatefulBuilder(
         builder: (ctx, setModalState) => Padding(
           padding: EdgeInsets.only(
@@ -688,11 +761,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               _dragHandle(),
               const SizedBox(height: 16),
               Text(
-                isEmail
-                    ? 'Ch\u1ec9nh s\u1eeda Email'
-                    : 'Ch\u1ec9nh s\u1eeda S\u1ed1 \u0111i\u1ec7n tho\u1ea1i',
+                isEmail ? 'Chỉnh sửa Email' : 'Chỉnh sửa Số điện thoại',
                 style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -708,15 +781,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                 decoration: InputDecoration(
                   hintText: isEmail ? 'example@email.com' : '0xxxxxxxxx',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   errorText: errorText,
                   suffixIcon: isEmail && ctrl.text.isNotEmpty
                       ? Icon(
-                          errorText == null
-                              ? Icons.check_circle
-                              : Icons.error,
-                          color:
-                              errorText == null ? Colors.green : Colors.red,
+                          errorText == null ? Icons.check_circle : Icons.error,
+                          color: errorText == null ? Colors.green : Colors.red,
                           size: 18,
                         )
                       : null,
@@ -739,10 +810,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('L\u01b0u',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Lưu',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -757,14 +831,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(
-            'X\u00f3a ${field == 'email' ? 'Email' : 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i'}'),
-        content:
-            const Text('B\u1ea1n c\u00f3 ch\u1eafc mu\u1ed1n x\u00f3a th\u00f4ng tin n\u00e0y kh\u00f4ng?'),
+        title: Text('Xóa ${field == 'email' ? 'Email' : 'Số điện thoại'}'),
+        content: const Text('Bạn có chắc muốn xóa thông tin này không?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('H\u1ee7y')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
           TextButton(
             onPressed: () {
               final updated = field == 'email'
@@ -774,8 +847,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               widget.store.updateCustomer(updated);
               Navigator.pop(context);
             },
-            child:
-                Text('X\u00f3a', style: TextStyle(color: Colors.red.shade400)),
+            child: Text('Xóa', style: TextStyle(color: Colors.red.shade400)),
           ),
         ],
       ),
@@ -783,15 +855,15 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   }
 
   Widget _dragHandle() => Center(
-        child: Container(
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      );
+    child: Container(
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
 }
 
 // ─── Add contact bottom sheet ─────────────────────────────────────────────────
@@ -837,15 +909,15 @@ class _AddContactSheetState extends State<_AddContactSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Th\u00eam th\u00f4ng tin li\u00ean l\u1ea1c',
-              style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const Text(
+            'Thêm thông tin liên lạc',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 12),
           SegmentedButton<String>(
             segments: const [
               ButtonSegment(value: 'email', label: Text('Email')),
-              ButtonSegment(
-                  value: 'phone', label: Text('\u0110i\u1ec7n tho\u1ea1i')),
+              ButtonSegment(value: 'phone', label: Text('Điện thoại')),
             ],
             selected: {_type},
             onSelectionChanged: (v) => setState(() {
@@ -866,18 +938,15 @@ class _AddContactSheetState extends State<_AddContactSheet> {
               }
             },
             decoration: InputDecoration(
-              hintText:
-                  _type == 'email' ? 'example@email.com' : '0xxxxxxxxx',
+              hintText: _type == 'email' ? 'example@email.com' : '0xxxxxxxxx',
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
               errorText: _errorText,
               suffixIcon: _type == 'email' && _ctrl.text.isNotEmpty
                   ? Icon(
-                      _errorText == null
-                          ? Icons.check_circle
-                          : Icons.error,
-                      color:
-                          _errorText == null ? Colors.green : Colors.red,
+                      _errorText == null ? Icons.check_circle : Icons.error,
+                      color: _errorText == null ? Colors.green : Colors.red,
                       size: 18,
                     )
                   : null,
@@ -897,10 +966,10 @@ class _AddContactSheetState extends State<_AddContactSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: const Text('Th\u00eam',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text('Thêm', style: TextStyle(color: Colors.white)),
             ),
           ),
           const SizedBox(height: 16),

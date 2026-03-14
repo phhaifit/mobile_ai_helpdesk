@@ -23,16 +23,21 @@ abstract class _CustomerStore with Store {
   @observable
   ObservableList<String> selectedTagFilters = ObservableList<String>();
 
+  @observable
+  ObservableList<String> systemTags = ObservableList<String>();
+
   @computed
   List<Customer> get filteredCustomers {
     return customers.where((c) {
       if (c.isBlocked) return false;
       final q = searchQuery.toLowerCase();
-      final matchesSearch = q.isEmpty ||
+      final matchesSearch =
+          q.isEmpty ||
           c.fullName.toLowerCase().contains(q) ||
           (c.email?.toLowerCase().contains(q) ?? false) ||
           (c.phoneNumber?.contains(q) ?? false);
-      final matchesTags = selectedTagFilters.isEmpty ||
+      final matchesTags =
+          selectedTagFilters.isEmpty ||
           selectedTagFilters.any((t) => c.tags.contains(t));
       return matchesSearch && matchesTags;
     }).toList();
@@ -48,9 +53,12 @@ abstract class _CustomerStore with Store {
   @computed
   List<String> get allAvailableTags {
     final tags = <String>{};
+    // Add tags from customers
     for (final c in customers) {
       tags.addAll(c.tags);
     }
+    // Add system-wide tags
+    tags.addAll(systemTags);
     return tags.toList()..sort();
   }
 
@@ -114,12 +122,21 @@ abstract class _CustomerStore with Store {
 
   @action
   Future<void> mergeCustomers(String primaryId, String secondaryId) async {
-    final merged =
-        await _customerRepository.mergeCustomers(primaryId, secondaryId);
+    final merged = await _customerRepository.mergeCustomers(
+      primaryId,
+      secondaryId,
+    );
     if (merged != null) {
       customers.removeWhere((c) => c.id == secondaryId);
       final idx = customers.indexWhere((c) => c.id == primaryId);
       if (idx != -1) customers[idx] = merged;
+    }
+  }
+
+  @action
+  void addTag(String tag) {
+    if (!systemTags.contains(tag) && tag.trim().isNotEmpty) {
+      systemTags.add(tag.trim());
     }
   }
 }

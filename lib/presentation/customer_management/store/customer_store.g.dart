@@ -113,6 +113,24 @@ mixin _$CustomerStore on _CustomerStore, Store {
     });
   }
 
+  late final _$systemTagsAtom = Atom(
+    name: '_CustomerStore.systemTags',
+    context: context,
+  );
+
+  @override
+  ObservableList<String> get systemTags {
+    _$systemTagsAtom.reportRead();
+    return super.systemTags;
+  }
+
+  @override
+  set systemTags(ObservableList<String> value) {
+    _$systemTagsAtom.reportWrite(value, super.systemTags, () {
+      super.systemTags = value;
+    });
+  }
+
   late final _$fetchCustomersAsyncAction = AsyncAction(
     '_CustomerStore.fetchCustomers',
     context: context,
@@ -223,12 +241,25 @@ mixin _$CustomerStore on _CustomerStore, Store {
   }
 
   @override
+  void addTag(String tag) {
+    final _$actionInfo = _$_CustomerStoreActionController.startAction(
+      name: '_CustomerStore.addTag',
+    );
+    try {
+      return super.addTag(tag);
+    } finally {
+      _$_CustomerStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 customers: ${customers},
 isLoading: ${isLoading},
 searchQuery: ${searchQuery},
 selectedTagFilters: ${selectedTagFilters},
+systemTags: ${systemTags},
 filteredCustomers: ${filteredCustomers},
 blockedCustomers: ${blockedCustomers},
 totalCount: ${totalCount},
