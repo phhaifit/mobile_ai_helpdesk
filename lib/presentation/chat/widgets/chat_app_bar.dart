@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../domain/entity/chat/chat_room.dart';
-import '../chat_info_screen.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
@@ -9,6 +8,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isActive;
   final ChatRoom? room;
   final VoidCallback? onAIAnalysisTap;
+  final VoidCallback? onBack;
 
   const ChatAppBar({
     super.key,
@@ -17,6 +17,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.isActive = true,
     this.room,
     this.onAIAnalysisTap,
+    this.onBack,
   });
 
   @override
@@ -30,7 +31,9 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: AppColors.messengerBlue),
-        onPressed: () => Navigator.of(context).maybePop(),
+        onPressed: onBack != null
+            ? () => onBack!()
+            : () => Navigator.of(context).maybePop(),
       ),
       title: Row(
         children: [
@@ -72,20 +75,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             color: AppColors.messengerBlue,
           ),
           onPressed: () {},
-        ),
-        IconButton(
-          tooltip: "Info",
-          icon: const Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.messengerBlue,
-          ),
-          onPressed: () {
-            if (room != null) {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => ChatInfoScreen(room: room!)),
-              );
-            }
-          },
         ),
         IconButton(
           tooltip: "AI Analysis",

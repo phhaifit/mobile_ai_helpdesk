@@ -58,6 +58,7 @@ abstract class _ChatStore with Store {
   @action
   Future<void> getMessages() async {
     isLoading = true;
+    messageList.clear(); // Clear sebelum load pesan baru
     final messages = await _chatRepository.getMessages();
     messageList.addAll(messages);
     isLoading = false;
