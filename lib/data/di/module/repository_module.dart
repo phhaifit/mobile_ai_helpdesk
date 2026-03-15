@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:boilerplate/data/local/datasources/post/post_datasource.dart';
-import 'package:boilerplate/data/network/apis/posts/post_api.dart';
-import 'package:boilerplate/data/repository/post/post_repository_impl.dart';
-import 'package:boilerplate/data/repository/setting/setting_repository_impl.dart';
-import 'package:boilerplate/data/repository/user/user_repository_impl.dart';
-import 'package:boilerplate/data/sharedpref/shared_preference_helper.dart';
-import 'package:boilerplate/domain/repository/post/post_repository.dart';
-import 'package:boilerplate/domain/repository/setting/setting_repository.dart';
-import 'package:boilerplate/domain/repository/user/user_repository.dart';
+import '/data/local/datasources/post/post_datasource.dart';
+import '/data/network/apis/posts/post_api.dart';
+import '/data/repository/post/post_repository_impl.dart';
+import '/data/repository/setting/setting_repository_impl.dart';
+import '/data/repository/user/user_repository_impl.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
+import '/domain/repository/post/post_repository.dart';
+import '/domain/repository/setting/setting_repository.dart';
+import '/domain/repository/user/user_repository.dart';
 
 import '../../../di/service_locator.dart';
 

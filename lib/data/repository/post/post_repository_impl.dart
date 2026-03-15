@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:boilerplate/data/local/constants/db_constants.dart';
-import 'package:boilerplate/data/local/datasources/post/post_datasource.dart';
-import 'package:boilerplate/data/network/apis/posts/post_api.dart';
-import 'package:boilerplate/domain/entity/post/post.dart';
-import 'package:boilerplate/domain/entity/post/post_list.dart';
-import 'package:boilerplate/domain/repository/post/post_repository.dart';
+import '/data/local/constants/db_constants.dart';
+import '/data/local/datasources/post/post_datasource.dart';
+import '/data/network/apis/posts/post_api.dart';
+import '/domain/entity/post/post.dart';
+import '/domain/entity/post/post_list.dart';
+import '/domain/repository/post/post_repository.dart';
 import 'package:sembast/sembast.dart';
 
 class PostRepositoryImpl extends PostRepository {

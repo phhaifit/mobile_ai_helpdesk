@@ -1,8 +1,8 @@
 import 'package:another_flushbar/flushbar_helper.dart';
-import 'package:boilerplate/core/widgets/progress_indicator_widget.dart';
-import 'package:boilerplate/di/service_locator.dart';
-import 'package:boilerplate/presentation/post/store/post_store.dart';
-import 'package:boilerplate/utils/locale/app_localization.dart';
+import '/core/widgets/progress_indicator_widget.dart';
+import '/di/service_locator.dart';
+import '/presentation/post/store/post_store.dart';
+import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

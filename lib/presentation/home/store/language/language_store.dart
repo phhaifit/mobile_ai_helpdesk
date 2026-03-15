@@ -1,6 +1,6 @@
-import 'package:boilerplate/core/stores/error/error_store.dart';
-import 'package:boilerplate/domain/entity/language/Language.dart';
-import 'package:boilerplate/domain/repository/setting/setting_repository.dart';
+import '/core/stores/error/error_store.dart';
+import '/domain/entity/language/Language.dart';
+import '/domain/repository/setting/setting_repository.dart';
 import 'package:mobx/mobx.dart';
 
 part 'language_store.g.dart';
@@ -8,7 +8,6 @@ part 'language_store.g.dart';
 class LanguageStore = _LanguageStore with _$LanguageStore;
 
 abstract class _LanguageStore with Store {
-  static const String TAG = "LanguageStore";
 
   // repository instance
   final SettingRepository _repository;
@@ -75,6 +74,5 @@ abstract class _LanguageStore with Store {
   }
 
   // dispose:-------------------------------------------------------------------
-  @override
   dispose() {}
 }

@@ -1,5 +1,5 @@
-import 'package:boilerplate/presentation/home/home.dart';
-import 'package:boilerplate/presentation/login/login.dart';
+import '/presentation/home/home.dart';
+import '/presentation/login/login.dart';
 import 'package:flutter/material.dart';
 
 class Routes {

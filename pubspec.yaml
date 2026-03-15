@@ -1,4 +1,4 @@
-name: mobile_ai_helpdesk
+name: boilerplate
 description: A flutter boilerplate project created using MobX and Provider.
 
 # The following defines the version and build number for your application.
@@ -49,6 +49,7 @@ dev_dependencies:
   mobx_codegen: ^2.2.0
   build_runner: ^2.3.3
   analyzer: ^5.10.0
+  flutter_lints: ^3.0.0
 
 flutter_icons:
   image_path: "assets/icons/ic_launcher.png"

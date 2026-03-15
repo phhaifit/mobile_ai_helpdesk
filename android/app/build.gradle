@@ -22,6 +22,13 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Load signing credentials from android/key.properties (never committed — see key.properties.example)
+def keystorePropertiesFile = rootProject.file('key.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     compileSdkVersion 34
 
@@ -30,7 +37,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.iotecksolutions.todoapp"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 34
@@ -39,11 +45,30 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            // Credentials are injected via android/key.properties (local) or
+            // decoded from GitHub Secrets in CI — see .github/workflows/distribute.yml
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig keystoreProperties.containsKey('keyAlias')
+                ? signingConfigs.release
+                : signingConfigs.debug
+        }
+    }
+
+    // Support Android 15+ devices with 16KB memory page size (required from API 35+)
+    // Native .so libraries are stored uncompressed so the OS can map them directly
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }

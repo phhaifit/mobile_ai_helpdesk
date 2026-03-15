@@ -1,7 +1,10 @@
 # This branch is still under development
 
-
 # Boilerplate Project
+
+![CI](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/ci.yml/badge.svg)
+
+<!-- Replace YOUR_GITHUB_USERNAME and YOUR_REPO_NAME with actual values after pushing to GitHub -->
 
 A boilerplate project created in flutter using MobX and Provider. Boilerplate supports both web and mobile, clone the appropriate branches mentioned below:
 
