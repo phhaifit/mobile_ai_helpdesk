@@ -187,7 +187,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
         ),
       ),
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: AppColors.messengerBlue),
+        icon: const Icon(Icons.menu, color: Color(0xFF333333)),
         onPressed: widget.onMenuTap,
       ),
     );

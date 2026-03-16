@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../domain/entity/customer/customer.dart';
-import '../domain/entity/chat/chat_room.dart';
 import 'chat/support_inbox_screen.dart';
-import 'chat/store/chat_room_store.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_add_edit_screen.dart';

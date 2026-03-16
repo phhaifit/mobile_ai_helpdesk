@@ -83,12 +83,9 @@ class MessageBubble extends StatelessWidget {
                       const SizedBox(width: 6),
                     ],
 
-                    GestureDetector(
-                      onLongPress: () => _showReactionPicker(context),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: screenWidth * 0.68,
-                        ),
+                    Flexible(
+                      child: GestureDetector(
+                        onLongPress: () => _showReactionPicker(context),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -112,6 +109,8 @@ class MessageBubble extends StatelessWidget {
                                   : AppColors.textPrimary,
                               fontSize: 15,
                             ),
+                            softWrap: true,
+                            maxLines: null,
                           ),
                         ),
                       ),

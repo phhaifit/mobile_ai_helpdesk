@@ -128,26 +128,26 @@ abstract class _ChatStore with Store {
     }
   }
 
-  void _simulateReadStatusProgression(int messageId) {
+  void _simulateReadStatusProgression(int messageId) async {
     // Sent → Delivered (after 500ms)
-    Future.delayed(const Duration(milliseconds: 500), () {
+    await Future.delayed(const Duration(milliseconds: 500), () {
       _updateMessageReadStatus(messageId, MessageReadStatus.delivered);
     });
 
     // Delivered → Read (after 2 seconds)
-    Future.delayed(const Duration(seconds: 2), () {
+    await Future.delayed(const Duration(milliseconds: 2000), () {
       _updateMessageReadStatus(messageId, MessageReadStatus.read);
     });
   }
 
-  void _simulateAutoReply() {
-    // Show typing indicator after 1 second
-    Future.delayed(const Duration(seconds: 1), () {
+  void _simulateAutoReply() async {
+    // Show typing indicator after 3 second from sending message
+    await Future.delayed(const Duration(milliseconds: 3000), () {
       isTyping = true;
     });
 
-    // Send auto-reply after 2.5 seconds total
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    // Send auto-reply after 2 seconds
+    await Future.delayed(const Duration(milliseconds: 2000), () {
       final randomResponse =
           _defaultResponses[Random().nextInt(_defaultResponses.length)];
 
