@@ -22,6 +22,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   ChatRoom? _selectedRoom;
+  bool _showContactInfo = true; // Track ContactInfoPanel visibility for desktop
 
   @override
   void initState() {
@@ -52,8 +53,38 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
       // Trên mobile/tablet nhỏ, mở màn hình chat đầy đủ
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ChatScreen(room: room)),
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(room: room, onInfoTap: _handleInfoTap),
+        ),
       );
+    }
+  }
+
+  void _handleInfoTap() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 900) {
+      // Mobile: Show ContactInfoPanel as full screen modal
+      if (_selectedRoom != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(
+                title: const Text('Thông tin liên hệ'),
+                centerTitle: true,
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.textPrimary,
+              ),
+              body: ContactInfoPanel(room: _selectedRoom!),
+            ),
+          ),
+        );
+      }
+    } else {
+      // Desktop: Toggle ContactInfoPanel visibility
+      setState(() {
+        _showContactInfo = !_showContactInfo;
+      });
     }
   }
 
@@ -93,7 +124,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             // Chat (70% chiều rộng)
             Expanded(
               child: _selectedRoom != null
-                  ? ChatScreen(room: _selectedRoom!)
+                  ? ChatScreen(room: _selectedRoom!, onInfoTap: _handleInfoTap)
                   : _buildEmptyChat(),
             ),
           ],
@@ -119,32 +150,35 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           // Divider
           Container(width: 1, color: AppColors.dividerColor),
 
-          // Chat (50% chiều rộng)
+          // Chat (dynamic width - 50% if info showing, else wider)
           Expanded(
-            flex: 2,
+            flex: _showContactInfo ? 2 : 3,
             child: _selectedRoom != null
-                ? ChatScreen(room: _selectedRoom!)
+                ? ChatScreen(room: _selectedRoom!, onInfoTap: _handleInfoTap)
                 : _buildEmptyChat(),
           ),
-          // Divider
-          Container(width: 1, color: AppColors.dividerColor),
 
-          // Thông tin liên hệ (25% chiều rộng)
-          _selectedRoom != null
-              ? ContactInfoPanel(room: _selectedRoom!)
-              : Container(
-                  width: screenWidth * 0.25,
-                  color: Colors.white,
-                  child: Center(
-                    child: Text(
-                      'Chọn một phòng chat để xem thông tin',
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
+          // Divider (only show when ContactInfoPanel is visible)
+          if (_showContactInfo)
+            Container(width: 1, color: AppColors.dividerColor),
+
+          // Thông tin liên hệ (25% chiều rộng - only show if _showContactInfo is true)
+          if (_showContactInfo)
+            _selectedRoom != null
+                ? ContactInfoPanel(room: _selectedRoom!)
+                : Container(
+                    width: screenWidth * 0.25,
+                    color: Colors.white,
+                    child: Center(
+                      child: Text(
+                        'Chọn một phòng chat để xem thông tin',
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
-                ),
         ],
       ),
     );
