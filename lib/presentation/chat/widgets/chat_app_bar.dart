@@ -10,6 +10,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onAIAnalysisTap;
   final VoidCallback? onBack;
   final VoidCallback? onInfoTap;
+  final VoidCallback? onSearchTap;
 
   const ChatAppBar({
     super.key,
@@ -20,6 +21,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onAIAnalysisTap,
     this.onBack,
     this.onInfoTap,
+    this.onSearchTap,
   });
 
   @override
@@ -65,6 +67,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        IconButton(
+          tooltip: "Search",
+          icon: const Icon(Icons.search, color: AppColors.messengerBlue),
+          onPressed: onSearchTap,
+        ),
         IconButton(
           tooltip: "Voice call",
           icon: const Icon(Icons.phone, color: AppColors.messengerBlue),

@@ -5,20 +5,14 @@ class ReactionPicker extends StatelessWidget {
 
   const ReactionPicker({super.key, required this.onReactionSelected});
 
-  static const List<String> emojis = [
-    '👍',
-    '❤️',
-    '😂',
-    '😮',
-    '😢',
-    '🎉',
-    '🙏',
-    '💯',
-  ];
+  static const List<String> emojis = ['👍', '❤️', '😂', '😮', '😢'];
 
   @override
   Widget build(BuildContext context) {
+    final maxWidth = MediaQuery.of(context).size.width;
+
     return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -31,14 +25,18 @@ class ReactionPicker extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 0,
         children: emojis.map((emoji) {
           return GestureDetector(
             onTap: () => onReactionSelected(emoji),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(emoji, style: const TextStyle(fontSize: 24)),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Center(
+                child: Text(emoji, style: const TextStyle(fontSize: 24)),
+              ),
             ),
           );
         }).toList(),

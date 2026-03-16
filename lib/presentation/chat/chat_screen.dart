@@ -29,9 +29,14 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ChatStore _chatStore;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
 
   int _previousItemCount = 0;
+  bool _showSearch = false;
+  List<int> _searchResults = []; // Message IDs that match search query
+  int _currentSearchIndex = -1; // Index in _searchResults array
+  int? _highlightedMessageId; // ID of currently highlighted message
 
   @override
   void initState() {
@@ -65,6 +70,88 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _performSearch(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _currentSearchIndex = -1;
+        _highlightedMessageId = null;
+      });
+      return;
+    }
+
+    final messages = _chatStore.messageList;
+    final results = <int>[];
+
+    for (final message in messages) {
+      if (message.content.toLowerCase().contains(query.toLowerCase())) {
+        results.add(message.id);
+      }
+    }
+
+    // Reverse so newest messages come first
+    results.sort((a, b) {
+      final messageA = messages.firstWhere((m) => m.id == a);
+      final messageB = messages.firstWhere((m) => m.id == b);
+      return messageB.timestamp.compareTo(
+        messageA.timestamp,
+      ); // Descending order
+    });
+
+    setState(() {
+      _searchResults = results;
+      _currentSearchIndex = -1;
+      _highlightedMessageId = null;
+    });
+
+    // Auto-navigate to first result if exists
+    if (_searchResults.isNotEmpty) {
+      _navigateToNextSearchResult();
+    }
+  }
+
+  void _navigateToNextSearchResult() {
+    if (_searchResults.isEmpty) return;
+
+    setState(() {
+      _currentSearchIndex = (_currentSearchIndex + 1) % _searchResults.length;
+      _highlightedMessageId = _searchResults[_currentSearchIndex];
+    });
+
+    // Scroll to highlighted message
+    _scrollToMessage(_highlightedMessageId!);
+  }
+
+  void _scrollToMessage(int messageId) {
+    final messages = _chatStore.messageList;
+    final messageIndex = messages.indexWhere((m) => m.id == messageId);
+
+    if (messageIndex != -1) {
+      // Calculate scroll position
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          // Simple scroll with estimated item height (~80px per message)
+          final estimatedOffset = messageIndex * 100.0;
+          _scrollController.animateTo(
+            estimatedOffset,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
+
+  void _closeSearch() {
+    setState(() {
+      _showSearch = false;
+      _searchController.clear();
+      _searchResults = [];
+      _currentSearchIndex = -1;
+      _highlightedMessageId = null; // This will remove highlight
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.room == null) {
@@ -80,9 +167,85 @@ class _ChatScreenState extends State<ChatScreen> {
         isActive: widget.room!.isActive,
         room: widget.room,
         onInfoTap: widget.onInfoTap,
+        onSearchTap: () {
+          setState(() => _showSearch = !_showSearch);
+          if (_showSearch) {
+            // Focus search input
+            FocusScope.of(context).requestFocus(FocusNode()..attach(context));
+          } else {
+            _closeSearch();
+          }
+        },
       ),
       body: Column(
         children: [
+          // Search bar
+          if (_showSearch)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Tìm kiếm tin nhắn...',
+                        hintStyle: const TextStyle(fontSize: 13),
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _performSearch('');
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: const BorderSide(
+                            color: AppColors.messengerBlue,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        isDense: true,
+                      ),
+                      onChanged: _performSearch,
+                      onSubmitted: (_) => _navigateToNextSearchResult(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (_searchResults.isNotEmpty)
+                    Text(
+                      '${_currentSearchIndex + 1}/${_searchResults.length}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.messengerBlue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: _closeSearch,
+                  ),
+                ],
+              ),
+            ),
           // Messages list
           Expanded(
             child: Observer(
@@ -168,6 +331,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       isGroupStart: isGroupStart,
                       isGroupEnd: isGroupEnd,
                       showAvatar: isGroupEnd,
+                      isHighlighted: _highlightedMessageId == message.id,
                       onReactionAdded: (emoji) {
                         _chatStore.addReactionToMessage(message.id, emoji);
                       },
@@ -201,6 +365,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _scrollController.dispose();
     _textController.dispose();
+    _searchController.dispose();
     _inputFocusNode.dispose();
     super.dispose();
   }

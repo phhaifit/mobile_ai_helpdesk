@@ -18,6 +18,9 @@ class MessageBubble extends StatelessWidget {
   /// Callback when a reaction is selected
   final Function(String emoji)? onReactionAdded;
 
+  /// Whether this message is highlighted by search
+  final bool isHighlighted;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -25,12 +28,12 @@ class MessageBubble extends StatelessWidget {
     this.isGroupEnd = true,
     this.showAvatar = true,
     this.onReactionAdded,
+    this.isHighlighted = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final bool isMe = message.isMe;
-    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -100,6 +103,23 @@ class MessageBubble extends StatelessWidget {
                               isGroupStart,
                               isGroupEnd,
                             ),
+                            border: isHighlighted
+                                ? Border.all(
+                                    color: AppColors.textPrimary,
+                                    width: 2.5,
+                                  )
+                                : null,
+                            boxShadow: isHighlighted
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.textPrimary.withOpacity(
+                                        0.4,
+                                      ),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
                           ),
                           child: Text(
                             message.content,
