@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/ticket_list_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -8,6 +9,7 @@ class Routes {
   // route constants -----------------------------------------------------------
   static const String login = '/login';
   static const String home = '/home';
+  static const String ticketList = '/ticket_list';
 
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -22,6 +24,11 @@ class Routes {
           settings: settings,
           builder: (_) => const HomeScreen(),
         );
+      case ticketList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TicketListScreen(),
+        );
       default:
         return MaterialPageRoute(
           settings: settings,
@@ -34,3 +41,4 @@ class Routes {
     }
   }
 }
+

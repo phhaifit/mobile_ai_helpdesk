@@ -136,32 +136,13 @@ class _HomeScreenState extends State<HomeScreen>
   // Tickets Tab
   // ---------------------------------------------------------------------------
   Widget _buildTicketsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: [
-                Colors.red,
-                Colors.orange,
-                Colors.amber,
-                Colors.green,
-                Colors.blue
-              ][index],
-              radius: 6,
-            ),
-            title: Text('Ticket #${index + 1}'),
-            subtitle: Text('Mock ticket description ${index + 1}'),
-            trailing: Text(
-              'TK-${1000 + index}',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        );
-      },
+    return Center(
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/ticket_list');
+        },
+        child: const Text('View All Tickets'),
+      ),
     );
   }
 
