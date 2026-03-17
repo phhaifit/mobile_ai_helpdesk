@@ -22,6 +22,10 @@ class StatusPriorityBadgeWidget extends StatelessWidget {
         return const Color(0xFF66BB6A); // Xanh lá
       case TicketStatus.closed:
         return const Color(0xFF757575); // Xám
+      case TicketStatus.pending:
+        return const Color(0xFFFFA726); // Cam
+      case TicketStatus.processingByAI:
+        return const Color(0xFF2196F3); // Xanh dương
     }
   }
 
@@ -35,6 +39,10 @@ class StatusPriorityBadgeWidget extends StatelessWidget {
         return 'Đã giải quyết';
       case TicketStatus.closed:
         return 'Đã đóng';
+      case TicketStatus.pending:
+        return 'Đang chờ';
+      case TicketStatus.processingByAI:
+        return 'Đang xử lý bởi AI';
     }
   }
 
@@ -67,41 +75,42 @@ class StatusPriorityBadgeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Status badge
         Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 4,
+            horizontal: 6,
+            vertical: 2,
           ),
           decoration: BoxDecoration(
             color: _getStatusBadgeColor(status),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3),
           ),
           child: Text(
             _getStatusDisplayText(status),
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         // Priority badge
         Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 4,
+            horizontal: 6,
+            vertical: 2,
           ),
           decoration: BoxDecoration(
             color: _getPriorityBadgeColor(priority),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3),
           ),
           child: Text(
             _getPriorityDisplayText(priority),
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),

@@ -48,6 +48,10 @@ class AppColors {
         return successGreen;
       case TicketStatus.closed:
         return textTertiary;
+      case TicketStatus.pending:
+        return warningOrange;
+      case TicketStatus.processingByAI:
+        return const Color(0xFF2196F3); // Xanh dương
     }
   }
 

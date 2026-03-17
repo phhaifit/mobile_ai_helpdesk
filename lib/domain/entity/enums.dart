@@ -4,6 +4,8 @@ enum TicketStatus {
   inProgress,
   resolved,
   closed,
+  pending,
+  processingByAI,
 }
 
 /// Ticket priority levels
@@ -50,6 +52,10 @@ extension TicketStatusDisplay on TicketStatus {
         return 'Đã giải quyết';
       case TicketStatus.closed:
         return 'Đã đóng';
+      case TicketStatus.pending:
+        return 'Đang chờ';
+      case TicketStatus.processingByAI:
+        return 'Đang xử lý bởi AI';
     }
   }
 
@@ -63,6 +69,10 @@ extension TicketStatusDisplay on TicketStatus {
         return 'Resolved';
       case TicketStatus.closed:
         return 'Closed';
+      case TicketStatus.pending:
+        return 'Pending';
+      case TicketStatus.processingByAI:
+        return 'Processing by AI';
     }
   }
 }

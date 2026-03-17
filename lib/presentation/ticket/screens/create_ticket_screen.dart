@@ -412,31 +412,64 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        DropdownButtonFormField<TicketStatus>(
-                          value: widget.store.ticketStatus,
-                          items: TicketStatus.values
-                              .map((status) => DropdownMenuItem(
-                                    value: status,
-                                    child: Text(status.displayName),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              widget.store.setTicketStatus(value);
-                            }
+                        Observer(
+                          builder: (_) {
+                            final statusColor = AppColors.getStatusColor(widget.store.ticketStatus);
+                            return DropdownButtonFormField<TicketStatus>(
+                              value: widget.store.ticketStatus,
+                              items: TicketStatus.values
+                                  .map((status) => DropdownMenuItem(
+                                        value: status,
+                                        child: Text(
+                                          status.displayName,
+                                          style: TextStyle(
+                                            color: AppColors.getStatusColor(status),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  widget.store.setTicketStatus(value);
+                                }
+                              },
+                              style: TextStyle(
+                                color: statusColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: statusColor.withValues(alpha: 0.1),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: statusColor.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: statusColor.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: statusColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 14,
+                                ),
+                              ),
+                            );
                           },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: const Color(0xFFE8F4FD),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
                         ),
                         const SizedBox(height: 20),
                         // Độ ưu tiên
@@ -449,31 +482,64 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        DropdownButtonFormField<TicketPriority>(
-                          value: widget.store.priority,
-                          items: TicketPriority.values
-                              .map((priority) => DropdownMenuItem(
-                                    value: priority,
-                                    child: Text(priority.displayName),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              widget.store.setPriority(value);
-                            }
+                        Observer(
+                          builder: (_) {
+                            final priorityColor = AppColors.getPriorityColor(widget.store.priority);
+                            return DropdownButtonFormField<TicketPriority>(
+                              value: widget.store.priority,
+                              items: TicketPriority.values
+                                  .map((priority) => DropdownMenuItem(
+                                        value: priority,
+                                        child: Text(
+                                          priority.displayName,
+                                          style: TextStyle(
+                                            color: AppColors.getPriorityColor(priority),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  widget.store.setPriority(value);
+                                }
+                              },
+                              style: TextStyle(
+                                color: priorityColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: priorityColor.withValues(alpha: 0.1),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: priorityColor.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: priorityColor.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: priorityColor,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 14,
+                                ),
+                              ),
+                            );
                           },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: const Color(0xFFFFF8E1),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
                         ),
                         const SizedBox(height: 20),
                         // Người hỗ trợ
