@@ -1,6 +1,8 @@
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -66,6 +68,15 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () {
+                      FirebaseCrashlytics.instance.crash();
+                    },
+                    child: const Text("Test Crashlytics Crash"),
+                  ),
+                ],
               ],
             ),
           ),
