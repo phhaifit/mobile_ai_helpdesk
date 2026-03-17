@@ -52,7 +52,6 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
   @override
   Widget build(BuildContext context) {
     if (!widget.showAppBar) {
-      // Desktop view: no appbar
       return Column(
         children: [
           _buildBackButton(),
@@ -128,11 +127,11 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
       child: Row(
         children: [
-          _stepChip(0, 'Ch\u1ecdn ch\u00ednh'),
+          _stepChip(0, 'Chọn chính'),
           Expanded(child: Container(height: 1, color: Colors.grey.shade300)),
-          _stepChip(1, 'Ch\u1ecdn ph\u1ee5'),
+          _stepChip(1, 'Chọn phụ'),
           Expanded(child: Container(height: 1, color: Colors.grey.shade300)),
-          _stepChip(2, 'X\u00e1c nh\u1eadn'),
+          _stepChip(2, 'Xác nhận'),
         ],
       ),
     );
@@ -186,8 +185,8 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             children: [
               Text(
                 _step == 0
-                    ? 'Ch\u1ecdn kh\u00e1ch h\u00e0ng ch\u00ednh (gi\u1eef l\u1ea1i)'
-                    : 'Ch\u1ecdn kh\u00e1ch h\u00e0ng \u0111\u01b0\u1ee3c h\u1ee3p nh\u1ea5t v\u00e0o ch\u00ednh',
+                    ? 'Chọn khách hàng chính (giữ lại)'
+                    : 'Chọn khách hàng được hợp nhất vào chính',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 8),
@@ -195,7 +194,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                 controller: _searchCtrl,
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
-                  hintText: 'T\u00ecm ki\u1ebfm...',
+                  hintText: 'Tìm kiếm...',
                   hintStyle: TextStyle(
                     color: Colors.grey.shade400,
                     fontSize: 13,
@@ -231,7 +230,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
           child: _filtered.isEmpty
               ? Center(
                   child: Text(
-                    'Kh\u00f4ng t\u00ecm th\u1ea5y kh\u00e1ch h\u00e0ng',
+                    'Không tìm thấy khách hàng',
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                   ),
                 )
@@ -317,7 +316,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Xem tr\u01b0\u1edbc k\u1ebft qu\u1ea3 h\u1ee3p nh\u1ea5t',
+            'Xem trước kết quả hợp nhất',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -325,18 +324,13 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Two cards side by side
           Row(
             children: [
               Expanded(
-                child: _mergeCard(
-                  'Ch\u00ednh (gi\u1eef l\u1ea1i)',
-                  primary,
-                  Colors.green,
-                ),
+                child: _mergeCard('Chính (giữ lại)', primary, Colors.green),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Icon(
                   Icons.merge_type,
                   color: AppColors.primaryBlue,
@@ -344,16 +338,11 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                 ),
               ),
               Expanded(
-                child: _mergeCard(
-                  'H\u1ee3p nh\u1ea5t v\u00e0o',
-                  secondary,
-                  Colors.orange,
-                ),
+                child: _mergeCard('Hợp nhất vào', secondary, Colors.orange),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          // Result preview card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -373,7 +362,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                     ),
                     SizedBox(width: 8),
                     Text(
-                      'K\u1ebft qu\u1ea3 sau h\u1ee3p nh\u1ea5t',
+                      'Kết quả sau hợp nhất',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -383,15 +372,11 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _previewRow(Icons.person_outline, 'T\u00ean', primary.fullName),
+                _previewRow(Icons.person_outline, 'Tên', primary.fullName),
                 if (mergedEmail?.isNotEmpty == true)
                   _previewRow(Icons.email_outlined, 'Email', mergedEmail!),
                 if (mergedPhone?.isNotEmpty == true)
-                  _previewRow(
-                    Icons.phone_outlined,
-                    '\u0110i\u1ec7n tho\u1ea1i',
-                    mergedPhone!,
-                  ),
+                  _previewRow(Icons.phone_outlined, 'Điện thoại', mergedPhone!),
                 if (mergedTags.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Row(
@@ -429,7 +414,6 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Warning banner
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -447,7 +431,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'H\u00e0nh \u0111\u1ed9ng n\u00e0y kh\u00f4ng th\u1ec3 ho\u00e0n t\u00e1c. Kh\u00e1ch h\u00e0ng ph\u1ee5 s\u1ebd b\u1ecb x\u00f3a.',
+                    'Hành động này không thể hoàn tác. Khách hàng phụ sẽ bị xóa.',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.orange.shade800,
@@ -459,10 +443,10 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: _confirmMerge,
+            onPressed: () => _handleConfirmMerge(),
             icon: const Icon(Icons.merge_type, size: 18),
             label: const Text(
-              'X\u00e1c nh\u1eadn h\u1ee3p nh\u1ea5t',
+              'Xác nhận hợp nhất',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
@@ -594,14 +578,125 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
     });
   }
 
-  void _confirmMerge() {
-    widget.store.mergeCustomers(_primary!.id, _secondary!.id);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('\u0110\u00e3 h\u1ee3p nh\u1ea5t kh\u00e1ch h\u00e0ng'),
-        backgroundColor: Colors.green,
-      ),
+  void _handleConfirmMerge() {
+    // Check if we can navigate
+    if (widget.showAppBar) {
+      // Mobile mode: use Navigator
+      _performMergeWithNavigator();
+    } else {
+      // Desktop mode: use callback
+      _performMergeWithCallback();
+    }
+  }
+
+  Future<void> _performMergeWithNavigator() async {
+    if (!mounted) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) =>
+          const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      print('Merging customers: ${_primary!.id} and ${_secondary!.id}');
+
+      // Perform the merge operation
+      await widget.store.mergeCustomers(_primary!.id, _secondary!.id);
+
+      print('Merge completed successfully');
+
+      // Dismiss loading dialog
+      if (mounted) {
+        Navigator.of(context).pop(); // Pop the dialog
+      }
+
+      // Wait a bit for dialog to dismiss
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Pop the merge screen and return to list
+      if (mounted) {
+        Navigator.of(context).pop(true); // Return true to indicate success
+      }
+
+      // Show success message (after screens are popped)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã hợp nhất khách hàng thành công'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      print('Merge error: $e');
+      print('Stack trace: $stackTrace');
+
+      // Dismiss loading dialog
+      if (mounted) {
+        try {
+          Navigator.of(context).pop();
+        } catch (_) {}
+      }
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi hợp nhất: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _performMergeWithCallback() async {
+    if (!mounted) return;
+
+    try {
+      print(
+        'Merging customers (desktop mode): ${_primary!.id} and ${_secondary!.id}',
+      );
+
+      // Perform the merge operation
+      await widget.store.mergeCustomers(_primary!.id, _secondary!.id);
+
+      print('Merge completed successfully');
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã hợp nhất khách hàng thành công'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Call back to parent to update state
+      if (widget.onBack != null) {
+        widget.onBack!();
+      }
+    } catch (e, stackTrace) {
+      print('Merge error: $e');
+      print('Stack trace: $stackTrace');
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi hợp nhất: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
