@@ -19,6 +19,9 @@ abstract class _TicketTabStoreBase with Store {
   @observable
   List<Ticket> filteredTickets = [];
 
+  @observable
+  bool isCreateMode = false;
+
   _TicketTabStoreBase() {
     // Initialize with mock data
     _initializeTickets();
@@ -99,5 +102,15 @@ abstract class _TicketTabStoreBase with Store {
   void viewTicketDetails(Ticket ticket) {
     // TODO: Navigate to ticket detail screen
     print('Viewing details for ticket: ${ticket.id}');
+  }
+
+  @action
+  void openCreateMode() {
+    isCreateMode = true;
+  }
+
+  @action
+  void closeCreateMode() {
+    isCreateMode = false;
   }
 }

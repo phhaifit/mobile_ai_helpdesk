@@ -96,6 +96,24 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     });
   }
 
+  late final _$isCreateModeAtom = Atom(
+    name: '_TicketTabStoreBase.isCreateMode',
+    context: context,
+  );
+
+  @override
+  bool get isCreateMode {
+    _$isCreateModeAtom.reportRead();
+    return super.isCreateMode;
+  }
+
+  @override
+  set isCreateMode(bool value) {
+    _$isCreateModeAtom.reportWrite(value, super.isCreateMode, () {
+      super.isCreateMode = value;
+    });
+  }
+
   late final _$_TicketTabStoreBaseActionController = ActionController(
     name: '_TicketTabStoreBase',
     context: context,
@@ -162,12 +180,37 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   }
 
   @override
+  void openCreateMode() {
+    final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
+      name: '_TicketTabStoreBase.openCreateMode',
+    );
+    try {
+      return super.openCreateMode();
+    } finally {
+      _$_TicketTabStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void closeCreateMode() {
+    final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
+      name: '_TicketTabStoreBase.closeCreateMode',
+    );
+    try {
+      return super.closeCreateMode();
+    } finally {
+      _$_TicketTabStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 selectedTabIndex: ${selectedTabIndex},
 searchQuery: ${searchQuery},
 allTickets: ${allTickets},
 filteredTickets: ${filteredTickets},
+isCreateMode: ${isCreateMode},
 ticketCount: ${ticketCount},
 tabTitle: ${tabTitle}
     ''';
