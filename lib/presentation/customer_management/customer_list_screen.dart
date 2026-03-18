@@ -97,7 +97,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
               ],
               const Expanded(
                 child: Text(
-                  'Danh s\u00e1ch kh\u00e1ch h\u00e0ng',
+                  'Danh sách khách hàng',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -111,7 +111,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
           const SizedBox(height: 4),
           Observer(
             builder: (_) => Text(
-              'T\u1ed5ng s\u1ed1 kh\u00e1ch h\u00e0ng: ${_store.totalCount} ng\u01b0\u1eddi',
+              'Tổng số khách hàng: ${_store.totalCount} người',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ),
@@ -123,20 +123,20 @@ class _CustomerListScreenState extends State<CustomerListScreen>
               children: [
                 _buildActionButton(
                   icon: Icons.upload_outlined,
-                  label: 'Xu\u1ea5t excel',
+                  label: 'Xuất excel',
                   onTap: () {},
                 ),
                 const SizedBox(width: 8),
                 _buildActionButton(
                   icon: Icons.tune_rounded,
-                  label: 'H\u00e0nh \u0111\u1ed9ng',
+                  label: 'Hành động',
                   hasDropdown: true,
                   onTap: _showActionsMenu,
                 ),
                 const SizedBox(width: 8),
                 _buildActionButton(
                   icon: Icons.label_outline,
-                  label: 'Danh s\u00e1ch nh\u00e3n',
+                  label: 'Danh sách nhãn',
                   onTap: _showLabelsSheet,
                 ),
               ],
@@ -150,7 +150,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'T\u00ecm kh\u00e1ch h\u00e0ng',
+                    hintText: 'Tìm khách hàng',
                     hintStyle: TextStyle(
                       color: Colors.grey.shade400,
                       fontSize: 13,
@@ -264,7 +264,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
     return ElevatedButton.icon(
       onPressed: _navigateToAdd,
       icon: const Icon(Icons.add, size: 15),
-      label: const Text('Th\u00eam', style: TextStyle(fontSize: 13)),
+      label: const Text('Thêm', style: TextStyle(fontSize: 13)),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
@@ -326,8 +326,8 @@ class _CustomerListScreenState extends State<CustomerListScreen>
         indicatorColor: AppColors.primaryBlue,
         indicatorWeight: 2,
         tabs: const [
-          Tab(text: 'Th\u00f4ng tin kh\u00e1ch h\u00e0ng'),
-          Tab(text: 'Qu\u1ea3n l\u00fd ch\u1eb7n'),
+          Tab(text: 'Thông tin khách hàng'),
+          Tab(text: 'Quản lý chặn'),
         ],
       ),
     );
@@ -378,7 +378,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                 Icon(Icons.block, size: 64, color: Colors.grey.shade300),
                 const SizedBox(height: 12),
                 Text(
-                  'Kh\u00f4ng c\u00f3 kh\u00e1ch h\u00e0ng b\u1ecb ch\u1eb7n',
+                  'Không có khách hàng bị chặn',
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                 ),
               ],
@@ -408,7 +408,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
           Icon(Icons.people_outline, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 12),
           Text(
-            'Kh\u00f4ng t\u00ecm th\u1ea5y kh\u00e1ch h\u00e0ng',
+            'Không tìm thấy khách hàng',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 8),
@@ -417,7 +417,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
               _searchController.clear();
               _store.clearTagFilters();
             },
-            child: const Text('X\u00f3a b\u1ed9 l\u1ecdc'),
+            child: const Text('Xóa bộ lọc'),
           ),
         ],
       ),
@@ -436,7 +436,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              'S\u1ed1 d\u00f2ng m\u1ed7i trang:',
+              'Số dòng mỗi trang:',
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             const SizedBox(width: 8),
@@ -562,7 +562,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
               ListTile(
                 leading: Icon(Icons.delete_outline, color: Colors.red.shade400),
                 title: Text(
-                  'X\u00f3a nhi\u1ec1u',
+                  'Xóa nhiều',
                   style: TextStyle(color: Colors.red.shade400),
                 ),
                 onTap: () => Navigator.pop(context),
@@ -611,7 +611,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Danh s\u00e1ch nh\u00e3n',
+                    'Danh sách nhãn',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   GestureDetector(
@@ -628,7 +628,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                     child: TextField(
                       controller: tagController,
                       decoration: InputDecoration(
-                        hintText: 'Th\u00eam nh\u00e3n m\u1edbi...',
+                        hintText: 'Thêm nhãn mới...',
                         hintStyle: TextStyle(
                           color: Colors.grey.shade400,
                           fontSize: 13,
@@ -676,9 +676,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                           tagController.clear();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                '\u0110\u00e3 th\u00eam nh\u00e3n "$newTag"',
-                              ),
+                              content: Text('Đã thêm nhãn "$newTag"'),
                               backgroundColor: Colors.green,
                               duration: const Duration(seconds: 2),
                             ),
@@ -686,9 +684,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                         } else if (_store.allAvailableTags.contains(newTag)) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Nh\u00e3n n\u00e0y \u0111\u00e3 t\u1ed3n t\u1ea1i',
-                              ),
+                              content: Text('Nhãn này đã tồn tại'),
                               backgroundColor: Colors.orange,
                               duration: Duration(seconds: 2),
                             ),
@@ -710,7 +706,7 @@ class _CustomerListScreenState extends State<CustomerListScreen>
                     if (tags.isEmpty) {
                       return Center(
                         child: Text(
-                          'Ch\u01b0a c\u00f3 nh\u00e3n n\u00e0o',
+                          'Chưa có nhãn nào',
                           style: TextStyle(color: Colors.grey.shade500),
                         ),
                       );

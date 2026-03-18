@@ -38,7 +38,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   String? _validateEmail(String value) {
     if (value.isEmpty) return null;
     final re = RegExp(r'^[\w\-.+]+@[a-zA-Z\d\-.]+\.[a-zA-Z]{2,}$');
-    return re.hasMatch(value) ? null : 'Email kh\u00f4ng h\u1ee3p l\u1ec7';
+    return re.hasMatch(value) ? null : 'Email không hợp lệ';
   }
 
   // ─── Build ───────────────────────────────────────────────────────────────────
