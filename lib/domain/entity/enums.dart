@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Ticket status enumeration
 enum TicketStatus {
   open,
@@ -38,6 +40,13 @@ enum TicketSource {
 enum CommentType {
   public,
   internal,
+}
+
+/// Contact type for ticket
+enum ContactType {
+  email,
+  phone,
+  zalo,
 }
 
 /// Extensions for display names
@@ -170,6 +179,52 @@ extension CommentTypeDisplay on CommentType {
         return 'Public';
       case CommentType.internal:
         return 'Internal';
+    }
+  }
+}
+
+extension ContactTypeDisplay on ContactType {
+  String get displayName {
+    switch (this) {
+      case ContactType.email:
+        return 'Email';
+      case ContactType.phone:
+        return 'Điện thoại';
+      case ContactType.zalo:
+        return 'Zalo';
+    }
+  }
+
+  IconData get iconData {
+    switch (this) {
+      case ContactType.email:
+        return Icons.email;
+      case ContactType.phone:
+        return Icons.phone;
+      case ContactType.zalo:
+        return Icons.message;
+    }
+  }
+
+  Color get iconColor {
+    switch (this) {
+      case ContactType.email:
+        return const Color(0xFFD32F2F); // Red for email
+      case ContactType.phone:
+        return const Color(0xFF388E3C); // Green for phone
+      case ContactType.zalo:
+        return const Color(0xFF0084FF); // Blue for Zalo
+    }
+  }
+
+  String get hintText {
+    switch (this) {
+      case ContactType.email:
+        return 'Nhập email của khách hàng';
+      case ContactType.phone:
+        return 'Nhập số điện thoại của khách hàng';
+      case ContactType.zalo:
+        return 'Nhập ID Zalo của khách hàng';
     }
   }
 }

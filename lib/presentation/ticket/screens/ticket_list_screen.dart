@@ -50,18 +50,72 @@ class _TicketListScreenState extends State<TicketListScreen> {
             );
           }
 
+          // Get screen width
+          final screenWidth = MediaQuery.of(context).size.width;
+          final isMobile = screenWidth < 768;
+
           // Show list view
           return Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // Tab bar
-                Observer(
-                  builder: (_) => TicketTabBarWidget(
-                    selectedTabIndex: _store.selectedTabIndex,
-                    onTabChanged: _store.setSelectedTab,
+                // Tab bar - Only show on desktop
+                if (!isMobile)
+                  Observer(
+                    builder: (_) => TicketTabBarWidget(
+                      selectedTabIndex: _store.selectedTabIndex,
+                      onTabChanged: _store.setSelectedTab,
+                    ),
                   ),
-                ),
+
+                // Mobile tab selector - Only show on mobile
+                if (isMobile)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Observer(
+                      builder: (_) => SizedBox(
+                        height: 40,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            final tabTitles = [
+                              'Phiếu của tôi',
+                              'Chưa tiếp nhận',
+                              'Tất cả phiếu',
+                            ];
+                            final isSelected = _store.selectedTabIndex == index;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ElevatedButton(
+                                onPressed: () => _store.setSelectedTab(index),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isSelected
+                                      ? AppColors.primaryBlue
+                                      : AppColors.inputBackground,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                child: Text(
+                                  tabTitles[index],
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.textPrimary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
 
                 // Header with title and action buttons
                 Observer(

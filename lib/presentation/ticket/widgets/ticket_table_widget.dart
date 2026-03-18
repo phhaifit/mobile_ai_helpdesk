@@ -53,30 +53,65 @@ class TicketTableWidget extends StatelessWidget {
       );
     }
 
-    return SingleChildScrollView(
-      child: Column(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
+
+    // Desktop view: Full width
+    if (!isMobile) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Table header
           const TicketTableHeaderWidget(),
           // Table rows
-          ListView.builder(
-            primary: false,
-            shrinkWrap: true,
-            itemCount: tickets.length,
-            itemBuilder: (context, index) {
-              final ticket = tickets[index];
-              return TicketTableRowWidget(
-                ticket: ticket,
-                onAcceptPressed: () {
-                  onAcceptTicket?.call(ticket);
-                },
-                onDetailPressed: () {
-                  onViewDetails?.call(ticket);
-                },
-              );
-            },
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: tickets
+                    .map((ticket) => TicketTableRowWidget(
+                          ticket: ticket,
+                          onAcceptPressed: () {
+                            onAcceptTicket?.call(ticket);
+                          },
+                          onDetailPressed: () {
+                            onViewDetails?.call(ticket);
+                          },
+                        ))
+                    .toList(),
+              ),
+            ),
           ),
         ],
+      );
+    }
+
+    // Mobile view: Horizontal scroll when needed
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: SizedBox(
+          width: 800,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Table header
+              const TicketTableHeaderWidget(),
+              // Table rows
+              ...tickets.map((ticket) => TicketTableRowWidget(
+                    ticket: ticket,
+                    onAcceptPressed: () {
+                      onAcceptTicket?.call(ticket);
+                    },
+                    onDetailPressed: () {
+                      onViewDetails?.call(ticket);
+                    },
+                  )),
+            ],
+          ),
+        ),
       ),
     );
   }

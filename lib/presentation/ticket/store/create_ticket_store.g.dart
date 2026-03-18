@@ -77,13 +77,13 @@ mixin _$CreateTicketStore on _CreateTicketStoreBase, Store {
   );
 
   @override
-  List<String> get contactInfo {
+  List<ContactInfo> get contactInfo {
     _$contactInfoAtom.reportRead();
     return super.contactInfo;
   }
 
   @override
-  set contactInfo(List<String> value) {
+  set contactInfo(List<ContactInfo> value) {
     _$contactInfoAtom.reportWrite(value, super.contactInfo, () {
       super.contactInfo = value;
     });
@@ -305,7 +305,7 @@ mixin _$CreateTicketStore on _CreateTicketStoreBase, Store {
   }
 
   @override
-  void addContactInfo(String info) {
+  void addContactInfo(ContactInfo info) {
     final _$actionInfo = _$_CreateTicketStoreBaseActionController.startAction(
       name: '_CreateTicketStoreBase.addContactInfo',
     );

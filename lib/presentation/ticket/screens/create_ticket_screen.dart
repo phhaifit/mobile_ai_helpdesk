@@ -3,7 +3,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/add_contact_dialog.dart';
 
 final getIt = GetIt.instance;
 
@@ -25,7 +27,6 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
   late TextEditingController titleController;
   late TextEditingController customerNameController;
   late TextEditingController descriptionController;
-  late TextEditingController contactInfoController;
 
   @override
   void initState() {
@@ -33,7 +34,6 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     titleController = TextEditingController();
     customerNameController = TextEditingController();
     descriptionController = TextEditingController();
-    contactInfoController = TextEditingController();
   }
 
   @override
@@ -41,7 +41,6 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     titleController.dispose();
     customerNameController.dispose();
     descriptionController.dispose();
-    contactInfoController.dispose();
     super.dispose();
   }
 
@@ -274,91 +273,121 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                         ),
                         const SizedBox(height: 8),
                         // Contact info list
-                        if (widget.store.contactInfo.isNotEmpty)
-                          Column(
-                            children: List.generate(
-                              widget.store.contactInfo.length,
-                              (index) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.inputBackground,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        widget.store.contactInfo[index],
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () => widget.store
-                                            .removeContactInfo(index),
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 18,
-                                          color: Color(0xFFB0B3B8),
+                        Observer(
+                          builder: (_) {
+                            if (widget.store.contactInfo.isNotEmpty) {
+                              return Column(
+                                children: List.generate(
+                                  widget.store.contactInfo.length,
+                                  (index) {
+                                    final contact = widget.store.contactInfo[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.inputBackground,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: AppColors.dividerColor,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              contact.type.iconData,
+                                              color: contact.type.iconColor,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    contact.type.displayName,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColors.textSecondary,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    contact.value,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      color: AppColors.textPrimary,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () => widget.store
+                                                  .removeContactInfo(index),
+                                              child: const Icon(
+                                                Icons.close,
+                                                size: 18,
+                                                color: Color(0xFFB0B3B8),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    );
+                                  },
                                 ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        Observer(
+                          builder: (_) {
+                            if (widget.store.contactInfo.isNotEmpty) {
+                              return const SizedBox(height: 8);
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        // Add contact button
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AddContactDialog(
+                                onConfirm: (contactInfo) {
+                                  widget.store.addContactInfo(contactInfo);
+                                },
                               ),
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Thêm'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primaryBlue,
+                            side: const BorderSide(
+                              color: AppColors.primaryBlue,
+                              width: 1,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                        const SizedBox(height: 8),
-                        // Add contact info button
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: contactInfoController,
-                                decoration: InputDecoration(
-                                  hintText: 'Thêm thông tin liên lạc',
-                                  filled: true,
-                                  fillColor: AppColors.inputBackground,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 14,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () {
-                                if (contactInfoController.text.isNotEmpty) {
-                                  widget.store
-                                      .addContactInfo(contactInfoController.text);
-                                  contactInfoController.clear();
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.inputBackground,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                         const SizedBox(height: 20),
                         // Mô tả phiếu

@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
 
 part 'create_ticket_store.g.dart';
 
@@ -16,7 +17,7 @@ abstract class _CreateTicketStoreBase with Store {
   String customerName = '';
 
   @observable
-  List<String> contactInfo = [];
+  List<ContactInfo> contactInfo = [];
 
   @observable
   String description = '';
@@ -77,7 +78,7 @@ abstract class _CreateTicketStoreBase with Store {
   }
 
   @action
-  void addContactInfo(String info) {
+  void addContactInfo(ContactInfo info) {
     contactInfo = [...contactInfo, info];
     contactInfoError = null;
   }
