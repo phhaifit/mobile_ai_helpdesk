@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
@@ -76,7 +77,6 @@ class StoreModule {
       ),
     );
 
-    // --- Ticket Stores ---
     getIt.registerFactory(
       () => TicketTabStore(
         getIt<SessionStore>(),
@@ -121,13 +121,11 @@ class StoreModule {
       () => LoginStore(analyticsService: getIt<AnalyticsService>()),
     );
 
-    // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
     getIt.registerSingleton<ChatRoomStore>(
       ChatRoomStore(getIt<ChatRoomRepository>()),
     );
 
-    // --- Theme & Language ---
     getIt.registerSingleton<ThemeStore>(
       ThemeStore(getIt<SettingRepository>(), getIt<ErrorStore>()),
     );
@@ -135,7 +133,6 @@ class StoreModule {
       LanguageStore(getIt<SettingRepository>(), getIt<ErrorStore>()),
     );
 
-    // --- Omnichannel Store ---
     getIt.registerFactory<OmnichannelStore>(
       () => OmnichannelStore(
         getIt<GetOmnichannelOverviewUseCase>(),

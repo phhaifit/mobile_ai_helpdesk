@@ -30,9 +30,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 ///                   ├─ TextButton (forgot password)
 ///                   └─ TextButton (sign up)
 
-import '/presentation/login/store/login_store.dart';
-import '/utils/locale/app_localization.dart';
-import '/utils/routes/routes.dart';
+import 'store/login_store.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -100,6 +98,47 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleLogin() async {
+    await _store.login();
+    if (!mounted || _store.errorMessage != null) return;
+
+    await _trackLoginAnalytics();
+    if (!mounted) return;
+    await Navigator.pushReplacementNamed(context, Routes.home);
+  }
+
+  Future<void> _trackLoginAnalytics() async {
+    final analytics = GetIt.instance<AnalyticsService>();
+    final prefs = GetIt.instance<SharedPreferenceHelper>();
+
+    await analytics.trackEvent(
+      AnalyticsEvent.login,
+      parameters: {
+        AnalyticsEvent.paramMethod: 'email',
+        AnalyticsEvent.paramSuccess: 'true',
+      },
+    );
+
+    const tenantId = 'default_tenant';
+    const role = 'agent';
+    const planType = 'standard';
+
+    await prefs.saveAnalyticsUserProperties(
+      tenantId: tenantId,
+      role: role,
+      planType: planType,
+    );
+
+    await analytics.setUserProperties(
+      tenantId,
+      userProperties: {
+        AnalyticsUserProperty.tenantId: tenantId,
+        AnalyticsUserProperty.role: role,
+        AnalyticsUserProperty.planType: planType,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -113,23 +152,18 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo icon
                 Icon(
                   Icons.headset_mic,
                   size: 80,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(height: 24),
-
-                // Welcome title
                 Text(
                   l.translate('login_tv_welcome'),
                   style: theme.textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-
-                // Subtitle
                 Text(
                   l.translate('login_tv_subtitle'),
                   style: theme.textTheme.bodyMedium,
@@ -193,18 +227,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Forgot password button
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, Routes.forgotPassword);
                   },
                   child: Text(l.translate('login_tv_forgot_password')),
                 ),
-
                 const SizedBox(height: 8),
-
-                // Sign up button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -217,7 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-
                 if (kDebugMode && !kIsWeb) ...[
                   const SizedBox(height: 24),
                   TextButton(

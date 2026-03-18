@@ -1,12 +1,14 @@
 import 'package:ai_helpdesk/core/analytics/analytics_screen.dart';
 import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/presentation/chat/support_inbox_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -114,8 +116,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final l = AppLocalizations.of(context);
     return AppBar(
-      title: Text(AppLocalizations.of(context).translate('home_tv_title')),
+      title: Text(l.translate('home_tv_title')),
       actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
@@ -123,17 +126,19 @@ class _HomeScreenState extends State<HomeScreen>
         tabs: [
           Tab(
             icon: const Icon(Icons.dashboard),
-            text: AppLocalizations.of(context).translate('home_tab_dashboard'),
+            text: l.translate('home_tab_dashboard'),
           ),
           Tab(
             icon: const Icon(Icons.confirmation_number),
-            text: AppLocalizations.of(context).translate('home_tab_tickets'),
+            text: l.translate('home_tab_tickets'),
           ),
           Tab(
             icon: const Icon(Icons.hub),
-            text: AppLocalizations.of(
-              context,
-            ).translate('home_tab_omnichannel'),
+            text: l.translate('home_tab_omnichannel'),
+          ),
+          Tab(
+            icon: const Icon(Icons.payments_outlined),
+            text: l.translate('monetizationTitle'),
           ),
           Tab(
             icon: const Icon(Icons.workspace_premium),
@@ -146,9 +151,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Dashboard Tab
-  // ---------------------------------------------------------------------------
   Widget _buildDashboardTab() {
     final l = AppLocalizations.of(context);
     return Padding(
@@ -216,9 +218,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Tickets Tab
-  // ---------------------------------------------------------------------------
   Widget _buildTicketsTab() {
     return ListView.builder(
       padding: const EdgeInsets.all(8),
@@ -278,9 +277,6 @@ class _HomeScreenState extends State<HomeScreen>
     return const MonetizationScreen(embedded: true);
   }
 
-  // ---------------------------------------------------------------------------
-  // App Bar Actions
-  // ---------------------------------------------------------------------------
   Widget _buildThemeButton() {
     return Observer(
       builder: (context) {

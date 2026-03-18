@@ -1,11 +1,14 @@
 import 'dart:developer';
 
-// // import 'package:ai_helpdesk/di/service_locator.dart';
-// // import 'package:ai_helpdesk/firebase_options.dart';
-// // import 'package:ai_helpdesk/presentation/my_app.dart';
-// // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-// import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/data/analytics/first_launch_manager.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/firebase_options.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,8 +17,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setPreferredOrientations();
 
-  runApp(const MyApp());
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (!kIsWeb) {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
   final env = EnvConfig.instance;
   log('Running in ${env.environment.name} mode — ${env.baseUrl}');
