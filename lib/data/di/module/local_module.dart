@@ -1,5 +1,13 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-// Import các datasource của bạn
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '/core/data/local/sembast/sembast_client.dart';
+import '/data/local/constants/db_constants.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
 import '../../local/datasources/customer_management/customer_datasource.dart';
@@ -14,5 +22,23 @@ class LocalModule {
 
     // --- Customer DataSources ---
     getIt.registerSingleton<CustomerDataSource>(CustomerDataSource());
+
+    // preference manager:------------------------------------------------------
+    getIt.registerSingletonAsync<SharedPreferences>(
+      SharedPreferences.getInstance,
+    );
+    getIt.registerSingleton<SharedPreferenceHelper>(
+      SharedPreferenceHelper(await getIt.getAsync<SharedPreferences>()),
+    );
+
+    // database:----------------------------------------------------------------
+    getIt.registerSingletonAsync<SembastClient>(
+      () async => SembastClient.provideDatabase(
+        databaseName: DBConstants.dbName,
+        databasePath: kIsWeb
+            ? "/assets/db"
+            : (await getApplicationDocumentsDirectory()).path,
+      ),
+    );
   }
 }
