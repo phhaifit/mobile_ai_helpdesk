@@ -1,29 +1,27 @@
-import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import '/constants/env.dart';
 import '/di/service_locator.dart';
-import '/presentation/my_app.dart';
+import '/presentation/main_screen.dart';
+import 'constants/colors.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await setPreferredOrientations();
-
-  final env = EnvConfig.instance;
-  log('Running in ${env.environment.name} mode — ${env.baseUrl}');
-
+void main() async {
   await ServiceLocator.configureDependencies();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-Future<void> setPreferredOrientations() {
-  return SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.landscapeLeft,
-  ]);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'AI Helpdesk',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
+        useMaterial3: true,
+      ),
+      home: const MainScreen(),
+    );
+  }
 }

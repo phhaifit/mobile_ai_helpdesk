@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../constants/colors.dart';
+import '../di/service_locator.dart';
 import '../domain/entity/customer/customer.dart';
 import 'chat/support_inbox_screen.dart';
-import 'customer_management/customer_list_screen.dart';
-import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_add_edit_screen.dart';
+import 'customer_management/customer_detail_screen.dart';
+import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
 import 'widgets/sidebar_menu_panel.dart';
-import '../di/service_locator.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
