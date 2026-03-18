@@ -1,3 +1,6 @@
+import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -57,9 +60,7 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, Routes.home);
-                    },
+                    onPressed: () => _onSignIn(context),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(l.translate('login_btn_sign_in')),
@@ -72,5 +73,34 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _onSignIn(BuildContext context) async {
+    final analytics = getIt<AnalyticsService>();
+    final prefs = getIt<SharedPreferenceHelper>();
+
+    await analytics.logLoginEvent(method: 'email', success: true);
+    await analytics.logLogin(method: 'email');
+
+    // Placeholder until real auth API returns tenant/role/plan
+    const tenantId = 'default_tenant';
+    const role = 'agent';
+    const planType = 'standard';
+    await prefs.saveAuthToken('placeholder_token');
+    await prefs.saveIsLoggedIn(true);
+    await prefs.saveAnalyticsUserProperties(
+      tenantId: tenantId,
+      role: role,
+      planType: planType,
+    );
+    await analytics.setUserProperties(
+      tenantId: tenantId,
+      role: role,
+      planType: planType,
+    );
+
+    if (context.mounted) {
+      await Navigator.pushReplacementNamed(context, Routes.home);
+    }
   }
 }

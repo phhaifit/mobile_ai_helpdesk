@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/constants/app_theme.dart';
 import 'package:ai_helpdesk/constants/strings.dart';
+import 'package:ai_helpdesk/core/analytics/analytics_route_observer.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
               ? AppThemeData.darkThemeData
               : AppThemeData.lightThemeData,
           onGenerateRoute: Routes.onGenerateRoute,
+          navigatorObservers: [AnalyticsRouteObserver()],
           locale: Locale(_languageStore.locale),
           supportedLocales: _languageStore.supportedLanguages
               .map((language) => Locale(language.locale, language.code))

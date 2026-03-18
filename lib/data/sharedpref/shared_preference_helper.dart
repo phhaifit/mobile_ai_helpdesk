@@ -48,4 +48,25 @@ class SharedPreferenceHelper {
   Future<void> changeLanguage(String language) {
     return _sharedPreference.setString(Preferences.currentLanguage, language);
   }
+
+  // Analytics user properties (set after login):-------------------------------
+  Future<void> saveAnalyticsUserProperties({
+    String? tenantId,
+    String? role,
+    String? planType,
+  }) async {
+    if (tenantId != null) {
+      await _sharedPreference.setString(Preferences.tenantId, tenantId);
+    }
+    if (role != null) {
+      await _sharedPreference.setString(Preferences.userRole, role);
+    }
+    if (planType != null) {
+      await _sharedPreference.setString(Preferences.planType, planType);
+    }
+  }
+
+  String? get tenantId => _sharedPreference.getString(Preferences.tenantId);
+  String? get userRole => _sharedPreference.getString(Preferences.userRole);
+  String? get planType => _sharedPreference.getString(Preferences.planType);
 }

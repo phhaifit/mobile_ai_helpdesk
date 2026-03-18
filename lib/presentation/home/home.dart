@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() {}));
   }
 
   @override
@@ -41,7 +43,34 @@ class _HomeScreenState extends State<HomeScreen>
           _buildTicketsTab(),
         ],
       ),
+      floatingActionButton: _buildCreateTicketFab(context),
     );
+  }
+
+  Widget? _buildCreateTicketFab(BuildContext context) {
+    return Builder(
+      builder: (context) {
+        final isTicketsTab = _tabController.index == 1;
+        if (!isTicketsTab) return const SizedBox.shrink();
+        return FloatingActionButton(
+          onPressed: () => _onCreateTicket(context),
+          child: const Icon(Icons.add),
+        );
+      },
+    );
+  }
+
+  Future<void> _onCreateTicket(BuildContext context) async {
+    final ticketId = 'TK-${DateTime.now().millisecondsSinceEpoch}';
+    await getIt<AnalyticsService>().logTicketCreated(
+      ticketId: ticketId,
+      channel: 'in_app',
+    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ticket $ticketId created (event logged)')),
+      );
+    }
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -140,11 +169,12 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.all(8),
       itemCount: 5,
       itemBuilder: (context, index) {
+        final ticketId = 'TK-${1000 + index}';
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: [
+              backgroundColor: const [
                 Colors.red,
                 Colors.orange,
                 Colors.amber,
@@ -156,9 +186,22 @@ class _HomeScreenState extends State<HomeScreen>
             title: Text('Ticket #${index + 1}'),
             subtitle: Text('Mock ticket description ${index + 1}'),
             trailing: Text(
-              'TK-${1000 + index}',
+              ticketId,
               style: Theme.of(context).textTheme.labelSmall,
             ),
+            onTap: () async {
+              await getIt<AnalyticsService>().logAgentUsed(
+                ticketId: ticketId,
+                agentType: 'chatbot',
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Opened agent for $ticketId (event logged)'),
+                  ),
+                );
+              }
+            },
           ),
         );
       },
