@@ -1,4 +1,4 @@
-import 'package:ai_helpdesk/domain/di/module/usecase_module.dart';
+import '/domain/di/module/usecase_module.dart';
 
 class DomainLayerInjection {
   static Future<void> configureDomainLayerInjection() async {

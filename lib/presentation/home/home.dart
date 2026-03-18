@@ -1,7 +1,7 @@
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import '/di/service_locator.dart';
+import '/presentation/home/store/language/language_store.dart';
+import '/presentation/home/store/theme/theme_store.dart';
+import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -36,10 +36,7 @@ class _HomeScreenState extends State<HomeScreen>
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildDashboardTab(),
-          _buildTicketsTab(),
-        ],
+        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }
@@ -47,10 +44,7 @@ class _HomeScreenState extends State<HomeScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: Text(AppLocalizations.of(context).translate('home_tv_title')),
-      actions: [
-        _buildLanguageButton(),
-        _buildThemeButton(),
-      ],
+      actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
         tabs: [
@@ -86,13 +80,15 @@ class _HomeScreenState extends State<HomeScreen>
             spacing: 16,
             runSpacing: 16,
             children: [
-              _buildStatCard('Total', '12', Icons.confirmation_number,
-                  Colors.blue),
+              _buildStatCard(
+                'Total',
+                '12',
+                Icons.confirmation_number,
+                Colors.blue,
+              ),
               _buildStatCard('Open', '5', Icons.fiber_new, Colors.orange),
-              _buildStatCard(
-                  'In Progress', '4', Icons.autorenew, Colors.amber),
-              _buildStatCard(
-                  'Resolved', '3', Icons.check_circle, Colors.green),
+              _buildStatCard('In Progress', '4', Icons.autorenew, Colors.amber),
+              _buildStatCard('Resolved', '3', Icons.check_circle, Colors.green),
             ],
           ),
         ],
@@ -101,7 +97,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return SizedBox(
       width: 160,
       child: Card(
@@ -114,10 +114,9 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: color),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: color),
               ),
               const SizedBox(height: 4),
               Text(
@@ -149,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Colors.orange,
                 Colors.amber,
                 Colors.green,
-                Colors.blue
+                Colors.blue,
               ][index],
               radius: 6,
             ),

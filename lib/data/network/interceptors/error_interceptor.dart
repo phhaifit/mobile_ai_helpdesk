@@ -17,7 +17,7 @@ class ErrorInterceptor extends Interceptor {
 
 class ErrorEvent {
   final String path;
-  final Response? response;
+  final Response<dynamic>? response;
 
   ErrorEvent({required this.path, this.response});
 }

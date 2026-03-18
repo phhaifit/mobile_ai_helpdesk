@@ -1,5 +1,5 @@
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
-import 'package:ai_helpdesk/utils/routes/routes.dart';
+import '/utils/locale/app_localization.dart';
+import '/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {

@@ -1,5 +1,5 @@
-import 'package:ai_helpdesk/presentation/home/home.dart';
-import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import '/presentation/home/home.dart';
+import '/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -26,9 +26,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
+            body: Center(child: Text('No route defined for ${settings.name}')),
           ),
         );
     }

@@ -35,17 +35,11 @@ class StoreModule {
 
     // --- Theme & Language Stores ---
     getIt.registerSingleton<ThemeStore>(
-      ThemeStore(
-        getIt<SettingRepository>(),
-        getIt<ErrorStore>(),
-      ),
+      ThemeStore(getIt<SettingRepository>(), getIt<ErrorStore>()),
     );
 
     getIt.registerSingleton<LanguageStore>(
-      LanguageStore(
-        getIt<SettingRepository>(),
-        getIt<ErrorStore>(),
-      ),
+      LanguageStore(getIt<SettingRepository>(), getIt<ErrorStore>()),
     );
   }
 }

@@ -40,7 +40,9 @@ class RepositoryModule {
 
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(
-      () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()) as SettingRepository,
+      () =>
+          SettingRepositoryImpl(getIt<SharedPreferenceHelper>())
+              as SettingRepository,
     );
 
     // --- Ticket Repository ---

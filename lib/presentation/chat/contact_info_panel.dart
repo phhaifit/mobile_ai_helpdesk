@@ -17,7 +17,6 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
   String _assignedTo = 'Tên Nguyễn Huy (tôi)';
   String _status = 'Đang hỗ trợ';
   String _priority = 'Trung bình';
-  bool _isEditingDetails = false;
   List<String> _labels = ['VIP'];
   final List<String> _suggestedLabels = ['New', 'Tiềm năng'];
   final Set<String> _selectedSuggestedLabels = {};
@@ -230,7 +229,6 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              setState(() => _isEditingDetails = false);
                               _descriptionController.clear();
                             },
                             style: ElevatedButton.styleFrom(
@@ -247,7 +245,6 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                           ElevatedButton(
                             onPressed: () {
                               // Save changes
-                              setState(() => _isEditingDetails = false);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.messengerBlue,
