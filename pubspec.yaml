@@ -39,7 +39,7 @@ dependencies:
   another_flushbar: ^1.12.30
 
   # Serialization
-  json_annotation: ^4.9.0
+  json_annotation: ^4.11.0
 
 dev_dependencies:
   flutter_test:
