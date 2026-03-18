@@ -12,5 +12,6 @@
   "login_tv_welcome": "Welcome to Jarvis Helpdesk",
   "login_tv_subtitle": "Sign in to continue",
   "settings_tv_dark_mode": "Dark Mode",
-  "settings_tv_language": "Language"
+  "settings_tv_language": "Language",
+  "login_btn_test_crash": "Test Crashlytics Crash"
 }

@@ -74,7 +74,7 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () {
                       FirebaseCrashlytics.instance.crash();
                     },
-                    child: const Text("Test Crashlytics Crash"),
+                    child: Text(l.translate('login_btn_test_crash')),
                   ),
                 ],
               ],
