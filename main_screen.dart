@@ -278,33 +278,9 @@ class _MainScreenState extends State<MainScreen> {
     final isMobile = screenWidth < 600;
 
     if (isMobile) {
-      // Mobile: Stacked sidebar with bottom sheet or overlay
+      // Mobile: Hide sidebar completely, show only content
       return Scaffold(
-        body: Stack(
-          children: [
-            _buildContent(),
-            if (_showSidebarMobile)
-              GestureDetector(
-                onTap: () => setState(() => _showSidebarMobile = false),
-                child: Container(color: Colors.black.withOpacity(0.3)),
-              ),
-            if (_showSidebarMobile)
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 280,
-                  color: Colors.white,
-                  child: SidebarMenuContent(
-                    categories: _categories,
-                    selectedCategory: _selectedCategory,
-                    onCategorySelected: _selectCategory,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        body: _buildContent(),
       );
     } else {
       // Desktop/Tablet: Side-by-side layout
