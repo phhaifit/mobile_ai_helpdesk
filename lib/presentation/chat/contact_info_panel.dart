@@ -2,10 +2,39 @@ import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../../domain/entity/chat/chat_room.dart';
 
-class ContactInfoPanel extends StatelessWidget {
+class ContactInfoPanel extends StatefulWidget {
   final ChatRoom room;
 
   const ContactInfoPanel({super.key, required this.room});
+
+  @override
+  State<ContactInfoPanel> createState() => _ContactInfoPanelState();
+}
+
+class _ContactInfoPanelState extends State<ContactInfoPanel> {
+  late TextEditingController _descriptionController;
+  late TextEditingController _labelInputController;
+  String _assignedTo = 'Tên Nguyễn Huy (tôi)';
+  String _status = 'Đang hỗ trợ';
+  String _priority = 'Trung bình';
+  bool _isEditingDetails = false;
+  List<String> _labels = ['VIP'];
+  final List<String> _suggestedLabels = ['New', 'Tiềm năng'];
+  final Set<String> _selectedSuggestedLabels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController = TextEditingController();
+    _labelInputController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _labelInputController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +50,6 @@ class ContactInfoPanel extends StatelessWidget {
             // Header - Avatar và thông tin cơ bản
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-              ),
               child: Column(
                 children: [
                   // Avatar lớn
@@ -35,7 +61,7 @@ class ContactInfoPanel extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: room.isAI
+                        colors: widget.room.isAI
                             ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
                             : [
                                 const Color(0xFF6BC5F8),
@@ -45,7 +71,7 @@ class ContactInfoPanel extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        room.avatarInitials,
+                        widget.room.avatarInitials,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -57,7 +83,7 @@ class ContactInfoPanel extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Tên
                   Text(
-                    room.name,
+                    widget.room.name,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -73,7 +99,7 @@ class ContactInfoPanel extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: room.isActive
+                          color: widget.room.isActive
                               ? AppColors.onlineGreen
                               : Colors.grey,
                           shape: BoxShape.circle,
@@ -81,10 +107,10 @@ class ContactInfoPanel extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        room.isActive ? 'Đang hoạt động' : 'Ngoại tuyến',
+                        widget.room.isActive ? 'Đang hoạt động' : 'Ngoại tuyến',
                         style: TextStyle(
                           fontSize: 12,
-                          color: room.isActive
+                          color: widget.room.isActive
                               ? AppColors.onlineGreen
                               : Colors.grey,
                           fontWeight: FontWeight.w500,
@@ -96,6 +122,8 @@ class ContactInfoPanel extends StatelessWidget {
               ),
             ),
 
+            Divider(color: Colors.grey.shade200, height: 1),
+
             // Action buttons
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -105,11 +133,6 @@ class ContactInfoPanel extends StatelessWidget {
                     icon: Icons.person_add_outlined,
                     label: 'Xem hồ sơ khách hàng',
                   ),
-                  const SizedBox(height: 8),
-                  _buildActionButton(
-                    icon: Icons.history_outlined,
-                    label: 'Lịch sử tương tác',
-                  ),
                 ],
               ),
             ),
@@ -117,26 +140,134 @@ class ContactInfoPanel extends StatelessWidget {
             Divider(color: Colors.grey.shade200, height: 1),
 
             // Chi tiết phiếu hỗ trợ
-            _buildSection(
-              title: 'Chi tiết phiếu hỗ trợ',
-              children: [
-                _buildDetailRow(
-                  'Thẻ phân loại',
-                  'Phiếu đang được xử lý bởi nhân viên',
+            ExpansionTile(
+              title: const Text(
+                'Chi tiết phiếu hỗ trợ',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
-                const SizedBox(height: 12),
-                _buildDetailRow('Mức độ ưu tiên', 'Bình thường'),
-                const SizedBox(height: 12),
-                _buildDetailRow('Ngày tạo', 'Hôm nay lúc 09:30 AM'),
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      // Assigned To
+                      _buildSelectField(
+                        label: 'Giao cho',
+                        value: _assignedTo,
+                        icon: Icons.person,
+                        onTap: () {
+                          setState(() => _assignedTo = 'Tên Nguyễn Huy (tôi)');
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Status
+                      _buildSelectField(
+                        label: 'Trạng thái',
+                        value: _status,
+                        icon: Icons.info_outlined,
+                        backgroundColor: const Color(0xFFE3F2FD),
+                        valueColor: AppColors.messengerBlue,
+                        onTap: () {
+                          setState(() => _status = 'Đang hỗ trợ');
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Priority
+                      _buildSelectField(
+                        label: 'Mức độ ưu tiên',
+                        value: _priority,
+                        icon: Icons.flag_outlined,
+                        backgroundColor: const Color(0xFFFFF9C4),
+                        valueColor: const Color(0xFFFBC02D),
+                        onTap: () {
+                          setState(() => _priority = 'Trung bình');
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Description
+                      TextField(
+                        controller: _descriptionController,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: 'Nhập mô tả phiếu hỗ trợ...',
+                          hintStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: AppColors.messengerBlue,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Action buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() => _isEditingDetails = false);
+                              _descriptionController.clear();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppColors.textPrimary,
+                              side: BorderSide(color: Colors.grey.shade300),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            child: const Text('Hủy'),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Save changes
+                              setState(() => _isEditingDetails = false);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.messengerBlue,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            child: const Text('Cập nhật'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
 
-            // Nhân viên xử lý
-            _buildSection(
-              title: 'Nhân viên',
-              expandable: true,
-              children: [_buildPersonItem('Quản lý nhân viên')],
-            ),
+            // Nhãn
+            _buildLabelsSection(),
 
             // Phân tích cuộc hội thoại
             _buildSection(
@@ -200,6 +331,252 @@ class ContactInfoPanel extends StatelessWidget {
     );
   }
 
+  Widget _buildSelectField({
+    required String label,
+    required String value,
+    required IconData icon,
+    Color? backgroundColor,
+    Color? valueColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: backgroundColor ?? Colors.white,
+                border: Border.all(
+                  color: backgroundColor != null
+                      ? Colors.transparent
+                      : Colors.grey.shade300,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: valueColor ?? AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.expand_more,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabelsSection() {
+    return ExpansionTile(
+      title: const Text(
+        'Nhãn',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Display labels as chips
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ..._labels.map(
+                    (label) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _labels.remove(label);
+                              });
+                            },
+                            child: Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Add label input
+              TextField(
+                controller: _labelInputController,
+                decoration: InputDecoration(
+                  hintText: 'Thêm nhãn',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 12,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: const BorderSide(
+                      color: AppColors.messengerBlue,
+                    ),
+                  ),
+                  suffixIcon: _labelInputController.text.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () {
+                            if (_labelInputController.text.isNotEmpty) {
+                              setState(() {
+                                _labels.add(_labelInputController.text);
+                                _labelInputController.clear();
+                              });
+                            }
+                          },
+                          child: const Icon(
+                            Icons.check,
+                            color: AppColors.messengerBlue,
+                          ),
+                        )
+                      : null,
+                ),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Suggested labels
+              const Text(
+                'Nhãn gợi ý',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _suggestedLabels.map((suggestedLabel) {
+                  final isSelected =
+                      _selectedSuggestedLabels.contains(suggestedLabel) ||
+                      _labels.contains(suggestedLabel);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedSuggestedLabels.remove(suggestedLabel);
+                          _labels.remove(suggestedLabel);
+                        } else {
+                          _selectedSuggestedLabels.add(suggestedLabel);
+                          if (!_labels.contains(suggestedLabel)) {
+                            _labels.add(suggestedLabel);
+                          }
+                        }
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 18,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.messengerBlue
+                                    : Colors.grey.shade300,
+                              ),
+                              borderRadius: BorderRadius.circular(3),
+                              color: isSelected
+                                  ? AppColors.messengerBlue
+                                  : Colors.transparent,
+                            ),
+                            child: isSelected
+                                ? const Center(
+                                    child: Icon(
+                                      Icons.check,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            suggestedLabel,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSection({
     required String title,
     required List<Widget> children,
@@ -246,65 +623,6 @@ class ContactInfoPanel extends StatelessWidget {
           child: Column(children: children),
         ),
         Divider(color: Colors.grey.shade200, height: 16),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.grey,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPersonItem(String name) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.messengerBlue,
-          ),
-          child: Center(
-            child: Text(
-              name.substring(0, 1),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 12,
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
       ],
     );
   }

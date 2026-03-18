@@ -73,23 +73,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: onSearchTap,
         ),
         IconButton(
-          tooltip: "Voice call",
-          icon: const Icon(Icons.phone, color: AppColors.messengerBlue),
-          onPressed: () {},
-        ),
-        IconButton(
-          tooltip: "Video call",
-          icon: const Icon(
-            Icons.videocam_rounded,
-            color: AppColors.messengerBlue,
-          ),
-          onPressed: () {},
-        ),
-        IconButton(
           tooltip: "Info",
           icon: const Icon(Icons.info_outline, color: AppColors.messengerBlue),
           onPressed: onInfoTap,
         ),
+        const SizedBox(width: 10),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
