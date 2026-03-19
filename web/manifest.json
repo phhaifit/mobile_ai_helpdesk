@@ -1,6 +1,6 @@
 {
-    "name": "flutter_boilerplate_project",
-    "short_name": "flutter_boilerplate_project",
+    "name": "ai_helpdesk",
+    "short_name": "ai_helpdesk",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

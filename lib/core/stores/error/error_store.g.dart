@@ -9,8 +9,10 @@ part of 'error_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$ErrorStore on _ErrorStore, Store {
-  late final _$errorMessageAtom =
-      Atom(name: '_ErrorStore.errorMessage', context: context);
+  late final _$errorMessageAtom = Atom(
+    name: '_ErrorStore.errorMessage',
+    context: context,
+  );
 
   @override
   String get errorMessage {
@@ -25,13 +27,16 @@ mixin _$ErrorStore on _ErrorStore, Store {
     });
   }
 
-  late final _$_ErrorStoreActionController =
-      ActionController(name: '_ErrorStore', context: context);
+  late final _$_ErrorStoreActionController = ActionController(
+    name: '_ErrorStore',
+    context: context,
+  );
 
   @override
   void setErrorMessage(String message) {
     final _$actionInfo = _$_ErrorStoreActionController.startAction(
-        name: '_ErrorStore.setErrorMessage');
+      name: '_ErrorStore.setErrorMessage',
+    );
     try {
       return super.setErrorMessage(message);
     } finally {
@@ -41,8 +46,9 @@ mixin _$ErrorStore on _ErrorStore, Store {
 
   @override
   void reset(String value) {
-    final _$actionInfo =
-        _$_ErrorStoreActionController.startAction(name: '_ErrorStore.reset');
+    final _$actionInfo = _$_ErrorStoreActionController.startAction(
+      name: '_ErrorStore.reset',
+    );
     try {
       return super.reset(value);
     } finally {
@@ -51,9 +57,10 @@ mixin _$ErrorStore on _ErrorStore, Store {
   }
 
   @override
-  dynamic dispose() {
-    final _$actionInfo =
-        _$_ErrorStoreActionController.startAction(name: '_ErrorStore.dispose');
+  void dispose() {
+    final _$actionInfo = _$_ErrorStoreActionController.startAction(
+      name: '_ErrorStore.dispose',
+    );
     try {
       return super.dispose();
     } finally {

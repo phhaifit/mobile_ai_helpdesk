@@ -12,12 +12,15 @@ mixin _$LanguageStore on _LanguageStore, Store {
   Computed<String>? _$localeComputed;
 
   @override
-  String get locale => (_$localeComputed ??=
-          Computed<String>(() => super.locale, name: '_LanguageStore.locale'))
-      .value;
+  String get locale => (_$localeComputed ??= Computed<String>(
+    () => super.locale,
+    name: '_LanguageStore.locale',
+  )).value;
 
-  late final _$_localeAtom =
-      Atom(name: '_LanguageStore._locale', context: context);
+  late final _$_localeAtom = Atom(
+    name: '_LanguageStore._locale',
+    context: context,
+  );
 
   @override
   String get _locale {
@@ -32,13 +35,16 @@ mixin _$LanguageStore on _LanguageStore, Store {
     });
   }
 
-  late final _$_LanguageStoreActionController =
-      ActionController(name: '_LanguageStore', context: context);
+  late final _$_LanguageStoreActionController = ActionController(
+    name: '_LanguageStore',
+    context: context,
+  );
 
   @override
   void changeLanguage(String value) {
     final _$actionInfo = _$_LanguageStoreActionController.startAction(
-        name: '_LanguageStore.changeLanguage');
+      name: '_LanguageStore.changeLanguage',
+    );
     try {
       return super.changeLanguage(value);
     } finally {
@@ -49,7 +55,8 @@ mixin _$LanguageStore on _LanguageStore, Store {
   @override
   String getCode() {
     final _$actionInfo = _$_LanguageStoreActionController.startAction(
-        name: '_LanguageStore.getCode');
+      name: '_LanguageStore.getCode',
+    );
     try {
       return super.getCode();
     } finally {
@@ -60,7 +67,8 @@ mixin _$LanguageStore on _LanguageStore, Store {
   @override
   String? getLanguage() {
     final _$actionInfo = _$_LanguageStoreActionController.startAction(
-        name: '_LanguageStore.getLanguage');
+      name: '_LanguageStore.getLanguage',
+    );
     try {
       return super.getLanguage();
     } finally {

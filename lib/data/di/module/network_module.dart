@@ -1,12 +1,11 @@
-import '/core/data/network/dio/configs/dio_configs.dart';
-import '/core/data/network/dio/dio_client.dart';
-import '/core/data/network/dio/interceptors/auth_interceptor.dart';
-import '/core/data/network/dio/interceptors/logging_interceptor.dart';
-import '/data/network/apis/posts/post_api.dart';
-import '/data/network/constants/endpoints.dart';
-import '/data/network/interceptors/error_interceptor.dart';
-import '/data/network/rest_client.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/core/data/network/dio/configs/dio_configs.dart';
+import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
+import 'package:ai_helpdesk/core/data/network/dio/interceptors/auth_interceptor.dart';
+import 'package:ai_helpdesk/core/data/network/dio/interceptors/logging_interceptor.dart';
+import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
+import 'package:ai_helpdesk/data/network/interceptors/error_interceptor.dart';
+import 'package:ai_helpdesk/data/network/rest_client.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:event_bus/event_bus.dart';
 
 import '../../../di/service_locator.dart';
@@ -21,7 +20,8 @@ class NetworkModule {
     getIt.registerSingleton<ErrorInterceptor>(ErrorInterceptor(getIt()));
     getIt.registerSingleton<AuthInterceptor>(
       AuthInterceptor(
-        accessToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+        accessToken: () async =>
+            await getIt<SharedPreferenceHelper>().authToken,
       ),
     );
 
@@ -30,10 +30,10 @@ class NetworkModule {
 
     // dio:---------------------------------------------------------------------
     getIt.registerSingleton<DioConfigs>(
-      const DioConfigs(
+      DioConfigs(
         baseUrl: Endpoints.baseUrl,
         connectionTimeout: Endpoints.connectionTimeout,
-        receiveTimeout:Endpoints.receiveTimeout,
+        receiveTimeout: Endpoints.receiveTimeout,
       ),
     );
     getIt.registerSingleton<DioClient>(
@@ -46,8 +46,5 @@ class NetworkModule {
           ],
         ),
     );
-
-    // api's:-------------------------------------------------------------------
-    getIt.registerSingleton(PostApi(getIt<DioClient>()));
   }
 }

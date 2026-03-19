@@ -3,61 +3,49 @@ import 'dart:convert';
 import 'package:sembast/sembast.dart';
 import 'package:xxtea/xxtea.dart';
 
-class _XXTeaEncoder extends Converter<Map<String, dynamic>, String> {
-  final String key;
+SembastCodec getXXTeaCodec({required String password}) => SembastCodec(
+      codec: XXTeaCodec(password: password),
+      signature: 'xxtea',
+    );
 
-  _XXTeaEncoder(this.key);
+class XXTeaCodec extends Codec<Object?, String> {
+  final String password;
+  late XXTeaEncoder _encoder;
+  late XXTeaDecoder _decoder;
 
-  @override
-  String convert(Map<String, dynamic> input) =>
-      xxtea.encryptToString(json.encode(input), key)!;
-}
-
-class _XXTeaDecoder extends Converter<String, Map<String, dynamic>> {
-  final String key;
-
-  _XXTeaDecoder(this.key);
-
-  @override
-  Map<String, dynamic> convert(String input) {
-    var result = json.decode(xxtea.decryptToString(input, key)!);
-    if (result is Map) {
-      return result.cast<String, dynamic>();
-    }
-    throw FormatException('invalid input $input');
-  }
-}
-
-/// Simple encryption codec using xxtea
-/// It requires a password to encrypt/decrypt the data
-class _XXTeaCodec extends Codec<Map<String, dynamic>, String> {
-  late _XXTeaEncoder _encoder;
-  late _XXTeaDecoder _decoder;
-
-  /// A non null [password] to use for the encryption/decryption
-  _XXTeaCodec(String password) {
-    _encoder = _XXTeaEncoder(password);
-    _decoder = _XXTeaDecoder(password);
+  XXTeaCodec({required this.password}) {
+    _encoder = XXTeaEncoder(password);
+    _decoder = XXTeaDecoder(password);
   }
 
   @override
-  Converter<String, Map<String, dynamic>> get decoder => _decoder;
+  Converter<String, Object?> get decoder => _decoder;
 
   @override
-  Converter<Map<String, dynamic>, String> get encoder => _encoder;
+  Converter<Object?, String> get encoder => _encoder;
 }
 
-/// Create a codec to use when opening an encrypted sembast database
-///
-/// The usage is then
-///
-/// ```dart
-/// // Initialize the encryption codec with a user password
-/// var codec = getXXTeaCodec(password: '[your_user_password]');
-/// // Open the database with the codec
-/// Database db = await factory.openDatabase(dbPath, codec: codec);
-///
-/// // ...your database is ready to use as encrypted
-/// ```
-SembastCodec getXXTeaCodec({required String password}) =>
-    SembastCodec(signature: 'xxtea', codec: _XXTeaCodec(password));
+class XXTeaEncoder extends Converter<Object?, String> {
+  final String password;
+
+  XXTeaEncoder(this.password);
+
+  @override
+  String convert(Object? input) {
+    final encoded = jsonEncode(input);
+    final encrypted = xxtea.encryptToString(encoded, password);
+    return encrypted!;
+  }
+}
+
+class XXTeaDecoder extends Converter<String, Object?> {
+  final String password;
+
+  XXTeaDecoder(this.password);
+
+  @override
+  Object? convert(String input) {
+    final decrypted = xxtea.decryptToString(input, password);
+    return jsonDecode(decrypted!);
+  }
+}

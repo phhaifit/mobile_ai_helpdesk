@@ -1,302 +1,419 @@
-# This branch is still under development
-
-# Boilerplate Project
-
-![CI](https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/actions/workflows/ci.yml/badge.svg)
-
-<!-- Replace YOUR_GITHUB_USERNAME and YOUR_REPO_NAME with actual values after pushing to GitHub -->
-
-A boilerplate project created in flutter using MobX and Provider. Boilerplate supports both web and mobile, clone the appropriate branches mentioned below:
-
-* For Mobile: https://github.com/zubairehman/flutter-boilerplate-project/tree/master (stable channel)
-* For Web: https://github.com/zubairehman/flutter-boilerplate-project/tree/feature/web-support (beta channel)
-
-## Getting Started
-
-The Boilerplate contains the minimal implementation required to create a new library or project. The repository code is preloaded with some basic components like basic app architecture, app theme, constants and required dependencies to create a new project. By using boiler plate code as standard initializer, we can have same patterns in all the projects that will inherit it. This will also help in reducing setup & development time by allowing you to use same code pattern and avoid re-writing from scratch.
-
-## How to Use 
-
-**Step 1:**
-
-Download or clone this repo by using the link below:
-
-```
-https://github.com/zubairehman/flutter-boilerplate-project.git
-```
-
-**Step 2:**
-
-Go to project root and execute the following command in console to get the required dependencies: 
-
-```
-flutter pub get 
-```
-
-**Step 3:**
-
-This project uses `inject` library that works with code generation, execute the following command to generate files:
-
-```
-flutter packages pub run build_runner build --delete-conflicting-outputs
-```
-
-or watch command in order to keep the source code synced automatically:
-
-```
-flutter packages pub run build_runner watch
-```
-
-## Hide Generated Files
-
-In-order to hide generated files, navigate to `Android Studio` -> `Preferences` -> `Editor` -> `File Types` and paste the below lines under `ignore files and folders` section:
-
-```
-*.inject.summary;*.inject.dart;*.g.dart;
-```
-
-In Visual Studio Code, navigate to `Preferences` -> `Settings` and search for `Files:Exclude`. Add the following patterns:
-```
-**/*.inject.summary
-**/*.inject.dart
-**/*.g.dart
-```
-
-## Boilerplate Features:
-
-* Splash
-* Login
-* Home
-* Routing
-* Theme
-* Dio
-* Database
-* MobX (to connect the reactive data of your application with the UI)
-* Provider (State Management)
-* Encryption
-* Validation
-* Code Generation
-* User Notifications
-* Logging
-* Dependency Injection
-* Dark Theme Support (new)
-* Multilingual Support (new)
-* Provider example (new)
-
-### Up-Coming Features:
-
-* Connectivity Support
-* Background Fetch Support
-
-### Libraries & Tools Used
-
-* [Dio](https://github.com/flutterchina/dio)
-* [Database](https://github.com/tekartik/sembast.dart)
-* [MobX](https://github.com/mobxjs/mobx.dart) (to connect the reactive data of your application with the UI)
-* [Provider](https://github.com/rrousselGit/provider) (State Management)
-* [Encryption](https://github.com/xxtea/xxtea-dart)
-* [Validation](https://github.com/dart-league/validators)
-* [Logging](https://github.com/zubairehman/Flogs)
-* [Notifications](https://github.com/AndreHaueisen/flushbar)
-* [Json Serialization](https://github.com/dart-lang/json_serializable)
-* [Dependency Injection](https://github.com/fluttercommunity/get_it)
-
-### Folder Structure
-Here is the core folder structure which flutter provides.
-
-```
-flutter-app/
-|- android
-|- build
-|- ios
-|- lib
-|- test
-```
-
-Here is the folder structure we have been using in this project
-
-```
-lib/
-|- constants/
-|- data/
-|- stores/
-|- ui/
-|- utils/
-|- widgets/
-|- main.dart
-|- routes.dart
-```
-
-Now, lets dive into the lib folder which has the main code for the application.
-
-```
-1- constants - All the application level constants are defined in this directory with-in their respective files. This directory contains the constants for `theme`, `dimentions`, `api endpoints`, `preferences` and `strings`.
-2- data - Contains the data layer of your project, includes directories for local, network and shared pref/cache.
-3- stores - Contains store(s) for state-management of your application, to connect the reactive data of your application with the UI. 
-4- ui — Contains all the ui of your project, contains sub directory for each screen.
-5- util — Contains the utilities/common functions of your application.
-6- widgets — Contains the common widgets for your applications. For example, Button, TextField etc.
-7- routes.dart — This file contains all the routes for your application.
-8- main.dart - This is the starting point of the application. All the application level configurations are defined in this file i.e, theme, routes, title, orientation etc.
-```
-
-### Constants
-
-This directory contains all the application level constants. A separate file is created for each type as shown in example below:
-
-```
-constants/
-|- app_theme.dart
-|- dimens.dart
-|- endpoints.dart
-|- preferences.dart
-|- strings.dart
-```
-
-### Data
-
-All the business logic of your application will go into this directory, it represents the data layer of your application. It is sub-divided into three directories `local`, `network` and `sharedperf`, each containing the domain specific logic. Since each layer exists independently, that makes it easier to unit test. The communication between UI and data layer is handled by using central repository.
-
-```
-data/
-|- local/
-    |- constants/
-    |- datasources/
-    |- app_database.dart
-   
-|- network/
-    |- constants/
-    |- exceptions/
-    |- rest_client.dart
-    
-|- sharedpref
-    |- constants/
-    |- shared_preference_helper.dart
-    
-|- repository.dart
-
-```
-
-### Stores
-
-The store is where all your application state lives in flutter. The Store is basically a widget that stands at the top of the widget tree and passes it's data down using special methods. In-case of multiple stores, a separate folder for each store is created as shown in the example below:
-
-```
-stores/
-|- login/
-    |- login_store.dart
-    |- form_validator.dart
-```
-
-### UI
-
-This directory contains all the ui of your application. Each screen is located in a separate folder making it easy to combine group of files related to that particular screen. All the screen specific widgets will be placed in `widgets` directory as shown in the example below:
-
-```
-ui/
-|- login
-   |- login_screen.dart
-   |- widgets
-      |- login_form.dart
-      |- login_button.dart
-```
-
-### Utils
-
-Contains the common file(s) and utilities used in a project. The folder structure is as follows: 
-
-```
-utils/
-|- encryption
-   |- xxtea.dart
-|- date
-  |- date_time.dart
-```
-
-### Widgets
-
-Contains the common widgets that are shared across multiple screens. For example, Button, TextField etc.
-
-```
-widgets/
-|- app_icon_widget.dart
-|- empty_app_bar.dart
-|- progress_indicator.dart
-```
-
-### Routes
-
-This file contains all the routes for your application.
-
-```dart
-import 'package:flutter/material.dart';
-
-import 'ui/post/post_list.dart';
-import 'ui/login/login.dart';
-import 'ui/splash/splash.dart';
-
-class Routes {
-  Routes._();
-
-  //static variables
-  static const String splash = '/splash';
-  static const String login = '/login';
-  static const String home = '/post';
-
-  static final routes = <String, WidgetBuilder>{
-    splash: (BuildContext context) => SplashScreen(),
-    login: (BuildContext context) => LoginScreen(),
-    home: (BuildContext context) => HomeScreen(),
-  };
-}
-```
-
-### Main
-
-This is the starting point of the application. All the application level configurations are defined in this file i.e, theme, routes, title, orientation etc.
-
-```dart
-import 'package:boilerplate/routes.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'constants/app_theme.dart';
-import 'constants/strings.dart';
-import 'ui/splash/splash.dart';
-
-void main() {
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.landscapeLeft,
-  ]).then((_) {
-    runApp(MyApp());
-  });
-}
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: Strings.appName,
-      theme: themeData,
-      routes: Routes.routes,
-      home: SplashScreen(),
-    );
-  }
-}
-```
-
-## Wiki
-
-Checkout [wiki](https://github.com/zubairehman/flutter-boilerplate-project/wiki) for more info
-
-## Conclusion
-
-I will be happy to answer any questions that you may have on this approach, and if you want to lend a hand with the boilerplate then please feel free to submit an issue and/or pull request 🙂
-
-Again to note, this is example can appear as over-architectured for what it is - but it is an example only. If you liked my work, don’t forget to ⭐ star the repo to show your support.
-
+# AI-Helpdesk Brainstorming
+
+*Created: 2026-02-16*
+
+## Project Vision
+
+Jarvis Helpdesk is an omnichannel AI-powered helpdesk system that empowers businesses to deliver exceptional customer support through intelligent automation and human collaboration. The platform combines traditional customer service tools with advanced AI agents that can operate autonomously or semi-autonomously alongside human staff.
+
+**Core Problems Solved:**
+- Reducing customer support response times through AI automation
+- Providing 24/7 customer support coverage without increasing staffing costs
+- Centralizing multi-channel communications (Messenger, Zalo, etc.) into one platform
+- Enabling businesses to scale support operations without proportional cost increases
+- Maintaining high-quality support through AI-assisted responses and knowledge management
+
+**End Goal:**
+Create a comprehensive helpdesk platform where AI agents and human staff work seamlessly together to provide superior customer support, with the flexibility to adjust automation levels based on business needs.
+
+## Key Features
+
+### V1 Features (Already Built)
+
+#### 1. Authentication & Authorization
+- User registration with validation (username, password constraints)
+- Login/logout functionality
+- Account management (profile updates, avatar management)
+- Password reset/forgot/change flows
+
+#### 2. Omnichannel Integrations
+**Messenger Integration:**
+- Connect/disconnect Facebook Messenger pages
+- Sync customer data from Messenger
+- Configure page settings
+- OAuth verification
+- Page resyncing capabilities
+
+**Zalo Integration (include Zalo Personal + OA):**
+- Personal account connection via QR code
+- OAuth management
+- Real-time message synchronization
+- Customer data retrieval
+- CS (Customer Service) assignment to Zalo accounts
+- Personal message sending
+
+#### 3. Tenant Management
+- Multi-tenant support with tenant switching
+- Tenant creation and deletion
+- Team member invitations
+- Invitation management (resend, accept, decline)
+- Auto-resolution settings configuration
+- Tenant-level permissions
+
+#### 4. Marketing & Broadcasting
+- Marketing template creation and management
+- Broadcast campaigns
+- Recipient targeting
+- Campaign execution controls (start, stop, resume)
+- Facebook admin account integration
+- Template library
+
+#### 5. Ticket Management (20 points)
+- Comprehensive ticket CRUD operations
+- Ticket status tracking (open, in-progress, resolved, closed)
+- Ticket assignment (assigned vs unassigned)
+- CS-specific ticket views ("my tickets")
+- Customer ticket history
+- Ticket comments system
+- Ticket detail updates
+
+#### 6. Customer Management
+- Customer database with contact information
+- Customer segmentation and tagging
+- Customer merging (duplicate resolution)
+- Customer profile management
+- Contact information management
+- Email validation
+- Customer search and filtering
+
+#### 7. Real-time Messaging
+**Chat Room Features:**
+- Unified chat interface for all channels
+- Real-time message synchronization
+- Chat room counters (unread, active)
+- Message search functionality
+- Read receipts (mark as seen)
+- Message reactions
+- AI-powered ticket analysis
+
+**CS Tools:**
+- Send messages to customers
+- Message history
+- Search within conversations
+- Real-time updates
+
+#### 8. Prompt Management
+- Public prompt library with search
+- Category-based filtering
+- Favorite prompts
+- Private prompt creation
+- Quick prompt access via slash commands (/)
+- Prompt usage tracking
+
+#### 9. AI Agent System (20 points)
+**AI Agent Management:**
+- Create and configure AI agents per tenant
+- Agent profile customization
+- Agent behavior settings (auto vs semi-auto)
+- Team-level assistant configuration
+- Multi-platform publishing (Slack, Telegram, Messenger)
+
+**AI Chat Playground:**
+- Interactive testing interface
+- File upload and processing
+- Context simulation (Lazada, normal customers)
+- Markdown and image rendering
+- Message editing
+- Session management
+- Typing indicators
+- Response streaming
+- Empty state suggestions
+
+**Sub-agent configuration:**
+- Integration with Vertex AI/n8n
+- Multi-workflow support (minimum 3 workflows)
+- Topic-specific AI agent creation
+
+#### 10. Knowledge Base Management
+**Knowledge Source Types:**
+- Web scraping (single URL or entire site)
+- Local file uploads
+- Google Drive integration
+- Database queries (PostgreSQL, SQL Server)
+
+**Knowledge Management:**
+- Source filtering by type
+- Source status management
+- Automatic reindexing
+- Crawl interval configuration
+- Database connection testing
+
+#### 11. Monetization
+- Pro account upgrades
+- Ticket-based usage limits
+
+#### 12. Platform & Analytics
+- Project boostrap
+- Mobile app published on app stores
+- User acquisition tracking
+- Google Analytics integration
+- Sentry error tracking
+- Crashlytics implementation
+- CI/CD pipeline
+
+## Target Users
+
+### Primary Users
+
+**1. Customer Service Representatives (CS Agents)**
+- Handle customer inquiries across multiple channels
+- Collaborate with AI agents for faster responses
+- Manage tickets and customer relationships
+- Use knowledge base to provide accurate information
+
+**2. Customer Service Managers**
+- Monitor team performance
+- Configure AI agent behavior
+- Manage multi-channel integrations
+- Analyze support metrics
+- Handle escalations
+
+**3. Business Owners / Administrators**
+- Configure tenant settings
+- Manage team members
+- Set up AI agents for their business domain
+- Monitor overall system performance
+- Control automation levels
+
+**4. Marketing Teams**
+- Create and execute broadcast campaigns
+- Manage marketing templates
+- Target customer segments
+- Track campaign performance
+
+### Secondary Users
+
+**5. End Customers**
+- Receive support via preferred channels (Messenger, Zalo, etc.)
+- Interact with AI agents or human staff
+- Get 24/7 automated support
+- Escalate to human agents when needed
+
+**6. System Administrators**
+- Manage platform infrastructure
+- Monitor system health
+- Handle tenant onboarding
+- Ensure data security
+
+## Technical Considerations
+
+### Current Tech Stack (V1)
+
+**AI & Machine Learning:**
+- Vertex AI for AI agent capabilities
+- n8n for workflow automation
+- Custom AI model integration
+- Multimodal support (text + images + files)
+
+**Integrations:**
+- Facebook Messenger API
+- Zalo API (OAuth, QR, personal messaging)
+- Google Drive API
+- Slack API
+- Confluence API
+- PostgreSQL/SQL Server connectors
+
+**Analytics & Monitoring:**
+- Google Analytics
+- Sentry (error tracking)
+- Crashlytics (mobile crash reporting)
+
+**Infrastructure:**
+- Multi-tenant architecture
+- Real-time messaging system
+- File storage and processing
+- CI/CD pipeline
+
+### Scalability Needs
+
+**Current Considerations:**
+- Real-time message processing at scale
+- Knowledge base indexing performance
+- AI agent response times
+- Multi-channel message synchronization
+- Broadcast campaign delivery
+- File processing for multimodal AI
+
+**Future Scalability:**
+- Horizontal scaling for chat servers
+- CDN for static assets and media
+- Database sharding for multi-tenant data
+- Queue systems for async processing
+- Caching layers for knowledge retrieval
+- Rate limiting for API calls
+
+### Integration Opportunities
+
+**Existing Integrations:**
+- Messenger, Zalo (completed)
+- Google Drive, Slack, Confluence (completed)
+
+**Potential Future Integrations:**
+- WhatsApp Business API
+- Telegram
+- WeChat
+- Line
+- Email (IMAP/SMTP)
+- Instagram DMs
+- Twitter/X DMs
+- LiveChat platforms
+- CRM systems (Salesforce, HubSpot)
+- E-commerce platforms (Shopify, WooCommerce)
+- Help desk tools (Zendesk, Freshdesk)
+
+## Success Metrics
+
+### User Adoption Metrics
+- Number of active tenants
+- Number of CS agents using the platform
+- Number of AI agents created
+- App downloads and installations
+- User retention rate
+- Daily/Monthly active users (DAU/MAU)
+
+### Performance Metrics
+- AI agent response accuracy
+- Average response time (AI vs human)
+- First response time
+- Resolution time
+- Customer satisfaction score (CSAT)
+- Net Promoter Score (NPS)
+
+### Efficiency Metrics
+- Ticket deflection rate (AI auto-resolved vs human)
+- Number of tickets handled per CS agent
+- Reduction in average handling time
+- Percentage of automated resolutions
+- CS agent productivity increase
+
+### Business Metrics
+- Pro account conversion rate
+- Revenue per tenant
+- Customer churn rate
+- Token usage patterns
+- Broadcast campaign success rates
+- Knowledge base utilization
+
+### Technical Metrics
+- System uptime and availability
+- API response times
+- Message delivery success rate
+- Knowledge base indexing speed
+- Error rates (via Sentry/Crashlytics)
+- Channel synchronization accuracy
+
+## Open Questions
+
+### Product & Features
+- What should be the default automation level for new AI agents?
+- How do we handle multi-language support across different channels?
+- What's the optimal balance between AI automation and human oversight?
+- Should we support voice/call integrations in V2?
+- How do we handle AI agent hallucinations or incorrect responses?
+- What approval workflows are needed for AI-generated responses?
+- Should customers know they're talking to an AI vs human?
+
+### AI Agent Capabilities
+- What additional workflows should be built beyond the minimum 3?
+- How do we continuously improve AI agent quality?
+- Should AI agents learn from CS agent corrections?
+- What guardrails are needed for AI agent responses?
+- How do we handle sensitive customer data with AI?
+- Should AI agents have different "personalities" per brand?
+
+### Integration & Channels
+- Which messaging channel should we prioritize next?
+- How do we handle channel-specific features (e.g., Messenger templates)?
+- Should we support omnichannel customer identity merging?
+- How do we handle rate limits across different platforms?
+
+### Scalability & Performance
+- What's our target for concurrent chat sessions?
+- How do we optimize knowledge base search at scale?
+- Should we implement message queueing for high-volume scenarios?
+- What's the backup strategy for real-time messaging?
+
+### Monetization & Pricing
+- What features should be Pro-only vs free tier?
+- Should we charge per seat, per agent, or per usage?
+- What token limits make sense for different tiers?
+- Should enterprise customers get custom pricing?
+
+### Security & Compliance
+- What data residency requirements do we need to support?
+- How do we handle GDPR/privacy regulations across regions?
+- What encryption is needed for customer data?
+- Should we support SSO/SAML for enterprise customers?
+
+### Knowledge Management
+- How often should knowledge sources be re-indexed?
+- What's the maximum size for knowledge base per tenant?
+- Should AI agents cite sources in their responses?
+- How do we handle conflicting information in knowledge base?
+
+---
+
+## Notes
+
+### V1 Achievements
+- Successfully built omnichannel foundation with Messenger and Zalo
+- Implemented flexible AI agent system (auto and semi-auto modes)
+- Created comprehensive knowledge base system with 6+ source types
+- Built marketing/broadcast capabilities
+- Launched on mobile app stores with analytics
+- Multi-tenant architecture working well
+
+### Ideas for Future Iterations
+
+**V2 Potential Features:**
+- Voice/call support integration
+- WhatsApp Business integration
+- Advanced analytics dashboard
+- AI agent performance analytics
+- Sentiment analysis on customer messages
+- Automated workflow triggers based on customer behavior
+- Team collaboration features (internal chat, notes)
+- SLA management and tracking
+- Custom fields for tickets and customers
+- Advanced reporting and exports
+- Mobile app feature parity with web
+- Offline mode for mobile CS agents
+
+**V3+ Ideas:**
+- Video support in chat
+- Co-browsing capabilities
+- Screen sharing for support
+- AI-powered quality assurance
+- Predictive analytics (customer churn, upsell opportunities)
+- Integration marketplace
+- White-label options for enterprise
+- Advanced automation rules engine
+- Chatbot builder with visual flow designer
+- Voice AI agents
+- Multi-brand support within single tenant
+
+### Technical Debt & Improvements
+- Performance optimization for large knowledge bases
+- Improve AI agent context management
+- Better error handling for channel disconnections
+- Enhanced caching strategy
+- Database query optimization
+- Real-time notification improvements
+- Mobile app performance tuning
+
+### Competitive Analysis Needed
+- Compare with Zendesk, Freshdesk, Intercom
+- Analyze AI features of competitors
+- Pricing model comparison
+- Channel coverage comparison
+- Identify unique selling propositions
+
+### Customer Feedback Themes
+*(To be filled in as feedback is collected)*
+
+### Partnership Opportunities
+- E-commerce platform integrations
+- CRM vendors
+- Marketing automation tools
+- Payment processors
+- Regional messaging platforms

@@ -1,17 +1,36 @@
-import '/presentation/home/home.dart';
-import '/presentation/login/login.dart';
+import 'package:ai_helpdesk/presentation/home/home.dart';
+import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
   Routes._();
 
-  //static variables
-  static const String splash = '/splash';
+  // route constants -----------------------------------------------------------
   static const String login = '/login';
-  static const String home = '/post';
+  static const String home = '/home';
 
-  static final routes = <String, WidgetBuilder>{
-    login: (BuildContext context) => LoginScreen(),
-    home: (BuildContext context) => HomeScreen(),
-  };
+  // route generator -----------------------------------------------------------
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case login:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const LoginScreen(),
+        );
+      case home:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const HomeScreen(),
+        );
+      default:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => Scaffold(
+            body: Center(
+              child: Text('No route defined for ${settings.name}'),
+            ),
+          ),
+        );
+    }
+  }
 }

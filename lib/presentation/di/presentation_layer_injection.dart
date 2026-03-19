@@ -1,4 +1,4 @@
-import '/presentation/di/module/store_module.dart';
+import 'package:ai_helpdesk/presentation/di/module/store_module.dart';
 
 class PresentationLayerInjection {
   static Future<void> configurePresentationLayerInjection() async {

@@ -1,6 +1,6 @@
-import '/data/di/module/local_module.dart';
-import '/data/di/module/network_module.dart';
-import '/data/di/module/repository_module.dart';
+import 'package:ai_helpdesk/data/di/module/local_module.dart';
+import 'package:ai_helpdesk/data/di/module/network_module.dart';
+import 'package:ai_helpdesk/data/di/module/repository_module.dart';
 
 class DataLayerInjection {
   static Future<void> configureDataLayerInjection() async {

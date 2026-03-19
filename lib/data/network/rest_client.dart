@@ -6,17 +6,14 @@ import 'package:http/http.dart' as http;
 import 'exceptions/network_exceptions.dart';
 
 class RestClient {
-  // instantiate json decoder for json serialization
-  final JsonDecoder _decoder = JsonDecoder();
+  final JsonDecoder _decoder = const JsonDecoder();
 
-  // Get:-----------------------------------------------------------------------
   Future<dynamic> get(String path) {
     return http.get(Uri.parse(path)).then(_createResponse);
   }
 
-  // Post:----------------------------------------------------------------------
   Future<dynamic> post(String path,
-      {Map<String, String>? headers, body, encoding}) {
+      {Map<String, String>? headers, Object? body, Encoding? encoding}) {
     return http
         .post(
           Uri.parse(path),
@@ -27,9 +24,8 @@ class RestClient {
         .then(_createResponse);
   }
 
-  // Put:----------------------------------------------------------------------
   Future<dynamic> put(String path,
-      {Map<String, String>? headers, body, encoding}) {
+      {Map<String, String>? headers, Object? body, Encoding? encoding}) {
     return http
         .put(
           Uri.parse(path),
@@ -40,9 +36,8 @@ class RestClient {
         .then(_createResponse);
   }
 
-  // Delete:----------------------------------------------------------------------
   Future<dynamic> delete(String path,
-      {Map<String, String>? headers, body, encoding}) {
+      {Map<String, String>? headers, Object? body, Encoding? encoding}) {
     return http
         .delete(
           Uri.parse(path),
@@ -53,7 +48,6 @@ class RestClient {
         .then(_createResponse);
   }
 
-  // Response:------------------------------------------------------------------
   dynamic _createResponse(http.Response response) {
     final String res = response.body;
     final int statusCode = response.statusCode;

@@ -1,15 +1,14 @@
+import 'package:ai_helpdesk/constants/env.dart';
+
 class Endpoints {
   Endpoints._();
 
-  // base url
-  static const String baseUrl = "http://jsonplaceholder.typicode.com";
+  // base url — sourced from EnvConfig
+  static String get baseUrl => EnvConfig.instance.baseUrl;
 
-  // receiveTimeout
-  static const int receiveTimeout = 15000;
+  // receiveTimeout — sourced from EnvConfig
+  static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
 
-  // connectTimeout
-  static const int connectionTimeout = 30000;
-
-  // booking endpoints
-  static const String getPosts = baseUrl + "/posts";
+  // connectTimeout — sourced from EnvConfig
+  static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
 }

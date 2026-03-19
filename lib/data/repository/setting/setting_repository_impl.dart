@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import '/domain/repository/setting/setting_repository.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 
 class SettingRepositoryImpl extends SettingRepository {
-  // shared pref object
   final SharedPreferenceHelper _sharedPrefsHelper;
 
-  // constructor
   SettingRepositoryImpl(this._sharedPrefsHelper);
 
   // Theme: --------------------------------------------------------------------
