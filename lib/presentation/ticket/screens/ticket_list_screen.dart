@@ -168,6 +168,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                           child: Observer(
                             builder: (_) => TicketTableWidget(
                               tickets: _store.filteredTickets,
+                              selectedTabIndex: _store.selectedTabIndex,
                               onAcceptTicket: (ticket) {
                                 _store.acceptTicket(ticket);
                                 ScaffoldMessenger.of(context).showSnackBar(

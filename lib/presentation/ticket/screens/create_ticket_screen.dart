@@ -116,39 +116,50 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
   // Desktop Layout - 2 columns
   Widget _buildDesktopLayout() {
     return Observer(
-      builder: (_) => Row(
+      builder: (_) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left Column
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTitleField(),
-                const SizedBox(height: 20),
-                _buildCustomerSearchField(),
-                const SizedBox(height: 20),
-                _buildCustomerNameField(),
-                const SizedBox(height: 20),
-                _buildContactInfoField(),
-                const SizedBox(height: 20),
-                _buildDescriptionField(),
-              ],
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleField(),
+                    const SizedBox(height: 20),
+                    _buildCustomerSearchField(),
+                    const SizedBox(height: 20),
+                    _buildCustomerNameField(),
+                    const SizedBox(height: 20),
+                    _buildContactInfoField(),
+                    const SizedBox(height: 20),
+                    _buildDescriptionField(),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 40),
+              // Right Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildStatusField(),
+                    const SizedBox(height: 20),
+                    _buildPriorityField(),
+                    const SizedBox(height: 20),
+                    _buildSupportPersonField(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 40),
-          // Right Column
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStatusField(),
-                const SizedBox(height: 20),
-                _buildPriorityField(),
-                const SizedBox(height: 20),
-                _buildSupportPersonField(),
-              ],
-            ),
+          const SizedBox(height: 30),
+          // Action buttons at the bottom right
+          Align(
+            alignment: Alignment.bottomRight,
+            child: _buildActionButtons(),
           ),
         ],
       ),

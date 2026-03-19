@@ -1,23 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import '../store/ticket_column_visibility_store.dart';
 import 'ticket_table_header_widget.dart';
 import 'ticket_table_row_widget.dart';
+import 'ticket_column_selector_dialog.dart';
 
 class TicketTableWidget extends StatelessWidget {
   final List<Ticket> tickets;
   final Function(Ticket)? onAcceptTicket;
   final Function(Ticket)? onViewDetails;
+  final int selectedTabIndex;
 
   const TicketTableWidget({
     super.key,
     required this.tickets,
     this.onAcceptTicket,
     this.onViewDetails,
+    this.selectedTabIndex = 1,
   });
 
   @override
   Widget build(BuildContext context) {
+    final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
+
     if (tickets.isEmpty) {
       return Center(
         child: Padding(
@@ -61,26 +69,103 @@ class TicketTableWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Table header
-          const TicketTableHeaderWidget(),
+          // Table header with filter button
+          Observer(
+            builder: (_) {
+              // Calculate if horizontal scroll is needed
+              final visibleColumnCount = columnVisibilityStore.visibleColumns.length;
+              final estimatedTableWidth = _calculateTableWidth(visibleColumnCount);
+              final needsHorizontalScroll = estimatedTableWidth > screenWidth;
+
+              if (needsHorizontalScroll) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: estimatedTableWidth,
+                    child: TicketTableHeaderWidget(
+                      visibleColumns: columnVisibilityStore.visibleColumns,
+                      onFilterPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => TicketColumnSelectorDialog(
+                            store: columnVisibilityStore,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
+
+              return TicketTableHeaderWidget(
+                visibleColumns: columnVisibilityStore.visibleColumns,
+                onFilterPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => TicketColumnSelectorDialog(
+                      store: columnVisibilityStore,
+                    ),
+                  );
+                },
+              );
+            },
+          ),
           // Table rows
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: tickets
-                    .map((ticket) => TicketTableRowWidget(
-                          ticket: ticket,
-                          onAcceptPressed: () {
-                            onAcceptTicket?.call(ticket);
-                          },
-                          onDetailPressed: () {
-                            onViewDetails?.call(ticket);
-                          },
-                        ))
-                    .toList(),
-              ),
+            child: Observer(
+              builder: (_) {
+                final visibleColumnCount = columnVisibilityStore.visibleColumns.length;
+                final estimatedTableWidth = _calculateTableWidth(visibleColumnCount);
+                final needsHorizontalScroll = estimatedTableWidth > screenWidth;
+
+                if (needsHorizontalScroll) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SizedBox(
+                        width: estimatedTableWidth,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: tickets
+                              .map((ticket) => TicketTableRowWidget(
+                                    ticket: ticket,
+                                    selectedTabIndex: selectedTabIndex,
+                                    visibleColumns: columnVisibilityStore.visibleColumns,
+                                    onAcceptPressed: () {
+                                      onAcceptTicket?.call(ticket);
+                                    },
+                                    onDetailPressed: () {
+                                      onViewDetails?.call(ticket);
+                                    },
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: tickets
+                        .map((ticket) => TicketTableRowWidget(
+                              ticket: ticket,
+                              selectedTabIndex: selectedTabIndex,
+                              visibleColumns: columnVisibilityStore.visibleColumns,
+                              onAcceptPressed: () {
+                                onAcceptTicket?.call(ticket);
+                              },
+                              onDetailPressed: () {
+                                onViewDetails?.call(ticket);
+                              },
+                            ))
+                        .toList(),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -88,31 +173,57 @@ class TicketTableWidget extends StatelessWidget {
     }
 
     // Mobile view: Horizontal scroll when needed
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SizedBox(
-          width: 800,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Table header
-              const TicketTableHeaderWidget(),
-              // Table rows
-              ...tickets.map((ticket) => TicketTableRowWidget(
-                    ticket: ticket,
-                    onAcceptPressed: () {
-                      onAcceptTicket?.call(ticket);
+    return Observer(
+      builder: (_) {
+        final estimatedTableWidth = _calculateTableWidth(columnVisibilityStore.visibleColumns.length);
+        final tableWidth = estimatedTableWidth > screenWidth ? estimatedTableWidth : screenWidth;
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SizedBox(
+              width: tableWidth,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Table header with filter button
+                  TicketTableHeaderWidget(
+                    visibleColumns: columnVisibilityStore.visibleColumns,
+                    onFilterPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => TicketColumnSelectorDialog(
+                          store: columnVisibilityStore,
+                        ),
+                      );
                     },
-                    onDetailPressed: () {
-                      onViewDetails?.call(ticket);
-                    },
-                  )),
-            ],
+                  ),
+                  // Table rows
+                  ...tickets.map((ticket) => TicketTableRowWidget(
+                        ticket: ticket,
+                        selectedTabIndex: selectedTabIndex,
+                        visibleColumns: columnVisibilityStore.visibleColumns,
+                        onAcceptPressed: () {
+                          onAcceptTicket?.call(ticket);
+                        },
+                        onDetailPressed: () {
+                          onViewDetails?.call(ticket);
+                        },
+                      )),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  double _calculateTableWidth(int visibleColumnCount) {
+    // Base width = 150 per column (average)
+    // This is an estimate to determine if horizontal scroll is needed
+    const double baseColumnWidth = 140;
+    return visibleColumnCount * baseColumnWidth;
   }
 }

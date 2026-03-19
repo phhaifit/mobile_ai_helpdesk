@@ -166,6 +166,8 @@ class MockDataGenerator {
         priority: priorityValues[i % priorityValues.length],
         category: categoryValues[i % categoryValues.length],
         source: sourceValues[i % sourceValues.length],
+        createdByID: agents[i % agents.length].id,
+        createdByName: agents[i % agents.length].name,
         customerId: customer.id,
         customerName: customer.fullName,
         customerEmail: customer.email,

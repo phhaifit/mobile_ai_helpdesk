@@ -8,6 +8,8 @@ class Ticket {
   final TicketPriority priority;
   final TicketCategory category;
   final TicketSource source;
+  final String createdByID;
+  final String createdByName;
   final String customerId;
   final String customerName;
   final String customerEmail;
@@ -31,6 +33,8 @@ class Ticket {
     required this.customerId,
     required this.customerName,
     required this.customerEmail,
+    required this.createdByID,
+    required this.createdByName,
     this.assignedAgentId,
     this.assignedAgentName,
     required this.createdAt,
@@ -52,6 +56,8 @@ class Ticket {
     String? customerId,
     String? customerName,
     String? customerEmail,
+    String? createdByID,
+    String? createdByName,
     String? assignedAgentId,
     String? assignedAgentName,
     DateTime? createdAt,
@@ -72,6 +78,8 @@ class Ticket {
       customerId: customerId ?? this.customerId,
       customerName: customerName ?? this.customerName,
       customerEmail: customerEmail ?? this.customerEmail,
+      createdByID: createdByID ?? this.createdByID,
+      createdByName: createdByName ?? this.createdByName,
       assignedAgentId: assignedAgentId ?? this.assignedAgentId,
       assignedAgentName: assignedAgentName ?? this.assignedAgentName,
       createdAt: createdAt ?? this.createdAt,
