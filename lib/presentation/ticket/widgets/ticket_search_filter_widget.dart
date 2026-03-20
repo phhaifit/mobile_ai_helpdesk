@@ -6,6 +6,8 @@ class TicketSearchFilterWidget extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final VoidCallback? onFilterPressed;
   final TextEditingController searchController;
+  final bool hasActiveFilter;
+  final int activeFilterCount;
 
   const TicketSearchFilterWidget({
     super.key,
@@ -13,6 +15,8 @@ class TicketSearchFilterWidget extends StatelessWidget {
     required this.onSearchChanged,
     this.onFilterPressed,
     required this.searchController,
+    this.hasActiveFilter = false,
+    this.activeFilterCount = 0,
   });
 
   @override
@@ -65,17 +69,46 @@ class TicketSearchFilterWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // Filter button
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.dividerColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: onFilterPressed,
-              icon: const Icon(Icons.tune),
-              color: AppColors.textSecondary,
-            ),
+          // Filter button with badge
+          Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.dividerColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: onFilterPressed,
+                  icon: const Icon(Icons.tune),
+                  color: hasActiveFilter
+                      ? AppColors.primaryBlue
+                      : AppColors.textSecondary,
+                ),
+              ),
+              if (hasActiveFilter && activeFilterCount > 0)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.errorRed,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      activeFilterCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

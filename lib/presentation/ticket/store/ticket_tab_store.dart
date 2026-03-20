@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import '../../../domain/entity/ticket/ticket.dart';
+import '../../../domain/entity/ticket/ticket_filter.dart';
 import '../../../data/local/mock_data.dart';
 
 part 'ticket_tab_store.g.dart';
@@ -12,6 +13,9 @@ abstract class _TicketTabStoreBase with Store {
 
   @observable
   String searchQuery = '';
+
+  @observable
+  TicketFilter activeFilter = TicketFilter.empty();
 
   @observable
   List<Ticket> allTickets = [];
@@ -47,6 +51,18 @@ abstract class _TicketTabStoreBase with Store {
   }
 
   @action
+  void setFilter(TicketFilter filter) {
+    activeFilter = filter;
+    _updateFilteredTickets();
+  }
+
+  @action
+  void clearFilter() {
+    activeFilter = TicketFilter.empty();
+    _updateFilteredTickets();
+  }
+
+  @action
   void _updateFilteredTickets() {
     List<Ticket> result = List.from(allTickets);
 
@@ -72,7 +88,88 @@ abstract class _TicketTabStoreBase with Store {
           .toList();
     }
 
+    // Apply advanced filter
+    result = _applyAdvancedFilter(result);
+
     filteredTickets = result;
+  }
+
+  List<Ticket> _applyAdvancedFilter(List<Ticket> tickets) {
+    if (activeFilter.isEmpty) {
+      return tickets;
+    }
+
+    return tickets.where((ticket) {
+      // Filter by statuses
+      if (activeFilter.statuses != null && activeFilter.statuses!.isNotEmpty) {
+        if (!activeFilter.statuses!.contains(ticket.status)) {
+          return false;
+        }
+      }
+
+      // Filter by priorities
+      if (activeFilter.priorities != null && activeFilter.priorities!.isNotEmpty) {
+        if (!activeFilter.priorities!.contains(ticket.priority)) {
+          return false;
+        }
+      }
+
+      // Filter by sources
+      if (activeFilter.sources != null && activeFilter.sources!.isNotEmpty) {
+        if (!activeFilter.sources!.contains(ticket.source)) {
+          return false;
+        }
+      }
+
+      // Filter by categories
+      if (activeFilter.categories != null && activeFilter.categories!.isNotEmpty) {
+        if (!activeFilter.categories!.contains(ticket.category)) {
+          return false;
+        }
+      }
+
+      // Filter by created by (agent)
+      if (activeFilter.createdById != null && activeFilter.createdById!.isNotEmpty) {
+        if (ticket.createdByID != activeFilter.createdById) {
+          return false;
+        }
+      }
+
+      // Filter by customer
+      if (activeFilter.customerId != null && activeFilter.customerId!.isNotEmpty) {
+        if (ticket.customerId != activeFilter.customerId) {
+          return false;
+        }
+      }
+
+      // Filter by date range
+      if (activeFilter.fromDate != null) {
+        final fromDateStart = DateTime(
+          activeFilter.fromDate!.year,
+          activeFilter.fromDate!.month,
+          activeFilter.fromDate!.day,
+        );
+        if (ticket.createdAt.isBefore(fromDateStart)) {
+          return false;
+        }
+      }
+
+      if (activeFilter.toDate != null) {
+        final toDateEnd = DateTime(
+          activeFilter.toDate!.year,
+          activeFilter.toDate!.month,
+          activeFilter.toDate!.day,
+          23,
+          59,
+          59,
+        );
+        if (ticket.createdAt.isAfter(toDateEnd)) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
   }
 
   @computed

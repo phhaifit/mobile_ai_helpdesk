@@ -60,6 +60,24 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     });
   }
 
+  late final _$activeFilterAtom = Atom(
+    name: '_TicketTabStoreBase.activeFilter',
+    context: context,
+  );
+
+  @override
+  TicketFilter get activeFilter {
+    _$activeFilterAtom.reportRead();
+    return super.activeFilter;
+  }
+
+  @override
+  set activeFilter(TicketFilter value) {
+    _$activeFilterAtom.reportWrite(value, super.activeFilter, () {
+      super.activeFilter = value;
+    });
+  }
+
   late final _$allTicketsAtom = Atom(
     name: '_TicketTabStoreBase.allTickets',
     context: context,
@@ -144,6 +162,30 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   }
 
   @override
+  void setFilter(TicketFilter filter) {
+    final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
+      name: '_TicketTabStoreBase.setFilter',
+    );
+    try {
+      return super.setFilter(filter);
+    } finally {
+      _$_TicketTabStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearFilter() {
+    final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
+      name: '_TicketTabStoreBase.clearFilter',
+    );
+    try {
+      return super.clearFilter();
+    } finally {
+      _$_TicketTabStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void _updateFilteredTickets() {
     final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
       name: '_TicketTabStoreBase._updateFilteredTickets',
@@ -208,6 +250,7 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     return '''
 selectedTabIndex: ${selectedTabIndex},
 searchQuery: ${searchQuery},
+activeFilter: ${activeFilter},
 allTickets: ${allTickets},
 filteredTickets: ${filteredTickets},
 isCreateMode: ${isCreateMode},

@@ -75,7 +75,7 @@ class TicketTableWidget extends StatelessWidget {
               // Calculate if horizontal scroll is needed
               final visibleColumnCount = columnVisibilityStore.visibleColumns.length;
               final estimatedTableWidth = _calculateTableWidth(visibleColumnCount);
-              final needsHorizontalScroll = estimatedTableWidth > screenWidth;
+              final needsHorizontalScroll = columnVisibilityStore.visibleColumns.length > 4;
 
               if (needsHorizontalScroll) {
                 return SingleChildScrollView(
@@ -116,7 +116,7 @@ class TicketTableWidget extends StatelessWidget {
               builder: (_) {
                 final visibleColumnCount = columnVisibilityStore.visibleColumns.length;
                 final estimatedTableWidth = _calculateTableWidth(visibleColumnCount);
-                final needsHorizontalScroll = estimatedTableWidth > screenWidth;
+                final needsHorizontalScroll = columnVisibilityStore.visibleColumns.length > 4;
 
                 if (needsHorizontalScroll) {
                   return SingleChildScrollView(
@@ -223,7 +223,7 @@ class TicketTableWidget extends StatelessWidget {
   double _calculateTableWidth(int visibleColumnCount) {
     // Base width = 150 per column (average)
     // This is an estimate to determine if horizontal scroll is needed
-    const double baseColumnWidth = 140;
+    const double baseColumnWidth = 180;
     return visibleColumnCount * baseColumnWidth;
   }
 }

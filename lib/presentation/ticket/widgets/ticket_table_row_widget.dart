@@ -239,7 +239,7 @@ class TicketTableRowWidget extends StatelessWidget {
                       ),
                       child: const Text(
                         'Tiếp nhận',
-                        style: TextStyle(fontSize: 11),
+                        style: TextStyle(fontSize: 9),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -257,7 +257,7 @@ class TicketTableRowWidget extends StatelessWidget {
                       ),
                       child: const Text(
                         'Chi tiết',
-                        style: TextStyle(fontSize: 11),
+                        style: TextStyle(fontSize: 9),
                       ),
                     ),
                   ],

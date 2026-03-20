@@ -7,6 +7,7 @@ import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_tab_bar_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_header_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_search_filter_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_filter_dialog.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_table_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 
@@ -148,10 +149,20 @@ class _TicketListScreenState extends State<TicketListScreen> {
                         TicketSearchFilterWidget(
                           searchController: _searchController,
                           onSearchChanged: _store.setSearchQuery,
+                          hasActiveFilter: !_store.activeFilter.isEmpty,
+                          activeFilterCount: _store.activeFilter.activeFilterCount,
                           onFilterPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Bộ lọc: Tính năng đang phát triển'),
+                            showDialog(
+                              context: context,
+                              builder: (context) => TicketFilterDialog(
+                                initialFilter: _store.activeFilter,
+                                allTickets: _store.allTickets,
+                                onFilterChanged: (newFilter) {
+                                  _store.setFilter(newFilter);
+                                },
+                                onFilterCleared: () {
+                                  _store.clearFilter();
+                                },
                               ),
                             );
                           },
