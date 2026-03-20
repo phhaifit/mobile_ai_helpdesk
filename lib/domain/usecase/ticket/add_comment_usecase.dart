@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
+import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
 class AddCommentParams {
   final String ticketId;
@@ -9,13 +10,15 @@ class AddCommentParams {
 }
 
 class AddCommentUseCase extends UseCase<Comment, AddCommentParams> {
-  AddCommentUseCase();
+  final TicketRepository _repository;
+
+  AddCommentUseCase(this._repository);
 
   @override
-  Future<Comment> call({required AddCommentParams params}) async {
-    // TODO: Implement actual comment addition when comment repository is ready
-    // For now, return the comment as-is with a generated ID
-    await Future.delayed(const Duration(milliseconds: 300));
-    return params.comment.copyWith(id: 'comment_${DateTime.now().millisecondsSinceEpoch}');
+  Future<Comment> call({required AddCommentParams params}) {
+    return _repository.addComment(
+      ticketId: params.ticketId,
+      comment: params.comment,
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_column_visibility_store.dart';
 
@@ -13,11 +14,15 @@ class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
     // factories:---------------------------------------------------------------
     getIt.registerFactory(() => ErrorStore());
-    getIt.registerFactory(() => TicketTabStore());
+    getIt.registerFactory(() => TicketTabStore(getIt<SessionStore>()));
 
     // singletons:--------------------------------------------------------------
     getIt.registerSingleton<TicketColumnVisibilityStore>(
       TicketColumnVisibilityStore(),
+    );
+
+    getIt.registerSingleton<SessionStore>(
+      SessionStore(),
     );
 
     // stores:------------------------------------------------------------------

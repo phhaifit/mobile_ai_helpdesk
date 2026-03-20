@@ -8,9 +8,7 @@ class GetCustomerHistoryUseCase extends UseCase<List<Ticket>, String> {
   GetCustomerHistoryUseCase(this._repository);
 
   @override
-  Future<List<Ticket>> call({required String params}) async {
-    final allTickets = await _repository.getTickets();
-    // Filter tickets by customer ID
-    return allTickets.where((t) => t.customerId == params).toList();
+  Future<List<Ticket>> call({required String params}) {
+    return _repository.getCustomerHistory(params);
   }
 }

@@ -46,7 +46,7 @@ class UseCaseModule {
     );
 
     getIt.registerSingleton<AddCommentUseCase>(
-      AddCommentUseCase(),
+      AddCommentUseCase(getIt<TicketRepository>()),
     );
 
     getIt.registerSingleton<GetCustomerHistoryUseCase>(

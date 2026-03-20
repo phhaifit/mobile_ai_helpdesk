@@ -2,12 +2,15 @@ import 'package:mobx/mobx.dart';
 import '../../../domain/entity/ticket/ticket.dart';
 import '../../../domain/entity/ticket/ticket_filter.dart';
 import '../../../data/local/mock_data.dart';
+import '../../stores/session_store.dart';
 
 part 'ticket_tab_store.g.dart';
 
 class TicketTabStore = _TicketTabStoreBase with _$TicketTabStore;
 
 abstract class _TicketTabStoreBase with Store {
+  final SessionStore _sessionStore;
+
   @observable
   int selectedTabIndex = 1; // Default to "Phiếu chưa tiếp nhận"
 
@@ -26,11 +29,14 @@ abstract class _TicketTabStoreBase with Store {
   @observable
   bool isCreateMode = false;
 
-  _TicketTabStoreBase() {
+  _TicketTabStoreBase(this._sessionStore) {
     // Initialize with mock data
     _initializeTickets();
     _updateFilteredTickets();
   }
+
+  @computed
+  String get currentAgentId => _sessionStore.currentAgentId;
 
   void _initializeTickets() {
     final agents = MockDataGenerator.generateAgents();
@@ -66,32 +72,43 @@ abstract class _TicketTabStoreBase with Store {
   void _updateFilteredTickets() {
     List<Ticket> result = List.from(allTickets);
 
-    // Filter by tab
-    switch (selectedTabIndex) {
-      case 0: // "Phiếu hỗ trợ của tôi" - Assigned tickets
-        result = result.where((t) => t.assignedAgentId != null).toList();
-        break;
-      case 1: // "Phiếu chưa tiếp nhận" - Open tickets
-        result = result
-            .where((t) => t.assignedAgentId == null)
-            .toList();
-        break;
-      case 2: // "Tất cả phiếu hỗ trợ" - All tickets
-        break;
-    }
-
-    // Filter by search query
-    if (searchQuery.isNotEmpty) {
-      result = result
-          .where(
-              (t) => t.title.toLowerCase().contains(searchQuery.toLowerCase()))
-          .toList();
-    }
+    result = _applyTabFilter(result);
+    result = _applySearchFilter(result);
 
     // Apply advanced filter
     result = _applyAdvancedFilter(result);
 
     filteredTickets = result;
+  }
+
+  List<Ticket> _applyTabFilter(List<Ticket> tickets) {
+    switch (selectedTabIndex) {
+      case 0: // "Phiếu hỗ trợ của tôi" - Assigned to current agent
+        return tickets
+            .where((ticket) => ticket.assignedAgentId == currentAgentId)
+            .toList();
+      case 1: // "Phiếu chưa tiếp nhận"
+        return tickets
+            .where((ticket) => ticket.assignedAgentId == null)
+            .toList();
+      case 2: // "Tất cả phiếu hỗ trợ"
+      default:
+        return tickets;
+    }
+  }
+
+  List<Ticket> _applySearchFilter(List<Ticket> tickets) {
+    if (searchQuery.isEmpty) {
+      return tickets;
+    }
+
+    final normalizedQuery = searchQuery.toLowerCase();
+    return tickets
+        .where((ticket) =>
+            ticket.title.toLowerCase().contains(normalizedQuery) ||
+            ticket.id.toLowerCase().contains(normalizedQuery) ||
+            ticket.customerName.toLowerCase().contains(normalizedQuery))
+        .toList();
   }
 
   List<Ticket> _applyAdvancedFilter(List<Ticket> tickets) {
@@ -191,8 +208,28 @@ abstract class _TicketTabStoreBase with Store {
 
   @action
   void acceptTicket(Ticket ticket) {
-    // TODO: Implement API call to accept ticket
-    print('Accepting ticket: ${ticket.id}');
+    final ticketIndex = allTickets.indexWhere((item) => item.id == ticket.id);
+    if (ticketIndex == -1) {
+      return;
+    }
+
+    final now = DateTime.now();
+    final updatedTicket = allTickets[ticketIndex].copyWith(
+      assignedAgentId: currentAgentId,
+      assignedAgentName: currentAgentId,
+      updatedAt: now,
+      lastModifiedAt: now,
+      isSynced: false,
+      pendingAction: TicketPendingAction.update,
+    );
+
+    allTickets = [
+      ...allTickets.sublist(0, ticketIndex),
+      updatedTicket,
+      ...allTickets.sublist(ticketIndex + 1),
+    ];
+
+    _updateFilteredTickets();
   }
 
   @action

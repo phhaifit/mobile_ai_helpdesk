@@ -1,5 +1,11 @@
 import '../enums.dart';
 
+enum TicketPendingAction {
+  create,
+  update,
+  delete,
+}
+
 class Ticket {
   final String id;
   final String title;
@@ -21,6 +27,10 @@ class Ticket {
   final String? notes;
   final List<String> attachments;
   final int unreadCount;
+  final String? localId;
+  final bool isSynced;
+  final TicketPendingAction? pendingAction;
+  final DateTime? lastModifiedAt;
 
   const Ticket({
     required this.id,
@@ -43,6 +53,10 @@ class Ticket {
     this.notes,
     this.attachments = const [],
     this.unreadCount = 0,
+    this.localId,
+    this.isSynced = true,
+    this.pendingAction,
+    this.lastModifiedAt,
   });
 
   Ticket copyWith({
@@ -66,6 +80,10 @@ class Ticket {
     String? notes,
     List<String>? attachments,
     int? unreadCount,
+    String? localId,
+    bool? isSynced,
+    TicketPendingAction? pendingAction,
+    DateTime? lastModifiedAt,
   }) {
     return Ticket(
       id: id ?? this.id,
@@ -88,6 +106,10 @@ class Ticket {
       notes: notes ?? this.notes,
       attachments: attachments ?? this.attachments,
       unreadCount: unreadCount ?? this.unreadCount,
+      localId: localId ?? this.localId,
+      isSynced: isSynced ?? this.isSynced,
+      pendingAction: pendingAction ?? this.pendingAction,
+      lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
     );
   }
 

@@ -1,210 +1,256 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import '../../../domain/entity/agent/agent.dart';
+import '../../../domain/entity/comment/comment.dart';
 import '../../../domain/entity/enums.dart';
 import '../../../domain/entity/ticket/ticket.dart';
+import '../../../domain/entity/ticket/ticket_query_params.dart';
 import '../../../domain/repository/ticket/ticket_repository.dart';
 
 class MockTicketRepositoryImpl implements TicketRepository {
-  // Mock data storage - in-memory
-  late List<Ticket> _mockTickets;
-  late List<Agent> _mockAgents;
+  final MockTicketLocalDataSource _localDataSource;
+  final Random _random = Random();
 
-  MockTicketRepositoryImpl() {
-    _initializeMockData();
+  MockTicketRepositoryImpl(this._localDataSource);
+
+  Future<void> _simulateDelay() async {
+    final milliseconds = 200 + _random.nextInt(601);
+    await Future.delayed(Duration(milliseconds: milliseconds));
   }
 
-  void _initializeMockData() {
-    // Initialize mock agents
-    _mockAgents = [
-      Agent(
-        id: 'agent_1',
-        name: 'Agent One',
-        email: 'agent1@helpdesk.com',
-        avatar: 'https://ui-avatars.com/api/?name=Agent+One',
-        department: 'Technical Support',
-        isActive: true,
-        createdAt: DateTime(2026, 1, 15),
-      ),
-      Agent(
-        id: 'agent_2',
-        name: 'Agent Two',
-        email: 'agent2@helpdesk.com',
-        avatar: 'https://ui-avatars.com/api/?name=Agent+Two',
-        department: 'Billing',
-        isActive: true,
-        createdAt: DateTime(2026, 1, 20),
-      ),
-      Agent(
-        id: 'agent_3',
-        name: 'Agent Three',
-        email: 'agent3@helpdesk.com',
-        avatar: 'https://ui-avatars.com/api/?name=Agent+Three',
-        department: 'Technical Support',
-        isActive: true,
-        createdAt: DateTime(2026, 2, 01),
-      ),
-      Agent(
-        id: 'agent_4',
-        name: 'Agent Four',
-        email: 'agent4@helpdesk.com',
-        avatar: 'https://ui-avatars.com/api/?name=Agent+Four',
-        department: 'General Support',
-        isActive: true,
-        createdAt: DateTime(2026, 2, 10),
-      ),
-    ];
-
-    // Initialize mock tickets
-    _mockTickets = [
-      Ticket(
-        id: 'TK-001',
-        title: 'Cannot login to dashboard',
-        description: 'User reports login failure after password reset.',
-        createdByID: 'agent_1',
-        createdByName: 'Agent One',
-        status: TicketStatus.open,
-        priority: TicketPriority.high,
-        category: TicketCategory.technical,
-        source: TicketSource.email,
-        customerId: 'cust_1',
-        customerName: 'Nguyen Van A',
-        customerEmail: 'customer1@example.com',
-        assignedAgentId: 'agent_1',
-        assignedAgentName: 'Agent One',
-        createdAt: DateTime(2026, 3, 5, 10, 30),
-        updatedAt: DateTime(2026, 3, 5, 10, 30),
-      ),
-      Ticket(
-        id: 'TK-002',
-        title: 'Payment processing error',
-        description: 'Checkout fails with timeout error on mobile.',
-        status: TicketStatus.inProgress,
-        priority: TicketPriority.urgent,
-        category: TicketCategory.billing,
-        source: TicketSource.web,
-        customerId: 'cust_2',
-        customerName: 'Tran Thi B',
-        customerEmail: 'customer2@example.com',
-        createdByID: 'agent_1',
-        createdByName: 'Agent One',
-        assignedAgentId: 'agent_2',
-        assignedAgentName: 'Agent Two',
-        createdAt: DateTime(2026, 3, 6, 14, 15),
-        updatedAt: DateTime(2026, 3, 6, 14, 15),
-      ),
-      Ticket(
-        id: 'TK-003',
-        title: 'Feature request: dark mode',
-        description: 'Customer requests dark mode support for the web app.',
-        status: TicketStatus.open,
-        priority: TicketPriority.low,
-        category: TicketCategory.general,
-        source: TicketSource.messenger,
-        customerId: 'cust_3',
-        customerName: 'Le Van C',
-        customerEmail: 'customer3@example.com',
-        createdByID: 'agent_1',
-        createdByName: 'Agent One',
-        createdAt: DateTime(2026, 3, 6, 9, 0),
-        updatedAt: DateTime(2026, 3, 6, 9, 0),
-      ),
-      Ticket(
-        id: 'TK-004',
-        title: 'Shipping status not updating',
-        description: 'Order tracking page shows stale data.',
-        status: TicketStatus.resolved,
-        priority: TicketPriority.medium,
-        category: TicketCategory.technical,
-        source: TicketSource.email,
-        customerId: 'cust_4',
-        customerName: 'Pham Thi D',
-        customerEmail: 'customer4@example.com',
-        createdByID: 'agent_1',
-        createdByName: 'Agent One',
-        assignedAgentId: 'agent_3',
-        assignedAgentName: 'Agent Three',
-        createdAt: DateTime(2026, 3, 4, 16, 45),
-        updatedAt: DateTime(2026, 3, 4, 16, 45),
-        resolvedAt: DateTime(2026, 3, 5, 10, 0),
-      ),
-      Ticket(
-        id: 'TK-005',
-        title: 'API rate limit exceeded',
-        description: 'Integration partner hitting rate limits during peak hours.',
-        status: TicketStatus.inProgress,
-        priority: TicketPriority.high,
-        category: TicketCategory.technical,
-        source: TicketSource.email,
-        customerId: 'cust_5',
-        customerName: 'Hoang Van E',
-        customerEmail: 'customer5@example.com',
-        createdByID: 'agent_1',
-        createdByName: 'Agent One',
-        assignedAgentId: 'agent_4',
-        assignedAgentName: 'Agent Four',
-        createdAt: DateTime(2026, 3, 7, 8, 0),
-        updatedAt: DateTime(2026, 3, 7, 8, 0),
-      ),
-    ];
+  String _generateTicketId() {
+    return 'TKT-${DateTime.now().millisecondsSinceEpoch}';
   }
 
   @override
-  Future<List<Ticket>> getTickets() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
-    return List.unmodifiable(_mockTickets);
+  Future<List<Ticket>> getTickets({
+    TicketQueryParams params = const TicketQueryParams(),
+  }) async {
+    await _simulateDelay();
+
+    var result = List<Ticket>.from(_localDataSource.getTickets());
+
+    switch (params.tab) {
+      case TicketTabScope.my:
+        if (params.currentAgentId == null || params.currentAgentId!.isEmpty) {
+          result = [];
+        } else {
+          result = result
+              .where((ticket) => ticket.assignedAgentId == params.currentAgentId)
+              .toList();
+        }
+        break;
+      case TicketTabScope.unassigned:
+        result = result.where((ticket) => ticket.assignedAgentId == null).toList();
+        break;
+      case TicketTabScope.all:
+        break;
+    }
+
+    if (params.search != null && params.search!.trim().isNotEmpty) {
+      final query = params.search!.trim().toLowerCase();
+      result = result.where((ticket) {
+        return ticket.id.toLowerCase().contains(query) ||
+            ticket.title.toLowerCase().contains(query) ||
+            ticket.customerName.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    if (params.statuses != null && params.statuses!.isNotEmpty) {
+      result = result.where((ticket) => params.statuses!.contains(ticket.status)).toList();
+    }
+
+    if (params.priorities != null && params.priorities!.isNotEmpty) {
+      result = result
+          .where((ticket) => params.priorities!.contains(ticket.priority))
+          .toList();
+    }
+
+    if (params.sources != null && params.sources!.isNotEmpty) {
+      result = result.where((ticket) => params.sources!.contains(ticket.source)).toList();
+    }
+
+    if (params.categories != null && params.categories!.isNotEmpty) {
+      result = result
+          .where((ticket) => params.categories!.contains(ticket.category))
+          .toList();
+    }
+
+    if (params.createdById != null && params.createdById!.isNotEmpty) {
+      result = result.where((ticket) => ticket.createdByID == params.createdById).toList();
+    }
+
+    if (params.customerId != null && params.customerId!.isNotEmpty) {
+      result = result.where((ticket) => ticket.customerId == params.customerId).toList();
+    }
+
+    if (params.fromDate != null) {
+      final fromDateStart = DateTime(
+        params.fromDate!.year,
+        params.fromDate!.month,
+        params.fromDate!.day,
+      );
+      result = result.where((ticket) => !ticket.createdAt.isBefore(fromDateStart)).toList();
+    }
+
+    if (params.toDate != null) {
+      final toDateEnd = DateTime(
+        params.toDate!.year,
+        params.toDate!.month,
+        params.toDate!.day,
+        23,
+        59,
+        59,
+      );
+      result = result.where((ticket) => !ticket.createdAt.isAfter(toDateEnd)).toList();
+    }
+
+    return List.unmodifiable(result);
   }
 
   @override
   Future<Ticket?> getTicketById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    try {
-      return _mockTickets.firstWhere((t) => t.id == id);
-    } catch (_) {
-      return null;
-    }
+    await _simulateDelay();
+    return _localDataSource.getTicketById(id);
   }
 
   @override
   Future<Ticket> createTicket(Ticket ticket) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    // Generate a new ID if empty
-    final newTicket = ticket.id.isEmpty
-        ? ticket.copyWith(
-            id: 'TK-${_mockTickets.length + 1}',
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          )
-        : ticket.copyWith(
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
-    _mockTickets.add(newTicket);
+    await _simulateDelay();
+
+    final now = DateTime.now();
+    final newTicket = ticket.copyWith(
+      id: ticket.id.isEmpty ? _generateTicketId() : ticket.id,
+      createdAt: now,
+      updatedAt: now,
+      lastModifiedAt: now,
+      isSynced: false,
+      pendingAction: TicketPendingAction.create,
+    );
+
+    _localDataSource.insertTicket(newTicket);
     return newTicket;
   }
 
   @override
   Future<Ticket> updateTicket(Ticket ticket) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    final index = _mockTickets.indexWhere((t) => t.id == ticket.id);
-    if (index == -1) {
+    await _simulateDelay();
+
+    final existingTicket = _localDataSource.getTicketById(ticket.id);
+    if (existingTicket == null) {
       throw Exception('Ticket not found');
     }
-    final updatedTicket = ticket.copyWith(updatedAt: DateTime.now());
-    _mockTickets[index] = updatedTicket;
+
+    final now = DateTime.now();
+    final resolvedAt = ticket.status == TicketStatus.resolved
+        ? (ticket.resolvedAt ?? now)
+        : ticket.resolvedAt;
+
+    final updatedTicket = ticket.copyWith(
+      createdAt: existingTicket.createdAt,
+      updatedAt: now,
+      resolvedAt: resolvedAt,
+      lastModifiedAt: now,
+      isSynced: false,
+      pendingAction: TicketPendingAction.update,
+    );
+
+    final saved = _localDataSource.updateTicket(updatedTicket);
+    if (saved == null) {
+      throw Exception('Failed to update ticket');
+    }
+
     return updatedTicket;
   }
 
   @override
   Future<void> deleteTicket(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _mockTickets.removeWhere((t) => t.id == id);
+    await _simulateDelay();
+    final deleted = _localDataSource.deleteTicket(id);
+    if (!deleted) {
+      throw Exception('Ticket not found');
+    }
+  }
+
+  @override
+  Future<Ticket> assignAgent({required String ticketId, String? agentId}) async {
+    await _simulateDelay();
+
+    final ticket = _localDataSource.getTicketById(ticketId);
+    if (ticket == null) {
+      throw Exception('Ticket not found');
+    }
+
+    String? assignedAgentName;
+    if (agentId != null) {
+      final agent = _localDataSource.getAgentById(agentId);
+      if (agent == null) {
+        throw Exception('Agent not found');
+      }
+      assignedAgentName = agent.name;
+    }
+
+    final now = DateTime.now();
+    final updatedTicket = ticket.copyWith(
+      assignedAgentId: agentId,
+      assignedAgentName: assignedAgentName,
+      updatedAt: now,
+      lastModifiedAt: now,
+      isSynced: false,
+      pendingAction: TicketPendingAction.update,
+    );
+
+    _localDataSource.updateTicket(updatedTicket);
+    return updatedTicket;
+  }
+
+  @override
+  Future<Comment> addComment({required String ticketId, required Comment comment}) async {
+    await _simulateDelay();
+
+    final ticket = _localDataSource.getTicketById(ticketId);
+    if (ticket == null) {
+      throw Exception('Ticket not found');
+    }
+
+    final now = DateTime.now();
+    final createdComment = comment.copyWith(
+      id: comment.id.isEmpty
+          ? 'comment_${now.millisecondsSinceEpoch}'
+          : comment.id,
+      ticketId: ticketId,
+      createdAt: comment.createdAt,
+      updatedAt: now,
+    );
+
+    _localDataSource.addComment(ticketId, createdComment);
+
+    final updatedTicket = ticket.copyWith(
+      updatedAt: now,
+      lastModifiedAt: now,
+      unreadCount: ticket.unreadCount + 1,
+      isSynced: false,
+      pendingAction: TicketPendingAction.update,
+    );
+    _localDataSource.updateTicket(updatedTicket);
+
+    return createdComment;
+  }
+
+  @override
+  Future<List<Ticket>> getCustomerHistory(String customerId) async {
+    await _simulateDelay();
+    return _localDataSource
+        .getTickets()
+        .where((ticket) => ticket.customerId == customerId)
+        .toList();
   }
 
   @override
   Future<List<Agent>> getAvailableAgents() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List.unmodifiable(_mockAgents);
+    await _simulateDelay();
+    return _localDataSource.getAgents();
   }
 }

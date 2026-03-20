@@ -9,6 +9,13 @@ part of 'ticket_tab_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$TicketTabStore on _TicketTabStoreBase, Store {
+  Computed<String>? _$currentAgentIdComputed;
+
+  @override
+  String get currentAgentId => (_$currentAgentIdComputed ??= Computed<String>(
+    () => super.currentAgentId,
+    name: '_TicketTabStoreBase.currentAgentId',
+  )).value;
   Computed<int>? _$ticketCountComputed;
 
   @override
@@ -254,6 +261,7 @@ activeFilter: ${activeFilter},
 allTickets: ${allTickets},
 filteredTickets: ${filteredTickets},
 isCreateMode: ${isCreateMode},
+currentAgentId: ${currentAgentId},
 ticketCount: ${ticketCount},
 tabTitle: ${tabTitle}
     ''';

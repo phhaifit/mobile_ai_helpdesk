@@ -4,7 +4,7 @@ import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
 class AssignAgentParams {
   final String ticketId;
-  final String agentId;
+  final String? agentId;
 
   AssignAgentParams({required this.ticketId, required this.agentId});
 }
@@ -15,15 +15,10 @@ class AssignAgentUseCase extends UseCase<Ticket, AssignAgentParams> {
   AssignAgentUseCase(this._repository);
 
   @override
-  Future<Ticket> call({required AssignAgentParams params}) async {
-    // Get the ticket
-    final ticket = await _repository.getTicketById(params.ticketId);
-    if (ticket == null) {
-      throw Exception('Ticket not found');
-    }
-
-    // Update ticket with new agent
-    final updatedTicket = ticket.copyWith(assignedAgentId: params.agentId);
-    return _repository.updateTicket(updatedTicket);
+  Future<Ticket> call({required AssignAgentParams params}) {
+    return _repository.assignAgent(
+      ticketId: params.ticketId,
+      agentId: params.agentId,
+    );
   }
 }

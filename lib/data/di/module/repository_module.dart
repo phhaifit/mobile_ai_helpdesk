@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
@@ -15,8 +16,12 @@ class RepositoryModule {
       SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
     );
 
+    getIt.registerSingleton<MockTicketLocalDataSource>(
+      MockTicketLocalDataSource(),
+    );
+
     getIt.registerSingleton<TicketRepository>(
-      MockTicketRepositoryImpl(),
+      MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
     );
   }
 }
