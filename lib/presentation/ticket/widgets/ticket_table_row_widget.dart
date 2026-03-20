@@ -3,6 +3,7 @@ import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import '../store/ticket_column_visibility_store.dart';
 import 'status_priority_badge_widget.dart';
+import 'ticket_table_columns.dart';
 import 'ticket_source_widget.dart';
 
 class TicketTableRowWidget extends StatelessWidget {
@@ -37,7 +38,7 @@ class TicketTableRowWidget extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: Table(
-        columnWidths: _getColumnWidths(),
+        columnWidths: TicketTableColumns.buildTableWidths(visibleColumns),
         children: [
           TableRow(
             decoration: const BoxDecoration(
@@ -53,43 +54,6 @@ class TicketTableRowWidget extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Map<int, TableColumnWidth> _getColumnWidths() {
-    final widths = {
-      0: const FlexColumnWidth(2),    // title
-      1: const FlexColumnWidth(1.5),  // statusPriority
-      2: const FlexColumnWidth(1.5),  // customer
-      3: const FlexColumnWidth(1),    // source
-      4: const FlexColumnWidth(1),    // createdBy
-      5: const FlexColumnWidth(1),    // csAgent
-      6: const FlexColumnWidth(1),    // createdDate
-      7: const FlexColumnWidth(1),    // updatedDate
-      8: const FlexColumnWidth(1.2),  // actions
-    };
-
-    final filteredWidths = <int, TableColumnWidth>{};
-    int columnIndex = 0;
-    final columnOrder = [
-      TicketColumn.title,
-      TicketColumn.statusPriority,
-      TicketColumn.customer,
-      TicketColumn.source,
-      TicketColumn.createdBy,
-      TicketColumn.csAgent,
-      TicketColumn.createdDate,
-      TicketColumn.updatedDate,
-      TicketColumn.actions,
-    ];
-
-    for (int i = 0; i < columnOrder.length; i++) {
-      if (visibleColumns.contains(columnOrder[i])) {
-        filteredWidths[columnIndex] = widths[i]!;
-        columnIndex++;
-      }
-    }
-
-    return filteredWidths;
   }
 
   List<Widget> _buildRowCells() {
