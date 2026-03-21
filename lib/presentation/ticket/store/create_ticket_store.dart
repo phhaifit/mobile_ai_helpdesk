@@ -1,12 +1,20 @@
 import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
+import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 
 part 'create_ticket_store.g.dart';
 
 class CreateTicketStore = _CreateTicketStoreBase with _$CreateTicketStore;
 
 abstract class _CreateTicketStoreBase with Store {
+  final CreateTicketUseCase _createTicketUseCase;
+  final SessionStore _sessionStore;
+
+  _CreateTicketStoreBase(this._createTicketUseCase, this._sessionStore);
+
   @observable
   String title = '';
 
@@ -39,6 +47,15 @@ abstract class _CreateTicketStoreBase with Store {
 
   @observable
   String? contactInfoError;
+
+  @observable
+  ObservableFuture<Ticket?> submitFuture = ObservableFuture.value(null);
+
+  @observable
+  String? submitError;
+
+  @observable
+  Ticket? createdTicket;
 
   @action
   void setTitle(String value) {
@@ -93,6 +110,62 @@ abstract class _CreateTicketStoreBase with Store {
     return title.isNotEmpty && customerName.isNotEmpty && contactInfo.isNotEmpty;
   }
 
+  @computed
+  bool get isSubmitting => submitFuture.status == FutureStatus.pending;
+
+  Ticket _buildTicketDraft() {
+    final now = DateTime.now();
+    final emailContact = contactInfo
+        .where((info) => info.type == ContactType.email)
+        .cast<ContactInfo?>()
+        .firstWhere((info) => info != null, orElse: () => null);
+
+    return Ticket(
+      id: '',
+      title: title.trim(),
+      description: description.trim(),
+      status: ticketStatus,
+      priority: priority,
+      category: TicketCategory.general,
+      source: TicketSource.web,
+      customerId: selectedCustomer.isNotEmpty
+          ? selectedCustomer
+          : 'customer_${now.millisecondsSinceEpoch}',
+      customerName: customerName.trim(),
+      customerEmail: emailContact?.value ?? '',
+      createdByID: _sessionStore.currentAgentId,
+      createdByName: _sessionStore.currentAgentId,
+      assignedAgentId: supportPerson.isEmpty ? null : supportPerson,
+      assignedAgentName: supportPerson.isEmpty ? null : supportPerson,
+      createdAt: now,
+      updatedAt: now,
+      attachments: const [],
+      unreadCount: 0,
+    );
+  }
+
+  @action
+  Future<Ticket?> submitCreateTicket() async {
+    validateForm();
+    if (!isFormValid) {
+      return null;
+    }
+
+    submitError = null;
+
+    final draft = _buildTicketDraft();
+    submitFuture = ObservableFuture(_createTicketUseCase.call(params: draft));
+
+    try {
+      final ticket = await submitFuture;
+      createdTicket = ticket;
+      return ticket;
+    } catch (e) {
+      submitError = e.toString();
+      return null;
+    }
+  }
+
   @action
   void validateForm() {
     if (title.isEmpty) {
@@ -119,5 +192,8 @@ abstract class _CreateTicketStoreBase with Store {
     titleError = null;
     customerNameError = null;
     contactInfoError = null;
+    submitError = null;
+    createdTicket = null;
+    submitFuture = ObservableFuture.value(null);
   }
 }

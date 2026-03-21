@@ -16,6 +16,13 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     () => super.currentAgentId,
     name: '_TicketTabStoreBase.currentAgentId',
   )).value;
+  Computed<bool>? _$isLoadingComputed;
+
+  @override
+  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
+    () => super.isLoading,
+    name: '_TicketTabStoreBase.isLoading',
+  )).value;
   Computed<int>? _$ticketCountComputed;
 
   @override
@@ -139,6 +146,62 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     });
   }
 
+  late final _$loadTicketsFutureAtom = Atom(
+    name: '_TicketTabStoreBase.loadTicketsFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<List<Ticket>> get loadTicketsFuture {
+    _$loadTicketsFutureAtom.reportRead();
+    return super.loadTicketsFuture;
+  }
+
+  @override
+  set loadTicketsFuture(ObservableFuture<List<Ticket>> value) {
+    _$loadTicketsFutureAtom.reportWrite(value, super.loadTicketsFuture, () {
+      super.loadTicketsFuture = value;
+    });
+  }
+
+  late final _$errorMessageAtom = Atom(
+    name: '_TicketTabStoreBase.errorMessage',
+    context: context,
+  );
+
+  @override
+  String? get errorMessage {
+    _$errorMessageAtom.reportRead();
+    return super.errorMessage;
+  }
+
+  @override
+  set errorMessage(String? value) {
+    _$errorMessageAtom.reportWrite(value, super.errorMessage, () {
+      super.errorMessage = value;
+    });
+  }
+
+  late final _$loadTicketsAsyncAction = AsyncAction(
+    '_TicketTabStoreBase.loadTickets',
+    context: context,
+  );
+
+  @override
+  Future<void> loadTickets() {
+    return _$loadTicketsAsyncAction.run(() => super.loadTickets());
+  }
+
+  late final _$acceptTicketAsyncAction = AsyncAction(
+    '_TicketTabStoreBase.acceptTicket',
+    context: context,
+  );
+
+  @override
+  Future<void> acceptTicket(Ticket ticket) {
+    return _$acceptTicketAsyncAction.run(() => super.acceptTicket(ticket));
+  }
+
   late final _$_TicketTabStoreBaseActionController = ActionController(
     name: '_TicketTabStoreBase',
     context: context,
@@ -205,18 +268,6 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   }
 
   @override
-  void acceptTicket(Ticket ticket) {
-    final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
-      name: '_TicketTabStoreBase.acceptTicket',
-    );
-    try {
-      return super.acceptTicket(ticket);
-    } finally {
-      _$_TicketTabStoreBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void viewTicketDetails(Ticket ticket) {
     final _$actionInfo = _$_TicketTabStoreBaseActionController.startAction(
       name: '_TicketTabStoreBase.viewTicketDetails',
@@ -261,7 +312,10 @@ activeFilter: ${activeFilter},
 allTickets: ${allTickets},
 filteredTickets: ${filteredTickets},
 isCreateMode: ${isCreateMode},
+loadTicketsFuture: ${loadTicketsFuture},
+errorMessage: ${errorMessage},
 currentAgentId: ${currentAgentId},
+isLoading: ${isLoading},
 ticketCount: ${ticketCount},
 tabTitle: ${tabTitle}
     ''';

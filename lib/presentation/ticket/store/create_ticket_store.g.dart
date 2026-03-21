@@ -16,6 +16,13 @@ mixin _$CreateTicketStore on _CreateTicketStoreBase, Store {
     () => super.isFormValid,
     name: '_CreateTicketStoreBase.isFormValid',
   )).value;
+  Computed<bool>? _$isSubmittingComputed;
+
+  @override
+  bool get isSubmitting => (_$isSubmittingComputed ??= Computed<bool>(
+    () => super.isSubmitting,
+    name: '_CreateTicketStoreBase.isSubmitting',
+  )).value;
 
   late final _$titleAtom = Atom(
     name: '_CreateTicketStoreBase.title',
@@ -215,6 +222,72 @@ mixin _$CreateTicketStore on _CreateTicketStoreBase, Store {
     });
   }
 
+  late final _$submitFutureAtom = Atom(
+    name: '_CreateTicketStoreBase.submitFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<Ticket?> get submitFuture {
+    _$submitFutureAtom.reportRead();
+    return super.submitFuture;
+  }
+
+  @override
+  set submitFuture(ObservableFuture<Ticket?> value) {
+    _$submitFutureAtom.reportWrite(value, super.submitFuture, () {
+      super.submitFuture = value;
+    });
+  }
+
+  late final _$submitErrorAtom = Atom(
+    name: '_CreateTicketStoreBase.submitError',
+    context: context,
+  );
+
+  @override
+  String? get submitError {
+    _$submitErrorAtom.reportRead();
+    return super.submitError;
+  }
+
+  @override
+  set submitError(String? value) {
+    _$submitErrorAtom.reportWrite(value, super.submitError, () {
+      super.submitError = value;
+    });
+  }
+
+  late final _$createdTicketAtom = Atom(
+    name: '_CreateTicketStoreBase.createdTicket',
+    context: context,
+  );
+
+  @override
+  Ticket? get createdTicket {
+    _$createdTicketAtom.reportRead();
+    return super.createdTicket;
+  }
+
+  @override
+  set createdTicket(Ticket? value) {
+    _$createdTicketAtom.reportWrite(value, super.createdTicket, () {
+      super.createdTicket = value;
+    });
+  }
+
+  late final _$submitCreateTicketAsyncAction = AsyncAction(
+    '_CreateTicketStoreBase.submitCreateTicket',
+    context: context,
+  );
+
+  @override
+  Future<Ticket?> submitCreateTicket() {
+    return _$submitCreateTicketAsyncAction.run(
+      () => super.submitCreateTicket(),
+    );
+  }
+
   late final _$_CreateTicketStoreBaseActionController = ActionController(
     name: '_CreateTicketStoreBase',
     context: context,
@@ -366,7 +439,11 @@ supportPerson: ${supportPerson},
 titleError: ${titleError},
 customerNameError: ${customerNameError},
 contactInfoError: ${contactInfoError},
-isFormValid: ${isFormValid}
+submitFuture: ${submitFuture},
+submitError: ${submitError},
+createdTicket: ${createdTicket},
+isFormValid: ${isFormValid},
+isSubmitting: ${isSubmitting}
     ''';
   }
 }

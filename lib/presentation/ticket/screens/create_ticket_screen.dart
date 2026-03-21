@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/add_contact_dialog.dart';
 
@@ -12,11 +13,13 @@ final getIt = GetIt.instance;
 class CreateTicketScreenBody extends StatefulWidget {
   final VoidCallback onClose;
   final CreateTicketStore store;
+  final ValueChanged<Ticket>? onCreated;
 
   const CreateTicketScreenBody({
     super.key,
     required this.onClose,
     required this.store,
+    this.onCreated,
   });
 
   @override
@@ -763,19 +766,29 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
         ),
         const SizedBox(width: 12),
         ElevatedButton(
-          onPressed: () {
-            widget.store.validateForm();
-            if (widget.store.isFormValid) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Phiếu đã được tạo')),
-              );
-              widget.store.resetForm();
-              titleController.clear();
-              customerNameController.clear();
-              descriptionController.clear();
-              widget.onClose();
-            }
-          },
+          onPressed: widget.store.isSubmitting
+              ? null
+              : () async {
+                  final createdTicket = await widget.store.submitCreateTicket();
+                  if (createdTicket != null && mounted) {
+                    widget.onCreated?.call(createdTicket);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Phiếu đã được tạo')),
+                    );
+                    widget.store.resetForm();
+                    titleController.clear();
+                    customerNameController.clear();
+                    descriptionController.clear();
+                    widget.onClose();
+                    return;
+                  }
+
+                  if (mounted && widget.store.submitError != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(widget.store.submitError!)),
+                    );
+                  }
+                },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primaryBlue,
             elevation: 0,
@@ -784,13 +797,22 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
               vertical: 12,
             ),
           ),
-          child: const Text(
-            'Tạo phiếu',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: widget.store.isSubmitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text(
+                  'Tạo phiếu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ],
     );
@@ -810,7 +832,7 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
   @override
   void initState() {
     super.initState();
-    _store = CreateTicketStore();
+    _store = getIt<CreateTicketStore>();
   }
 
   @override

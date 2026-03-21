@@ -27,7 +27,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
   void initState() {
     super.initState();
     _store = GetIt.instance<TicketTabStore>();
-    _createTicketStore = CreateTicketStore();
+    _createTicketStore = GetIt.instance<CreateTicketStore>();
     _searchController = TextEditingController();
   }
 
@@ -47,6 +47,9 @@ class _TicketListScreenState extends State<TicketListScreen> {
           if (_store.isCreateMode) {
             return CreateTicketScreenBody(
               store: _createTicketStore,
+              onCreated: (_) async {
+                await _store.loadTickets();
+              },
               onClose: _store.closeCreateMode,
             );
           }

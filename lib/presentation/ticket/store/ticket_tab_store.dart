@@ -1,7 +1,9 @@
 import 'package:mobx/mobx.dart';
 import '../../../domain/entity/ticket/ticket.dart';
 import '../../../domain/entity/ticket/ticket_filter.dart';
-import '../../../data/local/mock_data.dart';
+import '../../../domain/entity/ticket/ticket_query_params.dart';
+import '../../../domain/usecase/ticket/assign_agent_usecase.dart';
+import '../../../domain/usecase/ticket/get_tickets_usecase.dart';
 import '../../stores/session_store.dart';
 
 part 'ticket_tab_store.g.dart';
@@ -10,6 +12,8 @@ class TicketTabStore = _TicketTabStoreBase with _$TicketTabStore;
 
 abstract class _TicketTabStoreBase with Store {
   final SessionStore _sessionStore;
+  final GetTicketsUseCase _getTicketsUseCase;
+  final AssignAgentUseCase _assignAgentUseCase;
 
   @observable
   int selectedTabIndex = 1; // Default to "Phiếu chưa tiếp nhận"
@@ -29,25 +33,67 @@ abstract class _TicketTabStoreBase with Store {
   @observable
   bool isCreateMode = false;
 
-  _TicketTabStoreBase(this._sessionStore) {
-    // Initialize with mock data
-    _initializeTickets();
+  @observable
+  ObservableFuture<List<Ticket>> loadTicketsFuture =
+      ObservableFuture.value(const []);
+
+  @observable
+  String? errorMessage;
+
+  _TicketTabStoreBase(
+    this._sessionStore,
+    this._getTicketsUseCase,
+    this._assignAgentUseCase,
+  ) {
+    loadTickets();
     _updateFilteredTickets();
   }
 
   @computed
   String get currentAgentId => _sessionStore.currentAgentId;
 
-  void _initializeTickets() {
-    final agents = MockDataGenerator.generateAgents();
-    final customers = MockDataGenerator.generateCustomers();
-    allTickets = MockDataGenerator.generateTickets(agents, customers);
+  @computed
+  bool get isLoading => loadTicketsFuture.status == FutureStatus.pending;
+
+  TicketTabScope get _currentTabScope {
+    switch (selectedTabIndex) {
+      case 0:
+        return TicketTabScope.my;
+      case 1:
+        return TicketTabScope.unassigned;
+      case 2:
+      default:
+        return TicketTabScope.all;
+    }
+  }
+
+  @action
+  Future<void> loadTickets() async {
+    errorMessage = null;
+
+    final params = TicketQueryParams(
+      tab: _currentTabScope,
+      currentAgentId: currentAgentId,
+    );
+
+    loadTicketsFuture = ObservableFuture(
+      _getTicketsUseCase.call(params: params),
+    );
+
+    try {
+      allTickets = await loadTicketsFuture;
+      _updateFilteredTickets();
+    } catch (e) {
+      errorMessage = e.toString();
+      allTickets = [];
+      filteredTickets = [];
+    }
   }
 
   @action
   void setSelectedTab(int index) {
     selectedTabIndex = index;
-    _updateFilteredTickets();
+    loadTickets();
   }
 
   @action
@@ -207,29 +253,19 @@ abstract class _TicketTabStoreBase with Store {
   }
 
   @action
-  void acceptTicket(Ticket ticket) {
-    final ticketIndex = allTickets.indexWhere((item) => item.id == ticket.id);
-    if (ticketIndex == -1) {
-      return;
+  Future<void> acceptTicket(Ticket ticket) async {
+    try {
+      errorMessage = null;
+      await _assignAgentUseCase.call(
+        params: AssignAgentParams(
+          ticketId: ticket.id,
+          agentId: currentAgentId,
+        ),
+      );
+      await loadTickets();
+    } catch (e) {
+      errorMessage = e.toString();
     }
-
-    final now = DateTime.now();
-    final updatedTicket = allTickets[ticketIndex].copyWith(
-      assignedAgentId: currentAgentId,
-      assignedAgentName: currentAgentId,
-      updatedAt: now,
-      lastModifiedAt: now,
-      isSynced: false,
-      pendingAction: TicketPendingAction.update,
-    );
-
-    allTickets = [
-      ...allTickets.sublist(0, ticketIndex),
-      updatedTicket,
-      ...allTickets.sublist(ticketIndex + 1),
-    ];
-
-    _updateFilteredTickets();
   }
 
   @action
