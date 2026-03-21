@@ -12,5 +12,6 @@
   "login_tv_welcome": "Chào mừng đến với Jarvis Helpdesk",
   "login_tv_subtitle": "Đăng nhập để tiếp tục",
   "settings_tv_dark_mode": "Chế độ tối",
-  "settings_tv_language": "Ngôn ngữ"
+  "settings_tv_language": "Ngôn ngữ",
+  "login_btn_test_crash": "Thử nghiệm Crashlytics"
 }
