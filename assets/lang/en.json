@@ -77,5 +77,6 @@
   "advancedAnalytics": "Advanced analytics",
   "slaAutomation": "SLA automation",
   "prioritySupport": "Priority support",
-  "customBranding": "Custom branding"
+  "customBranding": "Custom branding",
+  "login_btn_test_crash": "Test Crashlytics Crash"
 }

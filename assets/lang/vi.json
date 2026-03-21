@@ -77,5 +77,6 @@
   "advancedAnalytics": "Phân tích nâng cao",
   "slaAutomation": "Tự động hóa SLA",
   "prioritySupport": "Hỗ trợ ưu tiên",
-  "customBranding": "Tùy chỉnh thương hiệu"
+  "customBranding": "Tùy chỉnh thương hiệu",
+  "login_btn_test_crash": "Thử nghiệm Crashlytics"
 }
