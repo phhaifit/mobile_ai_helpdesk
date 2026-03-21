@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
@@ -15,8 +17,10 @@ class RepositoryModule {
       SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
     );
 
-    getIt.registerSingleton<TicketRepository>(
-      MockTicketRepositoryImpl(),
+    getIt.registerSingleton<TicketRepository>(MockTicketRepositoryImpl());
+
+    getIt.registerSingleton<OmnichannelRepository>(
+      MockOmnichannelRepositoryImpl(),
     );
   }
 }
