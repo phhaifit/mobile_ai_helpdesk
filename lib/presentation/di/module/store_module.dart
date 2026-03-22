@@ -156,5 +156,9 @@ class StoreModule {
         getIt<SimulateUpgradeUseCase>(),
       ),
     );
+
+    getIt.registerLazySingleton<PromptStore>(
+      () => PromptStore(getIt<PromptRepository>()),
+    );
   }
 }
