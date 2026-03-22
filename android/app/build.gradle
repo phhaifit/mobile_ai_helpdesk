@@ -30,6 +30,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    namespace "com.iotecksolutions.todoapp"
     compileSdkVersion 34
 
     lintOptions {
@@ -38,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId "com.iotecksolutions.todoapp"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 23
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -70,6 +71,15 @@ android {
         jniLibs {
             useLegacyPackaging = false
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 

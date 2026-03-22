@@ -90,16 +90,38 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Import distribution certificate
+      - name: Validate and import distribution certificate
         env:
           P12_BASE64: ${{ secrets.IOS_CERTIFICATES_P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
         run: |
-          CERTIFICATE_PATH=$RUNNER_TEMP/distribution.p12
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          set -euo pipefail
 
-          echo "$P12_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+          if [ -z "${P12_BASE64:-}" ] || [ -z "${P12_PASSWORD:-}" ]; then
+            echo "ERROR: Required iOS secrets are missing. Please set 'IOS_CERTIFICATES_P12_BASE64' and 'IOS_CERTIFICATES_P12_PASSWORD' in repository secrets." >&2
+            exit 1
+          fi
+
+          CERTIFICATE_PATH="$RUNNER_TEMP/distribution.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          # Try several portable decoders (GNU base64, macOS base64 -D, or openssl)
+          printf '%s' "$P12_BASE64" > "$RUNNER_TEMP/p12.b64"
+          if printf '%s' "" | base64 --help 2>&1 | grep -q -- '--decode'; then
+            base64 --decode "$RUNNER_TEMP/p12.b64" > "$CERTIFICATE_PATH" || true
+          fi
+          if [ ! -s "$CERTIFICATE_PATH" ]; then
+            base64 -D "$RUNNER_TEMP/p12.b64" > "$CERTIFICATE_PATH" 2>/dev/null || true
+          fi
+          if [ ! -s "$CERTIFICATE_PATH" ]; then
+            openssl base64 -d -A -in "$RUNNER_TEMP/p12.b64" -out "$CERTIFICATE_PATH" || true
+          fi
+
+          if [ ! -s "$CERTIFICATE_PATH" ]; then
+            echo "ERROR: Failed to decode distribution certificate. Ensure 'IOS_CERTIFICATES_P12_BASE64' contains valid base64 data (no extra newlines or spaces)." >&2
+            exit 1
+          fi
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
