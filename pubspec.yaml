@@ -20,6 +20,9 @@ dependencies:
   flutter_mobx: ^2.3.0
   # State Management
 
+  # Error Handling
+  dartz: ^0.10.1
+
   # Networking
   dio: ^5.8.0+1
   http: ^1.4.0
