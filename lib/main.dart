@@ -9,15 +9,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await setPreferredOrientations();
+import '/di/service_locator.dart';
+import '/presentation/main_screen.dart';
+import 'constants/colors.dart';
 
-  final env = EnvConfig.instance;
-  log('Running in ${env.environment.name} mode — ${env.baseUrl}');
-
+void main() async {
   await ServiceLocator.configureDependencies();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -44,11 +41,19 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-Future<void> setPreferredOrientations() {
-  return SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeRight,
-    DeviceOrientation.landscapeLeft,
-  ]);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'AI Helpdesk',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
+        useMaterial3: true,
+      ),
+      home: const MainScreen(),
+    );
+  }
 }

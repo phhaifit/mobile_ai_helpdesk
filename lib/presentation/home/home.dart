@@ -2,7 +2,12 @@ import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import '/di/service_locator.dart';
+import '/presentation/home/store/language/language_store.dart';
+import '/presentation/home/store/theme/theme_store.dart';
+import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -41,7 +46,9 @@ class _HomeScreenState extends State<HomeScreen>
           _buildDashboardTab(),
           _buildTicketsTab(),
           _buildOmnichannelTab(),
+          _buildMonetizationTab(),
         ],
+        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }
@@ -66,6 +73,10 @@ class _HomeScreenState extends State<HomeScreen>
             text: AppLocalizations.of(
               context,
             ).translate('home_tab_omnichannel'),
+            icon: const Icon(Icons.workspace_premium),
+            text: AppLocalizations.of(
+              context,
+            ).translate('monetization_tv_title'),
           ),
         ],
       ),
@@ -177,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildOmnichannelTab() {
     return const OmnichannelHubScreen(showAppBar: false);
+  Widget _buildMonetizationTab() {
+    return const MonetizationScreen(embedded: true);
   }
 
   // ---------------------------------------------------------------------------

@@ -11,6 +11,11 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import '/presentation/home/home.dart';
+import '/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -34,6 +39,9 @@ class Routes {
       '/omnichannel/zalo/account-assignment';
   static const String zaloPersonalMessage =
       '/omnichannel/zalo/personal-message';
+  static const String monetization = '/monetization';
+  static const String upgradePayment = '/upgrade-payment';
+  static const String upgradeConfirmation = '/upgrade-confirmation';
 
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -102,6 +110,20 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ZaloPersonalMessageScreen(),
+      case monetization:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MonetizationScreen(),
+        );
+      case upgradePayment:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const UpgradePaymentScreen(),
+        );
+      case upgradeConfirmation:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const UpgradeConfirmationScreen(),
         );
       default:
         return MaterialPageRoute(

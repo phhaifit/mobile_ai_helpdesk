@@ -1,4 +1,4 @@
-import 'package:ai_helpdesk/constants/env.dart';
+import '/constants/env.dart';
 
 class Endpoints {
   Endpoints._();
