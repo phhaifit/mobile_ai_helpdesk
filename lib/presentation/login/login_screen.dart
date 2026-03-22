@@ -1,9 +1,25 @@
 import '/utils/locale/app_localization.dart';
 import '/utils/routes/routes.dart';
+import '/presentation/login/store/login_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  late final LoginStore _store;
+
+  @override
+  void initState() {
+    super.initState();
+    _store = GetIt.instance<LoginStore>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,33 +52,58 @@ class LoginScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: l.translate('login_tv_email'),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: const OutlineInputBorder(),
+                Observer(
+                  builder: (_) => TextField(
+                    onChanged: _store.setEmail,
+                    enabled: !_store.isLoading,
+                    decoration: InputDecoration(
+                      labelText: l.translate('login_tv_email'),
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
+                      errorText: _store.errorMessage,
+                    ),
+                    keyboardType: TextInputType.emailAddress,
                   ),
-                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: l.translate('login_tv_password'),
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    border: const OutlineInputBorder(),
+                Observer(
+                  builder: (_) => TextField(
+                    onChanged: _store.setPassword,
+                    enabled: !_store.isLoading,
+                    decoration: InputDecoration(
+                      labelText: l.translate('login_tv_password'),
+                      prefixIcon: const Icon(Icons.lock_outlined),
+                      suffixIcon: GestureDetector(
+                        onTap: _store.togglePasswordVisibility,
+                        child: Icon(
+                          _store.isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                      ),
+                      border: const OutlineInputBorder(),
+                    ),
+                    obscureText: !_store.isPasswordVisible,
                   ),
-                  obscureText: true,
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, Routes.home);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(l.translate('login_btn_sign_in')),
+                Observer(
+                  builder: (_) => SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _store.canSubmit ? () => _handleLogin() : null,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: _store.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(l.translate('login_btn_sign_in')),
+                      ),
                     ),
                   ),
                 ),
@@ -72,5 +113,12 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _handleLogin() async {
+    await _store.login();
+    if (mounted && _store.errorMessage == null) {
+      Navigator.pushReplacementNamed(context, Routes.home);
+    }
   }
 }

@@ -1,7 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'ticket.g.dart';
-
 enum TicketStatus { open, inProgress, resolved }
 
 enum TicketPriority { low, medium, high, urgent }
@@ -27,8 +25,4 @@ class Ticket {
     required this.channel,
     required this.createdAt,
   });
-
-  factory Ticket.fromJson(Map<String, dynamic> json) => _$TicketFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TicketToJson(this);
 }

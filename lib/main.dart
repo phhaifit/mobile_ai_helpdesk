@@ -1,11 +1,54 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get_it/get_it.dart';
 
 import '/di/service_locator.dart';
+import '/data/analytics/first_launch_manager.dart';
+import '/domain/analytics/analytics_service.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '/presentation/main_screen.dart';
+import '/presentation/login/login_screen.dart';
+import '/presentation/my_app.dart';
+import '/utils/routes/routes.dart';
 import 'constants/colors.dart';
+import 'firebase_options.dart';
+import 'utils/locale/app_localization.dart';
 
 void main() async {
+  // Ensure Flutter bindings are initialized before any async operations
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase after bindings are ready
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+    // Continue app startup even if Firebase init fails (graceful degradation)
+  }
+
+  // Configure service locator and all dependencies
   await ServiceLocator.configureDependencies();
+
+  // Check and track first app launch
+  try {
+    final getIt = GetIt.instance;
+    final analyticsService = getIt<AnalyticsService>();
+    final sharedPrefHelper = getIt<SharedPreferenceHelper>();
+
+    final firstLaunchData = await FirstLaunchManager.checkAndTrackFirstLaunch(
+      analyticsService: analyticsService,
+      sharedPreferenceHelper: sharedPrefHelper,
+    );
+
+    debugPrint('[Main] App initialization complete: $firstLaunchData');
+  } catch (e) {
+    debugPrint('[Main] First launch tracking failed: $e');
+    // Continue app startup even if first launch tracking fails
+  }
+
   runApp(const MyApp());
 }
 
@@ -21,7 +64,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
+      supportedLocales: [const Locale('en'), const Locale('vi')],
+      home: const LoginScreen(),
+      onGenerateRoute: Routes.onGenerateRoute,
     );
   }
 }

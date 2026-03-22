@@ -7,8 +7,10 @@ import '../../chat/store/chat_room_store.dart';
 import '../../customer_management/store/customer_store.dart';
 import '../../home/store/language/language_store.dart';
 import '../../home/store/theme/theme_store.dart';
+import '../../login/store/login_store.dart';
 
 import '../../../core/stores/error/error_store.dart';
+import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
 import '../../../domain/repository/customer_management/customer_repository.dart';
@@ -20,6 +22,11 @@ class StoreModule {
 
     // factories:---------------------------------------------------------------
     getIt.registerFactory(() => ErrorStore());
+
+    // --- Login Store ---
+    getIt.registerFactory<LoginStore>(
+      () => LoginStore(analyticsService: getIt<AnalyticsService>()),
+    );
 
     // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
