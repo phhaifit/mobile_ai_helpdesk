@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 
 import 'constants/preferences.dart';
 
@@ -47,5 +50,27 @@ class SharedPreferenceHelper {
 
   Future<void> changeLanguage(String language) {
     return _sharedPreference.setString(Preferences.currentLanguage, language);
+  }
+
+  // User:----------------------------------------------------------------------
+  Future<void> saveUser(User user) async {
+    final userJson = jsonEncode(user.toJson());
+    await _sharedPreference.setString(Preferences.userData, userJson);
+  }
+
+  Future<User?> getUser() async {
+    final userJson = _sharedPreference.getString(Preferences.userData);
+    if (userJson == null) return null;
+    
+    try {
+      final userMap = jsonDecode(userJson) as Map<String, dynamic>;
+      return User.fromJson(userMap);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> removeUser() async {
+    return _sharedPreference.remove(Preferences.userData);
   }
 }

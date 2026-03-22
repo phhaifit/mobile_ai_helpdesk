@@ -1,3 +1,8 @@
+import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
 import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
@@ -23,7 +28,12 @@ class Routes {
 
   // route constants -----------------------------------------------------------
   static const String login = '/login';
+  static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String home = '/home';
+  static const String profile = '/profile';
+  static const String changePassword = '/change-password';
   static const String omnichannelHub = '/omnichannel';
   static const String messengerDashboard = '/omnichannel/messenger/dashboard';
   static const String messengerOauthStatus =
@@ -51,10 +61,38 @@ class Routes {
           settings: settings,
           builder: (_) => const LoginScreen(),
         );
+      case register:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const RegistrationScreen(),
+        );
+      case forgotPassword:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ForgotPasswordScreen(),
+        );
+      case resetPassword:
+        final args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => ResetPasswordScreen(
+            email: args?['email'],
+          ),
+        );
       case home:
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const HomeScreen(),
+        );
+      case profile:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ProfileScreen(),
+        );
+      case changePassword:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ChangePasswordScreen(),
         );
       case omnichannelHub:
         return MaterialPageRoute(
@@ -110,6 +148,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ZaloPersonalMessageScreen(),
+        );
       case monetization:
         return MaterialPageRoute(
           settings: settings,
