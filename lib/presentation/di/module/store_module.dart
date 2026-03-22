@@ -117,6 +117,11 @@ class StoreModule {
       ),
     );
 
+    // --- Login Store ---
+    getIt.registerFactory<LoginStore>(
+      () => LoginStore(analyticsService: getIt<AnalyticsService>()),
+    );
+
     // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
     getIt.registerSingleton<ChatRoomStore>(

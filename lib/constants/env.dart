@@ -12,6 +12,8 @@ class EnvConfig {
   final int receiveTimeout;
   final int connectionTimeout;
   final bool enableLogging;
+  final bool enableAnalytics;
+  final bool enableAnalyticsDebug;
 
   const EnvConfig._({
     required this.environment,
@@ -19,6 +21,8 @@ class EnvConfig {
     required this.receiveTimeout,
     required this.connectionTimeout,
     required this.enableLogging,
+    required this.enableAnalytics,
+    required this.enableAnalyticsDebug,
   });
 
   static const _envName = String.fromEnvironment('ENV', defaultValue: 'dev');
@@ -43,6 +47,8 @@ class EnvConfig {
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
+    enableAnalytics: true,
+    enableAnalyticsDebug: true,
   );
 
   static const EnvConfig staging = EnvConfig._(
@@ -51,6 +57,8 @@ class EnvConfig {
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
+    enableAnalytics: true,
+    enableAnalyticsDebug: false,
   );
 
   static const EnvConfig prod = EnvConfig._(
@@ -59,6 +67,8 @@ class EnvConfig {
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: false,
+    enableAnalytics: true,
+    enableAnalyticsDebug: false,
   );
 
   bool get isDev => environment == Environment.dev;

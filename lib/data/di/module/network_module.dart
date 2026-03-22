@@ -6,6 +6,9 @@ import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
+import '/data/analytics/firebase_analytics_service_impl.dart';
+import '/domain/analytics/analytics_service.dart';
+import '/constants/env.dart';
 import 'package:event_bus/event_bus.dart';
 
 import '../../../di/service_locator.dart';
@@ -14,6 +17,13 @@ class NetworkModule {
   static Future<void> configureNetworkModuleInjection() async {
     // event bus:---------------------------------------------------------------
     getIt.registerSingleton<EventBus>(EventBus());
+
+    // analytics:---------------------------------------------------------------
+    getIt.registerSingleton<AnalyticsService>(
+      FirebaseAnalyticsServiceImpl(
+        debugMode: EnvConfig.instance.enableAnalyticsDebug,
+      ),
+    );
 
     // interceptors:------------------------------------------------------------
     getIt.registerSingleton<LoggingInterceptor>(LoggingInterceptor());

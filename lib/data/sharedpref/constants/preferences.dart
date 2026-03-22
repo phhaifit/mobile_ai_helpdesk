@@ -1,6 +1,7 @@
 class Preferences {
   Preferences._();
 
+  // Authentication
   static const String isLoggedIn = "isLoggedIn";
   static const String authToken = "authToken";
   static const String authRefreshToken = "authRefreshToken";
