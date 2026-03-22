@@ -1,3 +1,8 @@
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '/di/service_locator.dart';
 import '/presentation/home/store/language/language_store.dart';
 import '/presentation/home/store/theme/theme_store.dart';
@@ -21,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -36,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen>
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
+        children: [
+          _buildDashboardTab(),
+          _buildTicketsTab(),
+          _buildMonetizationTab(),
+        ],
         children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
@@ -55,6 +65,12 @@ class _HomeScreenState extends State<HomeScreen>
           Tab(
             icon: const Icon(Icons.confirmation_number),
             text: AppLocalizations.of(context).translate('home_tab_tickets'),
+          ),
+          Tab(
+            icon: const Icon(Icons.workspace_premium),
+            text: AppLocalizations.of(
+              context,
+            ).translate('monetization_tv_title'),
           ),
         ],
       ),
@@ -162,6 +178,10 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
+  }
+
+  Widget _buildMonetizationTab() {
+    return const MonetizationScreen(embedded: true);
   }
 
   // ---------------------------------------------------------------------------

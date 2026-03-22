@@ -1,5 +1,12 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../chat/store/chat_store.dart';
@@ -40,6 +47,13 @@ class StoreModule {
 
     getIt.registerSingleton<LanguageStore>(
       LanguageStore(getIt<SettingRepository>(), getIt<ErrorStore>()),
+    );
+
+    getIt.registerFactory(
+      () => MonetizationStore(
+        getIt<GetMonetizationOverviewUseCase>(),
+        getIt<SimulateUpgradeUseCase>(),
+      ),
     );
   }
 }
