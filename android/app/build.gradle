@@ -66,7 +66,7 @@ android {
 
     // Support Android 15+ devices with 16KB memory page size (required from API 35+)
     // Native .so libraries are stored uncompressed so the OS can map them directly
-    packaging {
+    packagingOptions {
         jniLibs {
             useLegacyPackaging = false
         }
