@@ -3,6 +3,10 @@ import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import '/di/service_locator.dart';
+import '/presentation/home/store/language/language_store.dart';
+import '/presentation/home/store/theme/theme_store.dart';
+import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -42,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen>
           _buildTicketsTab(),
           _buildMonetizationTab(),
         ],
+        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }

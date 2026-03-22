@@ -3,6 +3,8 @@ import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import '/presentation/home/home.dart';
+import '/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
