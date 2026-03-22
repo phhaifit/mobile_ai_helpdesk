@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import '/domain/entity/ticket/ticket.dart';
 
 abstract class TicketRepository {
   Future<List<Ticket>> getTickets();

@@ -1,6 +1,6 @@
-import 'package:ai_helpdesk/core/stores/error/error_store.dart';
-import 'package:ai_helpdesk/domain/entity/language/language.dart';
-import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import '/core/stores/error/error_store.dart';
+import '/domain/entity/language/language.dart';
+import '/domain/repository/setting/setting_repository.dart';
 import 'package:mobx/mobx.dart';
 
 part 'language_store.g.dart';
@@ -47,8 +47,9 @@ abstract class _LanguageStore with Store {
 
   @action
   String? getLanguage() {
-    return supportedLanguages[supportedLanguages
-            .indexWhere((language) => language.locale == _locale)]
+    return supportedLanguages[supportedLanguages.indexWhere(
+          (language) => language.locale == _locale,
+        )]
         .language;
   }
 

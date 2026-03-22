@@ -1,5 +1,5 @@
-import 'package:ai_helpdesk/core/stores/error/error_store.dart';
-import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import '/core/stores/error/error_store.dart';
+import '/domain/repository/setting/setting_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -21,12 +21,12 @@ abstract class _ThemeStore with Store {
   }
 
   @action
-  Future changeBrightnessToDark(bool value) async {
+  Future<void> changeBrightnessToDark(bool value) async {
     _darkMode = value;
     await _repository.changeBrightnessToDark(value);
   }
 
-  Future init() async {
+  Future<void> init() async {
     _darkMode = _repository.isDarkMode;
   }
 
