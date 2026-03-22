@@ -18,21 +18,25 @@ void main() async {
   await ServiceLocator.configureDependencies();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Catch framework errors
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  if (!kIsWeb) {
+    // Catch framework errors
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  // Catch async errors
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return !kDebugMode;
-  };
+    // Catch async errors
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return !kDebugMode;
+    };
 
-  // Enable crashlytics explicitly and add custom logs/keys to fulfill requirements
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  await FirebaseCrashlytics.instance.setUserIdentifier('test-user-123');
-  await FirebaseCrashlytics.instance.setCustomKey('tenant', 'default_tenant');
-  await FirebaseCrashlytics.instance.setCustomKey('screen', 'startup_screen');
-  await FirebaseCrashlytics.instance.log('App started - Initializing services');
+    // Enable crashlytics explicitly and add custom logs/keys.
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    await FirebaseCrashlytics.instance.setUserIdentifier('test-user-123');
+    await FirebaseCrashlytics.instance.setCustomKey('tenant', 'default_tenant');
+    await FirebaseCrashlytics.instance.setCustomKey('screen', 'startup_screen');
+    await FirebaseCrashlytics.instance.log(
+      'App started - Initializing services',
+    );
+  }
 
   runApp(MyApp());
 }

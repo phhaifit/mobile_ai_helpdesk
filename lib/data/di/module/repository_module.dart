@@ -1,4 +1,10 @@
 import 'dart:async';
+
+import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
@@ -35,6 +41,10 @@ class RepositoryModule {
       ChatRepositoryImpl(getIt<ChatDataSource>()),
     );
 
+    getIt.registerSingleton<TicketRepository>(MockTicketRepositoryImpl());
+
+    getIt.registerSingleton<OmnichannelRepository>(
+      MockOmnichannelRepositoryImpl(),
     getIt.registerSingleton<ChatRoomRepository>(
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
     );
