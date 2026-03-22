@@ -295,7 +295,6 @@ abstract class _TicketTabStoreBase with Store {
   @action
   void viewTicketDetails(Ticket ticket) {
     // TODO: Navigate to ticket detail screen
-    print('Viewing details for ticket: ${ticket.id}');
   }
 
   @action

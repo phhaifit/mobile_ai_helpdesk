@@ -80,9 +80,6 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
   }
 
   void _updateFilter(TicketFilter newFilter) {
-    print('[DEBUG] _updateFilter called with: $newFilter');
-    print('[DEBUG] createdById: ${newFilter.createdById}');
-    print('[DEBUG] customerId: ${newFilter.customerId}');
     setState(() {
       _currentFilter = newFilter;
     });
