@@ -1,5 +1,11 @@
 import '../enums.dart';
 
+class _TicketFieldUnset {
+  const _TicketFieldUnset();
+}
+
+const _ticketFieldUnset = _TicketFieldUnset();
+
 enum TicketPendingAction {
   create,
   update,
@@ -72,8 +78,8 @@ class Ticket {
     String? customerEmail,
     String? createdByID,
     String? createdByName,
-    String? assignedAgentId,
-    String? assignedAgentName,
+    Object? assignedAgentId = _ticketFieldUnset,
+    Object? assignedAgentName = _ticketFieldUnset,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? resolvedAt,
@@ -98,8 +104,12 @@ class Ticket {
       customerEmail: customerEmail ?? this.customerEmail,
       createdByID: createdByID ?? this.createdByID,
       createdByName: createdByName ?? this.createdByName,
-      assignedAgentId: assignedAgentId ?? this.assignedAgentId,
-      assignedAgentName: assignedAgentName ?? this.assignedAgentName,
+      assignedAgentId: identical(assignedAgentId, _ticketFieldUnset)
+          ? this.assignedAgentId
+          : assignedAgentId as String?,
+      assignedAgentName: identical(assignedAgentName, _ticketFieldUnset)
+          ? this.assignedAgentName
+          : assignedAgentName as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,

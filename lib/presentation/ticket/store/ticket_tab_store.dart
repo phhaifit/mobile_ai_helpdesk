@@ -269,6 +269,30 @@ abstract class _TicketTabStoreBase with Store {
   }
 
   @action
+  Future<bool> cancelTicket(Ticket ticket) async {
+    errorMessage = null;
+
+    if (ticket.assignedAgentId != currentAgentId) {
+      errorMessage = 'Ticket is not assigned to current agent';
+      return false;
+    }
+
+    try {
+      await _assignAgentUseCase.call(
+        params: AssignAgentParams(
+          ticketId: ticket.id,
+          agentId: null,
+        ),
+      );
+      await loadTickets();
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      return false;
+    }
+  }
+
+  @action
   void viewTicketDetails(Ticket ticket) {
     // TODO: Navigate to ticket detail screen
     print('Viewing details for ticket: ${ticket.id}');

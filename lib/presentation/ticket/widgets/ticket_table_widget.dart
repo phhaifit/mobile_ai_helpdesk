@@ -10,15 +10,19 @@ import 'ticket_table_list_widget.dart';
 class TicketTableWidget extends StatelessWidget {
   final List<Ticket> tickets;
   final Function(Ticket)? onAcceptTicket;
+  final Function(Ticket)? onCancelTicket;
   final Function(Ticket)? onViewDetails;
   final int selectedTabIndex;
+  final String currentAgentId;
 
   const TicketTableWidget({
     super.key,
     required this.tickets,
     this.onAcceptTicket,
+    this.onCancelTicket,
     this.onViewDetails,
     this.selectedTabIndex = 1,
+    required this.currentAgentId,
   });
 
   @override
@@ -66,7 +70,9 @@ class TicketTableWidget extends StatelessWidget {
           tickets: tickets,
           visibleColumns: columnVisibilityStore.visibleColumns,
           selectedTabIndex: selectedTabIndex,
+          currentAgentId: currentAgentId,
           onAcceptTicket: onAcceptTicket,
+          onCancelTicket: onCancelTicket,
           onViewDetails: onViewDetails,
           onFilterPressed: () {
             showDialog(

@@ -25,5 +25,10 @@
   "ticket_filter_close": "Close",
   "ticket_filter_all": "All",
   "ticket_filter_all_customers": "All Customers",
-  "ticket_filter_all_creators": "All Creators"
+  "ticket_filter_all_creators": "All Creators",
+  "ticketActionAccept": "Accept",
+  "ticketActionCancel": "Cancel",
+  "ticketActionDetail": "Details",
+  "ticketCancelSuccess": "Ticket canceled:",
+  "ticketCancelFailed": "Failed to cancel ticket:"
 }

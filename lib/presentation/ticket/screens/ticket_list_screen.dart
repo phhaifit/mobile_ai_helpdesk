@@ -10,6 +10,7 @@ import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_search_filter_wid
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_filter_dialog.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_table_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class TicketListScreen extends StatefulWidget {
   const TicketListScreen({super.key});
@@ -39,6 +40,8 @@ class _TicketListScreenState extends State<TicketListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Observer(
@@ -183,11 +186,24 @@ class _TicketListScreenState extends State<TicketListScreen> {
                             builder: (_) => TicketTableWidget(
                               tickets: _store.filteredTickets,
                               selectedTabIndex: _store.selectedTabIndex,
+                              currentAgentId: _store.currentAgentId,
                               onAcceptTicket: (ticket) {
                                 _store.acceptTicket(ticket);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Tiếp nhận phiếu: ${ticket.id}'),
+                                  ),
+                                );
+                              },
+                              onCancelTicket: (ticket) async {
+                                final isSuccess = await _store.cancelTicket(ticket);
+                                final message = isSuccess
+                                    ? l.translate('ticketCancelSuccess')
+                                    : l.translate('ticketCancelFailed');
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('$message ${ticket.id}'),
                                   ),
                                 );
                               },

@@ -25,5 +25,10 @@
   "ticket_filter_close": "Đóng",
   "ticket_filter_all": "Tất cả",
   "ticket_filter_all_customers": "Tất cả khách hàng",
-  "ticket_filter_all_creators": "Tất cả người tạo"
+  "ticket_filter_all_creators": "Tất cả người tạo",
+  "ticketActionAccept": "Tiếp nhận",
+  "ticketActionCancel": "Hủy",
+  "ticketActionDetail": "Chi tiết",
+  "ticketCancelSuccess": "Hủy tiếp nhận phiếu:",
+  "ticketCancelFailed": "Hủy tiếp nhận thất bại:"
 }

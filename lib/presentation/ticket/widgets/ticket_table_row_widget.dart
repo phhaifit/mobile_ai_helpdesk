@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '../store/ticket_column_visibility_store.dart';
 import 'status_priority_badge_widget.dart';
 import 'ticket_table_columns.dart';
@@ -9,16 +10,20 @@ import 'ticket_source_widget.dart';
 class TicketTableRowWidget extends StatelessWidget {
   final Ticket ticket;
   final VoidCallback? onAcceptPressed;
+  final VoidCallback? onCancelPressed;
   final VoidCallback? onDetailPressed;
   final int selectedTabIndex;
+  final String currentAgentId;
   final List<TicketColumn> visibleColumns;
 
   const TicketTableRowWidget({
     super.key,
     required this.ticket,
     this.onAcceptPressed,
+    this.onCancelPressed,
     this.onDetailPressed,
     this.selectedTabIndex = 1,
+    required this.currentAgentId,
     this.visibleColumns = const [
       TicketColumn.title,
       TicketColumn.statusPriority,
@@ -49,24 +54,86 @@ class TicketTableRowWidget extends StatelessWidget {
                 ),
               ),
             ),
-            children: _buildRowCells(),
+            children: _buildRowCells(context),
           ),
         ],
       ),
     );
   }
 
-  List<Widget> _buildRowCells() {
+  List<Widget> _buildRowCells(BuildContext context) {
     final cells = <Widget>[];
 
     for (final column in visibleColumns) {
-      cells.add(_buildCell(column));
+      cells.add(_buildCell(column, context));
     }
 
     return cells;
   }
 
-  Widget _buildCell(TicketColumn column) {
+  Widget _buildPrimaryActionButton(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
+    return ElevatedButton(
+      onPressed: onAcceptPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 6,
+        ),
+      ),
+      child: Text(
+        "Tiếp nhận",
+        style: const TextStyle(fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildCancelActionButton(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return OutlinedButton(
+      onPressed: onCancelPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.warningOrange,
+        side: const BorderSide(
+          color: AppColors.warningOrange,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 6,
+        ),
+      ),
+      child: Text(
+        "Hủy",
+        style: const TextStyle(fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildDetailButton(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return OutlinedButton(
+      onPressed: onDetailPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primaryBlue,
+        side: const BorderSide(
+          color: AppColors.primaryBlue,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 6,
+        ),
+      ),
+      child: Text(
+        "Chi tiết",
+        style: const TextStyle(fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildCell(TicketColumn column, BuildContext context) {
     switch (column) {
       case TicketColumn.title:
         return Padding(
@@ -181,51 +248,29 @@ class TicketTableRowWidget extends StatelessWidget {
           ),
         );
       case TicketColumn.actions:
+        final showAcceptAction = selectedTabIndex == 1 ||
+            (selectedTabIndex == 2 && ticket.assignedAgentId == null);
+        final showCancelAction = selectedTabIndex == 0 ||
+            (selectedTabIndex == 2 &&
+                ticket.assignedAgentId == currentAgentId);
+        final showPrimaryAction = showAcceptAction || showCancelAction;
+
         return Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 8.0,
             vertical: 8.0,
           ),
-          child: selectedTabIndex == 0
-              ? const SizedBox.shrink()
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                      onPressed: onAcceptPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                      ),
-                      child: const Text(
-                        'Tiếp nhận',
-                        style: TextStyle(fontSize: 9),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    OutlinedButton(
-                      onPressed: onDetailPressed,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primaryBlue,
-                        side: const BorderSide(
-                          color: AppColors.primaryBlue,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                      ),
-                      child: const Text(
-                        'Chi tiết',
-                        style: TextStyle(fontSize: 9),
-                      ),
-                    ),
-                  ],
-                ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showPrimaryAction)
+                showAcceptAction
+                    ? _buildPrimaryActionButton(context)
+                    : _buildCancelActionButton(context),
+              if (showPrimaryAction) const SizedBox(width: 6),
+              _buildDetailButton(context),
+            ],
+          ),
         );
     }
   }

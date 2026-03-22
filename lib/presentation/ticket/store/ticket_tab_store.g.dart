@@ -202,6 +202,16 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     return _$acceptTicketAsyncAction.run(() => super.acceptTicket(ticket));
   }
 
+  late final _$cancelTicketAsyncAction = AsyncAction(
+    '_TicketTabStoreBase.cancelTicket',
+    context: context,
+  );
+
+  @override
+  Future<bool> cancelTicket(Ticket ticket) {
+    return _$cancelTicketAsyncAction.run(() => super.cancelTicket(ticket));
+  }
+
   late final _$_TicketTabStoreBaseActionController = ActionController(
     name: '_TicketTabStoreBase',
     context: context,

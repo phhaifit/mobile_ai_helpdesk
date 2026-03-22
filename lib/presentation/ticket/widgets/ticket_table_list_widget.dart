@@ -13,7 +13,9 @@ class TicketTableListWidget extends StatelessWidget {
   final List<Ticket> tickets;
   final List<TicketColumn> visibleColumns;
   final int selectedTabIndex;
+  final String currentAgentId;
   final Function(Ticket)? onAcceptTicket;
+  final Function(Ticket)? onCancelTicket;
   final Function(Ticket)? onViewDetails;
   final VoidCallback? onFilterPressed;
 
@@ -22,7 +24,9 @@ class TicketTableListWidget extends StatelessWidget {
     required this.tickets,
     required this.visibleColumns,
     required this.selectedTabIndex,
+    required this.currentAgentId,
     this.onAcceptTicket,
+    this.onCancelTicket,
     this.onViewDetails,
     this.onFilterPressed,
   });
@@ -55,8 +59,10 @@ class TicketTableListWidget extends StatelessWidget {
                       return TicketTableRowWidget(
                         ticket: ticket,
                         selectedTabIndex: selectedTabIndex,
+                        currentAgentId: currentAgentId,
                         visibleColumns: visibleColumns,
                         onAcceptPressed: () => onAcceptTicket?.call(ticket),
+                        onCancelPressed: () => onCancelTicket?.call(ticket),
                         onDetailPressed: () => onViewDetails?.call(ticket),
                       );
                     },
