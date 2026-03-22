@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [dev, test, staging]
+    branches: [dev, test, staging, feature/21-ci/cd-pipeline]
 
 jobs:
   analyze:

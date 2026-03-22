@@ -2,7 +2,7 @@ name: Distribute (Dev)
 
 on:
   push:
-    branches: [dev, test, staging]
+    branches: [dev, test, staging, feature/21-ci/cd-pipeline]
 
 jobs:
   # ─────────────────────────────────────────────
