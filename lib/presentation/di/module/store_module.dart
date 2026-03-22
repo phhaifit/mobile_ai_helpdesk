@@ -89,7 +89,10 @@ class StoreModule {
         getIt<DisconnectZaloUseCase>(),
         getIt<RetryZaloSyncUseCase>(),
         getIt<UpdateZaloAssignmentsUseCase>(),
-    getIt.registerFactory(
+      ),
+    );
+
+    getIt.registerFactory<MonetizationStore>(
       () => MonetizationStore(
         getIt<GetMonetizationOverviewUseCase>(),
         getIt<SimulateUpgradeUseCase>(),

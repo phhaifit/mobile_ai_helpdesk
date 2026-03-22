@@ -1,10 +1,10 @@
-name: mobile_ai_helpdesk
+name: ai_helpdesk
 description: "Jarvis Helpdesk - Omnichannel AI Helpdesk Platform"
 publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: ^3.10.0
+  sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -54,7 +54,7 @@ dev_dependencies:
 
   build_runner: ^2.4.8
   mobx_codegen: ^2.5.0
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

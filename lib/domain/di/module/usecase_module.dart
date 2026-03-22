@@ -85,6 +85,7 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateZaloAssignmentsUseCase>(
       UpdateZaloAssignmentsUseCase(getIt<OmnichannelRepository>()),
+    );
     getIt.registerSingleton<GetMonetizationOverviewUseCase>(
       GetMonetizationOverviewUseCase(getIt<MonetizationRepository>()),
     );

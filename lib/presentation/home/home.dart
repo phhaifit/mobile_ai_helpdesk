@@ -48,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen>
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
         ],
-        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }
@@ -73,6 +72,8 @@ class _HomeScreenState extends State<HomeScreen>
             text: AppLocalizations.of(
               context,
             ).translate('home_tab_omnichannel'),
+          ),
+          Tab(
             icon: const Icon(Icons.workspace_premium),
             text: AppLocalizations.of(
               context,
@@ -188,6 +189,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildOmnichannelTab() {
     return const OmnichannelHubScreen(showAppBar: false);
+  }
+
   Widget _buildMonetizationTab() {
     return const MonetizationScreen(embedded: true);
   }

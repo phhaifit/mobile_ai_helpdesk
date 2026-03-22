@@ -152,3 +152,5 @@ app.*.map.json
 
 /monetization.md
 
+pubspec.yaml
+testplan.md

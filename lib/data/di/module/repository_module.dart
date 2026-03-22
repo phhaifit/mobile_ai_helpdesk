@@ -15,11 +15,6 @@ import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
-import '/data/repository/setting/setting_repository_impl.dart';
-import '/data/repository/ticket/mock_ticket_repository_impl.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
-import '/domain/repository/setting/setting_repository.dart';
-import '/domain/repository/ticket/ticket_repository.dart';
 // Import Interfaces (Domain)
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
@@ -57,11 +52,9 @@ class RepositoryModule {
     getIt.registerSingleton<ChatRepository>(
       ChatRepositoryImpl(getIt<ChatDataSource>()),
     );
-
-    getIt.registerSingleton<TicketRepository>(MockTicketRepositoryImpl());
-
     getIt.registerSingleton<OmnichannelRepository>(
       MockOmnichannelRepositoryImpl(),
+    );
     getIt.registerSingleton<ChatRoomRepository>(
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
     );
@@ -77,11 +70,9 @@ class RepositoryModule {
           SettingRepositoryImpl(getIt<SharedPreferenceHelper>())
               as SettingRepository,
     );
-
-    getIt.registerSingleton<TicketRepository>(MockTicketRepositoryImpl());
-
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
+    );
     // --- Ticket Repository ---
     getIt.registerLazySingleton<TicketRepository>(
       () => MockTicketRepositoryImpl() as TicketRepository,

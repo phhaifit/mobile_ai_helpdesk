@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [dev, test, staging]
 
 jobs:
   analyze:
@@ -14,7 +14,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           # Flutter >= 3.22 required for 16KB page size support on Android 15+
-          flutter-version: '3.27.0'
+          flutter-version: '3.29.0'
           channel: stable
           cache: true
 
@@ -32,7 +32,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
+          flutter-version: '3.29.0'
           channel: stable
           cache: true
 
