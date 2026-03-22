@@ -1,6 +1,8 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/chat/chat_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -21,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -39,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           _buildDashboardTab(),
           _buildTicketsTab(),
+          const PromptLibraryScreen(embedInParent: true),
+          const ChatScreen(embedInParent: true),
         ],
       ),
     );
@@ -61,6 +65,14 @@ class _HomeScreenState extends State<HomeScreen>
           Tab(
             icon: const Icon(Icons.confirmation_number),
             text: AppLocalizations.of(context).translate('home_tab_tickets'),
+          ),
+          Tab(
+            icon: const Icon(Icons.library_books_outlined),
+            text: AppLocalizations.of(context).translate('home_tab_prompts'),
+          ),
+          Tab(
+            icon: const Icon(Icons.chat_bubble_outline),
+            text: AppLocalizations.of(context).translate('home_tab_chat'),
           ),
         ],
       ),
