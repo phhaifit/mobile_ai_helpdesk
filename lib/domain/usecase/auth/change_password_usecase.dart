@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 
-import 'package:ai_helpdesk/core/domain/error/failure.dart';
-import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
+import 'package:mobile_ai_helpdesk/core/domain/usecase/use_case.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/auth/auth_repository.dart';
 
 class ChangePasswordUseCase extends UseCase<Either<Failure, void>, ChangePasswordRequest> {
   final AuthRepository _repository;

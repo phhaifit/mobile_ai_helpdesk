@@ -1,15 +1,12 @@
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
 import '/di/service_locator.dart';
 import '/presentation/home/store/language/language_store.dart';
 import '/presentation/home/store/theme/theme_store.dart';
+import '/presentation/monetization/monetization_screen.dart';
+import '/presentation/omnichannel/omnichannel_hub_screen.dart';
 import '/utils/locale/app_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -48,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen>
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
         ],
-        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }
@@ -70,13 +66,11 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           Tab(
             icon: const Icon(Icons.hub),
-            text: AppLocalizations.of(
-              context,
-            ).translate('home_tab_omnichannel'),
+            text: AppLocalizations.of(context).translate('home_tab_omnichannel'),
+          ),
+          Tab(
             icon: const Icon(Icons.workspace_premium),
-            text: AppLocalizations.of(
-              context,
-            ).translate('monetization_tv_title'),
+            text: AppLocalizations.of(context).translate('monetization_tv_title'),
           ),
         ],
       ),
@@ -102,12 +96,7 @@ class _HomeScreenState extends State<HomeScreen>
             spacing: 16,
             runSpacing: 16,
             children: [
-              _buildStatCard(
-                'Total',
-                '12',
-                Icons.confirmation_number,
-                Colors.blue,
-              ),
+              _buildStatCard('Total', '12', Icons.confirmation_number, Colors.blue),
               _buildStatCard('Open', '5', Icons.fiber_new, Colors.orange),
               _buildStatCard('In Progress', '4', Icons.autorenew, Colors.amber),
               _buildStatCard('Resolved', '3', Icons.check_circle, Colors.green),
@@ -118,12 +107,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
     return SizedBox(
       width: 160,
       child: Card(
@@ -136,16 +120,10 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(color: color),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: color),
               ),
               const SizedBox(height: 4),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
+              Text(label, style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -176,10 +154,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             title: Text('Ticket #${index + 1}'),
             subtitle: Text('Mock ticket description ${index + 1}'),
-            trailing: Text(
-              'TK-${1000 + index}',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
+            trailing: Text('TK-${1000 + index}', style: Theme.of(context).textTheme.labelSmall),
           ),
         );
       },
@@ -188,6 +163,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildOmnichannelTab() {
     return const OmnichannelHubScreen(showAppBar: false);
+  }
+
   Widget _buildMonetizationTab() {
     return const MonetizationScreen(embedded: true);
   }
@@ -202,9 +179,7 @@ class _HomeScreenState extends State<HomeScreen>
           onPressed: () {
             _themeStore.changeBrightnessToDark(!_themeStore.darkMode);
           },
-          icon: Icon(
-            _themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3,
-          ),
+          icon: Icon(_themeStore.darkMode ? Icons.brightness_5 : Icons.brightness_3),
         );
       },
     );
@@ -224,9 +199,7 @@ class _HomeScreenState extends State<HomeScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
-            AppLocalizations.of(context).translate('home_tv_choose_language'),
-          ),
+          title: Text(AppLocalizations.of(context).translate('home_tv_choose_language')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: _languageStore.supportedLanguages

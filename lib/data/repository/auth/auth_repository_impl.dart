@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart';
 
-import 'package:ai_helpdesk/core/data/network/exceptions/network_exceptions.dart';
-import 'package:ai_helpdesk/core/domain/error/failure.dart';
-import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
-import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:mobile_ai_helpdesk/core/data/network/exceptions/network_exceptions.dart';
+import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
+import 'package:mobile_ai_helpdesk/data/local/auth/auth_local_datasource.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/login_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:mobile_ai_helpdesk/data/network/apis/auth/auth_api.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/auth/auth_repository.dart';
 
 /// Auth Repository Implementation - combines API + Local storage
 class AuthRepositoryImpl implements AuthRepository {

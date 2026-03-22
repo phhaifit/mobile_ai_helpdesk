@@ -1,19 +1,19 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobx/mobx.dart';
 
-import 'package:ai_helpdesk/core/domain/error/failure.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/login_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/login_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 
 part 'auth_store.g.dart';
 

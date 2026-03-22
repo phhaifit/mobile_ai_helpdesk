@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:mobile_ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 
 class ZaloPersonalMessageScreen extends StatefulWidget {

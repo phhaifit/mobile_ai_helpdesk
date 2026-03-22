@@ -9,6 +9,9 @@ import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
+import 'marketing/campaign_list_screen.dart';
+import 'marketing/facebook_admin_setup_screen.dart';
+import 'marketing/template_library_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -82,6 +85,7 @@ class _MainScreenState extends State<MainScreen> {
             onTap: () => _selectCategory('Chiến dịch'),
           ),
           MenuItem(title: 'Template', onTap: () => _selectCategory('Template')),
+          MenuItem(title: 'Facebook Admin', onTap: () => _selectCategory('Facebook Admin')),
         ],
       ),
       MenuCategory(
@@ -181,6 +185,12 @@ class _MainScreenState extends State<MainScreen> {
         onEditCustomer: isDesktop ? _showEditCustomerForm : null,
         onMergeCustomer: isDesktop ? _showMergeCustomerView : null,
       );
+    } else if (_selectedCategory == 'Chiến dịch') {
+      contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'Template') {
+      contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'Facebook Admin') {
+      contentWidget = const FacebookAdminSetupScreen();
     } else {
       // Placeholder for other categories
       contentWidget = Center(

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
 
 /// Helper class to convert DioExceptions to domain failures
 class NetworkExceptions {

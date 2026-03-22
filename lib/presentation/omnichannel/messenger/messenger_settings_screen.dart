@@ -1,6 +1,6 @@
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:mobile_ai_helpdesk/di/service_locator.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:mobile_ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

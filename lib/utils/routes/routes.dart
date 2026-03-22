@@ -1,24 +1,34 @@
-import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
-import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
-import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
-import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
-import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:ai_helpdesk/presentation/home/home.dart';
-import 'package:ai_helpdesk/presentation/login/login_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_settings_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_account_assignment_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_connect_qr_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/profile/profile_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/registration/registration_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/home/home.dart';
+import 'package:mobile_ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/main_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_settings_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_account_assignment_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_connect_qr_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/marketing_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_list_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_create_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_detail_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/template_library_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/template_create_edit_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/recipient_targeting_screen.dart';
+import 'package:mobile_ai_helpdesk/presentation/marketing/facebook_admin_setup_screen.dart';
 import '/presentation/home/home.dart';
 import '/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +41,7 @@ class Routes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
+  static const String main = '/main';
   static const String home = '/home';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
@@ -52,6 +63,14 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
+  static const String marketingHub = '/marketing';
+  static const String campaignList = '/marketing/campaigns';
+  static const String campaignCreate = '/marketing/campaigns/create';
+  static const String campaignDetail = '/marketing/campaigns/detail';
+  static const String templateLibrary = '/marketing/templates';
+  static const String templateCreateEdit = '/marketing/templates/edit';
+  static const String recipientTargeting = '/marketing/targeting';
+  static const String facebookAdminSetup = '/marketing/facebook-admin';
 
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -78,6 +97,11 @@ class Routes {
           builder: (_) => ResetPasswordScreen(
             email: args?['email'],
           ),
+        );
+      case main:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainScreen(),
         );
       case home:
         return MaterialPageRoute(
@@ -163,6 +187,47 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
+        );
+      case marketingHub:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MarketingScreen(),
+        );
+      case campaignList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignListScreen(),
+        );
+      case campaignCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignCreateScreen(),
+        );
+      case campaignDetail:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignDetailScreen(),
+        );
+      case templateLibrary:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TemplateLibraryScreen(),
+        );
+      case templateCreateEdit:
+        final template = settings.arguments as MarketingTemplate?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => TemplateCreateEditScreen(template: template),
+        );
+      case recipientTargeting:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const RecipientTargetingScreen(),
+        );
+      case facebookAdminSetup:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const FacebookAdminSetupScreen(),
         );
       default:
         return MaterialPageRoute(

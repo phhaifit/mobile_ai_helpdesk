@@ -1,7 +1,7 @@
-import 'package:ai_helpdesk/core/widgets/auth_text_field.dart';
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:mobile_ai_helpdesk/core/widgets/auth_text_field.dart';
+import 'package:mobile_ai_helpdesk/di/service_locator.dart';
+import 'package:mobile_ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:mobile_ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
