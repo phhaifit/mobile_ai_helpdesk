@@ -1,0 +1,339 @@
+import 'package:dartz/dartz.dart';
+import 'package:mobx/mobx.dart';
+
+import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/login_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:mobile_ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/login_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:mobile_ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+
+part 'auth_store.g.dart';
+
+// ignore: library_private_types_in_public_api
+class AuthStore = _AuthStoreBase with _$AuthStore;
+
+abstract class _AuthStoreBase with Store {
+  final LoginUseCase _loginUseCase;
+  final RegisterUseCase _registerUseCase;
+  final LogoutUseCase _logoutUseCase;
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final ChangePasswordUseCase _changePasswordUseCase;
+  final ResetPasswordUseCase _resetPasswordUseCase;
+
+  _AuthStoreBase(
+    this._loginUseCase,
+    this._registerUseCase,
+    this._logoutUseCase,
+    this._getCurrentUserUseCase,
+    this._changePasswordUseCase,
+    this._resetPasswordUseCase,
+  );
+
+  // ============================================================================
+  // Observables
+  // ============================================================================
+
+  /// Current authenticated user
+  @observable
+  User? currentUser;
+
+  /// Auth response (token + user)
+  @observable
+  AuthResponse? authResponse;
+
+  /// Error message from last operation
+  @observable
+  String? errorMessage;
+
+  /// Success message to show to user
+  @observable
+  String? successMessage;
+
+  /// Loading state for login operation
+  @observable
+  ObservableFuture<void> loginFuture = ObservableFuture.value(null);
+
+  /// Loading state for register operation
+  @observable
+  ObservableFuture<void> registerFuture = ObservableFuture.value(null);
+
+  /// Loading state for logout operation
+  @observable
+  ObservableFuture<void> logoutFuture = ObservableFuture.value(null);
+
+  /// Loading state for get current user operation
+  @observable
+  ObservableFuture<void> getCurrentUserFuture = ObservableFuture.value(null);
+
+  /// Loading state for change password operation
+  @observable
+  ObservableFuture<void> changePasswordFuture = ObservableFuture.value(null);
+
+  /// Loading state for reset password operation
+  @observable
+  ObservableFuture<void> resetPasswordFuture = ObservableFuture.value(null);
+
+  // ============================================================================
+  // Computed
+  // ============================================================================
+
+  /// Check if user is authenticated
+  @computed
+  bool get isAuthenticated =>
+      authResponse != null && authResponse!.token.isNotEmpty;
+
+  /// Check if login is loading
+  @computed
+  bool get isLoginLoading => loginFuture.status == FutureStatus.pending;
+
+  /// Check if register is loading
+  @computed
+  bool get isRegisterLoading => registerFuture.status == FutureStatus.pending;
+
+  /// Check if logout is loading
+  @computed
+  bool get isLogoutLoading => logoutFuture.status == FutureStatus.pending;
+
+  /// Check if get current user is loading
+  @computed
+  bool get isGetCurrentUserLoading =>
+      getCurrentUserFuture.status == FutureStatus.pending;
+
+  /// Check if change password is loading
+  @computed
+  bool get isChangePasswordLoading =>
+      changePasswordFuture.status == FutureStatus.pending;
+
+  /// Check if reset password is loading
+  @computed
+  bool get isResetPasswordLoading =>
+      resetPasswordFuture.status == FutureStatus.pending;
+
+  /// Check if any operation is loading
+  @computed
+  bool get isLoading =>
+      isLoginLoading ||
+      isRegisterLoading ||
+      isLogoutLoading ||
+      isGetCurrentUserLoading ||
+      isChangePasswordLoading ||
+      isResetPasswordLoading;
+
+  // ============================================================================
+  // Actions - Login & Register
+  // ============================================================================
+
+  /// Login with email and password
+  @action
+  Future<Either<Failure, void>> login({
+    required String email,
+    required String password,
+  }) async {
+    errorMessage = null;
+    successMessage = null;
+
+    loginFuture = ObservableFuture(
+      _loginUseCase
+          .call(
+            params: LoginRequest(email: email, password: password),
+          )
+          .then((result) {
+            result.fold((failure) => errorMessage = failure.message, (
+              authResp,
+            ) {
+              authResponse = authResp;
+              currentUser = authResp.user;
+              successMessage = 'Login successful!';
+            });
+          }),
+    );
+
+    await loginFuture;
+    return isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Login failed'));
+  }
+
+  /// Register new account
+  @action
+  Future<Either<Failure, void>> register({
+    required String email,
+    required String username,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    errorMessage = null;
+    successMessage = null;
+
+    registerFuture = ObservableFuture(
+      _registerUseCase
+          .call(
+            params: RegisterRequest(
+              email: email,
+              username: username,
+              password: password,
+              confirmPassword: confirmPassword,
+            ),
+          )
+          .then((result) {
+            result.fold((failure) => errorMessage = failure.message, (
+              authResp,
+            ) {
+              authResponse = authResp;
+              currentUser = authResp.user;
+              successMessage = 'Registration successful!';
+            });
+          }),
+    );
+
+    await registerFuture;
+    return isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Registration failed'));
+  }
+
+  // ============================================================================
+  // Actions - User Management
+  // ============================================================================
+
+  /// Get current logged-in user
+  @action
+  Future<Either<Failure, void>> getCurrentUser() async {
+    errorMessage = null;
+
+    getCurrentUserFuture = ObservableFuture(
+      _getCurrentUserUseCase.call(params: null).then((result) {
+        result.fold(
+          (failure) => errorMessage = failure.message,
+          (user) => currentUser = user,
+        );
+      }),
+    );
+
+    await getCurrentUserFuture;
+    return currentUser != null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
+  }
+
+  /// Logout current user
+  @action
+  Future<Either<Failure, void>> logout() async {
+    errorMessage = null;
+    successMessage = null;
+
+    logoutFuture = ObservableFuture(
+      _logoutUseCase.call(params: null).then((result) {
+        result.fold((failure) => errorMessage = failure.message, (_) {
+          authResponse = null;
+          currentUser = null;
+          successMessage = 'Logged out successfully';
+        });
+      }),
+    );
+
+    await logoutFuture;
+    return !isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
+  }
+
+  // ============================================================================
+  // Actions - Password Management
+  // ============================================================================
+
+  /// Change current password
+  @action
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    errorMessage = null;
+    successMessage = null;
+
+    changePasswordFuture = ObservableFuture(
+      _changePasswordUseCase
+          .call(
+            params: ChangePasswordRequest(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
+          .then((result) {
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password changed successfully',
+            );
+          }),
+    );
+
+    await changePasswordFuture;
+    return errorMessage == null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to change password'));
+  }
+
+  /// Reset password with reset token
+  @action
+  Future<Either<Failure, void>> resetPassword({
+    required String email,
+    required String token,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    errorMessage = null;
+    successMessage = null;
+
+    resetPasswordFuture = ObservableFuture(
+      _resetPasswordUseCase
+          .call(
+            params: ResetPasswordRequest(
+              email: email,
+              token: token,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
+          .then((result) {
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password reset successfully',
+            );
+          }),
+    );
+
+    await resetPasswordFuture;
+    return errorMessage == null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to reset password'));
+  }
+
+  // ============================================================================
+  // Clear Messages
+  // ============================================================================
+
+  /// Clear error message
+  @action
+  void clearErrorMessage() => errorMessage = null;
+
+  /// Clear success message
+  @action
+  void clearSuccessMessage() => successMessage = null;
+
+  /// Clear all messages
+  @action
+  void clearAllMessages() {
+    errorMessage = null;
+    successMessage = null;
+  }
+}

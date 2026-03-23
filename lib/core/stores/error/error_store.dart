@@ -8,9 +8,7 @@ abstract class _ErrorStore with Store {
   late List<ReactionDisposer> _disposers;
 
   _ErrorStore() {
-    _disposers = [
-      reaction((_) => errorMessage, reset, delay: 200),
-    ];
+    _disposers = [reaction((_) => errorMessage, reset, delay: 200)];
   }
 
   @observable

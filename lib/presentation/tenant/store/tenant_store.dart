@@ -1,6 +1,6 @@
-import 'package:ai_helpdesk/core/stores/error/error_store.dart';
-import 'package:ai_helpdesk/domain/entity/tenant/tenant.dart';
-import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:mobile_ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/tenant/tenant.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:mobx/mobx.dart';
 
 part 'tenant_store.g.dart';

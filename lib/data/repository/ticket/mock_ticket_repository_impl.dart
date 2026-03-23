@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
-import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import '/domain/entity/ticket/ticket.dart';
+import '/domain/repository/ticket/ticket_repository.dart';
 
 class MockTicketRepositoryImpl implements TicketRepository {
   final List<Ticket> _mockTickets = [

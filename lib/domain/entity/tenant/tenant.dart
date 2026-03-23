@@ -1,4 +1,4 @@
-import 'package:ai_helpdesk/domain/entity/tenant_settings/tenant_settings.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/tenant_settings/tenant_settings.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'tenant.g.dart';
@@ -23,4 +23,3 @@ class Tenant {
 
   Map<String, dynamic> toJson() => _$TenantToJson(this);
 }
-

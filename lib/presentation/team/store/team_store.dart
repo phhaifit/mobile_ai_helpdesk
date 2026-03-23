@@ -1,10 +1,10 @@
-import 'package:ai_helpdesk/core/stores/error/error_store.dart';
-import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
-import 'package:ai_helpdesk/domain/entity/permission/permission.dart';
-import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
-import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
-import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
-import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
+import 'package:mobile_ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/invitation/invitation.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/permission/permission.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/team/team_repository.dart';
+import 'package:mobile_ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:mobx/mobx.dart';
 
 part 'team_store.g.dart';
@@ -18,16 +18,15 @@ abstract class _TeamStore with Store {
     this._tenantStore,
     this._errorStore,
   ) {
-    _tenantReaction = reaction(
-      (_) => _tenantStore.currentTenant?.id,
-      (String? tenantId) {
-        if (tenantId != null) {
-          loadTeamData();
-        } else {
-          _clearTeamData();
-        }
-      },
-    );
+    _tenantReaction = reaction((_) => _tenantStore.currentTenant?.id, (
+      String? tenantId,
+    ) {
+      if (tenantId != null) {
+        loadTeamData();
+      } else {
+        _clearTeamData();
+      }
+    });
     if (_tenantStore.currentTenant != null) {
       loadTeamData();
     }

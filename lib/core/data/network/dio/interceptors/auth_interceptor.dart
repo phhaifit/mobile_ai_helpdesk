@@ -4,9 +4,7 @@ import 'package:flutter/foundation.dart';
 class AuthInterceptor extends Interceptor {
   final AsyncValueGetter<String?> accessToken;
 
-  AuthInterceptor({
-    required this.accessToken,
-  });
+  AuthInterceptor({required this.accessToken});
 
   @override
   Future<void> onRequest(

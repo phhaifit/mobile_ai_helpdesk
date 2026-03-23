@@ -3,9 +3,5 @@ class Language {
   String locale;
   String language;
 
-  Language({
-    required this.code,
-    required this.locale,
-    required this.language,
-  });
+  Language({required this.code, required this.locale, required this.language});
 }

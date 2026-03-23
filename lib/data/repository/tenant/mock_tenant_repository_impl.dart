@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
-import 'package:ai_helpdesk/domain/entity/tenant/tenant.dart';
-import 'package:ai_helpdesk/domain/entity/tenant_settings/tenant_settings.dart';
-import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/tenant/tenant.dart';
+import 'package:mobile_ai_helpdesk/domain/entity/tenant_settings/tenant_settings.dart';
+import 'package:mobile_ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 
 class MockTenantRepositoryImpl implements TenantRepository {
   MockTenantRepositoryImpl() {

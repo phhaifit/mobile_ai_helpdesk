@@ -1,4 +1,4 @@
- import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'permission.g.dart';
 
@@ -8,14 +8,10 @@ class Permission {
   final String code;
   final String? description;
 
-  const Permission({
-    required this.code,
-    this.description,
-  });
+  const Permission({required this.code, this.description});
 
   factory Permission.fromJson(Map<String, dynamic> json) =>
       _$PermissionFromJson(json);
 
   Map<String, dynamic> toJson() => _$PermissionToJson(this);
 }
-

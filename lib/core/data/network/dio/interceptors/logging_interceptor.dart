@@ -2,12 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-enum Level {
-  none,
-  basic,
-  headers,
-  body,
-}
+enum Level { none, basic, headers, body }
 
 class LoggingInterceptor extends Interceptor {
   final Level level;
@@ -24,10 +19,7 @@ class LoggingInterceptor extends Interceptor {
   });
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (level == Level.none) {
       return handler.next(options);
     }
@@ -68,7 +60,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(
-    Response response,
+    Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
     if (level == Level.none) {
