@@ -11,6 +11,7 @@ import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_filter_dialog.dar
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_table_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 class TicketListScreen extends StatefulWidget {
   const TicketListScreen({super.key});
@@ -210,10 +211,10 @@ class _TicketListScreenState extends State<TicketListScreen> {
                               onViewDetails: (ticket) {
                                 Navigator.pushNamed(
                                   context,
-                                  '/ticket_detail',
+                                  Routes.ticketDetail,
                                   arguments: ticket.id,
                                 ).then((result) {
-                                  if (result == true) _store.loadTickets();
+                                  _store.loadTickets();
                                 });
                               },
                             ),

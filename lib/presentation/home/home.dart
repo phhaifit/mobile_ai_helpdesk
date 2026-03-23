@@ -2,6 +2,7 @@ import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -139,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Center(
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/ticket_list');
+          Navigator.pushNamed(context, Routes.ticketList);
         },
         child: const Text('View All Tickets'),
       ),

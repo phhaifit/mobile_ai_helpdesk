@@ -1,7 +1,7 @@
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/ticket_list_screen.dart';
+import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
@@ -14,9 +14,9 @@ class Routes {
   // route constants -----------------------------------------------------------
   static const String login = '/login';
   static const String home = '/home';
-  static const String ticketList = '/ticket_list';
+  static const String ticketList = '/ticket';
   static const String createTicket = '/create_ticket';
-  static const String ticketDetail = '/ticket_detail';
+  static const String ticketDetail = '/ticket/ticket-detail';
   static const String editTicket = '/edit_ticket';
   static const String customerHistory = '/customer_history';
 
@@ -36,7 +36,7 @@ class Routes {
       case ticketList:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const TicketListScreen(),
+          builder: (_) => const MainScreen(initialCategory: 'Phiếu chưa xử lý'),
         );
       case createTicket:
         return MaterialPageRoute(

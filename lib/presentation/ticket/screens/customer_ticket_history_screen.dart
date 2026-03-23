@@ -6,6 +6,7 @@ import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/status_badge_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/priority_badge_widget.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 final _getIt = GetIt.instance;
 
@@ -154,7 +155,11 @@ class _CustomerTicketHistoryScreenState
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          Navigator.pushNamed(context, '/ticket_detail', arguments: ticket.id);
+          Navigator.pushNamed(
+            context,
+            Routes.ticketDetail,
+            arguments: ticket.id,
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

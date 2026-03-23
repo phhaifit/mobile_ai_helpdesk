@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import '../constants/colors.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final String initialCategory;
+
+  const MainScreen({
+    super.key,
+    this.initialCategory = 'Hỗ trợ khách hàng',
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String _selectedCategory = 'Hỗ trợ khách hàng';
+  late String _selectedCategory;
   bool _showSidebarMobile = false;
 
   late List<MenuCategory> _categories;
@@ -19,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.initialCategory;
     _initializeCategories();
   }
 
@@ -66,6 +73,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _selectCategory(String category) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    if (category == 'Phiếu chưa xử lý' && currentRoute != Routes.ticketList) {
+      Navigator.pushReplacementNamed(context, Routes.ticketList);
+      return;
+    }
+
     setState(() {
       _selectedCategory = category;
       // Close sidebar on mobile after selection

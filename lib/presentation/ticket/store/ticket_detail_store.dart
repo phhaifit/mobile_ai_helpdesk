@@ -167,7 +167,7 @@ abstract class _TicketDetailStoreBase with Store {
         id: '',
         ticketId: ticket!.id,
         authorId: _sessionStore.currentAgentId,
-        authorName: _sessionStore.currentAgentId,
+        authorName: _sessionStore.currentAgentName,
         content: newCommentText.trim(),
         type: commentType,
         createdAt: now,
