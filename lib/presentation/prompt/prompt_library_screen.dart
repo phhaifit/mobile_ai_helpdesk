@@ -1,10 +1,11 @@
 // Widget tree (documentation):
 // embedInParent (home tab): Column
-//   ├─ Padding(16) → header Row (headlineMedium + add + favorites) + ChoiceChips + search
+//   ├─ Padding(16) → headline Row + Row(Expanded category chips | favorites chip)
 //   └─ Expanded → RefreshIndicator → ListView (padding 8, cards like Tickets tab)
 // standalone: Scaffold(AppBar + actions) + same body column without duplicate title.
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
+import 'package:ai_helpdesk/presentation/prompt/prompt_selection_chips.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
@@ -57,48 +58,69 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
     Navigator.pushNamed(context, Routes.promptEditor);
   }
 
-  Widget _buildFavoritesToggle(AppLocalizations l) {
+  /// Category [ChoiceChip]s (scrollable) on the left; favorites [FilterChip] pinned on the right.
+  Widget _buildCategoryAndFavoritesRow(AppLocalizations l) {
     return Observer(
       builder: (_) {
         final active = _store.favoritesOnly;
-        return FilterChip(
-          avatar: Icon(
-            active ? Icons.star : Icons.star_border,
-            size: 18,
-            color: active ? null : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          label: Text(l.translate('prompt_tv_favorites_toggle')),
-          selected: active,
-          onSelected: (_) => _store.setFavoritesOnly(!active),
-        );
-      },
-    );
-  }
-
-  Widget _buildCategoryChips(AppLocalizations l) {
-    return Observer(
-      builder: (_) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (final c in _store.categories)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(l.translate(c.nameKey)),
-                    selected: _store.selectedCategoryId == c.id,
-                    onSelected: (selected) {
-                      if (selected) {
-                        _store.setCategoryFilter(c.id);
-                      } else {
-                        _store.setCategoryFilter('all');
-                      }
-                    },
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final c in _store.categories)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(
+                            l.translate(c.nameKey),
+                            style: PromptSelectionChips.labelTextStyle(
+                              context,
+                              selected: _store.selectedCategoryId == c.id,
+                            ),
+                          ),
+                          selected: _store.selectedCategoryId == c.id,
+                          color: PromptSelectionChips.background(context),
+                          onSelected: (selected) {
+                            if (selected) {
+                              _store.setCategoryFilter(c.id);
+                            } else {
+                              _store.setCategoryFilter('all');
+                            }
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Tooltip(
+              message: l.translate('prompt_tv_favorites_toggle'),
+              child: FilterChip(
+                avatar: Icon(
+                  active ? Icons.star : Icons.star_border,
+                  size: 18,
+                  color: PromptSelectionChips.avatarIconColor(
+                    context,
+                    selected: active,
                   ),
                 ),
-            ],
-          ),
+                label: Text(
+                  l.translate('prompt_tv_favorites_short'),
+                  style: PromptSelectionChips.labelTextStyle(
+                    context,
+                    selected: active,
+                  ),
+                ),
+                selected: active,
+                color: PromptSelectionChips.background(context),
+                onSelected: (_) => _store.setFavoritesOnly(!active),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -144,17 +166,10 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [_buildFavoritesToggle(l)],
-            ),
-            const SizedBox(height: 16),
           ] else ...[
             const SizedBox(height: 8),
           ],
-          _buildCategoryChips(l),
+          _buildCategoryAndFavoritesRow(l),
           const SizedBox(height: 12),
           _buildSearchField(l),
         ],
@@ -206,15 +221,13 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                 prompt: p,
                 accentColor: _categoryAccentColor(p.categoryId),
                 onToggleFavorite: () => _store.toggleFavorite(p.id),
-                onEdit: p.isPrivate
-                    ? () {
-                        Navigator.pushNamed(
-                          context,
-                          Routes.promptEditor,
-                          arguments: p,
-                        );
-                      }
-                    : null,
+                onEdit: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.promptEditor,
+                    arguments: p,
+                  );
+                },
               );
             },
           ),
@@ -250,21 +263,6 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
             icon: const Icon(Icons.add_circle_outline),
             tooltip: l.translate('prompt_btn_new_private'),
           ),
-          Observer(
-            builder: (_) {
-              final active = _store.favoritesOnly;
-              return IconButton(
-                tooltip: l.translate('prompt_tv_favorites_toggle'),
-                onPressed: () => _store.setFavoritesOnly(!active),
-                icon: Icon(
-                  active ? Icons.star : Icons.star_border,
-                  color: active
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                ),
-              );
-            },
-          ),
         ],
       ),
       body: _buildBody(l),
@@ -277,13 +275,13 @@ class _PromptListCard extends StatelessWidget {
     required this.prompt,
     required this.accentColor,
     required this.onToggleFavorite,
-    this.onEdit,
+    required this.onEdit,
   });
 
   final Prompt prompt;
   final Color accentColor;
   final VoidCallback onToggleFavorite;
-  final VoidCallback? onEdit;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -308,13 +306,12 @@ class _PromptListCard extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (onEdit != null)
-              IconButton(
-                tooltip: l.translate('prompt_btn_edit'),
-                onPressed: onEdit,
-                icon: const Icon(Icons.edit_outlined, size: 22),
-                visualDensity: VisualDensity.compact,
-              ),
+            IconButton(
+              tooltip: l.translate('prompt_btn_edit'),
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit_outlined, size: 22),
+              visualDensity: VisualDensity.compact,
+            ),
             IconButton(
               tooltip: l.translate('prompt_tv_favorite'),
               onPressed: onToggleFavorite,
