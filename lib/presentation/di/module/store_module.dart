@@ -7,8 +7,8 @@ import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/store/team/team_store.dart';
-import 'package:ai_helpdesk/presentation/store/tenant/tenant_store.dart';
+import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 
 import '../../../di/service_locator.dart';
 

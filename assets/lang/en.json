@@ -12,5 +12,6 @@
   "login_tv_welcome": "Welcome to Jarvis Helpdesk",
   "login_tv_subtitle": "Sign in to continue",
   "settings_tv_dark_mode": "Dark Mode",
-  "settings_tv_language": "Language"
+  "settings_tv_language": "Language",
+  "routes_tv_no_route_defined": "No route defined for {route}"
 }

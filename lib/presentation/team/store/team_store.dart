@@ -4,7 +4,7 @@ import 'package:ai_helpdesk/domain/entity/permission/permission.dart';
 import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
-import 'package:ai_helpdesk/presentation/store/tenant/tenant_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:mobx/mobx.dart';
 
 part 'team_store.g.dart';
@@ -163,12 +163,12 @@ abstract class _TeamStore with Store {
     required String memberId,
     required List<Permission> permissions,
   }) async {
-    final existing = await _teamRepository.getMemberById(memberId);
-    if (existing == null) {
-      return;
-    }
-    isLoading = true;
     try {
+      isLoading = true;
+      final existing = await _teamRepository.getMemberById(memberId);
+      if (existing == null) {
+        return;
+      }
       final updated = await _teamRepository.updateMember(
         TeamMember(
           id: existing.id,

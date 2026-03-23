@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -25,11 +26,17 @@ class Routes {
       default:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
-          ),
+          builder: (context) {
+            final l = AppLocalizations.of(context);
+            final msgTemplate = l.translate('routes_tv_no_route_defined');
+            final msg =
+                msgTemplate.replaceAll('{route}', settings.name ?? '');
+            return Scaffold(
+              body: Center(
+                child: Text(msg),
+              ),
+            );
+          },
         );
     }
   }

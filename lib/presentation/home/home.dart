@@ -1,9 +1,12 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/entity/tenant/tenant.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -114,10 +117,9 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: color),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: color),
               ),
               const SizedBox(height: 4),
               Text(
@@ -149,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Colors.orange,
                 Colors.amber,
                 Colors.green,
-                Colors.blue
+                Colors.blue,
               ][index],
               radius: 6,
             ),
