@@ -78,9 +78,5 @@ class RepositoryModule {
     getIt.registerLazySingleton<SettingRepository>(
       () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
     );
-
-    getIt.registerSingleton<PromptRepository>(
-      MockPromptRepositoryImpl(),
-    );
   }
 }
