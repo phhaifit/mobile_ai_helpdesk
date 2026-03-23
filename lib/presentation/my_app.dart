@@ -3,44 +3,57 @@ import 'package:ai_helpdesk/constants/strings.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/store/team/team_store.dart';
+import 'package:ai_helpdesk/presentation/store/tenant/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
 
 import '../di/service_locator.dart';
 
 class MyApp extends StatelessWidget {
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
+  final TenantStore _tenantStore = getIt<TenantStore>();
+  final TeamStore _teamStore = getIt<TeamStore>();
 
   MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: Strings.appName,
-          theme: _themeStore.darkMode
-              ? AppThemeData.darkThemeData
-              : AppThemeData.lightThemeData,
-          onGenerateRoute: Routes.onGenerateRoute,
-          locale: Locale(_languageStore.locale),
-          supportedLocales: _languageStore.supportedLanguages
-              .map((language) => Locale(language.locale, language.code))
-              .toList(),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          home: const LoginScreen(),
-        );
-      },
+    return MultiProvider(
+      providers: [
+        Provider<ThemeStore>.value(value: _themeStore),
+        Provider<LanguageStore>.value(value: _languageStore),
+        Provider<TenantStore>.value(value: _tenantStore),
+        Provider<TeamStore>.value(value: _teamStore),
+      ],
+      child: Observer(
+        builder: (context) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: Strings.appName,
+            theme: _themeStore.darkMode
+                ? AppThemeData.darkThemeData
+                : AppThemeData.lightThemeData,
+            onGenerateRoute: Routes.onGenerateRoute,
+            locale: Locale(_languageStore.locale),
+            supportedLocales: _languageStore.supportedLanguages
+                .map((language) => Locale(language.locale, language.code))
+                .toList(),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const LoginScreen(),
+          );
+        },
+      ),
     );
   }
 }

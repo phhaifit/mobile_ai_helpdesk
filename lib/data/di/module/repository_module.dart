@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/team/mock_team_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tenant/mock_tenant_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
@@ -29,6 +31,10 @@ class RepositoryModule {
 
     getIt.registerSingleton<TeamRepository>(
       MockTeamRepositoryImpl(),
+    );
+
+    getIt.registerSingleton<InvitationRepository>(
+      MockInvitationRepositoryImpl(getIt<TeamRepository>()),
     );
   }
 }

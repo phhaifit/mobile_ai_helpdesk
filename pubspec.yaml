@@ -23,6 +23,7 @@ dependencies:
 
   # Dependency Injection
   get_it: ^8.0.3
+  provider: ^6.1.5
 
   # Local Storage
   sembast: ^3.7.5+1
