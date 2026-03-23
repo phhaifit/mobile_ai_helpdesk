@@ -1,14 +1,11 @@
-import '/di/service_locator.dart';
-import '/domain/entity/tenant/tenant.dart';
-import '/presentation/tenant/store/tenant_store.dart';
-import '/presentation/home/store/language/language_store.dart';
-import '/presentation/home/store/theme/theme_store.dart';
-import '/presentation/omnichannel/omnichannel_hub_screen.dart';
-import '/presentation/monetization/monetization_screen.dart';
-import '/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override

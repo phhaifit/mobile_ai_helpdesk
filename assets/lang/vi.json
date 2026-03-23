@@ -140,7 +140,7 @@
   "omnichannel_zalo_sync_degraded": "Dong bo Zalo dang suy giam. Vui long theo doi.",
   "omnichannel_zalo_assignment_saved": "Cap nhat phan cong Zalo thanh cong.",
   "omnichannel_zalo_message_send_success": "Gui tin nhan thanh cong.",
-  "omnichannel_zalo_message_send_failed": "Gui tin nhan that bai. Vui long thu lai."
+  "omnichannel_zalo_message_send_failed": "Gui tin nhan that bai. Vui long thu lai.",
   "monetizationTitle": "Tiền tệ hóa",
   "currentPlanTitle": "Gói hiện tại",
   "usageTitle": "Sử dụng",

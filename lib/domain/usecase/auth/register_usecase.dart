@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 
-import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
-import 'package:mobile_ai_helpdesk/core/domain/usecase/use_case.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:mobile_ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
+import 'package:ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
+import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 
 class RegisterUseCase
     extends UseCase<Either<Failure, AuthResponse>, RegisterRequest> {

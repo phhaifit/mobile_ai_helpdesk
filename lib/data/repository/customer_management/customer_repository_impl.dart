@@ -1,4 +1,4 @@
-import 'package:mobile_ai_helpdesk/data/local/datasources/customer_management/customer_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/customer_management/customer_datasource.dart';
 import '../../../../domain/entity/customer/customer.dart';
 import '../../../../domain/repository/customer_management/customer_repository.dart';
 

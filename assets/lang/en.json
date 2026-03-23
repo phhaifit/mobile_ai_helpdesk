@@ -140,7 +140,7 @@
   "omnichannel_zalo_sync_degraded": "Zalo sync is degraded. Please monitor.",
   "omnichannel_zalo_assignment_saved": "Zalo assignment updated successfully.",
   "omnichannel_zalo_message_send_success": "Message sent successfully.",
-  "omnichannel_zalo_message_send_failed": "Message failed to send. Please try again."
+  "omnichannel_zalo_message_send_failed": "Message failed to send. Please try again.",
   "monetizationTitle": "Monetization",
   "currentPlanTitle": "Current Plan",
   "usageTitle": "Usage",

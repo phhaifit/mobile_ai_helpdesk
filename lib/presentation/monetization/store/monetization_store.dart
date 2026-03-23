@@ -1,6 +1,6 @@
-import 'package:mobile_ai_helpdesk/domain/entity/monetization/monetization.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
+import 'package:ai_helpdesk/domain/entity/monetization/monetization.dart';
+import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'monetization_store.g.dart';

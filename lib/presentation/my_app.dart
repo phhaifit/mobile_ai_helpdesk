@@ -1,10 +1,12 @@
+import 'package:ai_helpdesk/presentation/main_screen.dart';
+
 import '/constants/app_theme.dart';
 import '/constants/strings.dart';
 import '/presentation/home/store/language/language_store.dart';
 import '/presentation/home/store/theme/theme_store.dart';
 import '/presentation/login/login_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/team/store/team_store.dart';
-import 'package:mobile_ai_helpdesk/presentation/tenant/store/tenant_store.dart';
+import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import '/utils/locale/app_localization.dart';
 import '/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +52,7 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: const LoginScreen(),
+            home: const MainScreen(),
           );
         },
       ),

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:mobile_ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
-import 'package:mobile_ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
+import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
+import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 
 class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   final Random _random = Random();

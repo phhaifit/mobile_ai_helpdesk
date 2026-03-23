@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 
 part 'auth_response.g.dart';
 

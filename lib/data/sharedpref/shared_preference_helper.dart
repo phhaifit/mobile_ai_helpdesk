@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 
 import 'constants/preferences.dart';
 

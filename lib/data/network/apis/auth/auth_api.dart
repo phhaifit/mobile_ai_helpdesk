@@ -1,9 +1,7 @@
-import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:ai_helpdesk/data/models/auth/login_request.dart';
+import 'package:ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
 
 /// Mock Auth API for offline testing
 /// In production, replace with real Dio HTTP calls

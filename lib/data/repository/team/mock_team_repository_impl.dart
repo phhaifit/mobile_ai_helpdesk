@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mobile_ai_helpdesk/domain/entity/permission/permission.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/team_member/team_member.dart';
-import 'package:mobile_ai_helpdesk/domain/repository/team/team_repository.dart';
+import 'package:ai_helpdesk/domain/entity/permission/permission.dart';
+import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 
 class MockTeamRepositoryImpl implements TeamRepository {
   MockTeamRepositoryImpl() {

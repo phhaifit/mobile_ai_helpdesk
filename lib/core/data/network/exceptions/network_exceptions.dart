@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/domain/error/failure.dart';
 
 /// Helper class to convert DioExceptions to domain failures
 class NetworkExceptions {
@@ -29,7 +29,7 @@ class NetworkExceptions {
     }
   }
 
-  static Failure _handleBadResponse(Response? response) {
+  static Failure _handleBadResponse(Response<dynamic>? response) {
     if (response == null) {
       return ServerFailure('Server error: No response received');
     }
@@ -58,8 +58,14 @@ class NetworkExceptions {
 
   static String _getErrorMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
-      return (data['message'] ?? data['error'] ?? 'An error occurred')
-          as String;
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) {
+        return message;
+      }
+      final error = data['error'];
+      if (error is String && error.isNotEmpty) {
+        return error;
+      }
     }
     return 'An error occurred';
   }

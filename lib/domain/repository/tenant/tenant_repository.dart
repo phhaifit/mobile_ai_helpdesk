@@ -1,4 +1,4 @@
-import 'package:mobile_ai_helpdesk/domain/entity/tenant/tenant.dart';
+import 'package:ai_helpdesk/domain/entity/tenant/tenant.dart';
 
 abstract class TenantRepository {
   Future<List<Tenant>> getTenants();

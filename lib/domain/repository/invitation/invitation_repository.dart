@@ -1,5 +1,5 @@
-import 'package:mobile_ai_helpdesk/domain/entity/invitation/invitation.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
+import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
 
 abstract class InvitationRepository {
   Future<List<Invitation>> getInvitations(String tenantId);

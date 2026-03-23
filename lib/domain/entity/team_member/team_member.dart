@@ -1,4 +1,4 @@
-import 'package:mobile_ai_helpdesk/domain/entity/permission/permission.dart';
+import 'package:ai_helpdesk/domain/entity/permission/permission.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'team_member.g.dart';

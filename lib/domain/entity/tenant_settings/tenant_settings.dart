@@ -1,4 +1,4 @@
-import 'package:mobile_ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'tenant_settings.g.dart';
