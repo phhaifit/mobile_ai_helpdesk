@@ -1,10 +1,23 @@
-// Widget tree (documentation):
-// Scaffold
-//   ├─ AppBar (new vs edit title)
-//   └─ Form → ListView(padding 16)
-//        ├─ Card (elevation 2): title + body fields (filled, 12px radius — matches library search)
-//        ├─ Card (elevation 2): section label + ChoiceChips (categories, same pattern as library)
-//        └─ FilledButton full-width Save
+// Screen file map — PrivatePromptEditorScreen (folders and files that define this screen)
+// lib/
+// ├── presentation/
+// │   └── prompt/
+// │       ├── private_prompt_editor_screen.dart   # this file
+// │       ├── prompt_selection_chips.dart         # category ChoiceChips styling
+// │       └── store/
+// │           ├── prompt_store.dart               # upsertPrivatePrompt
+// │           └── prompt_store.g.dart
+// ├── domain/
+// │   ├── entity/prompt/prompt.dart
+// │   └── repository/prompt/prompt_repository.dart
+// ├── data/
+// │   └── repository/prompt/mock_prompt_repository_impl.dart
+// ├── utils/
+// │   ├── routes/routes.dart                     # Routes.promptEditor, ModalRoute arguments: Prompt
+// │   └── locale/app_localization.dart
+// └── assets/lang/
+//     ├── en.json
+//     └── vi.json
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
 import 'package:ai_helpdesk/presentation/prompt/prompt_selection_chips.dart';

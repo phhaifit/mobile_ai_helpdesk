@@ -1,9 +1,13 @@
-// Widget tree (documentation):
-// Material (elevation + clip)
-//   └─ ConstrainedBox (maxHeight)
-//        ├─ Padding → Text (header / empty state)
-//        └─ Expanded → ListView.separated
-//             └─ ListTile (title, subtitle usage) → onTap
+// Screen file map — SlashPromptPickerOverlay (folders and files that define this screen)
+// lib/
+// ├── presentation/
+// │   └── chat/
+// │       ├── slash_prompt_picker_overlay.dart   # this file
+// │       └── chat_screen.dart                   # parent: builds overlay when slashMode
+// ├── domain/entity/prompt/prompt.dart           # list item model
+// └── utils/locale/app_localization.dart
+//
+// assets/lang/en.json, vi.json   (repo root, strings for header / empty / usage line)
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';

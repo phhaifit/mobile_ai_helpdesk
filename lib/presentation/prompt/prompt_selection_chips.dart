@@ -1,3 +1,8 @@
+// Screen file map — PromptSelectionChips (shared helper, not a route screen)
+// Used by:
+//   lib/presentation/prompt/prompt_library_screen.dart
+//   lib/presentation/prompt/private_prompt_editor_screen.dart
+// Relies on: lib/constants/app_theme.dart (indirect, via Theme.of context ColorScheme)
 import 'package:flutter/material.dart';
 
 /// Chip styling for prompt library + editor.
