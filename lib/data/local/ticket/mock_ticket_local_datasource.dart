@@ -2,6 +2,7 @@ import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
 
 import '../mock_data.dart';
 
@@ -10,6 +11,7 @@ class MockTicketLocalDataSource {
   late final List<Customer> _customers;
   late final List<Ticket> _tickets;
   final Map<String, List<Comment>> _ticketComments = {};
+  final Map<String, List<TicketHistory>> _ticketHistories = {};
 
   MockTicketLocalDataSource() {
     _seedInitialData();
@@ -23,6 +25,10 @@ class MockTicketLocalDataSource {
     for (final ticket in _tickets) {
       _ticketComments[ticket.id] = MockDataGenerator.generateCommentsForTicket(
         ticket.id,
+        _agents,
+      );
+      _ticketHistories[ticket.id] = MockDataGenerator.generateHistoryForTicket(
+        ticket,
         _agents,
       );
     }
@@ -80,5 +86,9 @@ class MockTicketLocalDataSource {
     final next = [...comments, comment];
     _ticketComments[ticketId] = next;
     return comment;
+  }
+
+  List<TicketHistory> getHistoryByTicketId(String ticketId) {
+    return List.unmodifiable(_ticketHistories[ticketId] ?? const []);
   }
 }

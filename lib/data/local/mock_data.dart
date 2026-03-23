@@ -3,6 +3,7 @@ import '../../domain/entity/comment/comment.dart';
 import '../../domain/entity/customer/customer.dart';
 import '../../domain/entity/enums.dart';
 import '../../domain/entity/ticket/ticket.dart';
+import '../../domain/entity/ticket_history/ticket_history.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
@@ -211,5 +212,62 @@ class MockDataGenerator {
     }
 
     return comments;
+  }
+
+  /// Generate history entries for a ticket
+  static List<TicketHistory> generateHistoryForTicket(
+    Ticket ticket,
+    List<Agent> agents,
+  ) {
+    final history = <TicketHistory>[];
+    final creatorAgent = agents.firstWhere(
+      (a) => a.id == ticket.createdByID,
+      orElse: () => agents.first,
+    );
+
+    // Entry 1: ticket created
+    history.add(TicketHistory(
+      id: uuid.v4(),
+      ticketId: ticket.id,
+      changedBy: creatorAgent.id,
+      changedByName: creatorAgent.name,
+      changeType: 'created',
+      oldValue: '',
+      newValue: ticket.status.displayName,
+      changedAt: ticket.createdAt,
+      description: 'Tạo phiếu hỗ trợ mới',
+    ));
+
+    // Entry 2: assignment (if assigned)
+    if (ticket.assignedAgentId != null) {
+      history.add(TicketHistory(
+        id: uuid.v4(),
+        ticketId: ticket.id,
+        changedBy: creatorAgent.id,
+        changedByName: creatorAgent.name,
+        changeType: 'assignment',
+        oldValue: 'Chưa phân công',
+        newValue: ticket.assignedAgentName ?? '',
+        changedAt: ticket.createdAt.add(const Duration(minutes: 15)),
+        description: 'Phân công cho ${ticket.assignedAgentName}',
+      ));
+    }
+
+    // Entry 3: status change (if not open)
+    if (ticket.status != TicketStatus.open) {
+      history.add(TicketHistory(
+        id: uuid.v4(),
+        ticketId: ticket.id,
+        changedBy: ticket.assignedAgentId ?? creatorAgent.id,
+        changedByName: ticket.assignedAgentName ?? creatorAgent.name,
+        changeType: 'status_change',
+        oldValue: TicketStatus.open.displayName,
+        newValue: ticket.status.displayName,
+        changedAt: ticket.updatedAt,
+        description: 'Thay đổi trạng thái từ ${TicketStatus.open.displayName} sang ${ticket.status.displayName}',
+      ));
+    }
+
+    return history;
   }
 }

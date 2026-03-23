@@ -208,12 +208,13 @@ class _TicketListScreenState extends State<TicketListScreen> {
                                 );
                               },
                               onViewDetails: (ticket) {
-                                _store.viewTicketDetails(ticket);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Xem chi tiết phiếu: ${ticket.id}'),
-                                  ),
-                                );
+                                Navigator.pushNamed(
+                                  context,
+                                  '/ticket_detail',
+                                  arguments: ticket.id,
+                                ).then((result) {
+                                  if (result == true) _store.loadTickets();
+                                });
                               },
                             ),
                           ),

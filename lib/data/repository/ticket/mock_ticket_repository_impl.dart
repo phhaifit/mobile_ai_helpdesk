@@ -7,6 +7,7 @@ import '../../../domain/entity/comment/comment.dart';
 import '../../../domain/entity/enums.dart';
 import '../../../domain/entity/ticket/ticket.dart';
 import '../../../domain/entity/ticket/ticket_query_params.dart';
+import '../../../domain/entity/ticket_history/ticket_history.dart';
 import '../../../domain/repository/ticket/ticket_repository.dart';
 
 class MockTicketRepositoryImpl implements TicketRepository {
@@ -249,8 +250,20 @@ class MockTicketRepositoryImpl implements TicketRepository {
   }
 
   @override
+  Future<List<Comment>> getComments(String ticketId) async {
+    await _simulateDelay();
+    return _localDataSource.getCommentsByTicketId(ticketId);
+  }
+
+  @override
   Future<List<Agent>> getAvailableAgents() async {
     await _simulateDelay();
     return _localDataSource.getAgents();
+  }
+
+  @override
+  Future<List<TicketHistory>> getTicketHistory(String ticketId) async {
+    await _simulateDelay();
+    return _localDataSource.getHistoryByTicketId(ticketId);
   }
 }
