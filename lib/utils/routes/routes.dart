@@ -20,8 +20,6 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_scree
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
-import '/presentation/home/home.dart';
-import '/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -77,9 +75,7 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(
-            email: args?['email'],
-          ),
+          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
         );
       case home:
         return MaterialPageRoute(
