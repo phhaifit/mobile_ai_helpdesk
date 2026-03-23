@@ -1,15 +1,13 @@
 // Widget tree (documentation):
 // Scaffold
-//   ├─ AppBar (title: new vs edit)
-//   └─ Form
-//        └─ SingleChildScrollView
-//             └─ Column
-//                  ├─ TextFormField (title)
-//                  ├─ TextFormField (body, multiline)
-//                  ├─ DropdownButtonFormField<String> (category)
-//                  └─ FilledButton (save)
+//   ├─ AppBar (new vs edit title)
+//   └─ Form → ListView(padding 16)
+//        ├─ Card (elevation 2): title + body fields (filled, 12px radius — matches library search)
+//        ├─ Card (elevation 2): section label + ChoiceChips (categories, same pattern as library)
+//        └─ FilledButton full-width Save
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
+import 'package:ai_helpdesk/presentation/prompt/prompt_selection_chips.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +28,24 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
   late String _categoryId;
   Prompt? _existing;
   bool _controllersReady = false;
+
+  static const double _fieldRadius = 12;
+
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String label,
+    bool alignLabelWithHint = false,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      alignLabelWithHint: alignLabelWithHint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(_fieldRadius),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
 
   @override
   void initState() {
@@ -81,7 +97,7 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
       categoryId: _categoryId,
       isFavorite: existing?.isFavorite ?? false,
       usageCount: existing?.usageCount ?? 0,
-      isPrivate: true,
+      isPrivate: existing?.isPrivate ?? true,
     );
     await _store.upsertPrivatePrompt(prompt);
     if (!mounted) {
@@ -99,6 +115,7 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final categories =
         _store.categories.where((c) => c.id != 'all').toList();
 
@@ -107,7 +124,9 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
         title: Text(
           _existing == null
               ? l.translate('prompt_tv_editor_new_title')
-              : l.translate('prompt_tv_editor_edit_title'),
+              : (_existing!.isPrivate
+                  ? l.translate('prompt_tv_editor_edit_title')
+                  : l.translate('prompt_tv_editor_edit_any')),
         ),
       ),
       body: Form(
@@ -115,59 +134,113 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: l.translate('prompt_tv_field_title'),
-                border: const OutlineInputBorder(),
+            Text(
+              l.translate('prompt_tv_editor_subtitle'),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-              textInputAction: TextInputAction.next,
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) {
-                  return l.translate('prompt_tv_validation_title');
-                }
-                return null;
-              },
+            ),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 2,
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: _fieldDecoration(
+                        context,
+                        label: l.translate('prompt_tv_field_title'),
+                      ),
+                      textInputAction: TextInputAction.next,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return l.translate('prompt_tv_validation_title');
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _bodyController,
+                      decoration: _fieldDecoration(
+                        context,
+                        label: l.translate('prompt_tv_field_body'),
+                        alignLabelWithHint: true,
+                      ),
+                      minLines: 5,
+                      maxLines: 12,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return l.translate('prompt_tv_validation_body');
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _bodyController,
-              decoration: InputDecoration(
-                labelText: l.translate('prompt_tv_field_body'),
-                border: const OutlineInputBorder(),
-                alignLabelWithHint: true,
+            Card(
+              elevation: 2,
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.translate('prompt_tv_field_category'),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final c in categories)
+                          ChoiceChip(
+                            label: Text(
+                              l.translate(c.nameKey),
+                              style: PromptSelectionChips.labelTextStyle(
+                                context,
+                                selected: _categoryId == c.id,
+                              ),
+                            ),
+                            selected: _categoryId == c.id,
+                            color: PromptSelectionChips.background(context),
+                            onSelected: (selected) {
+                              if (selected) {
+                                setState(() => _categoryId = c.id);
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              minLines: 4,
-              maxLines: 10,
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) {
-                  return l.translate('prompt_tv_validation_body');
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            DropdownMenu<String>(
-              width: MediaQuery.sizeOf(context).width - 32,
-              initialSelection: _categoryId,
-              label: Text(l.translate('prompt_tv_field_category')),
-              onSelected: (v) {
-                if (v != null) {
-                  setState(() => _categoryId = v);
-                }
-              },
-              dropdownMenuEntries: [
-                for (final c in categories)
-                  DropdownMenuEntry<String>(
-                    value: c.id,
-                    label: l.translate(c.nameKey),
-                  ),
-              ],
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _onSave,
-              child: Text(l.translate('prompt_btn_save')),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _onSave,
+                icon: const Icon(Icons.save_outlined),
+                label: Text(l.translate('prompt_btn_save')),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(_fieldRadius),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

@@ -102,13 +102,10 @@ class MockPromptRepositoryImpl implements PromptRepository {
   @override
   Future<void> upsertPrivatePrompt(Prompt prompt) async {
     await Future.delayed(const Duration(milliseconds: 120));
-    if (!prompt.isPrivate) {
-      return;
-    }
     if (prompt.id.isEmpty) {
       final id = 'priv_${DateTime.now().millisecondsSinceEpoch}';
       _prompts.add(
-        prompt.copyWith(id: id),
+        prompt.copyWith(id: id, isPrivate: true),
       );
       return;
     }

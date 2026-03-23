@@ -7,6 +7,7 @@ abstract class PromptRepository {
 
   Future<void> toggleFavorite(String promptId);
 
+  /// Creates or updates a prompt. Mock impl allows editing library seeds; a real API may restrict by [Prompt.isPrivate].
   Future<void> upsertPrivatePrompt(Prompt prompt);
 
   Future<void> incrementUsage(String promptId);
