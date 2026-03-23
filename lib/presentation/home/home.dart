@@ -1,8 +1,9 @@
+import 'package:ai_helpdesk/core/analytics/analytics_screen.dart';
 import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +21,48 @@ class _HomeScreenState extends State<HomeScreen>
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
   late TabController _tabController;
+  int _lastLoggedTabIndex = -1;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _tabController.addListener(_onTabControllerTick);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _logHomeTabScreen(_tabController.index);
+      }
+    });
+  }
+
+  void _onTabControllerTick() {
+    setState(() {});
+    if (_tabController.indexIsChanging) {
+      return;
+    }
+    _logHomeTabScreen(_tabController.index);
+  }
+
+  void _logHomeTabScreen(int index) {
+    const names = <String>[
+      AnalyticsScreen.dashboard,
+      AnalyticsScreen.tickets,
+      AnalyticsScreen.omnichannelTab,
+      AnalyticsScreen.monetizationTab,
+    ];
+    if (index < 0 || index >= names.length) {
+      return;
+    }
+    if (index == _lastLoggedTabIndex) {
+      return;
+    }
+    _lastLoggedTabIndex = index;
+    getIt<AnalyticsService>().logScreen(names[index]);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabControllerTick);
     _tabController.dispose();
     super.dispose();
   }

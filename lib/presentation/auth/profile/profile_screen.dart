@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
@@ -56,10 +57,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               Navigator.pop(context);
               await _authStore.logout();
-              
-              if (mounted) {
-                Navigator.pushReplacementNamed(context, Routes.login);
+
+              if (!mounted) return;
+
+              if (!_authStore.isAuthenticated) {
+                final analytics = getIt<AnalyticsService>();
+                await analytics.logLogout();
+                await analytics.clearUserProperties();
               }
+
+              if (!mounted || !context.mounted) return;
+              await Navigator.of(context).pushReplacementNamed(Routes.login);
             },
             child: Text(l.translate('logout_confirm_yes')),
           ),

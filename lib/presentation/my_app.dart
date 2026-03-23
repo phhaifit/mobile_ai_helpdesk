@@ -3,7 +3,6 @@ import 'package:ai_helpdesk/constants/strings.dart';
 import 'package:ai_helpdesk/core/analytics/analytics_route_observer.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +27,7 @@ class MyApp extends StatelessWidget {
           theme: _themeStore.darkMode
               ? AppThemeData.darkThemeData
               : AppThemeData.lightThemeData,
+          initialRoute: Routes.login,
           onGenerateRoute: Routes.onGenerateRoute,
           navigatorObservers: [AnalyticsRouteObserver()],
           locale: Locale(_languageStore.locale),
@@ -40,7 +40,6 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: const LoginScreen(),
         );
       },
     );
