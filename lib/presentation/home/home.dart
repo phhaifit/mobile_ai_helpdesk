@@ -1,7 +1,7 @@
 import 'package:ai_helpdesk/core/analytics/analytics_screen.dart';
 import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/chat/chat_screen.dart';
+import 'package:ai_helpdesk/presentation/chat/support_inbox_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
@@ -119,6 +119,7 @@ class _HomeScreenState extends State<HomeScreen>
       actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
+        isScrollable: true,
         tabs: [
           Tab(
             icon: const Icon(Icons.dashboard),
