@@ -1,11 +1,11 @@
-import 'package:ai_helpdesk/core/data/network/dio/configs/dio_configs.dart';
-import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
-import 'package:ai_helpdesk/core/data/network/dio/interceptors/auth_interceptor.dart';
-import 'package:ai_helpdesk/core/data/network/dio/interceptors/logging_interceptor.dart';
-import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
-import 'package:ai_helpdesk/data/network/interceptors/error_interceptor.dart';
-import 'package:ai_helpdesk/data/network/rest_client.dart';
-import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import '/core/data/network/dio/configs/dio_configs.dart';
+import '/core/data/network/dio/dio_client.dart';
+import '/core/data/network/dio/interceptors/auth_interceptor.dart';
+import '/core/data/network/dio/interceptors/logging_interceptor.dart';
+import '/data/network/constants/endpoints.dart';
+import '/data/network/interceptors/error_interceptor.dart';
+import '/data/network/rest_client.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import 'package:event_bus/event_bus.dart';
 
 import '../../../di/service_locator.dart';
@@ -37,14 +37,11 @@ class NetworkModule {
       ),
     );
     getIt.registerSingleton<DioClient>(
-      DioClient(dioConfigs: getIt())
-        ..addInterceptors(
-          [
-            getIt<AuthInterceptor>(),
-            getIt<ErrorInterceptor>(),
-            getIt<LoggingInterceptor>(),
-          ],
-        ),
+      DioClient(dioConfigs: getIt())..addInterceptors([
+        getIt<AuthInterceptor>(),
+        getIt<ErrorInterceptor>(),
+        getIt<LoggingInterceptor>(),
+      ]),
     );
   }
 }

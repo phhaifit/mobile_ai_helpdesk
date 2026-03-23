@@ -3,7 +3,13 @@ import 'package:ai_helpdesk/presentation/chat/chat_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import '/di/service_locator.dart';
+import '/presentation/home/store/language/language_store.dart';
+import '/presentation/home/store/theme/theme_store.dart';
+import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -43,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen>
           _buildTicketsTab(),
           const PromptLibraryScreen(embedInParent: true),
           const ChatScreen(embedInParent: true),
+          _buildOmnichannelTab(),
+          _buildMonetizationTab(),
         ],
+        children: [_buildDashboardTab(), _buildTicketsTab()],
       ),
     );
   }
@@ -51,10 +60,7 @@ class _HomeScreenState extends State<HomeScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: Text(AppLocalizations.of(context).translate('home_tv_title')),
-      actions: [
-        _buildLanguageButton(),
-        _buildThemeButton(),
-      ],
+      actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
         tabs: [
@@ -73,6 +79,14 @@ class _HomeScreenState extends State<HomeScreen>
           Tab(
             icon: const Icon(Icons.chat_bubble_outline),
             text: AppLocalizations.of(context).translate('home_tab_chat'),
+            icon: const Icon(Icons.hub),
+            text: AppLocalizations.of(
+              context,
+            ).translate('home_tab_omnichannel'),
+            icon: const Icon(Icons.workspace_premium),
+            text: AppLocalizations.of(
+              context,
+            ).translate('monetization_tv_title'),
           ),
         ],
       ),
@@ -98,13 +112,15 @@ class _HomeScreenState extends State<HomeScreen>
             spacing: 16,
             runSpacing: 16,
             children: [
-              _buildStatCard('Total', '12', Icons.confirmation_number,
-                  Colors.blue),
+              _buildStatCard(
+                'Total',
+                '12',
+                Icons.confirmation_number,
+                Colors.blue,
+              ),
               _buildStatCard('Open', '5', Icons.fiber_new, Colors.orange),
-              _buildStatCard(
-                  'In Progress', '4', Icons.autorenew, Colors.amber),
-              _buildStatCard(
-                  'Resolved', '3', Icons.check_circle, Colors.green),
+              _buildStatCard('In Progress', '4', Icons.autorenew, Colors.amber),
+              _buildStatCard('Resolved', '3', Icons.check_circle, Colors.green),
             ],
           ),
         ],
@@ -113,7 +129,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return SizedBox(
       width: 160,
       child: Card(
@@ -126,10 +146,9 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: color),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: color),
               ),
               const SizedBox(height: 4),
               Text(
@@ -161,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Colors.orange,
                 Colors.amber,
                 Colors.green,
-                Colors.blue
+                Colors.blue,
               ][index],
               radius: 6,
             ),
@@ -175,6 +194,12 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
+  }
+
+  Widget _buildOmnichannelTab() {
+    return const OmnichannelHubScreen(showAppBar: false);
+  Widget _buildMonetizationTab() {
+    return const MonetizationScreen(embedded: true);
   }
 
   // ---------------------------------------------------------------------------
