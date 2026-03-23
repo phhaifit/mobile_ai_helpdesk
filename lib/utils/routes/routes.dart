@@ -1,4 +1,5 @@
 import 'package:ai_helpdesk/presentation/home/home.dart';
+import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ class Routes {
   // route constants -----------------------------------------------------------
   static const String login = '/login';
   static const String home = '/home';
+  static const String knowledge = '/knowledge';
 
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -21,6 +23,11 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const HomeScreen(),
+        );
+      case knowledge:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const KnowledgeSourceListScreen(),
         );
       default:
         return MaterialPageRoute(
