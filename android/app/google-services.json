@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "886123571251",
-    "project_id": "mobile-ai-helpdesk-4b668",
-    "storage_bucket": "mobile-ai-helpdesk-4b668.firebasestorage.app"
+    "project_number": "787965887352",
+    "project_id": "mobile-ai-helpdesk",
+    "storage_bucket": "mobile-ai-helpdesk.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:886123571251:android:e3a0ba4779963c23de5b46",
+        "mobilesdk_app_id": "1:787965887352:android:1efc42481970bd784cbe8d",
         "android_client_info": {
           "package_name": "com.jarvis.helpdesk"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC7GYFpTXz3GP9hxR1sSQqx1LvZRC2pErg"
+          "current_key": "AIzaSyAHT_ojHOhWdTuivTXcewlvcorV-5YNjio"
         }
       ],
       "services": {

@@ -34,18 +34,23 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Logo icon
                 Icon(
                   Icons.headset_mic,
                   size: 80,
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(height: 24),
+
+                // Welcome title
                 Text(
                   l.translate('login_tv_welcome'),
                   style: theme.textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
+
+                // Subtitle
                 Text(
                   l.translate('login_tv_subtitle'),
                   style: theme.textTheme.bodyMedium,
@@ -107,6 +112,41 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Forgot password button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, Routes.forgotPassword);
+                  },
+                  child: Text(l.translate('login_tv_forgot_password')),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Sign up button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(l.translate('login_tv_no_account')),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, Routes.register);
+                      },
+                      child: Text(l.translate('login_btn_sign_up')),
+                    ),
+                  ],
+                ),
+
+                if (kDebugMode && !kIsWeb) ...[
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () {
+                      FirebaseCrashlytics.instance.crash();
+                    },
+                    child: Text(l.translate('login_btn_test_crash')),
+                  ),
+                ],
               ],
             ),
           ),
