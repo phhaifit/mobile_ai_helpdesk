@@ -86,6 +86,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const PrivatePromptEditorScreen(),
+        );
       case profile:
         return MaterialPageRoute(
           settings: settings,

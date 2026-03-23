@@ -101,7 +101,7 @@
   "prompt_tv_slash_header": "Prompts",
   "prompt_tv_slash_empty": "No prompts match",
   "prompt_tv_chat_title": "Chat",
-  "prompt_tv_chat_hint": "Message… (type / for prompts)"
+  "prompt_tv_chat_hint": "Message… (type / for prompts)",
   "login_btn_test_crash": "Test Crashlytics Crash",
   "omnichannel_title": "Omnichannel Integrations",
   "omnichannel_home_entry_subtitle": "Manage Messenger and Zalo integrations with mock interactive flows.",

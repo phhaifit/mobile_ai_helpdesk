@@ -101,7 +101,7 @@
   "prompt_tv_slash_header": "Mẫu nhắc",
   "prompt_tv_slash_empty": "Không có mẫu khớp",
   "prompt_tv_chat_title": "Trò chuyện",
-  "prompt_tv_chat_hint": "Tin nhắn… (gõ / để chọn mẫu)"
+  "prompt_tv_chat_hint": "Tin nhắn… (gõ / để chọn mẫu)",
   "login_btn_test_crash": "Thử nghiệm Crashlytics",
   "omnichannel_title": "Tich hop Omnichannel",
   "omnichannel_home_entry_subtitle": "Quan ly ket noi Messenger va Zalo voi luong demo mock tuong tac.",
