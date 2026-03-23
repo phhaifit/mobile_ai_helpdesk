@@ -1,17 +1,8 @@
 // Widget tree (documentation):
-// Prompt library layout; primary structure:
-// Scaffold
-//   ├─ AppBar (when embedInParent is false: title, favorites; bottom TabBar)
-//   └─ body: Column
-//        ├─ (when embedInParent: title Row + favorites)
-//        ├─ Padding → TextField (search)
-//        ├─ TabBar (category filter tabs; scrollable) — in body when embedded
-//        ├─ Expanded → RefreshIndicator → ListView
-//        │     └─ Card → ListTile (title, subtitle usage, favorite, edit if private)
-//        └─ (loading / error states via early returns in Observer)
-//
-// FloatingActionButton → navigates to PrivatePromptEditorScreen (create).
-import 'package:ai_helpdesk/constants/dimens.dart';
+// embedInParent (home tab): Column
+//   ├─ Padding(16) → header Row (headlineMedium + add + favorites) + ChoiceChips + search
+//   └─ Expanded → RefreshIndicator → ListView (padding 8, cards like Tickets tab)
+// standalone: Scaffold(AppBar + actions) + same body column without duplicate title.
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
@@ -23,74 +14,212 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class PromptLibraryScreen extends StatefulWidget {
   const PromptLibraryScreen({super.key, this.embedInParent = false});
 
-  /// When true (e.g. inside [HomeScreen] tabs), omit own [AppBar] to avoid a double bar.
+  /// When true (e.g. inside [HomeScreen] tabs), match other tabs: no nested [Scaffold]/[AppBar].
   final bool embedInParent;
 
   @override
   State<PromptLibraryScreen> createState() => _PromptLibraryScreenState();
 }
 
-class _PromptLibraryScreenState extends State<PromptLibraryScreen>
-    with SingleTickerProviderStateMixin {
+class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
   late final PromptStore _store;
-  late final TabController _categoryTabController;
   final TextEditingController _searchController = TextEditingController();
+
+  static Color _categoryAccentColor(String categoryId) {
+    switch (categoryId) {
+      case 'support':
+        return Colors.blue;
+      case 'sales':
+        return Colors.teal;
+      case 'technical':
+        return Colors.deepPurple;
+      case 'general':
+        return Colors.green;
+      default:
+        return Colors.blueGrey;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _store = getIt<PromptStore>();
-    final n = _store.categories.length;
-    _categoryTabController = TabController(length: n, vsync: this);
-    _categoryTabController.addListener(_onCategoryTabChanged);
     _store.loadPrompts();
-  }
-
-  void _onCategoryTabChanged() {
-    if (_categoryTabController.indexIsChanging) {
-      return;
-    }
-    final i = _categoryTabController.index;
-    if (i >= 0 && i < _store.categories.length) {
-      _store.setCategoryFilter(_store.categories[i].id);
-    }
   }
 
   @override
   void dispose() {
-    _categoryTabController.removeListener(_onCategoryTabChanged);
-    _categoryTabController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  Widget _buildFavoritesButton(AppLocalizations l) {
+  void _openNewPrivatePrompt() {
+    Navigator.pushNamed(context, Routes.promptEditor);
+  }
+
+  Widget _buildFavoritesToggle(AppLocalizations l) {
     return Observer(
       builder: (_) {
-        return IconButton(
-          tooltip: l.translate('prompt_tv_favorites_toggle'),
-          onPressed: () {
-            _store.setFavoritesOnly(!_store.favoritesOnly);
-          },
-          icon: Icon(
-            _store.favoritesOnly ? Icons.star : Icons.star_border,
-            color: _store.favoritesOnly
-                ? Theme.of(context).colorScheme.primary
-                : null,
+        final active = _store.favoritesOnly;
+        return FilterChip(
+          avatar: Icon(
+            active ? Icons.star : Icons.star_border,
+            size: 18,
+            color: active ? null : Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          label: Text(l.translate('prompt_tv_favorites_toggle')),
+          selected: active,
+          onSelected: (_) => _store.setFavoritesOnly(!active),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryChips(AppLocalizations l) {
+    return Observer(
+      builder: (_) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final c in _store.categories)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(l.translate(c.nameKey)),
+                    selected: _store.selectedCategoryId == c.id,
+                    onSelected: (selected) {
+                      if (selected) {
+                        _store.setCategoryFilter(c.id);
+                      } else {
+                        _store.setCategoryFilter('all');
+                      }
+                    },
+                  ),
+                ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildCategoryTabBar(AppLocalizations l) {
-    return TabBar(
-      controller: _categoryTabController,
-      isScrollable: true,
-      tabAlignment: TabAlignment.start,
-      tabs: [
-        for (final c in _store.categories) Tab(text: l.translate(c.nameKey)),
-      ],
+  Widget _buildSearchField(AppLocalizations l) {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: l.translate('prompt_tv_search_hint'),
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      onChanged: _store.setSearchQuery,
+    );
+  }
+
+  Widget _buildTopSection(AppLocalizations l) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.embedInParent) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    l.translate('prompt_tv_library_title'),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                IconButton(
+                  onPressed: _openNewPrivatePrompt,
+                  icon: const Icon(Icons.add_circle_outline),
+                  tooltip: l.translate('prompt_btn_new_private'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [_buildFavoritesToggle(l)],
+            ),
+            const SizedBox(height: 16),
+          ] else ...[
+            const SizedBox(height: 8),
+          ],
+          _buildCategoryChips(l),
+          const SizedBox(height: 12),
+          _buildSearchField(l),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromptList(AppLocalizations l) {
+    return Observer(
+      builder: (_) {
+        if (_store.isLoading && _store.prompts.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (_store.errorMessage != null && _store.prompts.isEmpty) {
+          return Center(child: Text(_store.errorMessage!));
+        }
+        final items = _store.filteredPrompts;
+        if (items.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.library_books_outlined,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l.translate('prompt_tv_empty'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: () => _store.loadPrompts(),
+          child: ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final p = items[index];
+              return _PromptListCard(
+                prompt: p,
+                accentColor: _categoryAccentColor(p.categoryId),
+                onToggleFavorite: () => _store.toggleFavorite(p.id),
+                onEdit: p.isPrivate
+                    ? () {
+                        Navigator.pushNamed(
+                          context,
+                          Routes.promptEditor,
+                          arguments: p,
+                        );
+                      }
+                    : null,
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -98,89 +227,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (widget.embedInParent) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              Dimens.horizontalPadding,
-              8,
-              Dimens.horizontalPadding,
-              0,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l.translate('prompt_tv_library_title'),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                _buildFavoritesButton(l),
-              ],
-            ),
-          ),
-          _buildCategoryTabBar(l),
-        ],
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            Dimens.horizontalPadding,
-            12,
-            Dimens.horizontalPadding,
-            8,
-          ),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: l.translate('prompt_tv_search_hint'),
-              prefixIcon: const Icon(Icons.search),
-              border: const OutlineInputBorder(),
-              isDense: true,
-            ),
-            onChanged: _store.setSearchQuery,
-          ),
-        ),
-        Expanded(
-          child: Observer(
-            builder: (_) {
-              if (_store.isLoading && _store.prompts.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (_store.errorMessage != null && _store.prompts.isEmpty) {
-                return Center(child: Text(_store.errorMessage!));
-              }
-              final items = _store.filteredPrompts;
-              if (items.isEmpty) {
-                return Center(child: Text(l.translate('prompt_tv_empty')));
-              }
-              return RefreshIndicator(
-                onRefresh: () => _store.loadPrompts(),
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(
-                    left: Dimens.horizontalPadding,
-                    right: Dimens.horizontalPadding,
-                    bottom: 88,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final p = items[index];
-                    return _PromptListCard(
-                      prompt: p,
-                      onToggleFavorite: () => _store.toggleFavorite(p.id),
-                      onEdit: p.isPrivate
-                          ? () {
-                              Navigator.pushNamed(
-                                context,
-                                Routes.promptEditor,
-                                arguments: p,
-                              );
-                            }
-                          : null,
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        ),
+        _buildTopSection(l),
+        Expanded(child: _buildPromptList(l)),
       ],
     );
   }
@@ -190,33 +238,34 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen>
     final l = AppLocalizations.of(context);
 
     if (widget.embedInParent) {
-      return Scaffold(
-        body: _buildBody(l),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.pushNamed(context, Routes.promptEditor);
-          },
-          icon: const Icon(Icons.add),
-          label: Text(l.translate('prompt_btn_new_private')),
-        ),
-      );
+      return _buildBody(l);
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l.translate('prompt_tv_library_title')),
-        actions: [_buildFavoritesButton(l)],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: _buildCategoryTabBar(l),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, Routes.promptEditor);
-        },
-        icon: const Icon(Icons.add),
-        label: Text(l.translate('prompt_btn_new_private')),
+        actions: [
+          IconButton(
+            onPressed: _openNewPrivatePrompt,
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: l.translate('prompt_btn_new_private'),
+          ),
+          Observer(
+            builder: (_) {
+              final active = _store.favoritesOnly;
+              return IconButton(
+                tooltip: l.translate('prompt_tv_favorites_toggle'),
+                onPressed: () => _store.setFavoritesOnly(!active),
+                icon: Icon(
+                  active ? Icons.star : Icons.star_border,
+                  color: active
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _buildBody(l),
     );
@@ -226,11 +275,13 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen>
 class _PromptListCard extends StatelessWidget {
   const _PromptListCard({
     required this.prompt,
+    required this.accentColor,
     required this.onToggleFavorite,
     this.onEdit,
   });
 
   final Prompt prompt;
+  final Color accentColor;
   final VoidCallback onToggleFavorite;
   final VoidCallback? onEdit;
 
@@ -240,30 +291,19 @@ class _PromptListCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        title: Text(prompt.title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l.translate('prompt_tv_used_times').replaceFirst(
-                    '%s',
-                    '${prompt.usageCount}',
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              prompt.body,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+        leading: CircleAvatar(
+          radius: 6,
+          backgroundColor: accentColor,
         ),
-        leading: Icon(
-          prompt.isPrivate ? Icons.lock_outline : Icons.public_outlined,
-          color: scheme.primary,
+        title: Text(prompt.title),
+        subtitle: Text(
+          '${l.translate('prompt_tv_used_times').replaceFirst('%s', '${prompt.usageCount}')} · ${prompt.body}',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -272,15 +312,18 @@ class _PromptListCard extends StatelessWidget {
               IconButton(
                 tooltip: l.translate('prompt_btn_edit'),
                 onPressed: onEdit,
-                icon: const Icon(Icons.edit_outlined),
+                icon: const Icon(Icons.edit_outlined, size: 22),
+                visualDensity: VisualDensity.compact,
               ),
             IconButton(
               tooltip: l.translate('prompt_tv_favorite'),
               onPressed: onToggleFavorite,
               icon: Icon(
                 prompt.isFavorite ? Icons.star : Icons.star_border,
+                size: 22,
                 color: prompt.isFavorite ? scheme.primary : null,
               ),
+              visualDensity: VisualDensity.compact,
             ),
           ],
         ),
