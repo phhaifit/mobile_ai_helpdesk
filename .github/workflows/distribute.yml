@@ -40,25 +40,8 @@ jobs:
 
       - name: Decode keystore
         run: |
-          set -euo pipefail
-          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64:-}}" ]; then
-            echo "ERROR: Missing secret ANDROID_KEYSTORE_BASE64" >&2
-            exit 1
-          fi
-          printf '%s' "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" > "$RUNNER_TEMP/keystore.b64"
-          if base64 --help 2>&1 | grep -q -- '--decode'; then
-            base64 --decode "$RUNNER_TEMP/keystore.b64" > android/app/release.jks || true
-          fi
-          if [ ! -s android/app/release.jks ]; then
-            base64 -D "$RUNNER_TEMP/keystore.b64" > android/app/release.jks 2>/dev/null || true
-          fi
-          if [ ! -s android/app/release.jks ]; then
-            openssl base64 -d -A -in "$RUNNER_TEMP/keystore.b64" -out android/app/release.jks || true
-          fi
-          if [ ! -s android/app/release.jks ]; then
-            echo "ERROR: Failed to decode ANDROID_KEYSTORE_BASE64" >&2
-            exit 1
-          fi
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.jks
+
 
       - name: Create key.properties
         run: |
