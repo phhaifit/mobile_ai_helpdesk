@@ -16,21 +16,37 @@ import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
 // Import Interfaces (Domain)
+import '../../../domain/repository/ai_agent/ai_agent_repository.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
 import '../../../domain/repository/customer_management/customer_repository.dart';
+import '../../../domain/repository/playground/playground_repository.dart';
 // Import DataSources
+import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
 import '../../local/datasources/customer_management/customer_datasource.dart';
+import '../../local/datasources/playground/playground_datasource.dart';
 // Import Implementations (Data)
+import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 import '../../repository/customer_management/customer_repository_impl.dart';
+import '../../repository/playground/playground_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
     final getIt = GetIt.instance;
+
+    // --- AI Agent Repository ---
+    getIt.registerSingleton<AiAgentRepository>(
+      MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+    );
+
+    // --- Playground Repository ---
+    getIt.registerSingleton<PlaygroundRepository>(
+      PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
+    );
 
     // Auth API:----------------------------------------------------------------
     getIt.registerSingleton<AuthApi>(AuthApi());

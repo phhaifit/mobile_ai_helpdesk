@@ -19,8 +19,12 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_scree
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
-import '/presentation/home/home.dart';
-import '/presentation/login/login_screen.dart';
+import '/domain/entity/ai_agent/ai_agent.dart';
+import '/presentation/ai_agent/agent_create_edit_screen.dart';
+import '/presentation/ai_agent/agent_detail_screen.dart';
+import '/presentation/ai_agent/agent_list_screen.dart';
+import '/presentation/ai_agent/team_assistant_screen.dart';
+import '/presentation/playground/playground_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -52,6 +56,14 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
+  // AI Agent
+  static const String agentList = '/ai-agents';
+  static const String agentCreate = '/ai-agents/create';
+  static const String agentEdit = '/ai-agents/edit';
+  static const String agentDetail = '/ai-agents/detail';
+  static const String teamAssistant = '/ai-agents/team-assistant';
+  // Playground
+  static const String playground = '/playground';
 
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -76,7 +88,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => ResetPasswordScreen(
-            email: args?['email'],
+            email: args?['email'] as String?,
           ),
         );
       case home:
@@ -163,6 +175,39 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
+        );
+      case agentList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentListScreen(),
+        );
+      case agentCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentCreateEditScreen(),
+        );
+      case agentEdit:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentCreateEditScreen(agent: agent),
+        );
+      case agentDetail:
+        final agent = settings.arguments as AiAgent;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentDetailScreen(agent: agent),
+        );
+      case teamAssistant:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TeamAssistantScreen(),
+        );
+      case playground:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PlaygroundScreen(agent: agent),
         );
       default:
         return MaterialPageRoute(

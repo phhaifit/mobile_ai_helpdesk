@@ -12,12 +12,17 @@ mixin _$PostStore on _PostStore, Store {
   Computed<bool>? _$loadingComputed;
 
   @override
-  bool get loading => (_$loadingComputed ??=
-          Computed<bool>(() => super.loading, name: '_PostStore.loading'))
-      .value;
+  bool get loading =>
+      (_$loadingComputed ??= Computed<bool>(
+            () => super.loading,
+            name: '_PostStore.loading',
+          ))
+          .value;
 
-  late final _$fetchPostsFutureAtom =
-      Atom(name: '_PostStore.fetchPostsFuture', context: context);
+  late final _$fetchPostsFutureAtom = Atom(
+    name: '_PostStore.fetchPostsFuture',
+    context: context,
+  );
 
   @override
   ObservableFuture<PostList?> get fetchPostsFuture {
@@ -32,8 +37,10 @@ mixin _$PostStore on _PostStore, Store {
     });
   }
 
-  late final _$postListAtom =
-      Atom(name: '_PostStore.postList', context: context);
+  late final _$postListAtom = Atom(
+    name: '_PostStore.postList',
+    context: context,
+  );
 
   @override
   PostList? get postList {
@@ -63,8 +70,10 @@ mixin _$PostStore on _PostStore, Store {
     });
   }
 
-  late final _$getPostsAsyncAction =
-      AsyncAction('_PostStore.getPosts', context: context);
+  late final _$getPostsAsyncAction = AsyncAction(
+    '_PostStore.getPosts',
+    context: context,
+  );
 
   @override
   Future<dynamic> getPosts() {

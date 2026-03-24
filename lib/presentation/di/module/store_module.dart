@@ -26,17 +26,23 @@ import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../ai_agent/store/ai_agent_store.dart';
 import '../../chat/store/chat_store.dart';
 import '../../chat/store/chat_room_store.dart';
 import '../../customer_management/store/customer_store.dart';
-import '../../home/store/language/language_store.dart';
-import '../../home/store/theme/theme_store.dart';
+import '../../playground/store/playground_store.dart';
 
-import '../../../core/stores/error/error_store.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
 import '../../../domain/repository/customer_management/customer_repository.dart';
-import '../../../domain/repository/setting/setting_repository.dart';
+import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
+import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
+import '../../../domain/usecase/playground/create_session_usecase.dart';
+import '../../../domain/usecase/playground/get_sessions_usecase.dart';
+import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -96,6 +102,28 @@ class StoreModule {
       () => MonetizationStore(
         getIt<GetMonetizationOverviewUseCase>(),
         getIt<SimulateUpgradeUseCase>(),
+      ),
+    );
+
+    // --- AI Agent Store ---
+    getIt.registerLazySingleton<AiAgentStore>(
+      () => AiAgentStore(
+        getIt<GetAgentsUseCase>(),
+        getIt<GetAgentUseCase>(),
+        getIt<CreateAgentUseCase>(),
+        getIt<UpdateAgentUseCase>(),
+        getIt<DeleteAgentUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Playground Store ---
+    getIt.registerLazySingleton<PlaygroundStore>(
+      () => PlaygroundStore(
+        getIt<GetSessionsUseCase>(),
+        getIt<CreateSessionUseCase>(),
+        getIt<SendPlaygroundMessageUseCase>(),
+        getIt<ErrorStore>(),
       ),
     );
   }

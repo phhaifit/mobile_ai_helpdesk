@@ -14,32 +14,37 @@ mixin _$CustomerStore on _CustomerStore, Store {
   @override
   List<Customer> get filteredCustomers =>
       (_$filteredCustomersComputed ??= Computed<List<Customer>>(
-        () => super.filteredCustomers,
-        name: '_CustomerStore.filteredCustomers',
-      )).value;
+            () => super.filteredCustomers,
+            name: '_CustomerStore.filteredCustomers',
+          ))
+          .value;
   Computed<List<Customer>>? _$blockedCustomersComputed;
 
   @override
   List<Customer> get blockedCustomers =>
       (_$blockedCustomersComputed ??= Computed<List<Customer>>(
-        () => super.blockedCustomers,
-        name: '_CustomerStore.blockedCustomers',
-      )).value;
+            () => super.blockedCustomers,
+            name: '_CustomerStore.blockedCustomers',
+          ))
+          .value;
   Computed<int>? _$totalCountComputed;
 
   @override
-  int get totalCount => (_$totalCountComputed ??= Computed<int>(
-    () => super.totalCount,
-    name: '_CustomerStore.totalCount',
-  )).value;
+  int get totalCount =>
+      (_$totalCountComputed ??= Computed<int>(
+            () => super.totalCount,
+            name: '_CustomerStore.totalCount',
+          ))
+          .value;
   Computed<List<String>>? _$allAvailableTagsComputed;
 
   @override
   List<String> get allAvailableTags =>
       (_$allAvailableTagsComputed ??= Computed<List<String>>(
-        () => super.allAvailableTags,
-        name: '_CustomerStore.allAvailableTags',
-      )).value;
+            () => super.allAvailableTags,
+            name: '_CustomerStore.allAvailableTags',
+          ))
+          .value;
 
   late final _$customersAtom = Atom(
     name: '_CustomerStore.customers',

@@ -12,9 +12,12 @@ mixin _$UserStore on _UserStore, Store {
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??=
-          Computed<bool>(() => super.isLoading, name: '_UserStore.isLoading'))
-      .value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_UserStore.isLoading',
+          ))
+          .value;
 
   late final _$successAtom = Atom(name: '_UserStore.success', context: context);
 
@@ -31,8 +34,10 @@ mixin _$UserStore on _UserStore, Store {
     });
   }
 
-  late final _$loginFutureAtom =
-      Atom(name: '_UserStore.loginFuture', context: context);
+  late final _$loginFutureAtom = Atom(
+    name: '_UserStore.loginFuture',
+    context: context,
+  );
 
   @override
   ObservableFuture<User?> get loginFuture {
@@ -47,8 +52,10 @@ mixin _$UserStore on _UserStore, Store {
     });
   }
 
-  late final _$loginAsyncAction =
-      AsyncAction('_UserStore.login', context: context);
+  late final _$loginAsyncAction = AsyncAction(
+    '_UserStore.login',
+    context: context,
+  );
 
   @override
   Future<dynamic> login(String email, String password) {

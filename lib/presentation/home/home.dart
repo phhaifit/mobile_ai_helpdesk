@@ -1,13 +1,11 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/agent_list_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/presentation/playground/playground_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
-import '/di/service_locator.dart';
-import '/presentation/home/store/language/language_store.dart';
-import '/presentation/home/store/theme/theme_store.dart';
-import '/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -27,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -47,6 +45,8 @@ class _HomeScreenState extends State<HomeScreen>
           _buildTicketsTab(),
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
+          const AgentListScreen(),
+          const PlaygroundScreen(),
         ],
       ),
     );
@@ -78,6 +78,14 @@ class _HomeScreenState extends State<HomeScreen>
             text: AppLocalizations.of(
               context,
             ).translate('monetization_tv_title'),
+          ),
+          Tab(
+            icon: const Icon(Icons.smart_toy_outlined),
+            text: AppLocalizations.of(context).translate('ai_agent_title'),
+          ),
+          Tab(
+            icon: const Icon(Icons.psychology_outlined),
+            text: AppLocalizations.of(context).translate('playground_title'),
           ),
         ],
       ),

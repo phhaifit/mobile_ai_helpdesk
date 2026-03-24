@@ -11,4 +11,15 @@ class Endpoints {
 
   // connectTimeout — sourced from EnvConfig
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
+
+  // AI Agent endpoints (stubs — mock data served locally)
+  static String agents() => '/api/agents';
+  static String agent(String id) => '/api/agents/$id';
+
+  // Playground endpoints (stubs — mock data served locally)
+  static String playgroundSessions() => '/api/playground/sessions';
+  static String playgroundSession(String id) =>
+      '/api/playground/sessions/$id';
+  static String playgroundMessages(String sessionId) =>
+      '/api/playground/sessions/$sessionId/messages';
 }
