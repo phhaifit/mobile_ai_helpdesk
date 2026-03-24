@@ -171,7 +171,7 @@ class MockDataGenerator {
         createdByName: agents[i % agents.length].name,
         customerId: customer.id,
         customerName: customer.fullName,
-        customerEmail: customer.email ?? '',
+        customerEmail: customer.email,
         assignedAgentId: assignedAgent?.id,
         assignedAgentName: assignedAgent?.name,
         createdAt: createdDate,
