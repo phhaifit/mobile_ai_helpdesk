@@ -8,6 +8,8 @@ final getIt = GetIt.instance;
 
 class ServiceLocator {
   static Future<void> configureDependencies() async {
+    // Hot restart can keep old registrations alive; reset before re-registering.
+    await getIt.reset();
     await DataLayerInjection.configureDataLayerInjection();
     await DomainLayerInjection.configureDomainLayerInjection();
     await PresentationLayerInjection.configurePresentationLayerInjection();

@@ -32,9 +32,11 @@ void main() async {
 
   // Initialize Firebase after bindings are ready
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
     // Continue app startup even if Firebase init fails (graceful degradation)

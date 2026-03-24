@@ -33,7 +33,7 @@ class NetworkExceptions {
     }
   }
 
-  static Failure _handleBadResponse(Response? response) {
+  static Failure _handleBadResponse(Response<dynamic>? response) {
     if (response == null) {
       return const ServerFailure('Server error: No response received');
     }
@@ -62,7 +62,14 @@ class NetworkExceptions {
 
   static String _getErrorMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
-      return data['message'] ?? data['error'] ?? 'An error occurred';
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) {
+        return message;
+      }
+      final error = data['error'];
+      if (error is String && error.isNotEmpty) {
+        return error;
+      }
     }
     return 'An error occurred';
   }

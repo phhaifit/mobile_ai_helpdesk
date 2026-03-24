@@ -23,7 +23,6 @@ import '../../../domain/repository/customer_management/customer_repository.dart'
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
 import '../../local/datasources/customer_management/customer_datasource.dart';
-// Import Implementations (Data)
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 import '../../repository/customer_management/customer_repository_impl.dart';
@@ -63,13 +62,6 @@ class RepositoryModule {
     // --- Customer Repositories ---
     getIt.registerSingleton<CustomerRepository>(
       CustomerRepositoryImpl(getIt<CustomerDataSource>()),
-    );
-
-    // --- Setting Repository ---
-    getIt.registerLazySingleton<SettingRepository>(
-      () =>
-          SettingRepositoryImpl(getIt<SharedPreferenceHelper>())
-              as SettingRepository,
     );
 
     getIt.registerSingleton<MonetizationRepository>(
