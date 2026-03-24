@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
@@ -6,6 +7,11 @@ import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_scre
 import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
+import 'package:ai_helpdesk/presentation/main_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
@@ -34,6 +40,11 @@ class Routes {
   static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
+  static const String ticketList = '/ticket';
+  static const String createTicket = '/create_ticket';
+  static const String ticketDetail = '/ticket/ticket-detail';
+  static const String editTicket = '/edit_ticket';
+  static const String customerHistory = '/customer_history';
   static const String omnichannelHub = '/omnichannel';
   static const String messengerDashboard = '/omnichannel/messenger/dashboard';
   static const String messengerOauthStatus =
@@ -96,6 +107,39 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ChangePasswordScreen(),
+        );
+      case ticketList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainScreen(initialCategory: 'Phiếu chưa xử lý'),
+        );
+      case createTicket:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CreateTicketScreen(),
+        );
+      case ticketDetail:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => TicketDetailScreen(
+            ticketId: settings.arguments as String,
+          ),
+        );
+      case editTicket:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => EditTicketScreen(
+            ticket: settings.arguments as Ticket,
+          ),
+        );
+      case customerHistory:
+        final args = settings.arguments as Map<String, String>;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => CustomerTicketHistoryScreen(
+            customerId: args['customerId']!,
+            customerName: args['customerName']!,
+          ),
         );
       case omnichannelHub:
         return MaterialPageRoute(

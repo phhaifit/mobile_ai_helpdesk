@@ -6,6 +6,7 @@ import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -167,32 +168,13 @@ class _HomeScreenState extends State<HomeScreen>
   // Tickets Tab
   // ---------------------------------------------------------------------------
   Widget _buildTicketsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: [
-                Colors.red,
-                Colors.orange,
-                Colors.amber,
-                Colors.green,
-                Colors.blue,
-              ][index],
-              radius: 6,
-            ),
-            title: Text('Ticket #${index + 1}'),
-            subtitle: Text('Mock ticket description ${index + 1}'),
-            trailing: Text(
-              'TK-${1000 + index}',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-        );
-      },
+    return Center(
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, Routes.ticketList);
+        },
+        child: const Text('View All Tickets'),
+      ),
     );
   }
 
