@@ -233,7 +233,7 @@ class _MainScreenState extends State<MainScreen> {
 
     // On desktop: wrap content to prevent full-screen takeover
     if (isDesktop) {
-      return Container(color: AppColors.backgroundGrey, child: contentWidget);
+      return ColoredBox(color: AppColors.backgroundGrey, child: contentWidget);
     }
 
     return contentWidget;

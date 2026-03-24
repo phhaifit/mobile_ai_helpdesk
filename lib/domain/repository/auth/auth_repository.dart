@@ -1,5 +1,3 @@
-import 'package:dartz/dartz.dart';
-
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
@@ -7,6 +5,7 @@ import 'package:ai_helpdesk/data/models/auth/register_request.dart';
 import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:dartz/dartz.dart';
 
 /// Abstract repository for authentication operations
 abstract class AuthRepository {

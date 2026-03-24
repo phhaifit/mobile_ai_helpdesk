@@ -11,27 +11,31 @@ class NetworkExceptions {
           'Connection timeout. Please check your internet connection.',
         );
       case DioExceptionType.sendTimeout:
-        return NetworkFailure('Send timeout. Please try again.');
+        return const NetworkFailure('Send timeout. Please try again.');
       case DioExceptionType.receiveTimeout:
-        return NetworkFailure('Receive timeout. Please try again.');
+        return const NetworkFailure('Receive timeout. Please try again.');
       case DioExceptionType.badResponse:
         return _handleBadResponse(e.response);
       case DioExceptionType.cancel:
-        return NetworkFailure('Request cancelled.');
+        return const NetworkFailure('Request cancelled.');
       case DioExceptionType.connectionError:
         return NetworkFailure(
           'Connection error. Please check your internet connection.',
         );
       case DioExceptionType.badCertificate:
-        return NetworkFailure('Bad certificate. Security error occurred.');
+        return const NetworkFailure(
+          'Bad certificate. Security error occurred.',
+        );
       case DioExceptionType.unknown:
-        return NetworkFailure('An unknown error occurred. Please try again.');
+        return const NetworkFailure(
+          'An unknown error occurred. Please try again.',
+        );
     }
   }
 
   static Failure _handleBadResponse(Response<dynamic>? response) {
     if (response == null) {
-      return ServerFailure('Server error: No response received');
+      return const ServerFailure('Server error: No response received');
     }
 
     final statusCode = response.statusCode ?? 0;
@@ -41,16 +45,16 @@ class NetworkExceptions {
       case 400:
         return ValidationFailure(message);
       case 401:
-        return ServerFailure('Unauthorized. Please login again.');
+        return const ServerFailure('Unauthorized. Please login again.');
       case 403:
-        return ServerFailure('Forbidden. You do not have permission.');
+        return const ServerFailure('Forbidden. You do not have permission.');
       case 404:
         return ServerFailure(message);
       case 500:
       case 502:
       case 503:
       case 504:
-        return ServerFailure('Server error. Please try again later.');
+        return const ServerFailure('Server error. Please try again later.');
       default:
         return ServerFailure(message);
     }

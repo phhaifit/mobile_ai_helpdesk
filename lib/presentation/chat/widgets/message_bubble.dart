@@ -22,8 +22,8 @@ class MessageBubble extends StatelessWidget {
   final bool isHighlighted;
 
   const MessageBubble({
-    super.key,
     required this.message,
+    super.key,
     this.isGroupStart = true,
     this.isGroupEnd = true,
     this.showAvatar = true,
@@ -252,7 +252,7 @@ class MessageBubble extends StatelessWidget {
           child: Icon(Icons.done_all, size: 14, color: Colors.grey.shade600),
         );
       case MessageReadStatus.read:
-        return Tooltip(
+        return const Tooltip(
           message: 'Read',
           child: Icon(Icons.done_all, size: 14, color: AppColors.messengerBlue),
         );

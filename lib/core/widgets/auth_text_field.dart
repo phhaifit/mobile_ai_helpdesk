@@ -14,10 +14,10 @@ class AuthTextField extends StatefulWidget {
   final int? minLines;
 
   const AuthTextField({
-    super.key,
     required this.label,
-    this.hintText,
     required this.controller,
+    super.key,
+    this.hintText,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.validator,
@@ -77,9 +77,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
                     },
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             errorText: _errorText,
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -96,10 +94,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               _errorText!,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
       ],

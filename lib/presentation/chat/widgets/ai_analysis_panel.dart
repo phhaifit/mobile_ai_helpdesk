@@ -6,9 +6,9 @@ class AIAnalysisPanel extends StatelessWidget {
   final VoidCallback onClose;
 
   const AIAnalysisPanel({
-    super.key,
     required this.slideAnimation,
     required this.onClose,
+    super.key,
   });
 
   @override
@@ -258,7 +258,7 @@ class AIAnalysisPanel extends StatelessWidget {
           width: 4,
           height: 4,
           margin: const EdgeInsets.fromLTRB(0, 6, 8, 0),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.messengerBlue,
             shape: BoxShape.circle,
           ),

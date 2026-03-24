@@ -53,7 +53,7 @@ abstract class _LanguageStore with Store {
         .language;
   }
 
-  void init() async {
+  Future<void> init() async {
     if (_repository.currentLanguage != null) {
       _locale = _repository.currentLanguage!;
     }

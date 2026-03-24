@@ -11,8 +11,8 @@ class CustomerAddEditScreen extends StatefulWidget {
   final VoidCallback? onBack;
 
   const CustomerAddEditScreen({
-    super.key,
     required this.store,
+    super.key,
     this.customer,
     this.showAppBar = true,
     this.onBack,
@@ -50,16 +50,16 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
 
     // Initialize contact info from existing customer
     if (c != null) {
-      if (c.email?.isNotEmpty == true) {
+      if (c.email?.isNotEmpty ?? false) {
         _contactInfo.add({'type': 'Email', 'value': c.email!});
       }
-      if (c.phoneNumber?.isNotEmpty == true) {
+      if (c.phoneNumber?.isNotEmpty ?? false) {
         _contactInfo.add({'type': 'Phone', 'value': c.phoneNumber!});
       }
-      if (c.zalo?.isNotEmpty == true) {
+      if (c.zalo?.isNotEmpty ?? false) {
         _contactInfo.add({'type': 'Zalo', 'value': c.zalo!});
       }
-      if (c.messenger?.isNotEmpty == true) {
+      if (c.messenger?.isNotEmpty ?? false) {
         _contactInfo.add({'type': 'Messenger', 'value': c.messenger!});
       }
     }
@@ -176,15 +176,11 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         onTap: widget.onBack != null
             ? () => widget.onBack!()
             : () => Navigator.pop(context),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(
-              Icons.arrow_back_ios,
-              size: 16,
-              color: AppColors.textPrimary,
-            ),
-            const SizedBox(width: 4),
-            const Text(
+            Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textPrimary),
+            SizedBox(width: 4),
+            Text(
               'Quay lại',
               style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
             ),
@@ -401,7 +397,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: AppColors.backgroundGrey,
             borderRadius: BorderRadius.circular(8),
@@ -486,7 +482,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
               return Row(
                 children: [
                   Expanded(
-                    child: Container(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppColors.backgroundGrey,
                         borderRadius: BorderRadius.circular(8),
@@ -687,7 +683,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppColors.backgroundGrey,
                   borderRadius: BorderRadius.circular(8),

@@ -68,12 +68,12 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          tooltip: "Search",
+          tooltip: 'Search',
           icon: const Icon(Icons.search, color: AppColors.messengerBlue),
           onPressed: onSearchTap,
         ),
         IconButton(
-          tooltip: "Info",
+          tooltip: 'Info',
           icon: const Icon(Icons.info_outline, color: AppColors.messengerBlue),
           onPressed: onInfoTap,
         ),

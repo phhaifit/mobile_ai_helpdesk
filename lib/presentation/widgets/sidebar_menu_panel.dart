@@ -29,10 +29,10 @@ class SidebarMenuContent extends StatefulWidget {
   final Function(String) onCategorySelected;
 
   const SidebarMenuContent({
-    super.key,
     required this.categories,
     required this.selectedCategory,
     required this.onCategorySelected,
+    super.key,
   });
 
   @override
@@ -103,13 +103,13 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
         // Dropdown selector
         Padding(
           padding: const EdgeInsets.all(12),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.primaryBlue),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -121,7 +121,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.expand_more_rounded,
                     size: 18,
                     color: AppColors.primaryBlue,
@@ -201,7 +201,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
   }
 
   Widget _buildMenuItem(MenuItem item, String categoryTitle) {
-    bool isSelected =
+    final bool isSelected =
         widget.selectedCategory == item.title ||
         widget.selectedCategory == categoryTitle;
 
@@ -254,8 +254,8 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED),
+            decoration: const BoxDecoration(
+              color: Color(0xFF7C3AED),
               shape: BoxShape.circle,
             ),
             child: const Center(
@@ -308,11 +308,11 @@ class SidebarMenuPanel extends StatefulWidget {
   final Function(String) onCategorySelected;
 
   const SidebarMenuPanel({
-    super.key,
     required this.slideAnimation,
     required this.onClose,
     required this.selectedCategory,
     required this.onCategorySelected,
+    super.key,
   });
 
   @override
@@ -469,7 +469,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
             // Dropdown selector
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.primaryBlue),
                   borderRadius: BorderRadius.circular(8),
@@ -572,7 +572,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
   }
 
   Widget _buildMenuItem(MenuItem item, String categoryTitle) {
-    bool isSelected =
+    final bool isSelected =
         widget.selectedCategory == item.title ||
         widget.selectedCategory == categoryTitle;
 
@@ -625,8 +625,8 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED),
+            decoration: const BoxDecoration(
+              color: Color(0xFF7C3AED),
               shape: BoxShape.circle,
             ),
             child: const Center(

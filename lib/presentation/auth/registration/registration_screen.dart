@@ -58,7 +58,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  void _handleRegister() async {
+  Future<void> _handleRegister() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -66,17 +66,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     // Validate fields
     if (email.isEmpty || !email.contains('@')) {
-      FlushbarHelper.createError(message: 'Please enter valid email').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter valid email',
+      ).show(context);
       return;
     }
 
     if (username.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter username').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter username',
+      ).show(context);
       return;
     }
 
     if (password.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter password').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter password',
+      ).show(context);
       return;
     }
 
@@ -113,9 +119,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('register_tv_title')),
-      ),
+      appBar: AppBar(title: Text(l.translate('register_tv_title'))),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -146,8 +150,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.email_outlined),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Email is required';
-                    if (!value.contains('@')) return 'Please enter a valid email';
+                    if (value == null || value.isEmpty)
+                      return 'Email is required';
+                    if (!value.contains('@'))
+                      return 'Please enter a valid email';
                     return null;
                   },
                 ),
@@ -159,8 +165,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   controller: _usernameController,
                   prefixIcon: const Icon(Icons.person_outline),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Username is required';
-                    if (value.length < 3) return 'Username must be at least 3 characters';
+                    if (value == null || value.isEmpty)
+                      return 'Username is required';
+                    if (value.length < 3)
+                      return 'Username must be at least 3 characters';
                     return null;
                   },
                 ),
@@ -173,12 +181,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outlined),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Password is required';
-                    if (value.length < 8) return 'Password must be at least 8 characters';
-                    if (!value.contains(RegExp(r'[A-Z]'))) return 'Must contain uppercase letter';
-                    if (!value.contains(RegExp(r'[a-z]'))) return 'Must contain lowercase letter';
-                    if (!value.contains(RegExp(r'[0-9]'))) return 'Must contain number';
-                    if (!value.contains(RegExp(r'[@#%&*]'))) return 'Must contain special character';
+                    if (value == null || value.isEmpty)
+                      return 'Password is required';
+                    if (value.length < 8)
+                      return 'Password must be at least 8 characters';
+                    if (!value.contains(RegExp('[A-Z]')))
+                      return 'Must contain uppercase letter';
+                    if (!value.contains(RegExp('[a-z]')))
+                      return 'Must contain lowercase letter';
+                    if (!value.contains(RegExp('[0-9]')))
+                      return 'Must contain number';
+                    if (!value.contains(RegExp('[@#%&*]')))
+                      return 'Must contain special character';
                     return null;
                   },
                 ),
@@ -191,8 +205,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outlined),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Confirm password is required';
-                    if (value != _passwordController.text) return 'Passwords do not match';
+                    if (value == null || value.isEmpty)
+                      return 'Confirm password is required';
+                    if (value != _passwordController.text)
+                      return 'Passwords do not match';
                     return null;
                   },
                 ),
@@ -203,7 +219,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   builder: (_) => SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: _authStore.isRegisterLoading ? null : _handleRegister,
+                      onPressed: _authStore.isRegisterLoading
+                          ? null
+                          : _handleRegister,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: _authStore.isRegisterLoading

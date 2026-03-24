@@ -1,6 +1,3 @@
-import 'package:dartz/dartz.dart';
-import 'package:mobx/mobx.dart';
-
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
@@ -14,6 +11,8 @@ import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:dartz/dartz.dart';
+import 'package:mobx/mobx.dart';
 
 part 'auth_store.g.dart';
 
@@ -87,7 +86,8 @@ abstract class _AuthStoreBase with Store {
 
   /// Check if user is authenticated
   @computed
-  bool get isAuthenticated => authResponse != null && authResponse!.token.isNotEmpty;
+  bool get isAuthenticated =>
+      authResponse != null && authResponse!.token.isNotEmpty;
 
   /// Check if login is loading
   @computed
@@ -103,15 +103,18 @@ abstract class _AuthStoreBase with Store {
 
   /// Check if get current user is loading
   @computed
-  bool get isGetCurrentUserLoading => getCurrentUserFuture.status == FutureStatus.pending;
+  bool get isGetCurrentUserLoading =>
+      getCurrentUserFuture.status == FutureStatus.pending;
 
   /// Check if change password is loading
   @computed
-  bool get isChangePasswordLoading => changePasswordFuture.status == FutureStatus.pending;
+  bool get isChangePasswordLoading =>
+      changePasswordFuture.status == FutureStatus.pending;
 
   /// Check if reset password is loading
   @computed
-  bool get isResetPasswordLoading => resetPasswordFuture.status == FutureStatus.pending;
+  bool get isResetPasswordLoading =>
+      resetPasswordFuture.status == FutureStatus.pending;
 
   /// Check if any operation is loading
   @computed
@@ -138,21 +141,24 @@ abstract class _AuthStoreBase with Store {
 
     loginFuture = ObservableFuture(
       _loginUseCase
-          .call(params: LoginRequest(email: email, password: password))
+          .call(
+            params: LoginRequest(email: email, password: password),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
-            authResponse = authResp;
-            currentUser = authResp.user;
-            successMessage = 'Login successful!';
-          },
-        );
-      }),
+            result.fold((failure) => errorMessage = failure.message, (
+              authResp,
+            ) {
+              authResponse = authResp;
+              currentUser = authResp.user;
+              successMessage = 'Login successful!';
+            });
+          }),
     );
 
     await loginFuture;
-    return isAuthenticated ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Login failed'));
+    return isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Login failed'));
   }
 
   /// Register new account
@@ -169,23 +175,22 @@ abstract class _AuthStoreBase with Store {
     registerFuture = ObservableFuture(
       _registerUseCase
           .call(
-        params: RegisterRequest(
-          email: email,
-          username: username,
-          password: password,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: RegisterRequest(
+              email: email,
+              username: username,
+              password: password,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
-            authResponse = authResp;
-            currentUser = authResp.user;
-            successMessage = 'Registration successful!';
-          },
-        );
-      }),
+            result.fold((failure) => errorMessage = failure.message, (
+              authResp,
+            ) {
+              authResponse = authResp;
+              currentUser = authResp.user;
+              successMessage = 'Registration successful!';
+            });
+          }),
     );
 
     await registerFuture;
@@ -213,7 +218,9 @@ abstract class _AuthStoreBase with Store {
     );
 
     await getCurrentUserFuture;
-    return currentUser != null ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
+    return currentUser != null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
   }
 
   /// Logout current user
@@ -224,19 +231,18 @@ abstract class _AuthStoreBase with Store {
 
     logoutFuture = ObservableFuture(
       _logoutUseCase.call(params: null).then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) {
-            authResponse = null;
-            currentUser = null;
-            successMessage = 'Logged out successfully';
-          },
-        );
+        result.fold((failure) => errorMessage = failure.message, (_) {
+          authResponse = null;
+          currentUser = null;
+          successMessage = 'Logged out successfully';
+        });
       }),
     );
 
     await logoutFuture;
-    return !isAuthenticated ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
+    return !isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
   }
 
   // ============================================================================
@@ -256,18 +262,18 @@ abstract class _AuthStoreBase with Store {
     changePasswordFuture = ObservableFuture(
       _changePasswordUseCase
           .call(
-        params: ChangePasswordRequest(
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: ChangePasswordRequest(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) => successMessage = 'Password changed successfully',
-        );
-      }),
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password changed successfully',
+            );
+          }),
     );
 
     await changePasswordFuture;
@@ -290,19 +296,19 @@ abstract class _AuthStoreBase with Store {
     resetPasswordFuture = ObservableFuture(
       _resetPasswordUseCase
           .call(
-        params: ResetPasswordRequest(
-          email: email,
-          token: token,
-          newPassword: newPassword,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: ResetPasswordRequest(
+              email: email,
+              token: token,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) => successMessage = 'Password reset successfully',
-        );
-      }),
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password reset successfully',
+            );
+          }),
     );
 
     await resetPasswordFuture;

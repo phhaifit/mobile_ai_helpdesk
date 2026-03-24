@@ -4,7 +4,6 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
@@ -27,6 +26,9 @@ import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_scree
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+import '/domain/analytics/analytics_service.dart';
+import '/utils/deep_linking/utm_param_parser.dart';
 
 class Routes {
   Routes._();

@@ -9,8 +9,8 @@ class CustomerMergeScreen extends StatefulWidget {
   final VoidCallback? onBack;
 
   const CustomerMergeScreen({
-    super.key,
     required this.store,
+    super.key,
     this.showAppBar = true,
     this.onBack,
   });
@@ -103,15 +103,11 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                   ? () => widget.onBack!()
                   : () => Navigator.pop(context))
             : _goBack,
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(
-              Icons.arrow_back_ios,
-              size: 16,
-              color: AppColors.textPrimary,
-            ),
-            const SizedBox(width: 4),
-            const Text(
+            Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textPrimary),
+            SizedBox(width: 4),
+            Text(
               'Quay lại',
               style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
             ),
@@ -238,7 +234,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
               : ListView.separated(
                   padding: const EdgeInsets.all(12),
                   itemCount: _filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 6),
+                  separatorBuilder: (_, _) => const SizedBox(height: 6),
                   itemBuilder: (_, i) {
                     final c = _filtered[i];
                     return _buildSelectableCard(c);
@@ -276,7 +272,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  if (c.phoneNumber?.isNotEmpty == true)
+                  if (c.phoneNumber?.isNotEmpty ?? false)
                     Text(
                       c.phoneNumber!,
                       style: TextStyle(
@@ -284,7 +280,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                         color: Colors.grey.shade500,
                       ),
                     ),
-                  if (c.email?.isNotEmpty == true)
+                  if (c.email?.isNotEmpty ?? false)
                     Text(
                       c.email!,
                       style: TextStyle(
@@ -335,8 +331,8 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                   Colors.green,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Icon(
                   Icons.merge_type,
                   color: AppColors.primaryBlue,
@@ -364,8 +360,8 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Icon(
                       Icons.preview_outlined,
                       size: 16,
@@ -384,9 +380,9 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                 ),
                 const SizedBox(height: 12),
                 _previewRow(Icons.person_outline, 'T\u00ean', primary.fullName),
-                if (mergedEmail?.isNotEmpty == true)
+                if (mergedEmail?.isNotEmpty ?? false)
                   _previewRow(Icons.email_outlined, 'Email', mergedEmail!),
-                if (mergedPhone?.isNotEmpty == true)
+                if (mergedPhone?.isNotEmpty ?? false)
                   _previewRow(
                     Icons.phone_outlined,
                     '\u0110i\u1ec7n tho\u1ea1i',
