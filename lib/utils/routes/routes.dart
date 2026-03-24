@@ -3,8 +3,11 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/main_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
@@ -16,15 +19,11 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
-import '/presentation/home/home.dart';
-import '/presentation/login/login_screen.dart';
-import '/utils/deep_linking/utm_param_parser.dart';
-import '/domain/analytics/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+import '/domain/analytics/analytics_service.dart';
+import '/utils/deep_linking/utm_param_parser.dart';
 
 class Routes {
   Routes._();
@@ -105,7 +104,7 @@ class Routes {
       case home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainScreen(),
         );
       case profile:
         return MaterialPageRoute(

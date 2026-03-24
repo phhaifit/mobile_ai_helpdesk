@@ -1,8 +1,8 @@
-import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
 
-import '/domain/analytics/analytics_service.dart';
 import '/constants/analytics_events.dart';
+import '/domain/analytics/analytics_service.dart';
 
 part 'login_store.g.dart';
 

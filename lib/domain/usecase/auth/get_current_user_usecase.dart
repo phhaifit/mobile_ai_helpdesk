@@ -1,9 +1,8 @@
-import 'package:dartz/dartz.dart';
-
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:dartz/dartz.dart';
 
 class GetCurrentUserUseCase extends UseCase<Either<Failure, User>, void> {
   final AuthRepository _repository;

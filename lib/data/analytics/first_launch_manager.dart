@@ -123,10 +123,9 @@ class FirstLaunchManager {
         );
       } else {
         // App has been opened before - retrieve existing data
-        final installationId = await sharedPreferenceHelper.getInstallationId();
-        final installSource = await sharedPreferenceHelper.getInstallSource();
-        final firstLaunchTime = await sharedPreferenceHelper
-            .getFirstLaunchTime();
+        final installationId = sharedPreferenceHelper.getInstallationId();
+        final installSource = sharedPreferenceHelper.getInstallSource();
+        final firstLaunchTime = sharedPreferenceHelper.getFirstLaunchTime();
 
         debugPrint(
           '[Analytics] Existing installation:'

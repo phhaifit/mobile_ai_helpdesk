@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants/preferences.dart';
 

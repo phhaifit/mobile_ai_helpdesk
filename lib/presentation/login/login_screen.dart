@@ -1,9 +1,12 @@
-import '/utils/locale/app_localization.dart';
-import '/utils/routes/routes.dart';
-import '/presentation/login/store/login_store.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
+
+import '/presentation/login/store/login_store.dart';
+import '/utils/locale/app_localization.dart';
+import '/utils/routes/routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -155,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
     await _store.login();
     if (mounted && _store.errorMessage == null) {
       Navigator.pushReplacementNamed(context, Routes.home);

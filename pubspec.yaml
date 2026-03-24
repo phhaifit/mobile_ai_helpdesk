@@ -1,4 +1,4 @@
-name: mobile_ai_helpdesk
+name: ai_helpdesk
 description: "Jarvis Helpdesk - Omnichannel AI Helpdesk Platform"
 publish_to: "none"
 version: 0.1.0+1
@@ -29,8 +29,6 @@ dependencies:
   event_bus: ^2.0.0
 
   # Firebase & Analytics
-  firebase_core: ^3.1.0
-  firebase_analytics: ^11.1.0
   package_info_plus: ^8.0.0
   uuid: ^4.0.0
 
@@ -59,6 +57,7 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.4.8
+  json_serializable: ^6.9.0
   mobx_codegen: ^2.5.0
   flutter_lints: ^6.0.0
 

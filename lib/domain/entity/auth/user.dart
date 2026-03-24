@@ -18,11 +18,11 @@ class User {
     required this.id,
     required this.email,
     required this.username,
+    required this.createdAt,
+    required this.updatedAt,
     this.avatar,
     this.phone,
     this.fullName,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

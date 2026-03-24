@@ -45,11 +45,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handleRequestReset() async {
+  Future<void> _handleRequestReset() async {
     final email = _emailController.text.trim();
 
     if (email.isEmpty || !email.contains('@')) {
-      FlushbarHelper.createError(message: 'Please enter valid email').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter valid email',
+      ).show(context);
       return;
     }
 
@@ -71,9 +73,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('forgot_password_tv_title')),
-      ),
+      appBar: AppBar(title: Text(l.translate('forgot_password_tv_title'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -111,7 +111,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: const Icon(Icons.email_outlined),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Email is required';
+                  if (value == null || value.isEmpty)
+                    return 'Email is required';
                   if (!value.contains('@')) return 'Please enter a valid email';
                   return null;
                 },

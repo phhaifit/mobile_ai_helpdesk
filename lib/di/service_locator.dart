@@ -1,7 +1,8 @@
+import 'package:get_it/get_it.dart';
+
 import '/data/di/data_layer_injection.dart';
 import '/domain/di/domain_layer_injection.dart';
 import '/presentation/di/presentation_layer_injection.dart';
-import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 

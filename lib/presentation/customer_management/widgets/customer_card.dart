@@ -9,16 +9,16 @@ class CustomerCard extends StatelessWidget {
   final VoidCallback? onUnblock;
 
   const CustomerCard({
-    super.key,
     required this.customer,
     required this.onTap,
+    super.key,
     this.showUnblockButton = false,
     this.onUnblock,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -95,13 +95,13 @@ class CustomerCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 3),
-        if (customer.phoneNumber?.isNotEmpty == true)
+        if (customer.phoneNumber?.isNotEmpty ?? false)
           _buildContactRow(Icons.phone_outlined, customer.phoneNumber!),
-        if (customer.email?.isNotEmpty == true)
+        if (customer.email?.isNotEmpty ?? false)
           _buildContactRow(Icons.email_outlined, customer.email!),
-        if (customer.zalo?.isNotEmpty == true)
+        if (customer.zalo?.isNotEmpty ?? false)
           _buildContactRow(Icons.chat_outlined, 'Zalo: ${customer.zalo}'),
-        if (customer.segment?.isNotEmpty == true) ...[
+        if (customer.segment?.isNotEmpty ?? false) ...[
           const SizedBox(height: 4),
           _buildSegmentBadge(customer.segment!),
         ],
@@ -114,8 +114,10 @@ class CustomerCard extends StatelessWidget {
                 .take(3)
                 .map(
                   (tag) => Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
@@ -123,7 +125,9 @@ class CustomerCard extends StatelessWidget {
                     child: Text(
                       tag,
                       style: const TextStyle(
-                          fontSize: 10, color: AppColors.primaryBlue),
+                        fontSize: 10,
+                        color: AppColors.primaryBlue,
+                      ),
                     ),
                   ),
                 )

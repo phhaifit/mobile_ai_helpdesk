@@ -2,8 +2,6 @@ import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
 import 'package:ai_helpdesk/data/models/auth/register_request.dart';
 import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 
 /// Mock Auth API for offline testing
 /// In production, replace with real Dio HTTP calls
@@ -14,7 +12,8 @@ class AuthApi {
       'id': 'user_1',
       'email': 'test@example.com',
       'username': 'testuser',
-      'password': 'Test@123456', // Mock password - NEVER store plain in real app
+      'password':
+          'Test@123456', // Mock password - NEVER store plain in real app
       'avatar': null,
       'phone': null,
       'fullName': 'Test User',
@@ -29,7 +28,7 @@ class AuthApi {
     await Future.delayed(const Duration(seconds: 2));
 
     final user = _mockUsers[request.email];
-    
+
     if (user == null) {
       throw Exception('Email not found');
     }

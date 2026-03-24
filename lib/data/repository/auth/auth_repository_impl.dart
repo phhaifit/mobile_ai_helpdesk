@@ -1,6 +1,3 @@
-import 'package:dartz/dartz.dart';
-
-import 'package:ai_helpdesk/core/data/network/exceptions/network_exceptions.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
@@ -11,6 +8,7 @@ import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:dartz/dartz.dart';
 
 /// Auth Repository Implementation - combines API + Local storage
 class AuthRepositoryImpl implements AuthRepository {
@@ -37,7 +35,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> register(RegisterRequest request) async {
+  Future<Either<Failure, AuthResponse>> register(
+    RegisterRequest request,
+  ) async {
     try {
       final response = await _api.register(request);
       final authResponse = AuthResponse.fromJson(response);
