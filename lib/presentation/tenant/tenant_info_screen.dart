@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
 import '../tenant/store/tenant_store.dart';
@@ -20,6 +21,8 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
 
   bool _autoResolutionEnabled = false;
   String? _activeTenantId;
+  bool _isSavingName = false;
+  bool _isDeletingTenant = false;
 
   @override
   void dispose() {
@@ -54,10 +57,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Manage your organization information',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -70,32 +70,69 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                   ),
                   const SizedBox(height: 10),
                   _buildCard(
-                    child: Row(
+                    child: Column(
                       children: [
-                        const SizedBox(
-                          width: 180,
-                          child: Text(
-                            'Organization name *',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textPrimary,
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 180,
+                              child: Text(
+                                'Organization name *',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _organizationNameController,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _organizationNameController,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed:
+                                (_tenantStore.currentTenant == null ||
+                                    _isSavingName ||
+                                    _tenantStore.isLoading)
+                                ? null
+                                : _handleSaveOrganizationName,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.messengerBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
                                 vertical: 12,
                               ),
-                              border: OutlineInputBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
+                            child: _isSavingName
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('Save'),
                           ),
                         ),
                       ],
@@ -166,7 +203,12 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                         ),
                         const Spacer(),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed:
+                              (_tenantStore.currentTenant == null ||
+                                  _isDeletingTenant ||
+                                  _tenantStore.isLoading)
+                              ? null
+                              : _handleDeleteOrganization,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFF04E4E),
                             foregroundColor: Colors.white,
@@ -217,5 +259,103 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
       _activeTenantId = tenantId;
       _organizationNameController.text = tenantName;
     }
+  }
+
+  Future<void> _handleSaveOrganizationName() async {
+    final tenant = _tenantStore.currentTenant;
+    if (tenant == null) {
+      _showMessage('No organization selected.');
+      return;
+    }
+    final name = _organizationNameController.text.trim();
+    if (name.isEmpty) {
+      _showMessage('Organization name cannot be empty.');
+      return;
+    }
+    if (name == tenant.name) {
+      _showMessage('No changes to save.');
+      return;
+    }
+
+    setState(() {
+      _isSavingName = true;
+    });
+    final updated = await _tenantStore.updateTenantName(name);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSavingName = false;
+    });
+    _showMessage(
+      updated
+          ? 'Organization name updated successfully.'
+          : 'Failed to update organization name.',
+    );
+  }
+
+  Future<void> _handleDeleteOrganization() async {
+    final tenant = _tenantStore.currentTenant;
+    if (tenant == null) {
+      _showMessage('No organization selected.');
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete organization'),
+          content: Text(
+            'Delete "${tenant.name}" permanently? This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF04E4E),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    setState(() {
+      _isDeletingTenant = true;
+    });
+    await _tenantStore.deleteTenant(tenant.id);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isDeletingTenant = false;
+    });
+
+    final hasTenants = _tenantStore.currentTenant != null;
+    _syncTenantName(
+      _tenantStore.currentTenant?.id,
+      _tenantStore.currentTenant?.name ?? '',
+    );
+    _showMessage(
+      hasTenants
+          ? 'Organization deleted. Switched to ${_tenantStore.currentTenant?.name}.'
+          : 'Organization deleted. No organizations available.',
+    );
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

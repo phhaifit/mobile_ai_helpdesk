@@ -88,5 +88,40 @@ abstract class _TenantStore with Store {
     }
   }
 
+  Future<bool> updateTenantName(String name) async {
+    final tenant = currentTenant;
+    final trimmedName = name.trim();
+    if (tenant == null || trimmedName.isEmpty || tenant.name == trimmedName) {
+      return false;
+    }
+
+    isLoading = true;
+    try {
+      final updated = await _tenantRepository.updateTenant(
+        Tenant(
+          id: tenant.id,
+          name: trimmedName,
+          slug: tenant.slug,
+          settings: tenant.settings,
+          createdAt: tenant.createdAt,
+        ),
+      );
+      if (updated == null) {
+        return false;
+      }
+      final index = tenantList.indexWhere((item) => item.id == updated.id);
+      if (index >= 0) {
+        tenantList[index] = updated;
+      }
+      currentTenant = updated;
+      return true;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
   void dispose() {}
 }

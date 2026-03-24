@@ -19,6 +19,7 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_scree
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/tenant_info_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
@@ -36,21 +37,39 @@ class Routes {
   static const String changePassword = '/change-password';
   static const String omnichannelHub = '/omnichannel';
   static const String messengerDashboard = '/omnichannel/messenger/dashboard';
-  static const String messengerOauthStatus = '/omnichannel/messenger/oauth-status';
-  static const String messengerCustomerSync = '/omnichannel/messenger/customer-sync';
+  static const String messengerOauthStatus =
+      '/omnichannel/messenger/oauth-status';
+  static const String messengerCustomerSync =
+      '/omnichannel/messenger/customer-sync';
   static const String messengerSettings = '/omnichannel/messenger/settings';
   static const String zaloOverview = '/omnichannel/zalo/overview';
   static const String zaloConnectQr = '/omnichannel/zalo/connect-qr';
   static const String zaloOauthManagement = '/omnichannel/zalo/oauth';
   static const String zaloSyncStatus = '/omnichannel/zalo/sync-status';
-  static const String zaloAccountAssignment = '/omnichannel/zalo/account-assignment';
-  static const String zaloPersonalMessage = '/omnichannel/zalo/personal-message';
+  static const String zaloAccountAssignment =
+      '/omnichannel/zalo/account-assignment';
+  static const String zaloPersonalMessage =
+      '/omnichannel/zalo/personal-message';
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
   static const String tenantInfo = '/tenant-info';
+  static const String tenantInviteRespond = '/invite/respond';
   // route generator -----------------------------------------------------------
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    final uri = Uri.tryParse(settings.name ?? '');
+    if (uri != null && uri.path == tenantInviteRespond) {
+      final invitationId = uri.queryParameters['invitationId'] ?? '';
+      final action = uri.queryParameters['action'] ?? '';
+      return MaterialPageRoute(
+        settings: settings,
+        builder: (_) => InvitationResponseScreen(
+          invitationId: invitationId,
+          action: action,
+        ),
+      );
+    }
+
     switch (settings.name) {
       case login:
         return MaterialPageRoute(

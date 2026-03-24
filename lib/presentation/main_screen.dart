@@ -9,6 +9,7 @@ import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
+import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
@@ -234,6 +235,8 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else if (_selectedCategory == 'tenant_info') {
       contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'employee_list') {
+      contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
     } else {
       // Placeholder for other categories
       contentWidget = Center(
