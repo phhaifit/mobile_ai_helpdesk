@@ -36,7 +36,17 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     final isMobile = screenWidth < 600;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundGrey,
+      backgroundColor: Colors.white,
+      appBar: isMobile ? AppBar(
+        title: const Text('Organization'),
+        backgroundColor: Colors.white,
+        leading: isMobile && widget.onMenuTap != null
+                ? IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: widget.onMenuTap,
+                  )
+                : null,
+          ) : null,
       body: Observer(
         builder: (_) {
           final tenant = _tenantStore.currentTenant;
@@ -192,52 +202,53 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                         ),
                         const SizedBox(height: 16),
                         if (isMobile)
-                             Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Auto-resolution',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Switch(
-                                      value: _autoResolutionEnabled,
-                                      activeColor: AppColors.messengerBlue,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _autoResolutionEnabled = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              )
-                            else Row(
-                                children: [
-                                  const Text(
-                                    'Auto-resolution',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Switch(
-                                    value: _autoResolutionEnabled,
-                                    activeColor: AppColors.messengerBlue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _autoResolutionEnabled = value;
-                                      });
-                                    },
-                                  ),
-                                ],
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Auto-resolution',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Switch(
+                                  value: _autoResolutionEnabled,
+                                  activeColor: AppColors.messengerBlue,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _autoResolutionEnabled = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Row(
+                            children: [
+                              const Text(
+                                'Auto-resolution',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const Spacer(),
+                              Switch(
+                                value: _autoResolutionEnabled,
+                                activeColor: AppColors.messengerBlue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _autoResolutionEnabled = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
