@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
-import '../../../domain/entity/agent/agent.dart';
-import '../../../domain/entity/comment/comment.dart';
-import '../../../domain/entity/enums.dart';
-import '../../../domain/entity/ticket/ticket.dart';
-import '../../../domain/entity/ticket/ticket_query_params.dart';
-import '../../../domain/entity/ticket_history/ticket_history.dart';
-import '../../../domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
+import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
+import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket_query_params.dart';
+import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
+import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
 class MockTicketRepositoryImpl implements TicketRepository {
   final MockTicketLocalDataSource _localDataSource;

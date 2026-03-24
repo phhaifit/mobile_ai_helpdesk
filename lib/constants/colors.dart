@@ -37,6 +37,11 @@ class AppColors {
     900: Color(0xFF0D47A1),
   };
 
+  // Messenger-style colors (aliases for compatibility with main branch code)
+  static const Color messengerBlue = Color(0xFF0084FF);
+  static const Color onlineGreen = Color(0xFF31A24C);
+  static const Color bubbleGray = Color(0xFFE9E9EB);
+
   /// Map ticket status to color
   static Color getStatusColor(TicketStatus status) {
     switch (status) {
@@ -51,7 +56,7 @@ class AppColors {
       case TicketStatus.pending:
         return warningOrange;
       case TicketStatus.processingByAI:
-        return const Color(0xFF2196F3); // Xanh dương
+        return const Color(0xFF2196F3);
     }
   }
 

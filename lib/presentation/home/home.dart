@@ -1,6 +1,8 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -40,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           _buildDashboardTab(),
           _buildTicketsTab(),
+          _buildOmnichannelTab(),
+          _buildMonetizationTab(),
         ],
       ),
     );
@@ -48,10 +52,7 @@ class _HomeScreenState extends State<HomeScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: Text(AppLocalizations.of(context).translate('home_tv_title')),
-      actions: [
-        _buildLanguageButton(),
-        _buildThemeButton(),
-      ],
+      actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
         tabs: [
@@ -62,6 +63,18 @@ class _HomeScreenState extends State<HomeScreen>
           Tab(
             icon: const Icon(Icons.confirmation_number),
             text: AppLocalizations.of(context).translate('home_tab_tickets'),
+          ),
+          Tab(
+            icon: const Icon(Icons.hub),
+            text: AppLocalizations.of(
+              context,
+            ).translate('home_tab_omnichannel'),
+          ),
+          Tab(
+            icon: const Icon(Icons.workspace_premium),
+            text: AppLocalizations.of(
+              context,
+            ).translate('monetization_tv_title'),
           ),
         ],
       ),
@@ -87,13 +100,15 @@ class _HomeScreenState extends State<HomeScreen>
             spacing: 16,
             runSpacing: 16,
             children: [
-              _buildStatCard('Total', '12', Icons.confirmation_number,
-                  Colors.blue),
+              _buildStatCard(
+                'Total',
+                '12',
+                Icons.confirmation_number,
+                Colors.blue,
+              ),
               _buildStatCard('Open', '5', Icons.fiber_new, Colors.orange),
-              _buildStatCard(
-                  'In Progress', '4', Icons.autorenew, Colors.amber),
-              _buildStatCard(
-                  'Resolved', '3', Icons.check_circle, Colors.green),
+              _buildStatCard('In Progress', '4', Icons.autorenew, Colors.amber),
+              _buildStatCard('Resolved', '3', Icons.check_circle, Colors.green),
             ],
           ),
         ],
@@ -102,7 +117,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildStatCard(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return SizedBox(
       width: 160,
       child: Card(
@@ -115,10 +134,9 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineMedium
-                    ?.copyWith(color: color),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: color),
               ),
               const SizedBox(height: 4),
               Text(
@@ -145,6 +163,14 @@ class _HomeScreenState extends State<HomeScreen>
         child: const Text('View All Tickets'),
       ),
     );
+  }
+
+  Widget _buildOmnichannelTab() {
+    return const OmnichannelHubScreen(showAppBar: false);
+  }
+
+  Widget _buildMonetizationTab() {
+    return const MonetizationScreen(embedded: true);
   }
 
   // ---------------------------------------------------------------------------

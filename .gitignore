@@ -153,3 +153,5 @@ app.*.map.json
 INSTRUCTION.md
 TICKET_MANAGEMENT_STATUS.md
 ticket_widget_trees.md
+
+/monetization.md
