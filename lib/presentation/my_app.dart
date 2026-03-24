@@ -1,5 +1,6 @@
 import '/constants/app_theme.dart';
 import '/constants/strings.dart';
+import '/core/monitoring/sentry_navigator_observer.dart';
 import '/presentation/home/store/language/language_store.dart';
 import '/presentation/home/store/theme/theme_store.dart';
 import '/presentation/login/login_screen.dart';
@@ -14,6 +15,7 @@ import '../di/service_locator.dart';
 class MyApp extends StatelessWidget {
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
+  final AppSentryNavigatorObserver _sentryObserver = AppSentryNavigatorObserver();
 
   MyApp({super.key});
 
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
               ? AppThemeData.darkThemeData
               : AppThemeData.lightThemeData,
           onGenerateRoute: Routes.onGenerateRoute,
+          navigatorObservers: [_sentryObserver],
           locale: Locale(_languageStore.locale),
           supportedLocales: _languageStore.supportedLanguages
               .map((language) => Locale(language.locale, language.code))

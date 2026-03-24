@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:mobx/mobx.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry_service.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
 import 'package:ai_helpdesk/data/models/auth/register_request.dart';
@@ -136,16 +138,35 @@ abstract class _AuthStoreBase with Store {
     errorMessage = null;
     successMessage = null;
 
+    await SentryService.addBreadcrumb(
+      message: 'User attempting login',
+      category: 'auth',
+      data: {'email': email},
+    );
+
     loginFuture = ObservableFuture(
       _loginUseCase
           .call(params: LoginRequest(email: email, password: password))
-          .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
+          .then((result) async {
+        await result.fold(
+          (failure) async {
+            errorMessage = failure.message;
+            await SentryService.addBreadcrumb(
+              message: 'Login failed: ${failure.message}',
+              category: 'auth',
+              level: SentryLevel.warning,
+            );
+          },
+          (authResp) async {
             authResponse = authResp;
             currentUser = authResp.user;
             successMessage = 'Login successful!';
+            await SentryService.setUser(authResp.user);
+            await SentryService.addBreadcrumb(
+              message: 'User logged in successfully',
+              category: 'auth',
+              data: {'user_id': authResp.user.id},
+            );
           },
         );
       }),
@@ -166,6 +187,12 @@ abstract class _AuthStoreBase with Store {
     errorMessage = null;
     successMessage = null;
 
+    await SentryService.addBreadcrumb(
+      message: 'User attempting registration',
+      category: 'auth',
+      data: {'email': email, 'username': username},
+    );
+
     registerFuture = ObservableFuture(
       _registerUseCase
           .call(
@@ -176,13 +203,26 @@ abstract class _AuthStoreBase with Store {
           confirmPassword: confirmPassword,
         ),
       )
-          .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
+          .then((result) async {
+        await result.fold(
+          (failure) async {
+            errorMessage = failure.message;
+            await SentryService.addBreadcrumb(
+              message: 'Registration failed: ${failure.message}',
+              category: 'auth',
+              level: SentryLevel.warning,
+            );
+          },
+          (authResp) async {
             authResponse = authResp;
             currentUser = authResp.user;
             successMessage = 'Registration successful!';
+            await SentryService.setUser(authResp.user);
+            await SentryService.addBreadcrumb(
+              message: 'User registered successfully',
+              category: 'auth',
+              data: {'user_id': authResp.user.id},
+            );
           },
         );
       }),
@@ -222,14 +262,26 @@ abstract class _AuthStoreBase with Store {
     errorMessage = null;
     successMessage = null;
 
+    await SentryService.addBreadcrumb(
+      message: 'User logging out',
+      category: 'auth',
+    );
+
     logoutFuture = ObservableFuture(
-      _logoutUseCase.call(params: null).then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) {
+      _logoutUseCase.call(params: null).then((result) async {
+        await result.fold(
+          (failure) async {
+            errorMessage = failure.message;
+          },
+          (_) async {
             authResponse = null;
             currentUser = null;
             successMessage = 'Logged out successfully';
+            await SentryService.clearUser();
+            await SentryService.addBreadcrumb(
+              message: 'User logged out successfully',
+              category: 'auth',
+            );
           },
         );
       }),
