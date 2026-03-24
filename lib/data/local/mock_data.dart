@@ -246,34 +246,28 @@ class MockDataGenerator {
           ? updatedDate.add(Duration(hours: 2 + (i % 8)))
           : null;
 
-      tickets.add(
-        Ticket(
-          id: 'TKT-${String.fromCharCodes(List.generate(6, (ind) => 48 + ((i + ind) % 10)))}',
-          title: ticketTitles[i % ticketTitles.length],
-          description: descriptionTemplates[i % descriptionTemplates.length],
-          status: statusValues[i % statusValues.length],
-          priority: priorityValues[i % priorityValues.length],
-          category: categoryValues[i % categoryValues.length],
-          source: sourceValues[i % sourceValues.length],
-          createdByID: agents[i % agents.length].id,
-          createdByName: agents[i % agents.length].name,
-          customerId: customer.id,
-          customerName: customer.fullName,
-          customerEmail: customer.email ?? '',
-          assignedAgentId: assignedAgent?.id,
-          assignedAgentName: assignedAgent?.name,
-          createdAt: createdDate,
-          updatedAt: updatedDate,
-          resolvedAt: resolvedDate,
-          notes: i % 5 == 0
-              ? 'Ghi chú nội bộ: Khách hàng VIP cần ưu tiên'
-              : null,
-          attachments: i % 4 == 0
-              ? ['file_${i}_1.pdf', 'screenshot_${i}.png']
-              : [],
-          unreadCount: (i % 7) > 0 ? i % 7 : 0,
-        ),
-      );
+      tickets.add(Ticket(
+        id: 'TKT-${String.fromCharCodes(List.generate(6, (ind) => 48 + ((i + ind) % 10)))}',
+        title: ticketTitles[i % ticketTitles.length],
+        description: descriptionTemplates[i % descriptionTemplates.length],
+        status: statusValues[i % statusValues.length],
+        priority: priorityValues[i % priorityValues.length],
+        category: categoryValues[i % categoryValues.length],
+        source: sourceValues[i % sourceValues.length],
+        createdByID: agents[i % agents.length].id,
+        createdByName: agents[i % agents.length].name,
+        customerId: customer.id,
+        customerName: customer.fullName,
+        customerEmail: customer.email ?? '',
+        assignedAgentId: assignedAgent?.id,
+        assignedAgentName: assignedAgent?.name,
+        createdAt: createdDate,
+        updatedAt: updatedDate,
+        resolvedAt: resolvedDate,
+        notes: i % 5 == 0 ? 'Ghi chú nội bộ: Khách hàng VIP cần ưu tiên' : null,
+        attachments: i % 4 == 0 ? ['file_${i}_1.pdf', 'screenshot_${i}.png'] : [],
+        unreadCount: (i % 7) > 0 ? i % 7 : 0,
+      ));
     }
 
     return tickets;
