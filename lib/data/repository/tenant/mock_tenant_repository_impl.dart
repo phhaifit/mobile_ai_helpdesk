@@ -31,7 +31,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
       slug: 'beta-labs',
       settings: const TenantSettings(
         allowInvitations: false,
-        defaultRole: TeamRole.viewer,
+        defaultRole: TeamRole.member,
         enableAuditLog: false,
       ),
       createdAt: DateTime(2025, 2, 3, 14, 30),

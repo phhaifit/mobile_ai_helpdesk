@@ -9,6 +9,7 @@ import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
+import 'tenant/tenant_info_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String _selectedCategory = 'Hộp thư hỗ trợ';
+  String _selectedCategory = 'support_inbox';
   bool _showSidebarMobile = false;
 
   // Desktop view state
@@ -44,16 +45,19 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.help_outline_rounded,
         items: [
           MenuItem(
+            id: 'support_inbox',
             title: 'Hộp thư hỗ trợ',
-            onTap: () => _selectCategory('Hộp thư hỗ trợ'),
+            onTap: () => _selectCategory('support_inbox'),
           ),
           MenuItem(
+            id: 'pending_tickets',
             title: 'Phiếu chưa xử lý',
-            onTap: () => _selectCategory('Phiếu chưa xử lý'),
+            onTap: () => _selectCategory('pending_tickets'),
           ),
           MenuItem(
+            id: 'ai_chat_bot',
             title: 'AI Chat Bot',
-            onTap: () => _selectCategory('AI Chat Bot'),
+            onTap: () => _selectCategory('ai_chat_bot'),
           ),
         ],
       ),
@@ -62,14 +66,24 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.people_outline_rounded,
         items: [
           MenuItem(
+            id: 'customers',
             title: 'Khách hàng',
-            onTap: () => _selectCategory('Khách hàng'),
+            onTap: () => _selectCategory('customers'),
           ),
-          MenuItem(title: 'Đơn hàng', onTap: () => _selectCategory('Đơn hàng')),
-          MenuItem(title: 'Sản phẩm', onTap: () => _selectCategory('Sản phẩm')),
           MenuItem(
+            id: 'orders',
+            title: 'Đơn hàng',
+            onTap: () => _selectCategory('orders'),
+          ),
+          MenuItem(
+            id: 'products',
+            title: 'Sản phẩm',
+            onTap: () => _selectCategory('products'),
+          ),
+          MenuItem(
+            id: 'promotions',
             title: 'Khuyến mãi & Vòng quay',
-            onTap: () => _selectCategory('Khuyến mãi & Vòng quay'),
+            onTap: () => _selectCategory('promotions'),
           ),
         ],
       ),
@@ -78,10 +92,46 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.campaign_outlined,
         items: [
           MenuItem(
+            id: 'campaigns',
             title: 'Chiến dịch',
-            onTap: () => _selectCategory('Chiến dịch'),
+            onTap: () => _selectCategory('campaigns'),
           ),
-          MenuItem(title: 'Template', onTap: () => _selectCategory('Template')),
+          MenuItem(
+            id: 'template',
+            title: 'Template',
+            onTap: () => _selectCategory('template'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'Cài đặt',
+        icon: Icons.settings_outlined,
+        items: [
+          MenuItem(
+            id: 'tenant_info',
+            title: 'Thông tin doanh nghiệp',
+            onTap: () => _selectCategory('tenant_info'),
+          ),
+          MenuItem(
+            id: 'employee_list',
+            title: 'Nhân viên',
+            onTap: () => _selectCategory('employee_list'),
+          ),
+          MenuItem(
+            id: 'omnichannel_hub',
+            title: 'Tích hợp ứng dụng',
+            onTap: () => _selectCategory('omnichannel_hub'),
+          ),
+          MenuItem(
+            id: 'channel_permission',
+            title: 'Phân quyền kênh',
+            onTap: () => _selectCategory('channel_permission'),
+          ),
+          MenuItem(
+            id: 'payment',
+            title: 'Thanh toán',
+            onTap: () => _selectCategory('payment'),
+          ),
         ],
       ),
       MenuCategory(
@@ -89,8 +139,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.bar_chart_outlined,
         items: [
           MenuItem(
+            id: 'detailed_reports',
             title: 'Báo cáo chi tiết',
-            onTap: () => _selectCategory('Báo cáo chi tiết'),
+            onTap: () => _selectCategory('detailed_reports'),
           ),
         ],
       ),
@@ -159,21 +210,21 @@ class _MainScreenState extends State<MainScreen> {
     final isDesktop = screenWidth >= 600;
 
     // Build desktop layout for chat
-    if (isDesktop && _selectedCategory == 'Hộp thư hỗ trợ') {
+    if (isDesktop && _selectedCategory == 'support_inbox') {
       return _buildDesktopChatView();
     }
 
     // Build desktop layout for Khách hàng
-    if (isDesktop && _selectedCategory == 'Khách hàng') {
+    if (isDesktop && _selectedCategory == 'customers') {
       return _buildDesktopCustomerView();
     }
 
     // Build content based on category
     Widget contentWidget;
 
-    if (_selectedCategory == 'Hộp thư hỗ trợ') {
+    if (_selectedCategory == 'support_inbox') {
       contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
-    } else if (_selectedCategory == 'Khách hàng') {
+    } else if (_selectedCategory == 'customers') {
       contentWidget = CustomerListScreen(
         onMenuTap: _toggleMobileSidebar,
         onCustomerSelected: isDesktop ? _showCustomerDetail : null,
@@ -181,6 +232,8 @@ class _MainScreenState extends State<MainScreen> {
         onEditCustomer: isDesktop ? _showEditCustomerForm : null,
         onMergeCustomer: isDesktop ? _showMergeCustomerView : null,
       );
+    } else if (_selectedCategory == 'tenant_info') {
+      contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
     } else {
       // Placeholder for other categories
       contentWidget = Center(

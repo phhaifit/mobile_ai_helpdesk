@@ -24,5 +24,4 @@ const _$TeamRoleEnumMap = {
   TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
   TeamRole.member: 'member',
-  TeamRole.viewer: 'viewer',
 };

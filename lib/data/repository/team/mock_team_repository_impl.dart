@@ -83,7 +83,7 @@ class MockTeamRepositoryImpl implements TeamRepository {
       tenantId: 'tn-002',
       email: 'eric.viewer@beta.example',
       displayName: 'Eric Viewer',
-      role: TeamRole.viewer,
+      role: TeamRole.member,
       permissions: _viewerPermissions,
       isActive: false,
       createdAt: DateTime(2025, 2, 10, 16, 0),

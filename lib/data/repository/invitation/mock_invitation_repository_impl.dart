@@ -36,7 +36,7 @@ class MockInvitationRepositoryImpl implements InvitationRepository {
       id: 'inv-002',
       tenantId: 'tn-001',
       email: 'viewer.invite@acme.example',
-      role: TeamRole.viewer,
+      role: TeamRole.member,
       status: InvitationStatus.pending,
       invitedByMemberId: 'mem-001',
       createdAt: DateTime(2026, 3, 18, 9, 30),
@@ -49,8 +49,6 @@ class MockInvitationRepositoryImpl implements InvitationRepository {
 
   List<Permission> _permissionsForRole(TeamRole role) {
     switch (role) {
-      case TeamRole.viewer:
-        return const [Permission(code: 'tickets:read')];
       case TeamRole.owner:
       case TeamRole.admin:
       case TeamRole.member:
