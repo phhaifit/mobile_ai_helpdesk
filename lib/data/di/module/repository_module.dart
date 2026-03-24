@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
+import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
@@ -42,6 +43,15 @@ class RepositoryModule {
       AuthRepositoryImpl(getIt<AuthApi>(), getIt<AuthLocalDatasource>()),
     );
 
+    // --- Ticket Data Source & Repository ---
+    getIt.registerSingleton<MockTicketLocalDataSource>(
+      MockTicketLocalDataSource(),
+    );
+
+    getIt.registerSingleton<TicketRepository>(
+      MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
+    );
+
     // --- Chat Repositories ---
     getIt.registerSingleton<ChatRepository>(
       ChatRepositoryImpl(getIt<ChatDataSource>()),
@@ -65,9 +75,6 @@ class RepositoryModule {
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
     );
-
-    // --- Ticket Repository ---
-    getIt.registerSingleton<TicketRepository>(MockTicketRepositoryImpl());
 
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(
