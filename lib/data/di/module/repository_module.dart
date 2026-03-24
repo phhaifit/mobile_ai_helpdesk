@@ -72,6 +72,11 @@ class RepositoryModule {
       CustomerRepositoryImpl(getIt<CustomerDataSource>()),
     );
 
+    // --- Setting Repository ---
+    getIt.registerLazySingleton<SettingRepository>(
+      () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
+    );
+
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
     );

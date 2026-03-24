@@ -32,7 +32,9 @@ void main() async {
 
   // Initialize Firebase after bindings are ready
   try {
-    if (Firebase.apps.isEmpty) {
+    try {
+      Firebase.app();
+    } catch (_) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );

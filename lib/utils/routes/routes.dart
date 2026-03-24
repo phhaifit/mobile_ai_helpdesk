@@ -109,7 +109,7 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(email: args?['email']),
+          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
         );
       case home:
         return MaterialPageRoute(
