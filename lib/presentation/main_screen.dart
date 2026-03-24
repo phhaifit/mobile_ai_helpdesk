@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import '../di/service_locator.dart';
@@ -9,17 +10,23 @@ import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
+import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final String initialCategory;
+
+  const MainScreen({
+    super.key,
+    this.initialCategory = 'Hỗ trợ khách hàng',
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String _selectedCategory = 'Hộp thư hỗ trợ';
+  late String _selectedCategory;
   bool _showSidebarMobile = false;
 
   // Desktop view state
@@ -33,6 +40,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.initialCategory;
     _customerStore = getIt<CustomerStore>();
     _initializeCategories();
   }
@@ -41,7 +49,7 @@ class _MainScreenState extends State<MainScreen> {
     _categories = [
       MenuCategory(
         title: 'Hỗ trợ khách hàng',
-        icon: Icons.help_outline_rounded,
+        icon: Icons.confirmation_number_outlined,
         items: [
           MenuItem(
             title: 'Hộp thư hỗ trợ',
@@ -92,12 +100,28 @@ class _MainScreenState extends State<MainScreen> {
             title: 'Báo cáo chi tiết',
             onTap: () => _selectCategory('Báo cáo chi tiết'),
           ),
+          MenuItem(
+            title: 'Thống kê theo trạng thái',
+            onTap: () => _selectCategory('Thống kê theo trạng thái'),
+          ),
         ],
       ),
     ];
   }
 
+  void _toggleMobileSidebar() {
+    setState(() {
+      _showSidebarMobile = !_showSidebarMobile;
+    });
+  }
+
   void _selectCategory(String category) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    if (category == 'Phiếu chưa xử lý' && currentRoute != Routes.ticketList) {
+      Navigator.pushReplacementNamed(context, Routes.ticketList);
+      return;
+    }
+
     setState(() {
       _selectedCategory = category;
       // Close sidebar on mobile after selection
@@ -105,12 +129,6 @@ class _MainScreenState extends State<MainScreen> {
       if (screenWidth < 600) {
         _showSidebarMobile = false;
       }
-    });
-  }
-
-  void _toggleMobileSidebar() {
-    setState(() {
-      _showSidebarMobile = !_showSidebarMobile;
     });
   }
 
@@ -171,7 +189,9 @@ class _MainScreenState extends State<MainScreen> {
     // Build content based on category
     Widget contentWidget;
 
-    if (_selectedCategory == 'Hộp thư hỗ trợ') {
+    if (_selectedCategory == 'Phiếu chưa xử lý') {
+      contentWidget = const TicketListScreen();
+    } else if (_selectedCategory == 'Hộp thư hỗ trợ') {
       contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
     } else if (_selectedCategory == 'Khách hàng') {
       contentWidget = CustomerListScreen(
@@ -190,7 +210,7 @@ class _MainScreenState extends State<MainScreen> {
             Icon(
               Icons.construction_rounded,
               size: 80,
-              color: AppColors.messengerBlue.withOpacity(0.3),
+              color: AppColors.primaryBlue.withOpacity(0.3),
             ),
             const SizedBox(height: 16),
             Text(
@@ -278,7 +298,7 @@ class _MainScreenState extends State<MainScreen> {
     final isMobile = screenWidth < 600;
 
     if (isMobile) {
-      // Mobile: Stacked sidebar with bottom sheet or overlay
+      // Mobile: Stacked sidebar with overlay
       return Scaffold(
         body: Stack(
           children: [
