@@ -81,9 +81,6 @@ class RepositoryModule {
     getIt.registerSingleton<ChatRepository>(
       ChatRepositoryImpl(getIt<ChatDataSource>()),
     );
-    getIt.registerSingleton<OmnichannelRepository>(
-      MockOmnichannelRepositoryImpl(),
-    );
 
     getIt.registerSingleton<ChatRoomRepository>(
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
@@ -104,9 +101,6 @@ class RepositoryModule {
     // Ticket repository already registered above with its datasource.
 
     // --- Monetization Repository ---
-    getIt.registerSingleton<MonetizationRepository>(
-      MockMonetizationRepositoryImpl(),
-    );
 
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(
