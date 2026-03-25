@@ -3,6 +3,7 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
+import 'knowledge/knowledge_source_list_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
@@ -85,6 +86,16 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+      MenuCategory(
+        title: 'Cấu hình Trợ lý AI',
+        icon: Icons.auto_stories_outlined,
+        items: [
+          MenuItem(
+            title: 'Nạp kiến thức',
+            onTap: () => _selectCategory('Nạp kiến thức'),
+          ),
+        ],
+      ),
     ];
   }
 
@@ -127,6 +138,8 @@ class _MainScreenState extends State<MainScreen> {
       contentWidget = const TicketListScreen();
     } else if (_selectedCategory == 'Hộp thư hỗ trợ') {
       contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'Nạp kiến thức') {
+      contentWidget = KnowledgeSourceListScreen(embedded: true, onMenuTap: _toggleMobileSidebar);
     } else {
       // Placeholder for other categories
       contentWidget = Center(

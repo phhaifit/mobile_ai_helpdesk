@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class KnowledgeSourceListScreen extends StatefulWidget {
-  const KnowledgeSourceListScreen({super.key});
+  final bool embedded;
+  final VoidCallback? onMenuTap;
+  const KnowledgeSourceListScreen({super.key, this.embedded = false, this.onMenuTap});
 
   @override
   State<KnowledgeSourceListScreen> createState() =>
@@ -27,20 +29,36 @@ class _KnowledgeSourceListScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý nguồn dữ liệu'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Thêm nguồn tri thức',
-            onPressed: _openAddSource,
-          ),
-        ],
-      ),
-      body: Column(
+    final body = SafeArea(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 12, 16, 0),
+            child: Row(
+              children: [
+                if (widget.onMenuTap != null)
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: widget.onMenuTap,
+                  ),
+                const Expanded(
+                  child: Text(
+                    'Nạp kiến thức',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                FilledButton.icon(
+                  onPressed: _openAddSource,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Thêm nguồn'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A73E8),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
           Observer(
             builder: (_) => SourceTypeFilterBar(
@@ -79,13 +97,15 @@ class _KnowledgeSourceListScreenState
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openAddSource,
-        icon: const Icon(Icons.add),
-        label: const Text('Thêm nguồn'),
-        backgroundColor: const Color(0xFF1A73E8),
-        foregroundColor: Colors.white,
-      ),
+    );
+
+    if (widget.embedded) {
+      return body;
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nạp kiến thức')),
+      body: body,
     );
   }
 
