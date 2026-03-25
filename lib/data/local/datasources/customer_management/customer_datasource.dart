@@ -1,5 +1,5 @@
-import '../../../../domain/entity/customer/support_ticket.dart';
 import '../../../../domain/entity/customer/customer.dart';
+import '../../../../domain/entity/customer/support_ticket.dart';
 
 class CustomerDataSource {
   final List<Customer> _customers = [

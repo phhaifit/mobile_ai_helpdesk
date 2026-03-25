@@ -5,7 +5,7 @@ import '../../domain/entity/chat/chat_room.dart';
 class ContactInfoPanel extends StatefulWidget {
   final ChatRoom room;
 
-  const ContactInfoPanel({super.key, required this.room});
+  const ContactInfoPanel({required this.room, super.key});
 
   @override
   State<ContactInfoPanel> createState() => _ContactInfoPanelState();
@@ -17,7 +17,7 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
   String _assignedTo = 'Tên Nguyễn Huy (tôi)';
   String _status = 'Đang hỗ trợ';
   String _priority = 'Trung bình';
-  List<String> _labels = ['VIP'];
+  final List<String> _labels = ['VIP'];
   final List<String> _suggestedLabels = ['New', 'Tiềm năng'];
   final Set<String> _selectedSuggestedLabels = {};
 
@@ -332,9 +332,9 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
     required String label,
     required String value,
     required IconData icon,
+    required VoidCallback onTap,
     Color? backgroundColor,
     Color? valueColor,
-    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -809,7 +809,7 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle_rounded,
             color: AppColors.messengerBlue,
             size: 16,

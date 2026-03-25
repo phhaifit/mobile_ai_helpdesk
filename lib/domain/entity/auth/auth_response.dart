@@ -12,8 +12,8 @@ class AuthResponse {
 
   const AuthResponse({
     required this.token,
-    this.refreshToken,
     required this.user,
+    this.refreshToken,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>

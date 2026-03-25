@@ -16,10 +16,7 @@ import 'widgets/sidebar_menu_panel.dart';
 class MainScreen extends StatefulWidget {
   final String initialCategory;
 
-  const MainScreen({
-    super.key,
-    this.initialCategory = 'Hỗ trợ khách hàng',
-  });
+  const MainScreen({super.key, this.initialCategory = 'Hộp thư hỗ trợ'});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -233,7 +230,7 @@ class _MainScreenState extends State<MainScreen> {
 
     // On desktop: wrap content to prevent full-screen takeover
     if (isDesktop) {
-      return Container(color: AppColors.backgroundGrey, child: contentWidget);
+      return ColoredBox(color: AppColors.backgroundGrey, child: contentWidget);
     }
 
     return contentWidget;

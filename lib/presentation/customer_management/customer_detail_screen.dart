@@ -13,9 +13,9 @@ class CustomerDetailScreen extends StatefulWidget {
   final VoidCallback? onEdit;
 
   const CustomerDetailScreen({
-    super.key,
     required this.customer,
     required this.store,
+    super.key,
     this.showAppBar = true,
     this.onBack,
     this.onEdit,
@@ -99,15 +99,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         onTap: widget.onBack != null
             ? () => widget.onBack!()
             : () => Navigator.pop(context),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(
-              Icons.arrow_back_ios,
-              size: 16,
-              color: AppColors.textPrimary,
-            ),
-            const SizedBox(width: 4),
-            const Text(
+            Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textPrimary),
+            SizedBox(width: 4),
+            Text(
               'Quay lại',
               style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
             ),
@@ -235,37 +231,30 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          _customer.tags.isEmpty
-              ? Text(
-                  'Chưa có nhãn nào',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                )
-              : Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: _customer.tags
-                      .map(
-                        (tag) => Chip(
-                          label: Text(
-                            tag,
-                            style: const TextStyle(fontSize: 11),
-                          ),
-                          deleteIcon: const Icon(Icons.close, size: 14),
-                          onDeleted: () => _removeTag(tag),
-                          backgroundColor: AppColors.primaryBlue.withOpacity(
-                            0.1,
-                          ),
-                          labelStyle: const TextStyle(
-                            color: AppColors.primaryBlue,
-                          ),
-                          side: const BorderSide(color: Colors.transparent),
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                        ),
-                      )
-                      .toList(),
-                ),
+          if (_customer.tags.isEmpty)
+            Text(
+              'Chưa có nhãn nào',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+            )
+          else
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: _customer.tags
+                  .map(
+                    (tag) => Chip(
+                      label: Text(tag, style: const TextStyle(fontSize: 11)),
+                      deleteIcon: const Icon(Icons.close, size: 14),
+                      onDeleted: () => _removeTag(tag),
+                      backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+                      labelStyle: const TextStyle(color: AppColors.primaryBlue),
+                      side: const BorderSide(color: Colors.transparent),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                    ),
+                  )
+                  .toList(),
+            ),
         ],
       ),
     );
@@ -273,8 +262,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
   // ─── Contact info section ─────────────────────────────────────────────────────
   Widget _buildContactInfoSection() {
-    final hasEmail = _customer.email?.isNotEmpty == true;
-    final hasPhone = _customer.phoneNumber?.isNotEmpty == true;
+    final hasEmail = _customer.email?.isNotEmpty ?? false;
+    final hasPhone = _customer.phoneNumber?.isNotEmpty ?? false;
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -958,8 +947,9 @@ class _AddContactSheetState extends State<_AddContactSheet> {
             child: ElevatedButton(
               onPressed: () {
                 final v = _ctrl.text.trim();
-                if (v.isEmpty || (_type == 'email' && _errorText != null))
+                if (v.isEmpty || (_type == 'email' && _errorText != null)) {
                   return;
+                }
                 widget.onAdd(_type, v);
                 Navigator.pop(context);
               },

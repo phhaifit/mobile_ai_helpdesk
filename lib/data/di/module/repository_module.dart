@@ -15,15 +15,17 @@ import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
-import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
-import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
-import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
+// Import Interfaces (Domain)
+import '../../../domain/repository/chat/chat_repository.dart';
+import '../../../domain/repository/chat/chat_room_repository.dart';
+import '../../../domain/repository/customer_management/customer_repository.dart';
+// Import DataSources
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
 import '../../local/datasources/customer_management/customer_datasource.dart';
@@ -62,6 +64,10 @@ class RepositoryModule {
       ChatRepositoryImpl(getIt<ChatDataSource>()),
     );
 
+    getIt.registerSingleton<OmnichannelRepository>(
+      MockOmnichannelRepositoryImpl(),
+    );
+
     getIt.registerSingleton<ChatRoomRepository>(
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
     );
@@ -71,19 +77,13 @@ class RepositoryModule {
       CustomerRepositoryImpl(getIt<CustomerDataSource>()),
     );
 
-    // --- Omnichannel Repository ---
-    getIt.registerSingleton<OmnichannelRepository>(
-      MockOmnichannelRepositoryImpl(),
-    );
-
-    // --- Monetization Repository ---
-    getIt.registerSingleton<MonetizationRepository>(
-      MockMonetizationRepositoryImpl(),
-    );
-
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(
       () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
+    );
+
+    getIt.registerSingleton<MonetizationRepository>(
+      MockMonetizationRepositoryImpl(),
     );
   }
 }

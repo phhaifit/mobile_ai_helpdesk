@@ -59,7 +59,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     super.dispose();
   }
 
-  void _handleResetPassword() async {
+  Future<void> _handleResetPassword() async {
     final email = _emailController.text.trim();
     final token = _tokenController.text.trim();
     final newPassword = _newPasswordController.text;
@@ -67,17 +67,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     // Validate
     if (email.isEmpty || !email.contains('@')) {
-      FlushbarHelper.createError(message: 'Please enter valid email').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter valid email',
+      ).show(context);
       return;
     }
 
     if (token.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter reset token').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter reset token',
+      ).show(context);
       return;
     }
 
     if (newPassword.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter new password').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter new password',
+      ).show(context);
       return;
     }
 
@@ -114,9 +120,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('reset_password_tv_title')),
-      ),
+      appBar: AppBar(title: Text(l.translate('reset_password_tv_title'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -179,16 +183,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 builder: (_) => SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _authStore.isResetPasswordLoading ? null : _handleResetPassword,
+                    onPressed: _authStore.isResetPasswordLoading
+                        ? null
+                        : _handleResetPassword,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: _authStore.isResetPasswordLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : Text(l.translate('reset_password_btn_reset')),
                     ),

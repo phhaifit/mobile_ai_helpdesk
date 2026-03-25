@@ -1,9 +1,9 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/chat/support_inbox_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
@@ -82,12 +82,6 @@ class _HomeScreenState extends State<HomeScreen>
             text: AppLocalizations.of(
               context,
             ).translate('home_tab_omnichannel'),
-          ),
-          Tab(
-            icon: const Icon(Icons.workspace_premium),
-            text: AppLocalizations.of(
-              context,
-            ).translate('monetization_tv_title'),
           ),
         ],
       ),
