@@ -101,10 +101,7 @@ class RepositoryModule {
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
     );
-    // --- Ticket Repository ---
-    getIt.registerLazySingleton<TicketRepository>(
-      () => MockTicketRepositoryImpl() as TicketRepository,
-    );
+    // Ticket repository already registered above with its datasource.
 
     // --- Monetization Repository ---
     getIt.registerSingleton<MonetizationRepository>(

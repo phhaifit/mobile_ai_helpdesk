@@ -80,7 +80,7 @@ abstract class _UserStore with Store {
         this.isLoggedIn = true;
         this.success = true;
       }
-    }).catchError((e) {
+    }).catchError((Object e) {
       print(e);
       this.isLoggedIn = false;
       this.success = false;
