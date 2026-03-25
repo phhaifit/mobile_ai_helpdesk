@@ -7,7 +7,9 @@ class NetworkExceptions {
   static Failure getDioException(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return NetworkFailure('Connection timeout. Please check your internet connection.');
+        return NetworkFailure(
+          'Connection timeout. Please check your internet connection.',
+        );
       case DioExceptionType.sendTimeout:
         return NetworkFailure('Send timeout. Please try again.');
       case DioExceptionType.receiveTimeout:
@@ -17,7 +19,9 @@ class NetworkExceptions {
       case DioExceptionType.cancel:
         return NetworkFailure('Request cancelled.');
       case DioExceptionType.connectionError:
-        return NetworkFailure('Connection error. Please check your internet connection.');
+        return NetworkFailure(
+          'Connection error. Please check your internet connection.',
+        );
       case DioExceptionType.badCertificate:
         return NetworkFailure('Bad certificate. Security error occurred.');
       case DioExceptionType.unknown:
@@ -25,7 +29,7 @@ class NetworkExceptions {
     }
   }
 
-  static Failure _handleBadResponse(Response? response) {
+  static Failure _handleBadResponse(Response<dynamic>? response) {
     if (response == null) {
       return ServerFailure('Server error: No response received');
     }
@@ -54,7 +58,14 @@ class NetworkExceptions {
 
   static String _getErrorMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
-      return data['message'] ?? data['error'] ?? 'An error occurred';
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) {
+        return message;
+      }
+      final error = data['error'];
+      if (error is String && error.isNotEmpty) {
+        return error;
+      }
     }
     return 'An error occurred';
   }

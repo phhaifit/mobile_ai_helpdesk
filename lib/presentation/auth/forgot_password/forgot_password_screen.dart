@@ -1,10 +1,7 @@
 import 'package:ai_helpdesk/core/widgets/auth_text_field.dart';
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 /// FORGOT PASSWORD SCREEN WIDGET TREE:
 /// Scaffold
@@ -29,13 +26,11 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  late final AuthStore _authStore;
   late final TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
-    _authStore = getIt<AuthStore>();
     _emailController = TextEditingController();
   }
 
@@ -49,7 +44,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty || !email.contains('@')) {
-      FlushbarHelper.createError(message: 'Please enter valid email').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter valid email',
+      ).show(context);
       return;
     }
 
@@ -71,9 +68,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('forgot_password_tv_title')),
-      ),
+      appBar: AppBar(title: Text(l.translate('forgot_password_tv_title'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -111,7 +106,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: const Icon(Icons.email_outlined),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Email is required';
+                  if (value == null || value.isEmpty)
+                    return 'Email is required';
                   if (!value.contains('@')) return 'Please enter a valid email';
                   return null;
                 },
