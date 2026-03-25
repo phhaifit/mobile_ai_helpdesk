@@ -55,11 +55,9 @@ import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
-import 'package:ai_helpdesk/presentation/customer_management/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
@@ -70,12 +68,6 @@ import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../domain/analytics/analytics_service.dart';
-import '../../../domain/repository/chat/chat_repository.dart';
-import '../../../domain/repository/chat/chat_room_repository.dart';
-import '../../../domain/repository/customer_management/customer_repository.dart';
-import '../../chat/store/chat_room_store.dart';
-import '../../chat/store/chat_store.dart';
-import '../../customer_management/store/customer_store.dart';
 import '../../login/store/login_store.dart';
 
 class StoreModule {
@@ -142,9 +134,6 @@ class StoreModule {
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
     getIt.registerSingleton<ChatRoomStore>(
       ChatRoomStore(getIt<ChatRoomRepository>()),
-    );
-    getIt.registerSingleton<CustomerStore>(
-      CustomerStore(getIt<CustomerRepository>()),
     );
 
     // --- Theme & Language ---
