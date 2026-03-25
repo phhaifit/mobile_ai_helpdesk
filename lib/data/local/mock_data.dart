@@ -1,6 +1,5 @@
 import '../../domain/entity/agent/agent.dart';
 import '../../domain/entity/comment/comment.dart';
-import '../../domain/entity/customer/customer.dart';
 import '../../domain/entity/enums.dart';
 import '../../domain/entity/ticket/ticket.dart';
 import '../../domain/entity/ticket_history/ticket_history.dart';
@@ -131,19 +130,24 @@ class MockDataGenerator {
   }
 
   /// Generate list of mock tickets
-  static List<Ticket> generateTickets(
-    List<Agent> agents,
-    List<Customer> customers,
-  ) {
+  static List<Ticket> generateTickets(List<Agent> agents) {
     final tickets = <Ticket>[];
     const ticketCount = 50;
+    const customerCount = 15;
 
     for (int i = 0; i < ticketCount; i++) {
-      final customer = customers[i % customers.length];
       final statusValues = TicketStatus.values;
       final priorityValues = TicketPriority.values;
       final categoryValues = TicketCategory.values;
       final sourceValues = TicketSource.values;
+      final customerIndex = i % customerCount;
+      final customerFirstName =
+          vietnameseFirstNames[customerIndex % vietnameseFirstNames.length];
+      final customerLastName =
+          vietnameseLastNames[customerIndex % vietnameseLastNames.length];
+      final customerName = '$customerFirstName $customerLastName';
+      final customerId = 'cust_${customerIndex + 1}';
+      final customerEmail = 'customer${customerIndex + 1}@example.com';
 
       // Assign agent to some tickets (75%)
       Agent? assignedAgent;
@@ -169,9 +173,9 @@ class MockDataGenerator {
         source: sourceValues[i % sourceValues.length],
         createdByID: agents[i % agents.length].id,
         createdByName: agents[i % agents.length].name,
-        customerId: customer.id,
-        customerName: customer.fullName,
-        customerEmail: customer.email ?? '',
+        customerId: customerId,
+        customerName: customerName,
+        customerEmail: customerEmail,
         assignedAgentId: assignedAgent?.id,
         assignedAgentName: assignedAgent?.name,
         createdAt: createdDate,

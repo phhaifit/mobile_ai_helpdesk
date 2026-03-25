@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
-import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
@@ -126,9 +125,6 @@ class StoreModule {
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
     getIt.registerSingleton<ChatRoomStore>(
       ChatRoomStore(getIt<ChatRoomRepository>()),
-    );
-    getIt.registerSingleton<CustomerStore>(
-      CustomerStore(getIt<CustomerRepository>()),
     );
 
     // --- Theme & Language ---
