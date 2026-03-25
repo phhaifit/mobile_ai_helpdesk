@@ -4,13 +4,11 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
@@ -22,10 +20,15 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+import '/domain/analytics/analytics_service.dart';
+import '/utils/deep_linking/utm_param_parser.dart';
 
 class Routes {
   Routes._();
@@ -63,8 +66,30 @@ class Routes {
   static const String upgradeConfirmation = '/upgrade-confirmation';
 
   // route generator -----------------------------------------------------------
+  /// Generates routes with integrated UTM parameter parsing and analytics tracking.
+  ///
+  /// This method:
+  /// 1. Extracts the route name from settings
+  /// 2. Parses any UTM parameters from the route path
+  /// 3. Tracks screen view with analytics
+  /// 4. Returns the appropriate widget
+  ///
+  /// Example routes:
+  /// - '/home' (no UTM params)
+  /// - '/home?utm_source=google&utm_campaign=promo' (with UTM params)
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
+    // Extract route name (without query parameters)
+    final routePath = settings.name ?? '';
+    final screenName = _extractRouteName(routePath);
+
+    // Parse UTM parameters if present
+    final utmData = UTMParamParser.parseRoutePath(routePath);
+
+    // Track screen view with analytics asynchronously
+    _trackScreenView(screenName, utmData);
+
+    // Generate the appropriate route
+    switch (screenName) {
       case login:
         return MaterialPageRoute(
           settings: settings,
@@ -89,7 +114,7 @@ class Routes {
       case home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainScreen(),
         );
       case profile:
         return MaterialPageRoute(
@@ -114,16 +139,14 @@ class Routes {
       case ticketDetail:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => TicketDetailScreen(
-            ticketId: settings.arguments as String,
-          ),
+          builder: (_) =>
+              TicketDetailScreen(ticketId: settings.arguments as String),
         );
       case editTicket:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => EditTicketScreen(
-            ticket: settings.arguments as Ticket,
-          ),
+          builder: (_) =>
+              EditTicketScreen(ticket: settings.arguments as Ticket),
         );
       case customerHistory:
         final args = settings.arguments as Map<String, String>;
@@ -208,9 +231,57 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => Scaffold(
-            body: Center(child: Text('No route defined for ${settings.name}')),
+            body: Center(child: Text('No route defined for $screenName')),
           ),
         );
     }
+  }
+
+  /// Extracts the route name from a full route path (removes query parameters).
+  ///
+  /// Example:
+  /// - '/home?utm_source=google' → '/home'
+  /// - '/login' → '/login'
+  static String _extractRouteName(String routePath) {
+    if (routePath.contains('?')) {
+      return routePath.split('?')[0];
+    }
+    return routePath;
+  }
+
+  /// Tracks a screen view with UTM parameters via analytics service.
+  ///
+  /// This method is called asynchronously to avoid blocking navigation.
+  /// If analytics service is not available, the error is silently ignored
+  /// to ensure navigation continues regardless of analytics availability.
+  static void _trackScreenView(String screenName, UTMData utmData) {
+    // Run analytics tracking asynchronously (non-blocking)
+    Future.microtask(() async {
+      try {
+        final getIt = GetIt.instance;
+        final analyticsService = getIt<AnalyticsService>();
+
+        // Track screen view with UTM parameters if available
+        if (utmData.hasAnyParams) {
+          await analyticsService.trackScreenView(
+            screenName,
+            screenClass: 'Screen',
+            utmParams: utmData.toMap(),
+          );
+          debugPrint(
+            '[Routes] Screen view tracked: $screenName with UTM params: ${utmData.toMap()}',
+          );
+        } else {
+          await analyticsService.trackScreenView(
+            screenName,
+            screenClass: 'Screen',
+          );
+          debugPrint('[Routes] Screen view tracked: $screenName');
+        }
+      } catch (e) {
+        debugPrint('[Routes] Failed to track screen view: $e');
+        // Silently fail - don't block navigation if analytics fails
+      }
+    });
   }
 }

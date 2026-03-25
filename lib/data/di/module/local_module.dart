@@ -36,7 +36,7 @@ class LocalModule {
       () async => SembastClient.provideDatabase(
         databaseName: DBConstants.dbName,
         databasePath: kIsWeb
-            ? "/assets/db"
+            ? '/assets/db'
             : (await getApplicationDocumentsDirectory()).path,
       ),
     );

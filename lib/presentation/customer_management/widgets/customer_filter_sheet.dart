@@ -6,7 +6,7 @@ import '../store/customer_store.dart';
 class CustomerFilterSheet extends StatelessWidget {
   final CustomerStore store;
 
-  const CustomerFilterSheet({super.key, required this.store});
+  const CustomerFilterSheet({required this.store, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +82,9 @@ class CustomerFilterSheet extends StatelessWidget {
                       final tag = tags[i];
                       return Observer(
                         builder: (_) {
-                          final isSelected =
-                              store.selectedTagFilters.contains(tag);
+                          final isSelected = store.selectedTagFilters.contains(
+                            tag,
+                          );
                           return CheckboxListTile(
                             value: isSelected,
                             onChanged: (_) => store.toggleTagFilter(tag),
@@ -111,13 +112,16 @@ class CustomerFilterSheet extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   minimumSize: const Size.fromHeight(44),
                 ),
                 child: const Text(
                   '\u00c1p d\u1ee5ng',
                   style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

@@ -7,9 +7,9 @@ class ChatInputBar extends StatefulWidget {
   final FocusNode? focusNode;
 
   const ChatInputBar({
-    super.key,
     required this.controller,
     required this.onSend,
+    super.key,
     this.focusNode,
   });
 
@@ -65,7 +65,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120),
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(22),
@@ -76,7 +76,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     maxLines: null,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
-                      hintText: "Aa",
+                      hintText: 'Aa',
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 15),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(

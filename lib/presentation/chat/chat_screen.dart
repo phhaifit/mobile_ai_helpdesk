@@ -267,7 +267,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           color: AppColors.messengerBlue.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'Chưa tìm thấy tin nhắn nào cho phiếu này',
                           style: TextStyle(
                             fontSize: 16,
