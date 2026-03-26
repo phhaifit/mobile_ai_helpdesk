@@ -14,7 +14,7 @@ class PostApi {
   Future<PostList> getPosts() async {
     try {
       final res = await _dioClient.dio.get(Endpoints.getPosts);
-      return PostList.fromJson(res.data);
+      return PostList.fromJson(res.data as List<dynamic>);
     } catch (e) {
       print(e.toString());
       throw e;

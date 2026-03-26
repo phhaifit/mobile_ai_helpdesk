@@ -1,35 +1,17 @@
-import 'dart:async';
-
-import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/firebase_options.dart';
-import 'package:ai_helpdesk/presentation/my_app.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'dart:async';
-import 'dart:developer';
-
-// // import 'package:ai_helpdesk/di/service_locator.dart';
-// // import 'package:ai_helpdesk/firebase_options.dart';
-// // import 'package:ai_helpdesk/presentation/my_app.dart';
-// // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-// import 'package:ai_helpdesk/constants/env.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import '/di/service_locator.dart';
 import '/data/analytics/first_launch_manager.dart';
-import '/domain/analytics/analytics_service.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
-import '/presentation/main_screen.dart';
+import '/domain/analytics/analytics_service.dart';
 import '/presentation/login/login_screen.dart';
-import '/presentation/my_app.dart';
 import '/utils/routes/routes.dart';
 import 'constants/colors.dart';
-import 'firebase_options.dart';
 import 'utils/locale/app_localization.dart';
 
 void main() async {

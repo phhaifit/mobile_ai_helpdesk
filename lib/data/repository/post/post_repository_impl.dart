@@ -27,7 +27,7 @@ class PostRepositoryImpl extends PostRepository {
       });
 
       return postsList;
-    }).catchError((error) => throw error);
+    }).catchError((Object error) => throw error);
   }
 
   @override
@@ -36,31 +36,31 @@ class PostRepositoryImpl extends PostRepository {
     List<Filter> filters = [];
 
     //check to see if dataLogsType is not null
-    Filter dataLogTypeFilter = Filter.equals(DBConstants.FIELD_ID, id);
+    Filter dataLogTypeFilter = Filter.equals(DBConstants.fieldId, id);
     filters.add(dataLogTypeFilter);
 
     //making db call
     return _postDataSource
         .getAllSortedByFilter(filters: filters)
         .then((posts) => posts)
-        .catchError((error) => throw error);
+        .catchError((Object error) => throw error);
   }
 
   @override
   Future<int> insert(Post post) => _postDataSource
       .insert(post)
       .then((id) => id)
-      .catchError((error) => throw error);
+      .catchError((Object error) => throw error);
 
   @override
   Future<int> update(Post post) => _postDataSource
       .update(post)
       .then((id) => id)
-      .catchError((error) => throw error);
+      .catchError((Object error) => throw error);
 
   @override
   Future<int> delete(Post post) => _postDataSource
       .delete(post)
       .then((id) => id)
-      .catchError((error) => throw error);
+      .catchError((Object error) => throw error);
 }

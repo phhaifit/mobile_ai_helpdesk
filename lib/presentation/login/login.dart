@@ -14,6 +14,7 @@ import '/utils/locale/app_localization.dart';
 import '/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../di/service_locator.dart';
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //stores:---------------------------------------------------------------------
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final FormStore _formStore = getIt<FormStore>();
-  final UserStore _userStore = getIt<UserStore>();
+  final LoginStore _loginStore = getIt<LoginStore>();
 
   //focus node:-----------------------------------------------------------------
   late FocusNode _passwordFocusNode;
@@ -71,15 +72,18 @@ class _LoginScreenState extends State<LoginScreen> {
             : Center(child: _buildRightSide()),
         Observer(
           builder: (context) {
-            return _userStore.success
-                ? navigate(context)
-                : _showErrorMessage(_formStore.errorStore.errorMessage);
+            // Navigate when login future completed successfully (no error)
+            if (_loginStore.loginFuture.status == FutureStatus.fulfilled &&
+                (_loginStore.errorMessage == null || _loginStore.errorMessage!.isEmpty)) {
+              return navigate(context);
+            }
+            return _showErrorMessage(_formStore.errorStore.errorMessage);
           },
         ),
         Observer(
           builder: (context) {
             return Visibility(
-              visible: _userStore.isLoading,
+              visible: _loginStore.isLoading,
               child: CustomProgressIndicatorWidget(),
             );
           },
@@ -91,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLeftSide() {
     return SizedBox.expand(
       child: Image.asset(
-        Assets.carBackground,
+        Assets.imgLogin,
         fit: BoxFit.cover,
       ),
     );
@@ -131,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
           autoFocus: false,
           onChanged: (value) {
             _formStore.setUserId(_userEmailController.text);
+            _loginStore.setEmail(_userEmailController.text);
           },
           onFieldSubmitted: (value) {
             FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -156,6 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
           errorText: _formStore.formErrorStore.password,
           onChanged: (value) {
             _formStore.setPassword(_passwordController.text);
+            _loginStore.setPassword(_passwordController.text);
           },
         );
       },
@@ -187,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () async {
         if (_formStore.canLogin) {
           DeviceUtils.hideKeyboard(context);
-          _userStore.login(_userEmailController.text, _passwordController.text);
+          await _loginStore.login();
         } else {
           _showErrorMessage('Please fill in all fields');
         }

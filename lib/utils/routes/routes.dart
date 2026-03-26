@@ -21,9 +21,6 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
-import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import '/domain/entity/ai_agent/ai_agent.dart';
 import '/presentation/ai_agent/agent_create_edit_screen.dart';
 import '/presentation/ai_agent/agent_detail_screen.dart';

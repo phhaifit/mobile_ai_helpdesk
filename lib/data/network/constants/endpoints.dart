@@ -12,6 +12,9 @@ class Endpoints {
   // connectTimeout — sourced from EnvConfig
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
 
+  // Post endpoints (legacy)
+  static const String getPosts = '/posts';
+
   // AI Agent endpoints (stubs — mock data served locally)
   static String agents() => '/api/agents';
   static String agent(String id) => '/api/agents/$id';

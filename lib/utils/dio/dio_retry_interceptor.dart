@@ -45,7 +45,7 @@ class RetryInterceptor extends Interceptor {
           options: err.requestOptions.toOptions(),
         )
         .then((value) => handler.resolve(value),
-            onError: (error) => handler.reject(error));
+            onError: (error) => handler.reject(error as DioException));
   }
 }
 
@@ -116,7 +116,7 @@ class RetryOptions {
 
   factory RetryOptions.fromExtra(
       RequestOptions request, RetryOptions defaultOptions) {
-    return request.extra[extraKey] ?? defaultOptions;
+    return (request.extra[extraKey] as RetryOptions?) ?? defaultOptions;
   }
 
   RetryOptions copyWith({

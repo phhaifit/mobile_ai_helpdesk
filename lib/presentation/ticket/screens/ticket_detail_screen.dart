@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_detail_header_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_assignment_section_widget.dart';
