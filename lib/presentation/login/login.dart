@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:mobx/mobx.dart';
 import '/constants/assets.dart';
 import '/core/stores/form/form_store.dart';
 import '/core/widgets/app_icon_widget.dart';
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   //stores:---------------------------------------------------------------------
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final FormStore _formStore = getIt<FormStore>();
-  final UserStore _userStore = getIt<UserStore>();
+  final LoginStore _loginStore = getIt<LoginStore>();
 
   //focus node:-----------------------------------------------------------------
   late FocusNode _passwordFocusNode;
@@ -71,15 +72,18 @@ class _LoginScreenState extends State<LoginScreen> {
             : Center(child: _buildRightSide()),
         Observer(
           builder: (context) {
-            return _userStore.success
-                ? navigate(context)
-                : _showErrorMessage(_formStore.errorStore.errorMessage);
+            if (_loginStore.loginFuture.status == FutureStatus.fulfilled &&
+                _loginStore.errorMessage == null) {
+              return navigate(context);
+            }
+            final err = _loginStore.errorMessage ?? _formStore.errorStore.errorMessage;
+            return _showErrorMessage(err);
           },
         ),
         Observer(
           builder: (context) {
             return Visibility(
-              visible: _userStore.isLoading,
+              visible: _loginStore.isLoading,
               child: CustomProgressIndicatorWidget(),
             );
           },
@@ -91,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLeftSide() {
     return SizedBox.expand(
       child: Image.asset(
-        Assets.carBackground,
+        Assets.appLogo,
         fit: BoxFit.cover,
       ),
     );
@@ -187,7 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () async {
         if (_formStore.canLogin) {
           DeviceUtils.hideKeyboard(context);
-          _userStore.login(_userEmailController.text, _passwordController.text);
+          _loginStore.setEmail(_userEmailController.text);
+          _loginStore.setPassword(_passwordController.text);
+          _loginStore.login();
         } else {
           _showErrorMessage('Please fill in all fields');
         }
@@ -197,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget navigate(BuildContext context) {
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool(Preferences.is_logged_in, true);
+      prefs.setBool(Preferences.isLoggedIn, true);
     });
 
     Future.delayed(Duration(milliseconds: 0), () {
@@ -209,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // General Methods:-----------------------------------------------------------
-  _showErrorMessage(String message) {
+  Widget _showErrorMessage(String message) {
     if (message.isNotEmpty) {
       Future.delayed(Duration(milliseconds: 0), () {
         if (message.isNotEmpty) {

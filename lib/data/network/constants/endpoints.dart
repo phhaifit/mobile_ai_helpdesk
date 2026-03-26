@@ -11,4 +11,7 @@ class Endpoints {
 
   // connectTimeout — sourced from EnvConfig
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
+
+  // posts endpoint
+  static const String getPosts = '/posts';
 }
