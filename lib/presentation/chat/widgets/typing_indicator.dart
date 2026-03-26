@@ -4,7 +4,7 @@ import '../../../constants/colors.dart';
 class TypingIndicator extends StatefulWidget {
   final String senderName;
 
-  const TypingIndicator({super.key, this.senderName = "AI Assistant"});
+  const TypingIndicator({super.key, this.senderName = 'AI Assistant'});
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -28,7 +28,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
 
     // Stagger the animations
     for (int i = 0; i < _dotCount; i++) {
-      _animationControllers[i].forward(from: (i * 0.2));
+      _animationControllers[i].forward(from: i * 0.2);
     }
   }
 

@@ -6,7 +6,7 @@ class ChatRoomTile extends StatelessWidget {
   final ChatRoom room;
   final VoidCallback onTap;
 
-  const ChatRoomTile({super.key, required this.room, required this.onTap});
+  const ChatRoomTile({required this.room, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -81,7 +81,7 @@ class _MessengerOauthStatusScreenState
               Stepper(
                 physics: const NeverScrollableScrollPhysics(),
                 currentStep: isConnected ? 2 : _currentStep,
-                controlsBuilder: (_, __) => const SizedBox.shrink(),
+                controlsBuilder: (_, _) => const SizedBox.shrink(),
                 steps: [
                   Step(
                     title: Text(l.translate('omnichannel_oauth_step_login')),

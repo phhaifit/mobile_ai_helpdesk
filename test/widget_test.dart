@@ -6,13 +6,12 @@ import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class FakeFirebaseAppPlatform extends Fake implements FirebaseApp {}
 
 void main() {
   setUpAll(() async {
