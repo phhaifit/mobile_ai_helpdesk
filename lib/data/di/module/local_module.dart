@@ -11,7 +11,7 @@ import '/data/sharedpref/shared_preference_helper.dart';
 import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
-import '../../local/datasources/customer_management/customer_datasource.dart';
+// import '../../local/datasources/customer_management/customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
 
 class LocalModule {
@@ -26,9 +26,6 @@ class LocalModule {
     getIt.registerSingleton<ChatDataSource>(ChatDataSource());
     getIt.registerSingleton<ChatRoomDataSource>(ChatRoomDataSource());
 
-    // --- Customer DataSources ---
-    getIt.registerSingleton<CustomerDataSource>(CustomerDataSource());
-
     // preference manager:------------------------------------------------------
     getIt.registerSingletonAsync<SharedPreferences>(
       SharedPreferences.getInstance,
@@ -42,7 +39,7 @@ class LocalModule {
       () async => SembastClient.provideDatabase(
         databaseName: DBConstants.dbName,
         databasePath: kIsWeb
-            ? "/assets/db"
+            ? '/assets/db'
             : (await getApplicationDocumentsDirectory()).path,
       ),
     );

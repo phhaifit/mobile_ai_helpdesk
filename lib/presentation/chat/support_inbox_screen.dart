@@ -124,7 +124,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             // Chat (70% chiều rộng)
             Expanded(
               child: _selectedRoom != null
-                  ? ChatScreen(room: _selectedRoom!, onInfoTap: _handleInfoTap)
+                  ? ChatScreen(room: _selectedRoom, onInfoTap: _handleInfoTap)
                   : _buildEmptyChat(),
             ),
           ],
@@ -154,7 +154,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           Expanded(
             flex: _showContactInfo ? 2 : 3,
             child: _selectedRoom != null
-                ? ChatScreen(room: _selectedRoom!, onInfoTap: _handleInfoTap)
+                ? ChatScreen(room: _selectedRoom, onInfoTap: _handleInfoTap)
                 : _buildEmptyChat(),
           ),
 
@@ -301,7 +301,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
 
         return ListView.builder(
           itemCount: rooms.length,
-          itemBuilder: (context, index) => Container(
+          itemBuilder: (context, index) => ColoredBox(
             color: _selectedRoom?.id == rooms[index].id
                 ? AppColors.backgroundGrey
                 : Colors.transparent,
@@ -316,7 +316,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   }
 
   Widget _buildEmptyChat() {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Center(
         child: Column(

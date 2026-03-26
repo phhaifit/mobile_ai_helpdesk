@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
-import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
+// import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
+import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
@@ -25,11 +26,13 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_u
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
-import 'package:ai_helpdesk/presentation/customer_management/store/customer_store.dart';
+// import 'package:ai_helpdesk/presentation/customer_management/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
@@ -49,16 +52,30 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/stores/session_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../ai_agent/store/ai_agent_store.dart';
 import '../../chat/store/chat_store.dart';
 import '../../chat/store/chat_room_store.dart';
-import '../../customer_management/store/customer_store.dart';
+// import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
 
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
-import '../../../domain/repository/customer_management/customer_repository.dart';
+// import '../../../domain/repository/customer_management/customer_repository.dart';
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
@@ -68,19 +85,20 @@ import '../../../domain/usecase/playground/create_session_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 import '../../../di/service_locator.dart';
+import '../../../domain/analytics/analytics_service.dart';
+import '../../login/store/login_store.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
-    // --- Singletons ---
-    getIt.registerSingleton<SessionStore>(
-      SessionStore(),
-    );
+    final getIt = GetIt.instance;
 
-    getIt.registerSingleton<TicketColumnVisibilityStore>(
-      TicketColumnVisibilityStore(),
-    );
+    // factories:---------------------------------------------------------------
+    getIt.registerFactory(() => ErrorStore());
 
-    getIt.registerFactory<ErrorStore>(() => ErrorStore());
+    // --- Login Store ---
+    // getIt.registerFactory<LoginStore>(
+    //   () => LoginStore(analyticsService: getIt<AnalyticsService>()),
+    // );
 
     // --- Auth Store ---
     getIt.registerFactory<AuthStore>(
@@ -123,24 +141,17 @@ class StoreModule {
       ),
     );
     getIt.registerFactory(
-      () => EditTicketStore(
-        getIt<UpdateTicketUseCase>(),
-        getIt<SessionStore>(),
-      ),
+      () =>
+          EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
     );
     getIt.registerFactory(
-      () => CustomerHistoryStore(
-        getIt<GetCustomerHistoryUseCase>(),
-      ),
+      () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
     );
 
     // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
     getIt.registerSingleton<ChatRoomStore>(
       ChatRoomStore(getIt<ChatRoomRepository>()),
-    );
-    getIt.registerSingleton<CustomerStore>(
-      CustomerStore(getIt<CustomerRepository>()),
     );
 
     // --- Theme & Language ---
@@ -166,8 +177,7 @@ class StoreModule {
       ),
     );
 
-    // --- Monetization Store ---
-    getIt.registerFactory<MonetizationStore>(
+    getIt.registerFactory(
       () => MonetizationStore(
         getIt<GetMonetizationOverviewUseCase>(),
         getIt<SimulateUpgradeUseCase>(),
@@ -194,6 +204,9 @@ class StoreModule {
         getIt<SendPlaygroundMessageUseCase>(),
         getIt<ErrorStore>(),
       ),
+    );
+    getIt.registerLazySingleton<PromptStore>(
+      () => PromptStore(getIt<PromptRepository>()),
     );
   }
 }

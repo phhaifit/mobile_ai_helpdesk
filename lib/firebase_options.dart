@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'mobile-ai-helpdesk.firebasestorage.app',
     measurementId: 'G-7K5TYG85J9',
   );
-
 }

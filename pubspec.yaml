@@ -28,7 +28,8 @@ dependencies:
   http: ^1.4.0
   event_bus: ^2.0.0
 
-  # UUID Generation
+  # Firebase & Analytics
+  package_info_plus: ^8.0.0
   uuid: ^4.0.0
 
   # Local Storage
@@ -59,6 +60,7 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.4.8
+  json_serializable: ^6.9.0
   mobx_codegen: ^2.5.0
   json_serializable: ^6.9.0
   flutter_lints: ^5.0.0
