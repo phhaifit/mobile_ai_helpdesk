@@ -15,6 +15,7 @@ import '/presentation/playground/widgets/streaming_indicator.dart';
 import '/presentation/playground/widgets/suggestion_chips.dart';
 import '/utils/locale/app_localization.dart';
 
+
 /// Main AI Chat Playground screen.
 ///
 /// Widget Tree:
@@ -109,6 +110,94 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
+    final bodyContent = Column(
+      children: [
+        // ─── Context Selector ────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dimens.horizontalPadding,
+            vertical: 8,
+          ),
+          child: ContextSelector(
+            selected: _contextType,
+            onChanged: (type) => setState(() => _contextType = type),
+          ),
+        ),
+        const Divider(height: 1),
+
+        // ─── Messages List ───────────────────────────────────────────────
+        Expanded(
+          child: Observer(builder: (_) {
+            final messages = _store.messages;
+            final isStreaming = _store.isStreaming;
+
+            if (_store.activeSession == null) {
+              return _EmptyState(
+                suggestions: _suggestions,
+                onSuggestionTap: (s) {
+                  _newSession().then((_) => _onSend(s));
+                },
+                onNewSession: _newSession,
+              );
+            }
+
+            if (messages.isEmpty) {
+              return Column(
+                children: [
+                  const SizedBox(height: 16),
+                  SuggestionChips(
+                    suggestions: _suggestions,
+                    onSelected: _onSend,
+                  ),
+                ],
+              );
+            }
+
+            _scrollToBottom();
+            return ListView.builder(
+              controller: _scrollCtrl,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: messages.length + (isStreaming ? 1 : 0),
+              itemBuilder: (_, i) {
+                if (isStreaming && i == messages.length) {
+                  return const StreamingIndicator();
+                }
+                final msg = messages[i];
+                // Skip empty streaming placeholders — StreamingIndicator
+                // renders above instead.
+                if (msg.isStreaming && msg.content.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return PlaygroundMessageBubble(
+                  message: msg,
+                  onEdit: () => _showEditDialog(msg.id, msg.content),
+                );
+              },
+            );
+          }),
+        ),
+
+        // ─── Draft Response Panel ────────────────────────────────────────
+        if (_showDrafts)
+          DraftResponsePanel(
+            drafts: _drafts,
+            onUse: _applyDraft,
+            onDismiss: () => setState(() {
+              _showDrafts = false;
+              _drafts = [];
+            }),
+          ),
+
+        // ─── Input Bar ───────────────────────────────────────────────────
+        Observer(
+          builder: (_) => PlaygroundInputBar(
+            enabled: _store.activeSession != null && !_store.isStreaming,
+            onSend: _onSend,
+          ),
+        ),
+      ],
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l.translate('playground_title')),
@@ -129,93 +218,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           _newSession();
         },
       ),
-      body: Column(
-        children: [
-          // ─── Context Selector ────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dimens.horizontalPadding,
-              vertical: 8,
-            ),
-            child: ContextSelector(
-              selected: _contextType,
-              onChanged: (type) => setState(() => _contextType = type),
-            ),
-          ),
-          const Divider(height: 1),
-
-          // ─── Messages List ───────────────────────────────────────────────
-          Expanded(
-            child: Observer(builder: (_) {
-              final messages = _store.messages;
-              final isStreaming = _store.isStreaming;
-
-              if (_store.activeSession == null) {
-                return _EmptyState(
-                  suggestions: _suggestions,
-                  onSuggestionTap: (s) {
-                    _newSession().then((_) => _onSend(s));
-                  },
-                  onNewSession: _newSession,
-                );
-              }
-
-              if (messages.isEmpty) {
-                return Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    SuggestionChips(
-                      suggestions: _suggestions,
-                      onSelected: _onSend,
-                    ),
-                  ],
-                );
-              }
-
-              _scrollToBottom();
-              return ListView.builder(
-                controller: _scrollCtrl,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: messages.length + (isStreaming ? 1 : 0),
-                itemBuilder: (_, i) {
-                  if (isStreaming && i == messages.length) {
-                    return const StreamingIndicator();
-                  }
-                  final msg = messages[i];
-                  // Skip empty streaming placeholders — StreamingIndicator
-                  // renders above instead.
-                  if (msg.isStreaming && msg.content.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return PlaygroundMessageBubble(
-                    message: msg,
-                    onEdit: () => _showEditDialog(msg.id, msg.content),
-                  );
-                },
-              );
-            }),
-          ),
-
-          // ─── Draft Response Panel ────────────────────────────────────────
-          if (_showDrafts)
-            DraftResponsePanel(
-              drafts: _drafts,
-              onUse: _applyDraft,
-              onDismiss: () => setState(() {
-                _showDrafts = false;
-                _drafts = [];
-              }),
-            ),
-
-          // ─── Input Bar ───────────────────────────────────────────────────
-          Observer(
-            builder: (_) => PlaygroundInputBar(
-              enabled: _store.activeSession != null && !_store.isStreaming,
-              onSend: _onSend,
-            ),
-          ),
-        ],
-      ),
+      body: bodyContent,
     );
   }
 

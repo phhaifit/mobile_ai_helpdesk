@@ -10,6 +10,8 @@ import 'customer_management/customer_detail_screen.dart';
 import 'customer_management/customer_list_screen.dart';
 import 'customer_management/customer_merge_screen.dart';
 import 'customer_management/store/customer_store.dart';
+import 'ai_agent/agent_list_screen.dart';
+import 'playground/playground_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
@@ -40,9 +42,23 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.initialCategory;
     _customerStore = getIt<CustomerStore>();
     _initializeCategories();
+
+    // If initialCategory is a category title (e.g. 'Hỗ trợ khách hàng'),
+    // default to the first menu item inside that category. Otherwise use
+    // the provided initialCategory (which may already be a menu item).
+    String initial = widget.initialCategory;
+    final matchingCategory = _categories.firstWhere(
+      (c) => c.title == initial,
+      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+    );
+
+    if (matchingCategory.items.isNotEmpty) {
+      _selectedCategory = matchingCategory.items.first.title;
+    } else {
+      _selectedCategory = initial;
+    }
   }
 
   void _initializeCategories() {
@@ -103,6 +119,20 @@ class _MainScreenState extends State<MainScreen> {
           MenuItem(
             title: 'Thống kê theo trạng thái',
             onTap: () => _selectCategory('Thống kê theo trạng thái'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'AI & Playground',
+        icon: Icons.smart_toy_outlined,
+        items: [
+          MenuItem(
+            title: 'AI Agents',
+            onTap: () => _selectCategory('AI Agents'),
+          ),
+          MenuItem(
+            title: 'Playground',
+            onTap: () => _selectCategory('Playground'),
           ),
         ],
       ),
@@ -201,6 +231,10 @@ class _MainScreenState extends State<MainScreen> {
         onEditCustomer: isDesktop ? _showEditCustomerForm : null,
         onMergeCustomer: isDesktop ? _showMergeCustomerView : null,
       );
+    } else if (_selectedCategory == 'AI Agents') {
+      contentWidget = const AgentListScreen();
+    } else if (_selectedCategory == 'Playground') {
+      contentWidget = PlaygroundScreen(agent: null);
     } else {
       // Placeholder for other categories
       contentWidget = Center(

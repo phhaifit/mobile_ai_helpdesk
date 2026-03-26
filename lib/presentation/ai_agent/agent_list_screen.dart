@@ -28,6 +28,47 @@ class _AgentListScreenState extends State<AgentListScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+
+    final content = Observer(builder: (_) {
+      if (_store.isLoading) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (_store.errorStore.errorMessage.isNotEmpty) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _store.errorStore.errorMessage,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              FilledButton.tonal(
+                onPressed: _store.fetchAgents,
+                child: Text(l.translate('common_try_again')),
+              ),
+            ],
+          ),
+        );
+      }
+      if (_store.agents.isEmpty) {
+        return Center(child: Text(l.translate('ai_agent_no_agents')));
+      }
+      return ListView.separated(
+        padding: const EdgeInsets.all(Dimens.horizontalPadding),
+        itemCount: _store.agents.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemBuilder: (_, i) => _AgentCard(
+          agent: _store.agents[i],
+          onTap: () => Navigator.pushNamed(
+            context,
+            Routes.agentDetail,
+            arguments: _store.agents[i],
+          ),
+        ),
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l.translate('ai_agent_title')),
@@ -35,50 +76,11 @@ class _AgentListScreenState extends State<AgentListScreen> {
           IconButton(
             icon: const Icon(Icons.group_outlined),
             tooltip: l.translate('ai_agent_team_assistant_title'),
-            onPressed: () =>
-                Navigator.pushNamed(context, Routes.teamAssistant),
+            onPressed: () => Navigator.pushNamed(context, Routes.teamAssistant),
           ),
         ],
       ),
-      body: Observer(builder: (_) {
-        if (_store.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (_store.errorStore.errorMessage.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _store.errorStore.errorMessage,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                FilledButton.tonal(
-                  onPressed: _store.fetchAgents,
-                  child: Text(l.translate('common_try_again')),
-                ),
-              ],
-            ),
-          );
-        }
-        if (_store.agents.isEmpty) {
-          return Center(child: Text(l.translate('ai_agent_no_agents')));
-        }
-        return ListView.separated(
-          padding: const EdgeInsets.all(Dimens.horizontalPadding),
-          itemCount: _store.agents.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (_, i) => _AgentCard(
-            agent: _store.agents[i],
-            onTap: () => Navigator.pushNamed(
-              context,
-              Routes.agentDetail,
-              arguments: _store.agents[i],
-            ),
-          ),
-        );
-      }),
+      body: content,
       floatingActionButton: FloatingActionButton(
         tooltip: l.translate('ai_agent_create'),
         child: const Icon(Icons.add),

@@ -9,6 +9,7 @@ import './lib/presentation/customer_management/customer_add_edit_screen.dart';
 import './lib/presentation/customer_management/customer_merge_screen.dart';
 import './lib/presentation/customer_management/store/customer_store.dart';
 import './lib/presentation/widgets/sidebar_menu_panel.dart';
+import './lib/presentation/menu/default_menu.dart';
 import './lib/di/service_locator.dart';
 
 class MainScreen extends StatefulWidget {
@@ -38,63 +39,32 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _initializeCategories() {
-    _categories = [
-      MenuCategory(
-        title: 'Hỗ trợ khách hàng',
-        icon: Icons.help_outline_rounded,
-        items: [
-          MenuItem(
-            title: 'Hộp thư hỗ trợ',
-            onTap: () => _selectCategory('Hộp thư hỗ trợ'),
-          ),
-          MenuItem(
-            title: 'Phiếu chưa xử lý',
-            onTap: () => _selectCategory('Phiếu chưa xử lý'),
-          ),
-          MenuItem(
-            title: 'AI Chat Bot',
-            onTap: () => _selectCategory('AI Chat Bot'),
-          ),
-        ],
-      ),
-      MenuCategory(
-        title: 'Khách hàng & Đơn hàng',
-        icon: Icons.people_outline_rounded,
-        items: [
-          MenuItem(
-            title: 'Khách hàng',
-            onTap: () => _selectCategory('Khách hàng'),
-          ),
-          MenuItem(title: 'Đơn hàng', onTap: () => _selectCategory('Đơn hàng')),
-          MenuItem(title: 'Sản phẩm', onTap: () => _selectCategory('Sản phẩm')),
-          MenuItem(
-            title: 'Khuyến mãi & Vòng quay',
-            onTap: () => _selectCategory('Khuyến mãi & Vòng quay'),
-          ),
-        ],
-      ),
-      MenuCategory(
-        title: 'Marketing',
-        icon: Icons.campaign_outlined,
-        items: [
-          MenuItem(
-            title: 'Chiến dịch',
-            onTap: () => _selectCategory('Chiến dịch'),
-          ),
-          MenuItem(title: 'Template', onTap: () => _selectCategory('Template')),
-        ],
-      ),
-      MenuCategory(
-        title: 'Báo cáo & Thống kê',
-        icon: Icons.bar_chart_outlined,
-        items: [
-          MenuItem(
-            title: 'Báo cáo chi tiết',
-            onTap: () => _selectCategory('Báo cáo chi tiết'),
-          ),
-        ],
-      ),
-    ];
+    IconData _iconFor(String name) {
+      switch (name) {
+        case 'help':
+          return Icons.help_outline_rounded;
+        case 'people':
+          return Icons.people_outline_rounded;
+        case 'campaign':
+          return Icons.campaign_outlined;
+        case 'bar_chart':
+          return Icons.bar_chart_outlined;
+        case 'smart_toy':
+          return Icons.smart_toy_outlined;
+        default:
+          return Icons.circle;
+      }
+    }
+
+    _categories = defaultMenu.map((mc) {
+      return MenuCategory(
+        title: mc.title,
+        icon: _iconFor(mc.iconName),
+        items: mc.items
+            .map((it) => MenuItem(title: it.title, onTap: () => _selectCategory(it.title)))
+            .toList(),
+      );
+    }).toList();
   }
 
   void _selectCategory(String category) {
