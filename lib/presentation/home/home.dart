@@ -1,6 +1,8 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/chat/support_inbox_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/prompt_library_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
@@ -24,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -42,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           _buildDashboardTab(),
           _buildTicketsTab(),
+          const PromptLibraryScreen(embedInParent: true),
+          const SupportInboxScreen(),
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
         ],
@@ -55,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen>
       actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
         controller: _tabController,
+        isScrollable: true,
         tabs: [
           Tab(
             icon: const Icon(Icons.dashboard),
@@ -63,6 +68,14 @@ class _HomeScreenState extends State<HomeScreen>
           Tab(
             icon: const Icon(Icons.confirmation_number),
             text: AppLocalizations.of(context).translate('home_tab_tickets'),
+          ),
+          Tab(
+            icon: const Icon(Icons.library_books_outlined),
+            text: AppLocalizations.of(context).translate('home_tab_prompts'),
+          ),
+          Tab(
+            icon: const Icon(Icons.chat_bubble_outline),
+            text: AppLocalizations.of(context).translate('home_tab_chat'),
           ),
           Tab(
             icon: const Icon(Icons.hub),

@@ -5,12 +5,15 @@ class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final FocusNode? focusNode;
+  /// Shown in the composer (e.g. localized “type / for prompts”).
+  final String? hintText;
 
   const ChatInputBar({
     required this.controller,
     required this.onSend,
     super.key,
     this.focusNode,
+    this.hintText,
   });
 
   @override

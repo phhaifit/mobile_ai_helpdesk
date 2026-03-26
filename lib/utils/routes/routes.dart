@@ -5,6 +5,7 @@ import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
@@ -39,6 +40,7 @@ class Routes {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String home = '/home';
+  static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
   static const String ticketList = '/ticket';
@@ -115,6 +117,11 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const MainScreen(),
+        );
+      case promptEditor:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const PrivatePromptEditorScreen(),
         );
       case profile:
         return MaterialPageRoute(
