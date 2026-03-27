@@ -6,11 +6,7 @@ class _TicketFieldUnset {
 
 const _ticketFieldUnset = _TicketFieldUnset();
 
-enum TicketPendingAction {
-  create,
-  update,
-  delete,
-}
+enum TicketPendingAction { create, update, delete }
 
 class Ticket {
   final String id;

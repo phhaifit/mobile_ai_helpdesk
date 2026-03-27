@@ -90,6 +90,8 @@ class _HomeScreenState extends State<HomeScreen>
           _buildDashboardTab(),
           _buildTicketsTab(),
           _buildChatInboxTab(),
+          const PromptLibraryScreen(embedInParent: true),
+          const SupportInboxScreen(),
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
           _buildPromptTab(),

@@ -114,11 +114,11 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Quản lý tài khoản',
+                    'Test',
                     style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textPrimary,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   Icon(

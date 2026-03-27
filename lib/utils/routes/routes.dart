@@ -4,13 +4,12 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
@@ -26,6 +25,10 @@ import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -41,6 +44,7 @@ class Routes {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String home = '/home';
+  static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
   static const String ticketList = '/ticket';
@@ -117,7 +121,12 @@ class Routes {
       case home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainScreen(),
+        );
+      case promptEditor:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const PrivatePromptEditorScreen(),
         );
       case profile:
         return MaterialPageRoute(
@@ -142,16 +151,14 @@ class Routes {
       case ticketDetail:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => TicketDetailScreen(
-            ticketId: settings.arguments as String,
-          ),
+          builder: (_) =>
+              TicketDetailScreen(ticketId: settings.arguments as String),
         );
       case editTicket:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => EditTicketScreen(
-            ticket: settings.arguments as Ticket,
-          ),
+          builder: (_) =>
+              EditTicketScreen(ticket: settings.arguments as Ticket),
         );
       case customerHistory:
         final args = settings.arguments as Map<String, String>;

@@ -7,7 +7,7 @@ class NetworkExceptions {
   static Failure getDioException(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-        return NetworkFailure(
+        return const NetworkFailure(
           'Connection timeout. Please check your internet connection.',
         );
       case DioExceptionType.sendTimeout:
@@ -19,7 +19,7 @@ class NetworkExceptions {
       case DioExceptionType.cancel:
         return const NetworkFailure('Request cancelled.');
       case DioExceptionType.connectionError:
-        return NetworkFailure(
+        return const NetworkFailure(
           'Connection error. Please check your internet connection.',
         );
       case DioExceptionType.badCertificate:

@@ -1,25 +1,4 @@
-// Screen file map — PromptLibraryScreen (folders and files that define this screen)
-// lib/
-// ├── presentation/
-// │   ├── home/home.dart                        # TabBarView: PromptLibraryScreen(embedInParent: true)
-// │   ├── di/module/store_module.dart           # registers PromptStore
-// │   └── prompt/
-// │       ├── prompt_library_screen.dart        # this file
-// │       ├── prompt_selection_chips.dart       # ChoiceChip / FilterChip styling
-// │       └── store/
-// │           ├── prompt_store.dart
-// │           └── prompt_store.g.dart
-// ├── domain/
-// │   ├── entity/prompt/prompt.dart
-// │   └── repository/prompt/prompt_repository.dart
-// ├── data/
-// │   ├── di/module/repository_module.dart      # registers PromptRepository
-// │   └── repository/prompt/mock_prompt_repository_impl.dart
-// └── utils/
-//     ├── routes/routes.dart                    # Routes.promptEditor for FAB / edit
-//     └── locale/app_localization.dart
-//
-// assets/lang/en.json, vi.json   (project root; not under lib/)
+
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
 import 'package:ai_helpdesk/presentation/prompt/prompt_selection_chips.dart';
