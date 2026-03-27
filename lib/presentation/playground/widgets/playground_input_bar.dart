@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '/constants/colors.dart';
@@ -11,10 +12,15 @@ class PlaygroundInputBar extends StatefulWidget {
   final ValueChanged<String> onSend;
   final ValueChanged<List<String>>? onAttachmentsChanged;
 
+  /// Optional external controller. When provided, the widget uses it
+  /// directly and does NOT dispose it — the caller is responsible.
+  final TextEditingController? controller;
+
   const PlaygroundInputBar({
     super.key,
     required this.onSend,
     this.onAttachmentsChanged,
+    this.controller,
     this.enabled = true,
   });
 
@@ -23,12 +29,24 @@ class PlaygroundInputBar extends StatefulWidget {
 }
 
 class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
+  bool _ownsController = false;
   final List<String> _attachments = [];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.controller != null) {
+      _controller = widget.controller!;
+    } else {
+      _controller = TextEditingController();
+      _ownsController = true;
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    if (_ownsController) _controller.dispose();
     super.dispose();
   }
 
@@ -41,10 +59,14 @@ class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
   }
 
   Future<void> _pickFiles() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      withData: kIsWeb,
+    );
     if (result == null) return;
-    final paths = result.files.map((f) => f.path ?? f.name).toList();
-    setState(() => _attachments.addAll(paths));
+    // On web, file.path is always null — use file.name for display on all platforms.
+    final names = result.files.map((f) => f.name).toList();
+    setState(() => _attachments.addAll(names));
     widget.onAttachmentsChanged?.call(_attachments);
   }
 
@@ -67,7 +89,7 @@ class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
                   separatorBuilder: (_, __) => const SizedBox(width: 6),
                   itemBuilder: (_, i) => Chip(
                     label: Text(
-                      _attachments[i].split('/').last,
+                      _attachments[i].split(RegExp(r'[/\\]')).last,
                       style: const TextStyle(fontSize: 11),
                     ),
                     avatar: const Icon(Icons.attach_file, size: 14),

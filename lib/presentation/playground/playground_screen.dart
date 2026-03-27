@@ -41,9 +41,11 @@ class PlaygroundScreen extends StatefulWidget {
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
   late final PlaygroundStore _store;
   final ScrollController _scrollCtrl = ScrollController();
+  final TextEditingController _inputCtrl = TextEditingController();
   PlaygroundContextType _contextType = PlaygroundContextType.normal;
   bool _showDrafts = false;
   List<String> _drafts = [];
+  List<String> _pendingAttachments = [];
 
   static const _suggestions = [
     'Tôi muốn đổi trả sản phẩm',
@@ -66,6 +68,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   @override
   void dispose() {
     _scrollCtrl.dispose();
+    _inputCtrl.dispose();
     super.dispose();
   }
 
@@ -87,10 +90,11 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
   void _onSend(String text) {
-    _store.sendMessage(text, attachments: []);
+    _store.sendMessage(text, attachments: [..._pendingAttachments]);
     _scrollToBottom();
     // Generate mock drafts after each message for demonstration.
     setState(() {
+      _pendingAttachments = [];
       _drafts = [
         'Cảm ơn bạn đã liên hệ! Tôi sẽ xử lý ngay.',
         'Vấn đề của bạn đã được ghi nhận và đội ngũ sẽ liên hệ trong 2 giờ.',
@@ -100,6 +104,10 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
   void _applyDraft(String draft) {
+    _inputCtrl.text = draft;
+    _inputCtrl.selection = TextSelection.fromPosition(
+      TextPosition(offset: draft.length),
+    );
     setState(() {
       _showDrafts = false;
       _drafts = [];
@@ -192,7 +200,10 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         Observer(
           builder: (_) => PlaygroundInputBar(
             enabled: _store.activeSession != null && !_store.isStreaming,
+            controller: _inputCtrl,
             onSend: _onSend,
+            onAttachmentsChanged: (list) =>
+                setState(() => _pendingAttachments = list),
           ),
         ),
       ],
@@ -200,6 +211,18 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: Builder(
+          builder: (ctx) => Navigator.canPop(ctx)
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(ctx),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => Scaffold.of(ctx).openDrawer(),
+                ),
+        ),
         title: Text(l.translate('playground_title')),
         actions: [
           Observer(
