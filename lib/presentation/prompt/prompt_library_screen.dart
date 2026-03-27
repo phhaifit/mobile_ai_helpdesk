@@ -75,69 +75,113 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
     Navigator.pushNamed(context, Routes.promptEditor);
   }
 
-  Widget _buildFavoritesRow(AppLocalizations l) {
+  BorderSide _chipOutlineSide(BuildContext context) {
+    return BorderSide(
+      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+      width: 1,
+    );
+  }
+
+  /// Favorites filter — row below title/+ and above category chips.
+  Widget _buildFavoritesChip(AppLocalizations l) {
     return Observer(
       builder: (_) {
         final active = _store.favoritesOnly;
-        return Row(
-          children: [
-            Tooltip(
-              message: l.translate('prompt_tv_favorites_toggle'),
-              child: FilterChip(
-                avatar: Icon(
-                  active ? Icons.star : Icons.star_border,
-                  size: 18,
-                  color: PromptSelectionChips.avatarIconColor(
-                    context,
-                    selected: active,
-                  ),
-                ),
-                label: Text(
-                  l.translate('prompt_tv_favorites_short'),
-                  style: PromptSelectionChips.labelTextStyle(
-                    context,
-                    selected: active,
-                  ),
-                ),
-                selected: active,
-                color: PromptSelectionChips.background(context),
-                onSelected: (_) => _store.setFavoritesOnly(!active),
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Tooltip(
+            message: l.translate('prompt_tv_favorites_toggle'),
+            child: FilterChip(
+              showCheckmark: false,
+              side: _chipOutlineSide(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
+              avatar: Icon(
+                active ? Icons.star : Icons.star_border,
+                size: 18,
+                color: PromptSelectionChips.avatarIconColor(
+                  context,
+                  selected: active,
+                ),
+              ),
+              label: Text(
+                l.translate('prompt_tv_favorites_short'),
+                style: PromptSelectionChips.labelTextStyle(
+                  context,
+                  selected: active,
+                ),
+              ),
+              selected: active,
+              color: PromptSelectionChips.background(context),
+              onSelected: (_) => _store.setFavoritesOnly(!active),
             ),
-            const Spacer(),
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildCategoryRow(AppLocalizations l) {
+  Widget _buildCircularAddButton(AppLocalizations l) {
+    final scheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: l.translate('prompt_btn_new_private'),
+      child: Material(
+        color: scheme.surfaceContainerHighest,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _openNewPrivatePrompt,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Icon(
+              Icons.add,
+              size: 22,
+              color: scheme.onSurface,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Category [ChoiceChip]s only (scrollable); outlined / light fill like reference chips.
+  Widget _buildCategoryRowOnly(AppLocalizations l) {
     return Observer(
       builder: (_) {
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final c in _store.categories)
-              ChoiceChip(
-                label: Text(
-                  l.translate(c.nameKey),
-                  style: PromptSelectionChips.labelTextStyle(
-                    context,
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final c in _store.categories)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    showCheckmark: false,
+                    side: _chipOutlineSide(context),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    label: Text(
+                      l.translate(c.nameKey),
+                      style: PromptSelectionChips.labelTextStyle(
+                        context,
+                        selected: _store.selectedCategoryId == c.id,
+                      ),
+                    ),
                     selected: _store.selectedCategoryId == c.id,
+                    color: PromptSelectionChips.background(context),
+                    onSelected: (selected) {
+                      if (selected) {
+                        _store.setCategoryFilter(c.id);
+                      } else {
+                        _store.setCategoryFilter('all');
+                      }
+                    },
                   ),
                 ),
-                selected: _store.selectedCategoryId == c.id,
-                color: PromptSelectionChips.background(context),
-                onSelected: (selected) {
-                  if (selected) {
-                    _store.setCategoryFilter(c.id);
-                  } else {
-                    _store.setCategoryFilter('all');
-                  }
-                },
-              ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -161,34 +205,28 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
 
   Widget _buildTopSection(AppLocalizations l) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.embedInParent) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    l.translate('prompt_tv_library_title'),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  l.translate('prompt_tv_library_title'),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
-                IconButton(
-                  onPressed: _openNewPrivatePrompt,
-                  icon: const Icon(Icons.add_circle_outline),
-                  tooltip: l.translate('prompt_btn_new_private'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-          ] else ...[
-            const SizedBox(height: 8),
-          ],
-          _buildFavoritesRow(l),
+              ),
+              _buildCircularAddButton(l),
+            ],
+          ),
           const SizedBox(height: 12),
-          _buildCategoryRow(l),
+          _buildFavoritesChip(l),
+          const SizedBox(height: 12),
+          _buildCategoryRowOnly(l),
           const SizedBox(height: 12),
           _buildSearchField(l),
         ],
@@ -273,18 +311,26 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
       return _buildBody(l);
     }
 
+    final canPop = Navigator.canPop(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('prompt_tv_library_title')),
-        actions: [
-          IconButton(
-            onPressed: _openNewPrivatePrompt,
-            icon: const Icon(Icons.add_circle_outline),
-            tooltip: l.translate('prompt_btn_new_private'),
-          ),
-        ],
+      appBar: canPop
+          ? AppBar(
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.maybePop(context),
+              ),
+              automaticallyImplyLeading: false,
+            )
+          : null,
+      body: SafeArea(
+        top: !canPop,
+        bottom: true,
+        left: true,
+        right: true,
+        child: _buildBody(l),
       ),
-      body: _buildBody(l),
     );
   }
 }
@@ -332,7 +378,7 @@ class _PromptListCard extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             ),
             IconButton(
-              tooltip: l.translate('prompt_tv_favorite'),
+              tooltip: l.translate('Favorites only'),
               onPressed: onToggleFavorite,
               icon: Icon(
                 prompt.isFavorite ? Icons.star : Icons.star_border,

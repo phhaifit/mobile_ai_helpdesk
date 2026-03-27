@@ -25,6 +25,7 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_scree
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -65,6 +66,7 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
+  static const String promptEditor = '/prompt/private-editor';
 
   // route generator -----------------------------------------------------------
   /// Generates routes with integrated UTM parameter parsing and analytics tracking.
@@ -229,6 +231,11 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
+        );
+      case promptEditor:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const PrivatePromptEditorScreen(),
         );
       default:
         return MaterialPageRoute(

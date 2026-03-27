@@ -1,7 +1,5 @@
-import 'package:ai_helpdesk/core/di/module/analytics_module.dart';
-
+/// Reserved for core-layer DI. Analytics is registered in [NetworkModule] as
+/// [domain/analytics/analytics_service.dart].
 class CoreLayerInjection {
-  static Future<void> configureCoreLayerInjection() async {
-    await AnalyticsModule.configureAnalyticsModuleInjection();
-  }
+  static Future<void> configureCoreLayerInjection() async {}
 }

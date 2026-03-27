@@ -73,11 +73,11 @@ class MockPromptRepositoryImpl implements PromptRepository {
 
   @override
   List<PromptCategory> get categories => const [
-        PromptCategory(id: 'all', nameKey: 'prompt_cat_all'),
-        PromptCategory(id: 'support', nameKey: 'prompt_cat_support'),
-        PromptCategory(id: 'sales', nameKey: 'prompt_cat_sales'),
-        PromptCategory(id: 'technical', nameKey: 'prompt_cat_technical'),
-        PromptCategory(id: 'general', nameKey: 'prompt_cat_general'),
+        PromptCategory(id: 'all', nameKey: 'all'),
+        PromptCategory(id: 'support', nameKey: 'support'),
+        PromptCategory(id: 'sales', nameKey: 'sales'),
+        PromptCategory(id: 'technical', nameKey: 'technical'),
+        PromptCategory(id: 'general', nameKey: 'general'),
       ];
 
   @override

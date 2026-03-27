@@ -21,15 +21,17 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
+import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
-import 'package:ai_helpdesk/presentation/customer_management/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
@@ -76,8 +78,6 @@ class StoreModule {
         getIt<ResetPasswordUseCase>(),
       ),
     );
-
-    getIt.registerSingleton<SessionStore>(SessionStore());
 
     getIt.registerFactory(
       () => TicketTabStore(

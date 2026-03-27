@@ -10,8 +10,10 @@ class AnalyticsScreen {
   static const String home = 'home';
   static const String dashboard = 'home_dashboard';
   static const String tickets = 'home_tickets';
+  static const String chatInbox = 'home_chat_inbox';
   static const String omnichannelTab = 'home_omnichannel';
   static const String monetizationTab = 'home_monetization';
+  static const String promptTab = 'home_prompt_library';
   static const String profile = 'profile';
   static const String changePassword = 'change_password';
   static const String omnichannelHub = 'omnichannel_hub';

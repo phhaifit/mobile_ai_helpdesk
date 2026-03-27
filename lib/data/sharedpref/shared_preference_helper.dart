@@ -72,26 +72,30 @@ class SharedPreferenceHelper {
   String? get userRole => _sharedPreference.getString(Preferences.userRole);
   String? get planType => _sharedPreference.getString(Preferences.planType);
 
-  // Analytics user properties (set after login):-------------------------------
-  Future<void> saveAnalyticsUserProperties({
-    String? tenantId,
-    String? role,
-    String? planType,
-  }) async {
-    if (tenantId != null) {
-      await _sharedPreference.setString(Preferences.tenantId, tenantId);
-    }
-    if (role != null) {
-      await _sharedPreference.setString(Preferences.userRole, role);
-    }
-    if (planType != null) {
-      await _sharedPreference.setString(Preferences.planType, planType);
-    }
-  }
+  // First launch (analytics):--------------------------------------------------
+  bool? getIsAppFirstOpen() =>
+      _sharedPreference.getBool(Preferences.isAppFirstOpen);
 
-  String? get tenantId => _sharedPreference.getString(Preferences.tenantId);
-  String? get userRole => _sharedPreference.getString(Preferences.userRole);
-  String? get planType => _sharedPreference.getString(Preferences.planType);
+  Future<bool> setIsAppFirstOpen(bool value) =>
+      _sharedPreference.setBool(Preferences.isAppFirstOpen, value);
+
+  Future<bool> setFirstLaunchTime(String iso8601) =>
+      _sharedPreference.setString(Preferences.firstLaunchTime, iso8601);
+
+  Future<bool> setInstallationId(String id) =>
+      _sharedPreference.setString(Preferences.installationId, id);
+
+  Future<bool> setInstallSource(String source) =>
+      _sharedPreference.setString(Preferences.installSource, source);
+
+  String? getInstallationId() =>
+      _sharedPreference.getString(Preferences.installationId);
+
+  String? getInstallSource() =>
+      _sharedPreference.getString(Preferences.installSource);
+
+  String? getFirstLaunchTime() =>
+      _sharedPreference.getString(Preferences.firstLaunchTime);
 
   // User:----------------------------------------------------------------------
   Future<void> saveUser(User user) async {

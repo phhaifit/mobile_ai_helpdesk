@@ -1,5 +1,7 @@
-import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/core/analytics/analytics_event.dart';
+import 'package:ai_helpdesk/core/analytics/analytics_user_property.dart';
 import 'package:ai_helpdesk/core/widgets/auth_text_field.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
@@ -30,8 +32,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 ///                   ├─ TextButton (forgot password)
 ///                   └─ TextButton (sign up)
 
-import 'store/login_store.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  Future<void> _handleLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -98,18 +98,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _handleLogin() async {
-    await _store.login();
-    if (!mounted || _store.errorMessage != null) return;
-
-    await _trackLoginAnalytics();
-    if (!mounted) return;
-    await Navigator.pushReplacementNamed(context, Routes.home);
-  }
-
   Future<void> _trackLoginAnalytics() async {
-    final analytics = GetIt.instance<AnalyticsService>();
-    final prefs = GetIt.instance<SharedPreferenceHelper>();
+    final analytics = getIt<AnalyticsService>();
+    final prefs = getIt<SharedPreferenceHelper>();
 
     await analytics.trackEvent(
       AnalyticsEvent.login,
@@ -260,28 +251,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Future<void> _trackLoginAnalytics() async {
-    final analytics = getIt<AnalyticsService>();
-    final prefs = getIt<SharedPreferenceHelper>();
-
-    await analytics.logLoginEvent(method: 'email', success: true);
-    await analytics.logLogin(method: 'email');
-
-    const tenantId = 'default_tenant';
-    const role = 'agent';
-    const planType = 'standard';
-    await prefs.saveAnalyticsUserProperties(
-      tenantId: tenantId,
-      role: role,
-      planType: planType,
-    );
-    await analytics.setUserProperties(
-      tenantId: tenantId,
-      role: role,
-      planType: planType,
     );
   }
 }

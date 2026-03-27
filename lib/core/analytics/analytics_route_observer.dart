@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:ai_helpdesk/core/analytics/analytics_screen.dart';
-import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +63,12 @@ class AnalyticsRouteObserver extends NavigatorObserver {
     if (route == null) return;
     final name = route.settings.name;
     final screenName = _screenNameFromRoute(name);
-    getIt<AnalyticsService>().logScreen(screenName);
+    unawaited(
+      getIt<AnalyticsService>().trackScreenView(
+        screenName,
+        screenClass: screenName,
+      ),
+    );
   }
 
   @override

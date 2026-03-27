@@ -1,9 +1,8 @@
-import 'package:uuid/uuid.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
-import '/domain/analytics/analytics_service.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
+import 'package:uuid/uuid.dart';
 
 /// Data class for first launch detection results.
 class FirstLaunchData {
@@ -72,7 +71,7 @@ class FirstLaunchManager {
         debugPrint('[Analytics] First app open detected');
 
         // Generate installation ID
-        const uuid = Uuid();
+        final uuid = Uuid();
         final installationId = uuid.v4();
 
         // Get current timestamp
@@ -145,7 +144,7 @@ class FirstLaunchManager {
       debugPrint('[Analytics Error] First launch detection failed: $e');
 
       // Graceful degradation - generate a temporary ID if everything fails
-      const uuid = Uuid();
+      final uuid = Uuid();
       final fallbackId = uuid.v4();
 
       return FirstLaunchData(

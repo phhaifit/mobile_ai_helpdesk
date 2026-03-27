@@ -92,43 +92,6 @@ class MockDataGenerator {
     return agents;
   }
 
-  /// Generate list of mock customers
-  static List<Customer> generateCustomers() {
-    final customers = <Customer>[];
-    const customerCount = 15;
-    final companies = [
-      'Công ty Cổ phần Công nghệ XYZ',
-      'Doanh nghiệp Tư nhân ABC',
-      'Tập đoàn Thương mại VietName',
-      'Công ty TNHH Đa nước ngoài',
-      'Công ty Cổ phần Viễn thông',
-      'Doanh nghiệp Nhà nước',
-      'Công ty Cổ phần Bất động sản',
-      'Tập đoàn Thương mại Quốc tế',
-      'Công ty Cổ phần Tài chính',
-      'Doanh nghiệp Gia đình',
-    ];
-
-    for (int i = 0; i < customerCount; i++) {
-      final firstName = vietnameseFirstNames[i % vietnameseFirstNames.length];
-      final lastName = vietnameseLastNames[i % vietnameseLastNames.length];
-      final fullName = '$firstName $lastName';
-
-      customers.add(Customer(
-        id: 'cust_${i + 1}',
-        fullName: fullName,
-        email: 'customer${i + 1}@example.com',
-        phone: '0${9 + (i % 8)}${String.fromCharCodes(List.generate(8, (index) => 48 + (i + index) % 10))}',
-        company: i % 3 == 0 ? companies[i % companies.length] : null,
-        createdAt: DateTime.now().subtract(Duration(days: 730 - (i * 40))),
-        lastContactedAt: DateTime.now().subtract(Duration(days: i % 30)),
-        totalTickets: 2 + (i % 8),
-      ));
-    }
-
-    return customers;
-  }
-
   /// Generate list of mock tickets
   static List<Ticket> generateTickets(List<Agent> agents) {
     final tickets = <Ticket>[];

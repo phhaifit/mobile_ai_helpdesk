@@ -12,21 +12,45 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setPreferredOrientations();
 
-  if (!kIsWeb) {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  try {
+    try {
+      Firebase.app();
+    } catch (_) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e, st) {
+    debugPrint('Firebase initialization failed: $e\n$st');
+  }
 
   final env = EnvConfig.instance;
   log('Running in ${env.environment.name} mode — ${env.baseUrl}');
 
   await ServiceLocator.configureDependencies();
 
+  try {
+    final analyticsService = GetIt.instance<AnalyticsService>();
+    final sharedPrefHelper = GetIt.instance<SharedPreferenceHelper>();
+
+    final firstLaunchData = await FirstLaunchManager.checkAndTrackFirstLaunch(
+      analyticsService: analyticsService,
+      sharedPreferenceHelper: sharedPrefHelper,
+    );
+    debugPrint('[Main] App initialization complete: $firstLaunchData');
+  } catch (e) {
+    debugPrint('[Main] First launch tracking failed: $e');
+  }
+
   if (!kIsWeb) {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError =
+        FirebaseCrashlytics.instance.recordFlutterFatalError;
 
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -42,7 +66,7 @@ Future<void> main() async {
     );
   }
 
-  // runApp(MyApp());
+  runApp(MyApp());
 }
 
 Future<void> setPreferredOrientations() {

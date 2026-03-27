@@ -9,7 +9,13 @@ class Preferences {
   static const String currentLanguage = 'current_language';
 
   /// User properties for analytics (set after login).
-  static const String tenantId = "tenant_id";
-  static const String userRole = "user_role";
-  static const String planType = "plan_type";
+  static const String tenantId = 'tenant_id';
+  static const String userRole = 'user_role';
+  static const String planType = 'plan_type';
+
+  /// First launch / install tracking (analytics).
+  static const String isAppFirstOpen = 'is_app_first_open';
+  static const String firstLaunchTime = 'first_launch_time';
+  static const String installationId = 'installation_id';
+  static const String installSource = 'install_source';
 }

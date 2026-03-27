@@ -10,7 +10,6 @@ import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
-import 'package:dartz/dartz.dart';
 
 /// Auth Repository Implementation - combines API + Local storage
 class AuthRepositoryImpl implements AuthRepository {

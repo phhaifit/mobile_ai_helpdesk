@@ -1,4 +1,5 @@
-import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/core/analytics/analytics_event.dart';
+import 'package:ai_helpdesk/core/analytics/analytics_user_property.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
@@ -63,8 +64,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               if (!_authStore.isAuthenticated) {
                 final analytics = getIt<AnalyticsService>();
-                await analytics.logLogout();
-                await analytics.clearUserProperties();
+                await analytics.trackEvent(AnalyticsEvent.logout);
+                await analytics.setUserProperty(
+                  AnalyticsUserProperty.tenantId,
+                  '',
+                );
+                await analytics.setUserProperty(
+                  AnalyticsUserProperty.role,
+                  '',
+                );
+                await analytics.setUserProperty(
+                  AnalyticsUserProperty.planType,
+                  '',
+                );
               }
 
               if (!mounted || !context.mounted) return;

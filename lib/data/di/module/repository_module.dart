@@ -13,7 +13,6 @@ import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
-import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
@@ -60,11 +59,6 @@ class RepositoryModule {
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
     );
 
-    // --- Customer Repositories ---
-    getIt.registerSingleton<CustomerRepository>(
-      CustomerRepositoryImpl(getIt<CustomerDataSource>()),
-    );
-
     // --- Omnichannel Repository ---
     getIt.registerSingleton<OmnichannelRepository>(
       MockOmnichannelRepositoryImpl(),
@@ -78,10 +72,6 @@ class RepositoryModule {
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(
       () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
-    );
-
-    getIt.registerSingleton<PromptRepository>(
-      MockPromptRepositoryImpl(),
     );
 
     getIt.registerSingleton<PromptRepository>(

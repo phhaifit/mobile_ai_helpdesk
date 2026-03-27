@@ -1,10 +1,11 @@
+import 'dart:async';
+
+import 'package:ai_helpdesk/core/analytics/analytics_event.dart';
 import 'package:ai_helpdesk/core/analytics/analytics_screen.dart';
-import 'package:ai_helpdesk/core/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/presentation/chat/support_inbox_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_onTabControllerTick);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -52,8 +53,10 @@ class _HomeScreenState extends State<HomeScreen>
     const names = <String>[
       AnalyticsScreen.dashboard,
       AnalyticsScreen.tickets,
+      AnalyticsScreen.chatInbox,
       AnalyticsScreen.omnichannelTab,
       AnalyticsScreen.monetizationTab,
+      AnalyticsScreen.promptTab,
     ];
     if (index < 0 || index >= names.length) {
       return;
@@ -62,7 +65,12 @@ class _HomeScreenState extends State<HomeScreen>
       return;
     }
     _lastLoggedTabIndex = index;
-    getIt<AnalyticsService>().logScreen(names[index]);
+    unawaited(
+      getIt<AnalyticsService>().trackScreenView(
+        names[index],
+        screenClass: names[index],
+      ),
+    );
   }
 
   @override
@@ -81,8 +89,10 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           _buildDashboardTab(),
           _buildTicketsTab(),
+          _buildChatInboxTab(),
           _buildOmnichannelTab(),
           _buildMonetizationTab(),
+          _buildPromptTab(),
         ],
       ),
       floatingActionButton: _buildCreateTicketFab(context),
@@ -104,19 +114,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Future<void> _onCreateTicket(BuildContext context) async {
-    final ticketId = 'TK-${DateTime.now().millisecondsSinceEpoch}';
-    await getIt<AnalyticsService>().logTicketCreated(
-      ticketId: ticketId,
-      channel: 'in_app',
-    );
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ticket $ticketId created (event logged)')),
-      );
-    }
-  }
-
   PreferredSizeWidget _buildAppBar() {
     final l = AppLocalizations.of(context);
     return AppBar(
@@ -136,6 +133,10 @@ class _HomeScreenState extends State<HomeScreen>
             text: l.translate('home_tab_tickets'),
           ),
           Tab(
+            icon: const Icon(Icons.chat_bubble_outline),
+            text: l.translate('home_tab_chat'),
+          ),
+          Tab(
             icon: const Icon(Icons.hub),
             text: l.translate('home_tab_omnichannel'),
           ),
@@ -144,10 +145,8 @@ class _HomeScreenState extends State<HomeScreen>
             text: l.translate('monetizationTitle'),
           ),
           Tab(
-            icon: const Icon(Icons.workspace_premium),
-            text: AppLocalizations.of(
-              context,
-            ).translate('monetization_tv_title'),
+            icon: const Icon(Icons.library_books_outlined),
+            text: l.translate('home_tab_prompt'),
           ),
         ],
       ),
@@ -186,26 +185,26 @@ class _HomeScreenState extends State<HomeScreen>
             onTap: () => _openHomeTab(1),
           ),
           _buildDashboardTile(
-            icon: Icons.library_books_outlined,
-            title: l.translate('home_tab_prompts'),
-            subtitle: l.translate('home_dash_tab_hint'),
-            onTap: () => _openHomeTab(2),
-          ),
-          _buildDashboardTile(
             icon: Icons.chat_bubble_outline,
             title: l.translate('home_tab_chat'),
             subtitle: l.translate('home_dash_tab_hint'),
-            onTap: () => _openHomeTab(3),
+            onTap: () => _openHomeTab(2),
           ),
           _buildDashboardTile(
             icon: Icons.hub_outlined,
             title: l.translate('home_tab_omnichannel'),
             subtitle: l.translate('home_dash_tab_hint'),
-            onTap: () => _openHomeTab(4),
+            onTap: () => _openHomeTab(3),
           ),
           _buildDashboardTile(
             icon: Icons.payments_outlined,
             title: l.translate('monetizationTitle'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(4),
+          ),
+          _buildDashboardTile(
+            icon: Icons.library_books_outlined,
+            title: l.translate('home_tab_prompt'),
             subtitle: l.translate('home_dash_tab_hint'),
             onTap: () => _openHomeTab(5),
           ),
@@ -291,53 +290,66 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildTicketsTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        final ticketId = 'TK-${1000 + index}';
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const [
-                Colors.red,
-                Colors.orange,
-                Colors.amber,
-                Colors.green,
-                Colors.blue,
-              ][index],
-              radius: 6,
-            ),
-            title: Text('Ticket #${index + 1}'),
-            subtitle: Text('Mock ticket description ${index + 1}'),
-            trailing: Text(
-              ticketId,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-            onTap: () async {
-              await getIt<AnalyticsService>().logAgentUsed(
-                ticketId: ticketId,
-                agentType: 'chatbot',
-              );
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Opened agent for $ticketId (event logged)'),
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              final ticketId = 'TK-${1000 + index}';
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const [
+                      Colors.red,
+                      Colors.orange,
+                      Colors.amber,
+                      Colors.green,
+                      Colors.blue,
+                    ][index],
+                    radius: 6,
                   ),
-                );
-              }
+                  title: Text('Ticket #${index + 1}'),
+                  subtitle: Text('Mock ticket description ${index + 1}'),
+                  trailing: Text(
+                    ticketId,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  onTap: () async {
+                    await getIt<AnalyticsService>().trackEvent(
+                      AnalyticsEvent.agentUsed,
+                      parameters: {
+                        AnalyticsEvent.paramTicketId: ticketId,
+                        AnalyticsEvent.paramAgentType: 'chatbot',
+                      },
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Opened agent for $ticketId (event logged)',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              );
             },
           ),
-        );
-      },
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushNamed(context, Routes.ticketList);
-        },
-        child: const Text('View All Tickets'),
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, Routes.ticketList);
+            },
+            child: const Text('View All Tickets'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -345,8 +357,16 @@ class _HomeScreenState extends State<HomeScreen>
     return const OmnichannelHubScreen(showAppBar: false);
   }
 
+  Widget _buildChatInboxTab() {
+    return const SupportInboxScreen();
+  }
+
   Widget _buildMonetizationTab() {
     return const MonetizationScreen(embedded: true);
+  }
+
+  Widget _buildPromptTab() {
+    return const PromptLibraryScreen(embedInParent: true);
   }
 
   Widget _buildThemeButton() {
