@@ -95,7 +95,9 @@ class _HomeScreenState extends State<HomeScreen>
         final isTicketsTab = _tabController.index == 1;
         if (!isTicketsTab) return const SizedBox.shrink();
         return FloatingActionButton(
-          onPressed: () => _onCreateTicket(context),
+          onPressed: () {
+            Navigator.of(context).pushNamed(Routes.createTicket);
+          },
           child: const Icon(Icons.add),
         );
       },
@@ -118,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen>
   PreferredSizeWidget _buildAppBar() {
     final l = AppLocalizations.of(context);
     return AppBar(
+      automaticallyImplyLeading: false,
       title: Text(l.translate('home_tv_title')),
       actions: [_buildLanguageButton(), _buildThemeButton()],
       bottom: TabBar(
@@ -151,69 +154,138 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _openHomeTab(int index) {
+    if (!mounted || index < 0 || index >= 6) return;
+    _tabController.animateTo(index);
+  }
+
   Widget _buildDashboardTab() {
     final l = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l.translate('home_tv_welcome'),
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: theme.textTheme.headlineMedium,
           ),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _buildStatCard(
-                'Total',
-                '12',
-                Icons.confirmation_number,
-                Colors.blue,
-              ),
-              _buildStatCard('Open', '5', Icons.fiber_new, Colors.orange),
-              _buildStatCard('In Progress', '4', Icons.autorenew, Colors.amber),
-              _buildStatCard('Resolved', '3', Icons.check_circle, Colors.green),
-            ],
+          const SizedBox(height: 20),
+          Text(
+            l.translate('home_dash_section_tabs'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildDashboardTile(
+            icon: Icons.confirmation_number_outlined,
+            title: l.translate('home_tab_tickets'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(1),
+          ),
+          _buildDashboardTile(
+            icon: Icons.library_books_outlined,
+            title: l.translate('home_tab_prompts'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(2),
+          ),
+          _buildDashboardTile(
+            icon: Icons.chat_bubble_outline,
+            title: l.translate('home_tab_chat'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(3),
+          ),
+          _buildDashboardTile(
+            icon: Icons.hub_outlined,
+            title: l.translate('home_tab_omnichannel'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(4),
+          ),
+          _buildDashboardTile(
+            icon: Icons.payments_outlined,
+            title: l.translate('monetizationTitle'),
+            subtitle: l.translate('home_dash_tab_hint'),
+            onTap: () => _openHomeTab(5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l.translate('home_dash_section_routes'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildDashboardTile(
+            icon: Icons.view_list_outlined,
+            title: l.translate('home_dash_ticket_workspace'),
+            subtitle: l.translate('home_dash_ticket_workspace_sub'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.ticketList),
+          ),
+          _buildDashboardTile(
+            icon: Icons.add_circle_outline,
+            title: l.translate('home_dash_create_ticket'),
+            subtitle: l.translate('home_dash_create_ticket_sub'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.createTicket),
+          ),
+          _buildDashboardTile(
+            icon: Icons.hub,
+            title: l.translate('home_dash_open_hub'),
+            subtitle: l.translate('home_dash_open_hub_sub'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.omnichannelHub),
+          ),
+          _buildDashboardTile(
+            icon: Icons.account_tree_outlined,
+            title: l.translate('home_dash_messenger_dashboard'),
+            subtitle: l.translate('omnichannel_messenger_dashboard_title'),
+            onTap: () =>
+                Navigator.of(context).pushNamed(Routes.messengerDashboard),
+          ),
+          _buildDashboardTile(
+            icon: Icons.chat_outlined,
+            title: l.translate('home_dash_zalo_overview'),
+            subtitle: l.translate('omnichannel_zalo_overview_title'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.zaloOverview),
+          ),
+          _buildDashboardTile(
+            icon: Icons.monetization_on_outlined,
+            title: l.translate('home_dash_open_monetization'),
+            subtitle: l.translate('home_dash_open_monetization_sub'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.monetization),
+          ),
+          _buildDashboardTile(
+            icon: Icons.person_outline,
+            title: l.translate('profile_tv_title'),
+            subtitle: l.translate('profile_btn_edit'),
+            onTap: () => Navigator.of(context).pushNamed(Routes.profile),
+          ),
+          _buildDashboardTile(
+            icon: Icons.lock_outline,
+            title: l.translate('profile_btn_change_password'),
+            subtitle: l.translate('profile_btn_change_password'),
+            onTap: () =>
+                Navigator.of(context).pushNamed(Routes.changePassword),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return SizedBox(
-      width: 160,
-      child: Card(
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Icon(icon, size: 32, color: color),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(color: color),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
+  Widget _buildDashboardTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
     );
   }

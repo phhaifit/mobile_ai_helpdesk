@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:ai_helpdesk/presentation/home/home.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
@@ -114,7 +115,7 @@ class Routes {
       case home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const MainScreen(),
+          builder: (_) => const HomeScreen(),
         );
       case profile:
         return MaterialPageRoute(

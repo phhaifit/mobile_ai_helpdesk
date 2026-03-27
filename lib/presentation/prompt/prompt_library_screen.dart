@@ -75,45 +75,12 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
     Navigator.pushNamed(context, Routes.promptEditor);
   }
 
-  /// Category [ChoiceChip]s (scrollable) on the left; favorites [FilterChip] pinned on the right.
-  Widget _buildCategoryAndFavoritesRow(AppLocalizations l) {
+  Widget _buildFavoritesRow(AppLocalizations l) {
     return Observer(
       builder: (_) {
         final active = _store.favoritesOnly;
         return Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final c in _store.categories)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(
-                            l.translate(c.nameKey),
-                            style: PromptSelectionChips.labelTextStyle(
-                              context,
-                              selected: _store.selectedCategoryId == c.id,
-                            ),
-                          ),
-                          selected: _store.selectedCategoryId == c.id,
-                          color: PromptSelectionChips.background(context),
-                          onSelected: (selected) {
-                            if (selected) {
-                              _store.setCategoryFilter(c.id);
-                            } else {
-                              _store.setCategoryFilter('all');
-                            }
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
             Tooltip(
               message: l.translate('prompt_tv_favorites_toggle'),
               child: FilterChip(
@@ -137,6 +104,39 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                 onSelected: (_) => _store.setFavoritesOnly(!active),
               ),
             ),
+            const Spacer(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryRow(AppLocalizations l) {
+    return Observer(
+      builder: (_) {
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final c in _store.categories)
+              ChoiceChip(
+                label: Text(
+                  l.translate(c.nameKey),
+                  style: PromptSelectionChips.labelTextStyle(
+                    context,
+                    selected: _store.selectedCategoryId == c.id,
+                  ),
+                ),
+                selected: _store.selectedCategoryId == c.id,
+                color: PromptSelectionChips.background(context),
+                onSelected: (selected) {
+                  if (selected) {
+                    _store.setCategoryFilter(c.id);
+                  } else {
+                    _store.setCategoryFilter('all');
+                  }
+                },
+              ),
           ],
         );
       },
@@ -186,7 +186,9 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
           ] else ...[
             const SizedBox(height: 8),
           ],
-          _buildCategoryAndFavoritesRow(l),
+          _buildFavoritesRow(l),
+          const SizedBox(height: 12),
+          _buildCategoryRow(l),
           const SizedBox(height: 12),
           _buildSearchField(l),
         ],

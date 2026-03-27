@@ -77,6 +77,8 @@ class StoreModule {
       ),
     );
 
+    getIt.registerSingleton<SessionStore>(SessionStore());
+
     getIt.registerFactory(
       () => TicketTabStore(
         getIt<SessionStore>(),
