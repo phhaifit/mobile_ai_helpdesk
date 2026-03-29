@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
@@ -83,6 +84,7 @@ class StoreModule {
         getIt<ChangePasswordUseCase>(),
         getIt<ResetPasswordUseCase>(),
         getIt<AnalyticsService>(),
+        getIt<SentryService>(),
       ),
     );
 
@@ -117,7 +119,8 @@ class StoreModule {
       ),
     );
     getIt.registerFactory(
-      () => EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
+      () =>
+          EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
     );
     getIt.registerFactory(
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
