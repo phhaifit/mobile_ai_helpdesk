@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_sc
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
@@ -66,6 +67,7 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
+  static const String knowledge = '/knowledge';
 
   // route generator -----------------------------------------------------------
   /// Generates routes with integrated UTM parameter parsing and analytics tracking.
@@ -233,6 +235,11 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
+        );
+      case knowledge:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const KnowledgeSourceListScreen(),
         );
       default:
         return MaterialPageRoute(

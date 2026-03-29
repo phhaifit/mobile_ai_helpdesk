@@ -7,6 +7,7 @@ import 'customer/screens/customer_main_screen.dart';
 import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
 import 'prompt/prompt_library_screen.dart';
+import 'knowledge/knowledge_source_list_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
@@ -133,6 +134,16 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+      MenuCategory(
+        title: 'Cấu hình Trợ lý AI',
+        icon: Icons.auto_stories_outlined,
+        items: [
+          MenuItem(
+            title: 'Nạp kiến thức',
+            onTap: () => _selectCategory('Nạp kiến thức'),
+          ),
+        ],
+      ),
     ];
   }
 
@@ -184,6 +195,11 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const TicketListScreen();
       case 'Hộp thư hỗ trợ':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
+      case 'Nạp kiến thức':
+        contentWidget = KnowledgeSourceListScreen(
+          embedded: true,
+          onMenuTap: _toggleMobileSidebar,
+        );
       case 'Khách hàng':
         contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
       case 'Prompt Library':
@@ -244,10 +260,20 @@ class _MainScreenState extends State<MainScreen> {
             spacing: 16,
             runSpacing: 16,
             children: [
-              _buildStatCard('Tổng phiếu', '12', Icons.confirmation_number, Colors.blue),
+              _buildStatCard(
+                'Tổng phiếu',
+                '12',
+                Icons.confirmation_number,
+                Colors.blue,
+              ),
               _buildStatCard('Đang mở', '5', Icons.fiber_new, Colors.orange),
               _buildStatCard('Đang xử lý', '4', Icons.autorenew, Colors.amber),
-              _buildStatCard('Đã giải quyết', '3', Icons.check_circle, Colors.green),
+              _buildStatCard(
+                'Đã giải quyết',
+                '3',
+                Icons.check_circle,
+                Colors.green,
+              ),
             ],
           ),
         ],
@@ -255,7 +281,12 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return SizedBox(
       width: 160,
       child: Card(
@@ -277,7 +308,10 @@ class _MainScreenState extends State<MainScreen> {
               const SizedBox(height: 4),
               Text(
                 label,
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],

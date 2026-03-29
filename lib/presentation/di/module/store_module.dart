@@ -13,6 +13,12 @@ import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -43,6 +49,7 @@ import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
+import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
@@ -110,8 +117,7 @@ class StoreModule {
       ),
     );
     getIt.registerFactory(
-      () =>
-          EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
+      () => EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
     );
     getIt.registerFactory(
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
@@ -153,6 +159,7 @@ class StoreModule {
       ),
     );
 
+    // --- Monetization Store ---
     getIt.registerFactory(
       () => MonetizationStore(
         getIt<GetMonetizationOverviewUseCase>(),
@@ -160,8 +167,21 @@ class StoreModule {
       ),
     );
 
+    // --- Prompt Store ---
     getIt.registerLazySingleton<PromptStore>(
       () => PromptStore(getIt<PromptRepository>()),
+    );
+
+    // --- Knowledge Store ---
+    getIt.registerSingleton<KnowledgeStore>(
+      KnowledgeStore(
+        getIt<GetKnowledgeSourcesUseCase>(),
+        getIt<AddKnowledgeSourceUseCase>(),
+        getIt<DeleteKnowledgeSourceUseCase>(),
+        getIt<ReindexSourceUseCase>(),
+        getIt<TestDbConnectionUseCase>(),
+        getIt<UpdateSourceCrawlIntervalUseCase>(),
+      ),
     );
   }
 }
