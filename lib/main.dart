@@ -66,7 +66,14 @@ void main() async {
     // Continue app startup even if first launch tracking fails
   }
 
-  runApp(const MyApp());
+  try {
+    await SentryConfig.init(() {
+      runApp(const MyApp());
+    });
+  } catch (e) {
+    debugPrint('[Main] Sentry initialization failed: $e');
+    runApp(const MyApp());
+  }
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // if (!kIsWeb) {
