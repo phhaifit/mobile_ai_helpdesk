@@ -157,6 +157,110 @@ abstract class _TeamStore with Store {
     }
   }
 
+  static const List<Permission> _ownerPermissionSet = [
+    Permission(
+      code: 'tenant:settings:write',
+      description: 'Edit tenant settings',
+    ),
+    Permission(code: 'tenant:members:manage'),
+    Permission(code: 'tickets:read'),
+    Permission(code: 'tickets:write'),
+  ];
+
+  static const List<Permission> _adminPermissionSet = [
+    Permission(code: 'tenant:members:invite'),
+    Permission(code: 'tickets:read'),
+    Permission(code: 'tickets:write'),
+  ];
+
+  static const List<Permission> _memberPermissionSet = [
+    Permission(code: 'tickets:read'),
+    Permission(code: 'tickets:write'),
+  ];
+
+  List<Permission> _permissionsForRole(TeamRole role) {
+    switch (role) {
+      case TeamRole.owner:
+        return List<Permission>.from(_ownerPermissionSet);
+      case TeamRole.admin:
+        return List<Permission>.from(_adminPermissionSet);
+      case TeamRole.member:
+        return List<Permission>.from(_memberPermissionSet);
+    }
+  }
+
+  @action
+  Future<bool> updateMemberProfile({
+    required String memberId,
+    required TeamRole role,
+    String? displayName,
+    String? phoneNumber,
+  }) async {
+    final tenantId = _tenantStore.currentTenant?.id;
+    if (tenantId == null) {
+      return false;
+    }
+    isLoading = true;
+    try {
+      final existing = await _teamRepository.getMemberById(memberId);
+      if (existing == null) {
+        return false;
+      }
+      final permissions = existing.role == role
+          ? List<Permission>.from(existing.permissions)
+          : _permissionsForRole(role);
+      final trimmed = displayName?.trim();
+      final phone = phoneNumber?.trim();
+      final updated = await _teamRepository.updateMember(
+        TeamMember(
+          id: existing.id,
+          tenantId: existing.tenantId,
+          email: existing.email,
+          displayName: (trimmed == null || trimmed.isEmpty) ? null : trimmed,
+          phoneNumber: (phone == null || phone.isEmpty) ? null : phone,
+          avatarUrl: existing.avatarUrl,
+          role: role,
+          permissions: permissions,
+          isActive: existing.isActive,
+          createdAt: existing.createdAt,
+        ),
+      );
+      if (updated != null) {
+        runInAction(() {
+          final i = teamMembers.indexWhere((m) => m.id == memberId);
+          if (i >= 0) {
+            teamMembers[i] = updated;
+          }
+        });
+      }
+      return updated != null;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  @action
+  Future<bool> removeMember(String memberId) async {
+    isLoading = true;
+    try {
+      final ok = await _teamRepository.deleteMember(memberId);
+      if (ok) {
+        runInAction(() {
+          teamMembers.removeWhere((m) => m.id == memberId);
+        });
+      }
+      return ok;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
   @action
   Future<void> updatePermissions({
     required String memberId,

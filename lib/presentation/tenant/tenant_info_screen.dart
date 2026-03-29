@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
+import '../../utils/locale/app_localization.dart';
 import '../tenant/store/tenant_store.dart';
 
 class TenantInfoScreen extends StatefulWidget {
@@ -32,13 +33,14 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: isMobile ? AppBar(
-        title: const Text('Organization'),
+        title: Text(l.translate('tenant_info_appbar')),
         backgroundColor: Colors.white,
         leading: isMobile && widget.onMenuTap != null
                 ? IconButton(
@@ -59,9 +61,9 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Organization',
-                    style: TextStyle(
+                  Text(
+                    l.translate('tenant_info_title'),
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -69,13 +71,13 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Manage your organization information',
+                    l.translate('tenant_info_subtitle'),
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'General Information',
-                    style: TextStyle(
+                  Text(
+                    l.translate('tenant_info_general'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -89,9 +91,9 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Organization name *',
-                                style: TextStyle(
+                              Text(
+                                l.translate('tenant_info_org_name'),
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   color: AppColors.textPrimary,
                                 ),
@@ -115,11 +117,11 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                         else
                           Row(
                             children: [
-                              const SizedBox(
+                              SizedBox(
                                 width: 180,
                                 child: Text(
-                                  'Organization name *',
-                                  style: TextStyle(
+                                  l.translate('tenant_info_org_name'),
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                     color: AppColors.textPrimary,
                                   ),
@@ -151,16 +153,17 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                             ElevatedButton(
                               onPressed: _isSavingName ? null : _handleCancelOrganizationName,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.backgroundGrey,
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppColors.textTertiary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 18,
                                   vertical: 12,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                               ),
-                              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary),),
+                              child: Text(l.translate('tenant_info_cancel'), style: const TextStyle()),
                             ),
                             ElevatedButton(
                             onPressed:
@@ -177,7 +180,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                 vertical: 12,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(6),
                               ),
                             ),
                             child: _isSavingName
@@ -189,16 +192,16 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text('Save'),
+                                : Text(l.translate('tenant_info_save')),
                           ),
                           ],)
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Ticket Auto-Resolution',
-                    style: TextStyle(
+                  Text(
+                    l.translate('tenant_info_auto_resolution_section'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -210,7 +213,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Configure automatic ticket resolution after a period of inactivity. When enabled, tickets with no new messages for the specified period will be automatically marked as solved.',
+                          l.translate('tenant_info_auto_resolution_desc'),
                           style: TextStyle(
                             color: Colors.grey.shade700,
                             height: 1.4,
@@ -221,9 +224,9 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Auto-resolution',
-                                style: TextStyle(
+                              Text(
+                                l.translate('tenant_info_auto_resolution_label'),
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
@@ -246,9 +249,9 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                         else
                           Row(
                             children: [
-                              const Text(
-                                'Auto-resolution',
-                                style: TextStyle(
+                              Text(
+                                l.translate('tenant_info_auto_resolution_label'),
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
@@ -269,9 +272,9 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Delete Organization',
-                    style: TextStyle(
+                  Text(
+                    l.translate('tenant_info_delete_section'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -284,7 +287,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'All organization data will be permanently deleted',
+                                l.translate('tenant_info_delete_warning'),
                                 style: TextStyle(color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 12),
@@ -308,7 +311,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: const Text('Delete Organization'),
+                                  child: Text(l.translate('tenant_info_delete_btn')),
                                 ),
                               ),
                             ],
@@ -317,7 +320,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'All organization data will be permanently deleted',
+                                  l.translate('tenant_info_delete_warning'),
                                   style: TextStyle(color: Colors.grey.shade700),
                                 ),
                               ),
@@ -340,7 +343,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Delete Organization'),
+                                child: Text(l.translate('tenant_info_delete_btn')),
                               ),
                             ],
                           ),
@@ -394,18 +397,19 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
   /// Handles the save organization name action
   /// @return void
   Future<void> _handleSaveOrganizationName() async {
+    final l = AppLocalizations.of(context);
     final tenant = _tenantStore.currentTenant;
     if (tenant == null) {
-      _showMessage('No organization selected.');
+      _showMessage(l.translate('tenant_info_msg_no_org'));
       return;
     }
     final name = _organizationNameController.text.trim();
     if (name.isEmpty) {
-      _showMessage('Organization name cannot be empty.');
+      _showMessage(l.translate('tenant_info_msg_name_empty'));
       return;
     }
     if (name == tenant.name) {
-      _showMessage('No changes to save.');
+      _showMessage(l.translate('tenant_info_msg_no_changes'));
       return;
     }
 
@@ -421,29 +425,31 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     });
     _showMessage(
       updated
-          ? 'Organization name updated successfully.'
-          : 'Failed to update organization name.',
+          ? l.translate('tenant_info_msg_name_updated')
+          : l.translate('tenant_info_msg_name_failed'),
     );
   }
 
   Future<void> _handleDeleteOrganization() async {
+    final l = AppLocalizations.of(context);
     final tenant = _tenantStore.currentTenant;
     if (tenant == null) {
-      _showMessage('No organization selected.');
+      _showMessage(l.translate('tenant_info_msg_no_org'));
       return;
     }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+        final dl = AppLocalizations.of(dialogContext);
         return AlertDialog(
-          title: const Text('Delete organization'),
+          title: Text(dl.translate('tenant_info_dialog_delete_title')),
           content: Text(
-            'Delete "${tenant.name}" permanently? This action cannot be undone.',
+            dl.translate('tenant_info_dialog_delete_body').replaceAll('{name}', tenant.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: Text(dl.translate('common_cancel')),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -451,7 +457,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                 backgroundColor: const Color(0xFFF04E4E),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text(dl.translate('tenant_info_dialog_delete_confirm')),
             ),
           ],
         );
@@ -478,10 +484,11 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
       _tenantStore.currentTenant?.id,
       _tenantStore.currentTenant?.name ?? '',
     );
+    final msgL = AppLocalizations.of(context);
     _showMessage(
       hasTenants
-          ? 'Organization deleted. Switched to ${_tenantStore.currentTenant?.name}.'
-          : 'Organization deleted. No organizations available.',
+          ? msgL.translate('tenant_info_msg_deleted_switched').replaceAll('{name}', _tenantStore.currentTenant?.name ?? '')
+          : msgL.translate('tenant_info_msg_deleted_none'),
     );
   }
 

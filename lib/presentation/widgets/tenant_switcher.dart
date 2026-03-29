@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
-import '../../domain/entity/team_member/team_member.dart';
-import '../../domain/entity/tenant/tenant.dart';
-import '../../domain/entity/tenant_settings/tenant_settings.dart';
+import '../tenant/create_tenant_screen.dart';
 import '../tenant/store/tenant_store.dart';
 
 class TenantSwitcher extends StatelessWidget {
   const TenantSwitcher({super.key});
-  static const String _createTenantAction = '__create_tenant__';
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +29,6 @@ class TenantSwitcher extends StatelessWidget {
             color: Colors.white,
             position: PopupMenuPosition.under,
             onSelected: (selectedValue) async {
-              if (selectedValue == _createTenantAction) {
-                await _showCreateTenantDialog(context, tenantStore);
-                return;
-              }
               await tenantStore.switchTenant(selectedValue);
             },
             // Popup menu items should be width as the parent widget
@@ -71,7 +64,10 @@ class TenantSwitcher extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.center,
                     child: ElevatedButton.icon(
-                    onPressed: () => _showCreateTenantDialog(context, tenantStore),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _openCreateTenantFlow(context);
+                    },
                     icon: const Icon(Icons.add_rounded),
                     label: const Text('New tenant'),
                     style: ElevatedButton.styleFrom(
@@ -133,82 +129,11 @@ class TenantSwitcher extends StatelessWidget {
     );
   }
 
-  Future<void> _showCreateTenantDialog(
-    BuildContext context,
-    TenantStore tenantStore,
-  ) async {
-    final controller = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    final tenantName = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          icon: const Icon(Icons.domain_add_rounded, color: AppColors.messengerBlue),
-          title: const Text('Create new tenant'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: controller,
-              autofocus: true,
-              textInputAction: TextInputAction.done,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Tenant name',
-                hintText: 'e.g., Acme Corp',
-                border: OutlineInputBorder(),
-                filled: true,
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
-                }
-                return null;
-              },
-              onFieldSubmitted: (_) {
-                if (formKey.currentState!.validate()) {
-                  Navigator.of(dialogContext).pop(controller.text.trim());
-                }
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.of(dialogContext).pop(controller.text.trim());
-                }
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
-    );
-
-    final name = tenantName?.trim() ?? '';
-    if (name.isEmpty) {
-      return;
-    }
-
-    final now = DateTime.now();
-    final id = 'tn-${now.millisecondsSinceEpoch}';
-
-    await tenantStore.createTenant(
-      Tenant(
-        id: id,
-        name: name,
-        slug: name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-'),
-        settings: const TenantSettings(
-          allowInvitations: true,
-          defaultRole: TeamRole.member,
-          enableAuditLog: false,
-        ),
-        createdAt: now,
+  Future<void> _openCreateTenantFlow(BuildContext context) async {
+    await Navigator.of(context, rootNavigator: true).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => const CreateTenantScreen(),
+        fullscreenDialog: true,
       ),
     );
   }

@@ -15,6 +15,8 @@ class TeamMember {
   final List<Permission> permissions;
   final bool isActive;
   final DateTime createdAt;
+  final String? phoneNumber;
+  final String? avatarUrl;
 
   const TeamMember({
     required this.id,
@@ -25,6 +27,8 @@ class TeamMember {
     required this.isActive,
     required this.createdAt,
     this.displayName,
+    this.phoneNumber,
+    this.avatarUrl = '',
   });
 
   factory TeamMember.fromJson(Map<String, dynamic> json) =>

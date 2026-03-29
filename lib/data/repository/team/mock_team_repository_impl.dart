@@ -43,6 +43,8 @@ class MockTeamRepositoryImpl implements TeamRepository {
       tenantId: 'tn-001',
       email: 'alice.owner@acme.example',
       displayName: 'Alice Owner',
+      phoneNumber: '1234567890',
+      avatarUrl: 'https://via.placeholder.com/150',
       role: TeamRole.owner,
       permissions: _ownerPermissions,
       isActive: true,

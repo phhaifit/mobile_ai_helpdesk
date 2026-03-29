@@ -17,6 +17,8 @@ TeamMember _$TeamMemberFromJson(Map<String, dynamic> json) => TeamMember(
   isActive: json['isActive'] as bool,
   createdAt: DateTime.parse(json['createdAt'] as String),
   displayName: json['displayName'] as String?,
+  phoneNumber: json['phoneNumber'] as String?,
+  avatarUrl: json['avatarUrl'] as String? ?? '',
 );
 
 Map<String, dynamic> _$TeamMemberToJson(TeamMember instance) =>
@@ -29,6 +31,8 @@ Map<String, dynamic> _$TeamMemberToJson(TeamMember instance) =>
       'permissions': instance.permissions,
       'isActive': instance.isActive,
       'createdAt': instance.createdAt.toIso8601String(),
+      'phoneNumber': instance.phoneNumber,
+      'avatarUrl': instance.avatarUrl,
     };
 
 const _$TeamRoleEnumMap = {

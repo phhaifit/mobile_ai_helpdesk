@@ -129,6 +129,38 @@ mixin _$TeamStore on _TeamStore, Store {
     );
   }
 
+  late final _$updateMemberProfileAsyncAction = AsyncAction(
+    '_TeamStore.updateMemberProfile',
+    context: context,
+  );
+
+  @override
+  Future<bool> updateMemberProfile({
+    required String memberId,
+    required TeamRole role,
+    String? displayName,
+    String? phoneNumber,
+  }) {
+    return _$updateMemberProfileAsyncAction.run(
+      () => super.updateMemberProfile(
+        memberId: memberId,
+        role: role,
+        displayName: displayName,
+        phoneNumber: phoneNumber,
+      ),
+    );
+  }
+
+  late final _$removeMemberAsyncAction = AsyncAction(
+    '_TeamStore.removeMember',
+    context: context,
+  );
+
+  @override
+  Future<bool> removeMember(String memberId) {
+    return _$removeMemberAsyncAction.run(() => super.removeMember(memberId));
+  }
+
   late final _$updatePermissionsAsyncAction = AsyncAction(
     '_TeamStore.updatePermissions',
     context: context,
