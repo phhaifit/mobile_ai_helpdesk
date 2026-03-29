@@ -246,23 +246,12 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     // Border color is AppColors.dividerColor, text color is tertiary text color, icon is AppColors.textTertiary
     final search = TextField(
       controller: _memberSearchController,
-      onChanged: (_) => setState(() {}),
+      onChanged: (value) => setState(() {}),
       decoration: InputDecoration(
-        hintText: 'Search employee',
-        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.dividerColor),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.dividerColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.dividerColor),
-        ),
+        hintText: 'Search by email',
+        prefixIcon: const Icon(Icons.search, size: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         isDense: true,
-        hintStyle: const TextStyle(color: AppColors.dividerColor),
       ),
     );
 

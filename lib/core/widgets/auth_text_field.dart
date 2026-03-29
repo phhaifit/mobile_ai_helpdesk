@@ -14,10 +14,10 @@ class AuthTextField extends StatefulWidget {
   final int? minLines;
 
   const AuthTextField({
-    super.key,
     required this.label,
-    this.hintText,
     required this.controller,
+    super.key,
+    this.hintText,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.validator,

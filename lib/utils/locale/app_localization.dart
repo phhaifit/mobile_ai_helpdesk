@@ -26,7 +26,7 @@ class AppLocalizations {
     localizedStrings = jsonMap.map((key, value) {
       return MapEntry(
         key,
-        value.toString().replaceAll(r"\'", "'").replaceAll(r"\t", " "),
+        value.toString().replaceAll(r"\'", "'").replaceAll(r'\t', ' '),
       );
     });
 
@@ -49,7 +49,7 @@ class _AppLocalizationsDelegate
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = AppLocalizations(locale);
+    final AppLocalizations localizations = AppLocalizations(locale);
     await localizations.load();
     return localizations;
   }

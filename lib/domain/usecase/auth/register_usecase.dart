@@ -37,11 +37,11 @@ class RegisterUseCase
     // Minimum 8 characters
     if (password.length < 8) return false;
     // Has uppercase
-    if (!password.contains(RegExp(r'[A-Z]'))) return false;
+    if (!password.contains(RegExp('[A-Z]'))) return false;
     // Has lowercase
-    if (!password.contains(RegExp(r'[a-z]'))) return false;
+    if (!password.contains(RegExp('[a-z]'))) return false;
     // Has number
-    if (!password.contains(RegExp(r'[0-9]'))) return false;
+    if (!password.contains(RegExp('[0-9]'))) return false;
     // Has special character
     if (!password.contains(RegExp(r'[@#$%^&*]'))) return false;
     return true;

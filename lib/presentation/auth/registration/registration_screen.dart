@@ -58,7 +58,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  void _handleRegister() async {
+  Future<void> _handleRegister() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -185,13 +185,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       return 'Password is required';
                     if (value.length < 8)
                       return 'Password must be at least 8 characters';
-                    if (!value.contains(RegExp(r'[A-Z]')))
+                    if (!value.contains(RegExp('[A-Z]')))
                       return 'Must contain uppercase letter';
-                    if (!value.contains(RegExp(r'[a-z]')))
+                    if (!value.contains(RegExp('[a-z]')))
                       return 'Must contain lowercase letter';
-                    if (!value.contains(RegExp(r'[0-9]')))
+                    if (!value.contains(RegExp('[0-9]')))
                       return 'Must contain number';
-                    if (!value.contains(RegExp(r'[@#%&*]')))
+                    if (!value.contains(RegExp('[@#%&*]')))
                       return 'Must contain special character';
                     return null;
                   },

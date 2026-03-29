@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ReactionPicker extends StatelessWidget {
   final Function(String emoji) onReactionSelected;
 
-  const ReactionPicker({super.key, required this.onReactionSelected});
+  const ReactionPicker({required this.onReactionSelected, super.key});
 
   static const List<String> emojis = ['👍', '❤️', '😂', '😮', '😢'];
 

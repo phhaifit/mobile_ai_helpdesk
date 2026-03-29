@@ -59,7 +59,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     super.dispose();
   }
 
-  void _handleResetPassword() async {
+  Future<void> _handleResetPassword() async {
     final email = _emailController.text.trim();
     final token = _tokenController.text.trim();
     final newPassword = _newPasswordController.text;

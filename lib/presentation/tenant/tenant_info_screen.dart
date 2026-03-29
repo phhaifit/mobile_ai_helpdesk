@@ -144,9 +144,25 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                             ],
                           ),
                         const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            spacing: 12,
+                            children: [
+                            ElevatedButton(
+                              onPressed: _isSavingName ? null : _handleCancelOrganizationName,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.backgroundGrey,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary),),
+                            ),
+                            ElevatedButton(
                             onPressed:
                                 (_tenantStore.currentTenant == null ||
                                     _isSavingName ||
@@ -175,7 +191,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                   )
                                 : const Text('Save'),
                           ),
-                        ),
+                          ],)
                       ],
                     ),
                   ),
@@ -358,6 +374,10 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     );
   }
 
+  /// Syncs the tenant name with the controller
+  /// @param tenantId - The id of the tenant
+  /// @param tenantName - The name of the tenant
+  /// @return void
   void _syncTenantName(String? tenantId, String tenantName) {
     if (_activeTenantId != tenantId) {
       _activeTenantId = tenantId;
@@ -365,6 +385,14 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     }
   }
 
+  /// Handles the cancel organization name action
+  /// @return void
+  void _handleCancelOrganizationName() {
+    _organizationNameController.text = _tenantStore.currentTenant?.name ?? '';
+  }
+
+  /// Handles the save organization name action
+  /// @return void
   Future<void> _handleSaveOrganizationName() async {
     final tenant = _tenantStore.currentTenant;
     if (tenant == null) {
