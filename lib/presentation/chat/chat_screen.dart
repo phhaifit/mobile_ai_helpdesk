@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
 import '../../domain/entity/chat/chat_room.dart';
+import '../../domain/entity/prompt/prompt.dart';
+import '../prompt/store/prompt_store.dart';
+import 'slash_prompt_picker_overlay.dart';
 import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
@@ -27,12 +31,14 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late final ChatStore _chatStore;
+  late final PromptStore _promptStore;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
 
   int _previousItemCount = 0;
+  bool _slashMode = false;
   bool _showSearch = false;
   List<int> _searchResults = []; // Message IDs that match search query
   int _currentSearchIndex = -1; // Index in _searchResults array
@@ -42,10 +48,39 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _chatStore = getIt<ChatStore>();
+    _promptStore = getIt<PromptStore>();
     _chatStore.getMessages();
+
+    _textController.addListener(_onComposerChanged);
+    if (_promptStore.prompts.isEmpty) {
+      _promptStore.loadPrompts(useNetworkDelay: false);
+    }
 
     _scrollController.addListener(_onScrollPositionChanged);
     _inputFocusNode.addListener(_onInputFocusChanged);
+  }
+
+  void _onComposerChanged() {
+    final t = _textController.text;
+    final next = t.startsWith('/');
+    if (next != _slashMode) {
+      setState(() => _slashMode = next);
+    } else if (_slashMode) {
+      setState(() {});
+    }
+  }
+
+  String get _slashQuery =>
+      _slashMode && _textController.text.startsWith('/')
+          ? _textController.text.substring(1)
+          : '';
+
+  void _applyPrompt(Prompt p) {
+    _textController.text = p.body;
+    _textController.selection =
+        TextSelection.collapsed(offset: _textController.text.length);
+    setState(() => _slashMode = false);
+    _promptStore.incrementUsage(p.id);
   }
 
   void _onScrollPositionChanged() {
@@ -170,7 +205,6 @@ class _ChatScreenState extends State<ChatScreen> {
         onSearchTap: () {
           setState(() => _showSearch = !_showSearch);
           if (_showSearch) {
-            // Focus search input
             FocusScope.of(context).requestFocus(FocusNode()..attach(context));
           } else {
             _closeSearch();
@@ -179,7 +213,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
           if (_showSearch)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -246,7 +279,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               ),
             ),
-          // Messages list
           Expanded(
             child: Observer(
               builder: (_) {
@@ -267,7 +299,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           color: AppColors.messengerBlue.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'Chưa tìm thấy tin nhắn nào cho phiếu này',
                           style: TextStyle(
                             fontSize: 16,
@@ -290,12 +322,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
 
-                // Calculate item count: messages + typing indicator
-                final itemCount =
-                    messages.length + (_chatStore.isTyping ? 1 : 0);
+                final itemCount = messages.length + (_chatStore.isTyping ? 1 : 0);
 
-                // Scroll to bottom when messages load or new messages arrive
-                // Only trigger scroll when item count changes
                 if (itemCount > _previousItemCount) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _scrollToBottom();
@@ -311,14 +339,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   itemCount: itemCount,
                   itemBuilder: (context, index) {
-                    // Show typing indicator at last position
                     if (index == messages.length) {
                       return const TypingIndicator(senderName: 'AI Assistant');
                     }
 
                     final message = messages[index];
-
-                    // Determine grouping
                     final isGroupStart =
                         index == 0 ||
                         messages[index - 1].senderName != message.senderName;
@@ -341,18 +366,29 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          // Input bar
+          if (_slashMode)
+            Observer(
+              builder: (_) {
+                final filtered = _promptStore.slashFiltered(_slashQuery);
+                return SlashPromptPickerOverlay(
+                  prompts: filtered,
+                  onSelected: _applyPrompt,
+                );
+              },
+            ),
           ChatInputBar(
             controller: _textController,
             onSend: () {
-              if (_textController.text.isNotEmpty) {
-                _chatStore.sendMessage(_textController.text);
-                _textController.clear();
-                // Auto scroll to bottom after sending
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollToBottom();
-                });
+              final text = _textController.text.trim();
+              if (text.isEmpty) {
+                return;
               }
+              setState(() => _slashMode = false);
+              _chatStore.sendMessage(text);
+              _textController.clear();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _scrollToBottom();
+              });
             },
             focusNode: _inputFocusNode,
           ),
@@ -363,6 +399,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _textController.removeListener(_onComposerChanged);
     _scrollController.dispose();
     _textController.dispose();
     _searchController.dispose();

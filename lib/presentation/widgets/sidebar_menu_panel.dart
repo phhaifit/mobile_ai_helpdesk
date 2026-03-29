@@ -29,10 +29,10 @@ class SidebarMenuContent extends StatefulWidget {
   final Function(String) onCategorySelected;
 
   const SidebarMenuContent({
-    super.key,
     required this.categories,
     required this.selectedCategory,
     required this.onCategorySelected,
+    super.key,
   });
 
   @override
@@ -48,7 +48,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
           decoration: BoxDecoration(
-            color: AppColors.messengerBlue,
+            color: AppColors.primaryBlue,
             border: Border(
               bottom: BorderSide(color: Colors.grey.shade200, width: 1),
             ),
@@ -66,7 +66,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                   child: Text(
                     'J',
                     style: TextStyle(
-                      color: AppColors.messengerBlue,
+                      color: AppColors.primaryBlue,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -82,16 +82,16 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                       'Jarvis',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
                     ),
                     Text(
                       'HELPDESK',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 10,
                       ),
                     ),
                   ],
@@ -103,27 +103,28 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
         // Dropdown selector
         Padding(
           padding: const EdgeInsets.all(12),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.messengerBlue),
+              border: Border.all(color: AppColors.primaryBlue),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Test',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.expand_more_rounded,
-                    color: AppColors.messengerBlue,
+                    size: 18,
+                    color: AppColors.primaryBlue,
                   ),
                 ],
               ),
@@ -172,7 +173,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -200,7 +201,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
   }
 
   Widget _buildMenuItem(MenuItem item, String categoryTitle) {
-    bool isSelected =
+    final bool isSelected =
         widget.selectedCategory == item.title ||
         widget.selectedCategory == categoryTitle;
 
@@ -210,7 +211,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
         widget.onCategorySelected(item.title);
       },
       child: Container(
-        color: isSelected ? AppColors.messengerBlue.withOpacity(0.1) : null,
+        color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : null,
         padding: const EdgeInsets.fromLTRB(36, 10, 12, 10),
         child: Row(
           children: [
@@ -219,7 +220,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: AppColors.messengerBlue,
+                  color: AppColors.primaryBlue,
                   borderRadius: BorderRadius.circular(2),
                 ),
                 margin: const EdgeInsets.only(right: 8),
@@ -231,7 +232,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
-                      ? AppColors.messengerBlue
+                      ? AppColors.primaryBlue
                       : AppColors.textPrimary,
                 ),
               ),
@@ -253,8 +254,8 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED),
+            decoration: const BoxDecoration(
+              color: Color(0xFF7C3AED),
               shape: BoxShape.circle,
             ),
             child: const Center(
@@ -307,11 +308,11 @@ class SidebarMenuPanel extends StatefulWidget {
   final Function(String) onCategorySelected;
 
   const SidebarMenuPanel({
-    super.key,
     required this.slideAnimation,
     required this.onClose,
     required this.selectedCategory,
     required this.onCategorySelected,
+    super.key,
   });
 
   @override
@@ -418,7 +419,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
               decoration: BoxDecoration(
-                color: AppColors.messengerBlue,
+                color: AppColors.primaryBlue,
                 border: Border(
                   bottom: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
@@ -429,54 +430,37 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'J',
-                                style: TextStyle(
-                                  color: AppColors.messengerBlue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'J',
+                            style: TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Jarvis',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                'HELPDESK',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Jarvis HELPDESK',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white),
+                    icon: const Icon(Icons.close, color: Colors.white),
                     onPressed: widget.onClose,
                   ),
                 ],
@@ -485,9 +469,9 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
             // Dropdown selector
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.messengerBlue),
+                  border: Border.all(color: AppColors.primaryBlue),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
@@ -499,18 +483,17 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.selectedCategory.isEmpty
-                            ? 'Test'
-                            : widget.selectedCategory,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                        'Quản lý tài khoản',
+                        style: TextStyle(
+                          fontSize: 13,
                           color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const Icon(
                         Icons.expand_more_rounded,
-                        color: AppColors.messengerBlue,
+                        size: 18,
+                        color: AppColors.primaryBlue,
                       ),
                     ],
                   ),
@@ -561,7 +544,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -589,7 +572,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
   }
 
   Widget _buildMenuItem(MenuItem item, String categoryTitle) {
-    bool isSelected =
+    final bool isSelected =
         widget.selectedCategory == item.title ||
         widget.selectedCategory == categoryTitle;
 
@@ -599,7 +582,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         widget.onClose(); // Close sidebar after selection
       },
       child: Container(
-        color: isSelected ? AppColors.messengerBlue.withOpacity(0.1) : null,
+        color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : null,
         padding: const EdgeInsets.fromLTRB(36, 10, 12, 10),
         child: Row(
           children: [
@@ -608,7 +591,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: AppColors.messengerBlue,
+                  color: AppColors.primaryBlue,
                   borderRadius: BorderRadius.circular(2),
                 ),
                 margin: const EdgeInsets.only(right: 8),
@@ -620,7 +603,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
-                      ? AppColors.messengerBlue
+                      ? AppColors.primaryBlue
                       : AppColors.textPrimary,
                 ),
               ),
@@ -642,8 +625,8 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF7C3AED),
+            decoration: const BoxDecoration(
+              color: Color(0xFF7C3AED),
               shape: BoxShape.circle,
             ),
             child: const Center(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ai_helpdesk/constants/colors.dart';
 
 class AppThemeData {
   static const _lightFillColor = Colors.black;
@@ -16,15 +17,20 @@ class AppThemeData {
     return ThemeData(
       colorScheme: colorScheme,
       textTheme: _textTheme,
-      primaryColor: const Color(0xFF030303),
+      primaryColor: AppColors.primaryBlue,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        iconTheme: IconThemeData(color: colorScheme.primary),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: GoogleFonts.montserrat(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
       ),
-      iconTheme: IconThemeData(color: colorScheme.onPrimary),
-      canvasColor: colorScheme.surface,
-      scaffoldBackgroundColor: colorScheme.surface,
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
+      canvasColor: AppColors.backgroundGrey,
+      scaffoldBackgroundColor: AppColors.backgroundGrey,
       highlightColor: Colors.transparent,
       focusColor: focusColor,
       snackBarTheme: SnackBarThemeData(
@@ -39,16 +45,16 @@ class AppThemeData {
   }
 
   static const ColorScheme lightColorScheme = ColorScheme(
-    primary: Color(0xFF1A73E8),
+    primary: AppColors.primaryBlue,
     primaryContainer: Color(0xFF1557B0),
-    secondary: Color(0xFFEFF3F3),
+    secondary: AppColors.inputBackground,
     secondaryContainer: Color(0xFFFAFBFB),
-    surface: Color(0xFFFAFBFB),
-    error: _lightFillColor,
+    surface: Colors.white,
+    error: AppColors.errorRed,
     onError: _lightFillColor,
     onPrimary: _lightFillColor,
     onSecondary: Color(0xFF322942),
-    onSurface: Color(0xFF241E30),
+    onSurface: AppColors.textPrimary,
     brightness: Brightness.light,
   );
 
@@ -72,15 +78,85 @@ class AppThemeData {
   static const _bold = FontWeight.w700;
 
   static final TextTheme _textTheme = TextTheme(
-    headlineMedium: GoogleFonts.montserrat(fontWeight: _bold, fontSize: 20.0),
-    bodySmall: GoogleFonts.oswald(fontWeight: _semiBold, fontSize: 16.0),
-    headlineSmall: GoogleFonts.oswald(fontWeight: _medium, fontSize: 16.0),
-    titleMedium: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 16.0),
-    labelSmall: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 12.0),
-    bodyLarge: GoogleFonts.montserrat(fontWeight: _regular, fontSize: 14.0),
-    titleSmall: GoogleFonts.montserrat(fontWeight: _medium, fontSize: 14.0),
-    bodyMedium: GoogleFonts.montserrat(fontWeight: _regular, fontSize: 16.0),
-    titleLarge: GoogleFonts.montserrat(fontWeight: _bold, fontSize: 16.0),
-    labelLarge: GoogleFonts.montserrat(fontWeight: _semiBold, fontSize: 14.0),
+    // H1 - Page Title (20px, bold)
+    headlineLarge: GoogleFonts.montserrat(
+      fontWeight: _bold,
+      fontSize: 20.0,
+      height: 1.4,
+      color: AppColors.textPrimary,
+    ),
+    // H2 - Section Title (18px, bold)
+    headlineMedium: GoogleFonts.montserrat(
+      fontWeight: _bold,
+      fontSize: 18.0,
+      height: 1.3,
+      color: AppColors.textPrimary,
+    ),
+    // H3 - Subsection Title (16px, semibold)
+    headlineSmall: GoogleFonts.montserrat(
+      fontWeight: _semiBold,
+      fontSize: 16.0,
+      height: 1.3,
+      color: AppColors.textPrimary,
+    ),
+    // Title Large (16px, bold)
+    titleLarge: GoogleFonts.montserrat(
+      fontWeight: _bold,
+      fontSize: 16.0,
+      color: AppColors.textPrimary,
+    ),
+    // Title Medium (16px, medium)
+    titleMedium: GoogleFonts.montserrat(
+      fontWeight: _medium,
+      fontSize: 16.0,
+      color: AppColors.textPrimary,
+    ),
+    // Title Small (14px, medium)
+    titleSmall: GoogleFonts.montserrat(
+      fontWeight: _medium,
+      fontSize: 14.0,
+      color: AppColors.textPrimary,
+    ),
+    // Body Large (14px, regular)
+    bodyLarge: GoogleFonts.montserrat(
+      fontWeight: _regular,
+      fontSize: 14.0,
+      height: 1.5,
+      color: AppColors.textPrimary,
+    ),
+    // Body Medium (13px, regular)
+    bodyMedium: GoogleFonts.montserrat(
+      fontWeight: _regular,
+      fontSize: 13.0,
+      height: 1.5,
+      color: AppColors.textPrimary,
+    ),
+    // Body Small (12px, regular, grey)
+    bodySmall: GoogleFonts.montserrat(
+      fontWeight: _regular,
+      fontSize: 12.0,
+      height: 1.4,
+      color: AppColors.textSecondary,
+    ),
+    // Label Large (14px, semibold)
+    labelLarge: GoogleFonts.montserrat(
+      fontWeight: _semiBold,
+      fontSize: 14.0,
+      color: AppColors.textPrimary,
+    ),
+    // Label Medium (13px, medium)
+    labelMedium: GoogleFonts.montserrat(
+      fontWeight: _medium,
+      fontSize: 13.0,
+      height: 1.4,
+      color: AppColors.textPrimary,
+    ),
+    // Label Small (13px, medium, for badges & captions)
+    labelSmall: GoogleFonts.montserrat(
+      fontWeight: _medium,
+      fontSize: 13.0,
+      height: 1.4,
+      color: AppColors.textSecondary,
+    ),
   );
 }

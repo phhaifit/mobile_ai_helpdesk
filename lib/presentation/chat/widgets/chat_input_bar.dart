@@ -5,12 +5,15 @@ class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final FocusNode? focusNode;
+  /// Shown in the composer (e.g. localized “type / for prompts”).
+  final String? hintText;
 
   const ChatInputBar({
-    super.key,
     required this.controller,
     required this.onSend,
+    super.key,
     this.focusNode,
+    this.hintText,
   });
 
   @override
@@ -65,7 +68,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
             Expanded(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 120),
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: AppColors.inputBackground,
                     borderRadius: BorderRadius.circular(22),
@@ -76,7 +79,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     maxLines: null,
                     textInputAction: TextInputAction.newline,
                     decoration: const InputDecoration(
-                      hintText: "Aa",
+                      hintText: 'Aa',
                       hintStyle: TextStyle(color: Colors.grey, fontSize: 15),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
