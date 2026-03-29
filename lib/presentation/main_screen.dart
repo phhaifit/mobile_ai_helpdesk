@@ -10,6 +10,7 @@ import 'chat/support_inbox_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
+import 'customer/screens/customer_main_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -61,6 +62,11 @@ class _MainScreenState extends State<MainScreen> {
         title: 'Khách hàng & Đơn hàng',
         icon: Icons.people_outline_rounded,
         items: [
+          MenuItem(
+            id: 'customers',
+            title: 'Khách hàng',
+            onTap: () => _selectCategory('customers'),
+          ),
           MenuItem(
             id: 'orders',
             title: 'Đơn hàng',
@@ -211,6 +217,8 @@ class _MainScreenState extends State<MainScreen> {
       contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
     } else if (_selectedCategory == 'employee_list') {
       contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'customers') {
+      contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
     } else {
       // Placeholder for other categories
       contentWidget = Center(

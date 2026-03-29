@@ -27,14 +27,17 @@ import 'package:get_it/get_it.dart';
 // Import Interfaces (Domain)
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
+import '../../../domain/repository/customer/customer_repository.dart';
 // Import DataSources
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 import '../../repository/team/mock_team_repository_impl.dart';
 import '../../repository/tenant/mock_tenant_repository_impl.dart';
 import '../../repository/invitation/mock_invitation_repository_impl.dart';
+import '../../repository/customer/customer_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -65,6 +68,11 @@ class RepositoryModule {
     // --- Chat Repositories ---
     getIt.registerSingleton<ChatRepository>(
       ChatRepositoryImpl(getIt<ChatDataSource>()),
+    );
+
+    // --- Customer Repositories ---
+    getIt.registerSingleton<CustomerRepository>(
+      CustomerRepositoryImpl(getIt<MockCustomerDataSource>()),
     );
 
     getIt.registerSingleton<OmnichannelRepository>(
