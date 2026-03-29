@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
@@ -43,8 +45,10 @@ import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
@@ -56,9 +60,6 @@ import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../domain/analytics/analytics_service.dart';
-import '../../login/store/login_store.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -81,6 +82,7 @@ class StoreModule {
         getIt<GetCurrentUserUseCase>(),
         getIt<ChangePasswordUseCase>(),
         getIt<ResetPasswordUseCase>(),
+        getIt<AnalyticsService>(),
       ),
     );
 
@@ -96,6 +98,7 @@ class StoreModule {
       () => CreateTicketStore(
         getIt<CreateTicketUseCase>(),
         getIt<SessionStore>(),
+        getIt<AnalyticsService>(),
       ),
     );
     getIt.registerFactory(
@@ -110,6 +113,7 @@ class StoreModule {
         getIt<AddCommentUseCase>(),
         getIt<GetTicketHistoryUseCase>(),
         getIt<SessionStore>(),
+        getIt<AnalyticsService>(),
       ),
     );
     getIt.registerFactory(
@@ -119,8 +123,15 @@ class StoreModule {
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
     );
 
+    // --- Customer Store ---
+    getIt.registerSingleton<CustomerStore>(
+      CustomerStore(getIt<CustomerRepository>()),
+    );
+
     // --- Chat Stores ---
-    getIt.registerSingleton<ChatStore>(ChatStore(getIt<ChatRepository>()));
+    getIt.registerSingleton<ChatStore>(
+      ChatStore(getIt<ChatRepository>(), getIt<AnalyticsService>()),
+    );
     getIt.registerSingleton<ChatRoomStore>(
       ChatRoomStore(getIt<ChatRoomRepository>()),
     );

@@ -113,7 +113,7 @@ class FirebaseAnalyticsServiceImpl implements AnalyticsService {
     try {
       final params = <String, Object>{
         'screen_name': screenName,
-        'screen_class': ?screenClass,
+        if (screenClass != null) 'screen_class': screenClass,
       };
 
       // Add UTM parameters as strings (Firebase expects Object types)

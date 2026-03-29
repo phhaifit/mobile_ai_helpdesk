@@ -2,7 +2,6 @@ import 'package:ai_helpdesk/constants/app_theme.dart';
 import 'package:ai_helpdesk/constants/strings.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +37,7 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: const MainScreen(),
+          initialRoute: Routes.login,
         );
       },
     );

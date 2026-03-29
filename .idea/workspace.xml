@@ -1,5 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="073b7a63-7b82-4be3-88fe-233e43d98168" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/stores/error/error_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/stores/error/error_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/analytics/firebase_analytics_service_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/analytics/firebase_analytics_service_impl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/di/module/repository_module.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/di/module/repository_module.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/models/auth/change_password_request.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/models/auth/change_password_request.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/models/auth/login_request.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/models/auth/login_request.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/models/auth/register_request.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/models/auth/register_request.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/models/auth/reset_password_request.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/models/auth/reset_password_request.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/domain/entity/auth/auth_response.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entity/auth/auth_response.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/domain/entity/auth/user.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entity/auth/user.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/domain/entity/monetization/monetization.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entity/monetization/monetization.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/domain/entity/omnichannel/omnichannel.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/domain/entity/omnichannel/omnichannel.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/auth/store/auth_store.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/auth/store/auth_store.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/auth/store/auth_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/auth/store/auth_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/chat/store/chat_room_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/chat/store/chat_room_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/chat/store/chat_store.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/chat/store/chat_store.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/chat/store/chat_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/chat/store/chat_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/customer/store/customer_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/customer/store/customer_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/di/module/store_module.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/di/module/store_module.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/home/store/language/language_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/home/store/language/language_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/home/store/theme/theme_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/home/store/theme/theme_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/login/store/login_store.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/login/store/login_store.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/login/store/login_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/login/store/login_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/monetization/store/monetization_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/monetization/store/monetization_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/my_app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/omnichannel/store/omnichannel_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/omnichannel/store/omnichannel_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/prompt/store/prompt_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/prompt/store/prompt_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/stores/session_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/stores/session_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/create_ticket_store.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/create_ticket_store.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/create_ticket_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/create_ticket_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/customer_history_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/customer_history_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/edit_ticket_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/edit_ticket_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_column_visibility_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_column_visibility_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_detail_store.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_detail_store.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_detail_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_detail_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_tab_store.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/ticket/store/ticket_tab_store.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
   <component name="FileEditorManager">
     <leaf>
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
@@ -13,24 +66,52 @@
       </file>
     </leaf>
   </component>
-  <component name="ToolWindowManager">
-    <editor active="true" />
-    <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-    </layout>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3BbpFmLGmo29Bwgd48t9r53aT8X" />
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-    </navigator>
+    <navigator currentView="ProjectPane" proportions="" version="1" />
     <panes>
       <pane id="ProjectPane">
         <option name="show-excluded-files" value="false" />
       </pane>
     </panes>
   </component>
-  <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="dart.analysis.tool.window.force.activate" value="true" />
-    <property name="show.migrate.to.gradle.popup" value="false" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "feature/19-google-analytics-integration",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="073b7a63-7b82-4be3-88fe-233e43d98168" name="Changes" comment="" />
+      <created>1774767524582</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774767524582</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+    </layout>
   </component>
 </project>
