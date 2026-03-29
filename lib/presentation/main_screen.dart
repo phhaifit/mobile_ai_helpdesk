@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
+import 'customer/screens/customer_main_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -52,6 +53,10 @@ class _MainScreenState extends State<MainScreen> {
         title: 'Khách hàng & Đơn hàng',
         icon: Icons.people_outline_rounded,
         items: [
+          MenuItem(
+            title: 'Khách hàng',
+            onTap: () => _selectCategory('Khách hàng'),
+          ),
           MenuItem(title: 'Đơn hàng', onTap: () => _selectCategory('Đơn hàng')),
           MenuItem(title: 'Sản phẩm', onTap: () => _selectCategory('Sản phẩm')),
           MenuItem(
@@ -127,6 +132,8 @@ class _MainScreenState extends State<MainScreen> {
       contentWidget = const TicketListScreen();
     } else if (_selectedCategory == 'Hộp thư hỗ trợ') {
       contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
+    } else if (_selectedCategory == 'Khách hàng') {
+      contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
     } else {
       // Placeholder for other categories
       contentWidget = Center(
