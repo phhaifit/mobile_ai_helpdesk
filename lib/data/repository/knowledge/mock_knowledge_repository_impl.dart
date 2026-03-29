@@ -76,6 +76,20 @@ class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
   }
 
   @override
+  Future<KnowledgeSource> updateSourceCrawlInterval(
+    String id,
+    CrawlInterval crawlInterval,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 350));
+    final index = _sources.indexWhere((s) => s.id == id);
+    if (index == -1) throw Exception('Source not found');
+
+    final updated = _sources[index].copyWith(crawlInterval: crawlInterval);
+    _sources[index] = updated;
+    return updated;
+  }
+
+  @override
   Future<void> deleteSource(String id) async {
     await Future.delayed(const Duration(milliseconds: 400));
     _sources.removeWhere((s) => s.id == id);

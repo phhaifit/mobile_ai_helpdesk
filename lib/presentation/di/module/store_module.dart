@@ -16,6 +16,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_use
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -168,6 +169,7 @@ class StoreModule {
         getIt<DeleteKnowledgeSourceUseCase>(),
         getIt<ReindexSourceUseCase>(),
         getIt<TestDbConnectionUseCase>(),
+        getIt<UpdateSourceCrawlIntervalUseCase>(),
       ),
     );
   }

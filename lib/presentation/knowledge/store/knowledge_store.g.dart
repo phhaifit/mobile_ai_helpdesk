@@ -170,6 +170,21 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return _$reindexSourceAsyncAction.run(() => super.reindexSource(id));
   }
 
+  late final _$updateSourceCrawlIntervalAsyncAction = AsyncAction(
+    '_KnowledgeStore.updateSourceCrawlInterval',
+    context: context,
+  );
+
+  @override
+  Future<void> updateSourceCrawlInterval(
+    String id,
+    CrawlInterval crawlInterval,
+  ) {
+    return _$updateSourceCrawlIntervalAsyncAction.run(
+      () => super.updateSourceCrawlInterval(id, crawlInterval),
+    );
+  }
+
   late final _$testConnectionAsyncAction = AsyncAction(
     '_KnowledgeStore.testConnection',
     context: context,

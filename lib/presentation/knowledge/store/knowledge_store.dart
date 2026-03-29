@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_use
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'knowledge_store.g.dart';
@@ -16,6 +17,7 @@ abstract class _KnowledgeStore with Store {
   final DeleteKnowledgeSourceUseCase _deleteSource;
   final ReindexSourceUseCase _reindexSource;
   final TestDbConnectionUseCase _testDbConnection;
+  final UpdateSourceCrawlIntervalUseCase _updateSourceCrawlInterval;
 
   _KnowledgeStore(
     this._getSources,
@@ -23,6 +25,7 @@ abstract class _KnowledgeStore with Store {
     this._deleteSource,
     this._reindexSource,
     this._testDbConnection,
+    this._updateSourceCrawlInterval,
   );
 
   // ---------------------------------------------------------------------------
@@ -131,6 +134,28 @@ abstract class _KnowledgeStore with Store {
       final updated = await _reindexSource.call(params: id);
       final index = sources.indexWhere((s) => s.id == id);
       if (index != -1) sources[index] = updated;
+    } catch (e) {
+      errorMessage = e.toString();
+    }
+  }
+
+  @action
+  Future<void> updateSourceCrawlInterval(
+    String id,
+    CrawlInterval crawlInterval,
+  ) async {
+    errorMessage = null;
+    try {
+      final updated = await _updateSourceCrawlInterval.call(
+        params: UpdateSourceCrawlIntervalParams(
+          id: id,
+          crawlInterval: crawlInterval,
+        ),
+      );
+      final index = sources.indexWhere((s) => s.id == id);
+      if (index != -1) {
+        sources[index] = updated;
+      }
     } catch (e) {
       errorMessage = e.toString();
     }

@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 
 class SourceListCard extends StatelessWidget {
   final KnowledgeSource source;
+  final VoidCallback onConfigureInterval;
   final VoidCallback onReindex;
   final VoidCallback onDelete;
 
   const SourceListCard({
-    super.key,
     required this.source,
+    required this.onConfigureInterval,
     required this.onReindex,
     required this.onDelete,
+    super.key,
   });
 
   @override
@@ -67,6 +69,22 @@ class SourceListCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                TextButton.icon(
+                  onPressed: onConfigureInterval,
+                  icon: const Icon(Icons.schedule, size: 16),
+                  label: const Text(
+                    'Cấu hình tần suất',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey[700],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 TextButton.icon(
                   onPressed: onReindex,
                   icon: const Icon(Icons.sync, size: 16),
@@ -128,7 +146,7 @@ class _TypeIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.12),
+        color: _color.withAlpha(31),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(_icon, size: 20, color: _color),

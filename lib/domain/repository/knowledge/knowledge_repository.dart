@@ -5,6 +5,11 @@ abstract class KnowledgeRepository {
 
   Future<KnowledgeSource> addSource(KnowledgeSource source);
 
+  Future<KnowledgeSource> updateSourceCrawlInterval(
+    String id,
+    CrawlInterval crawlInterval,
+  );
+
   Future<void> deleteSource(String id);
 
   Future<KnowledgeSource> reindexSource(String id);

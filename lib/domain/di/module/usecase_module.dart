@@ -16,6 +16,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_use
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -32,11 +33,11 @@ import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/delete_ticket_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_available_agents_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 
@@ -171,6 +172,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<TestDbConnectionUseCase>(
       TestDbConnectionUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
+      UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

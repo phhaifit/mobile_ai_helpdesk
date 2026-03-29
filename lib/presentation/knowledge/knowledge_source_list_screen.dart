@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/presentation/knowledge/add_source/add_source_type_screen.dart';
+import 'package:ai_helpdesk/presentation/knowledge/config/crawl_interval_config_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/source_list_card.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/source_type_filter_bar.dart';
@@ -87,6 +88,7 @@ class _KnowledgeSourceListScreenState
                     final source = _store.filteredSources[index];
                     return SourceListCard(
                       source: source,
+                      onConfigureInterval: () => _configureInterval(source),
                       onReindex: () => _reindex(source),
                       onDelete: () => _confirmDelete(source),
                     );
@@ -171,6 +173,39 @@ class _KnowledgeSourceListScreenState
     }
   }
 
+  Future<void> _configureInterval(KnowledgeSource source) async {
+    final selected = await Navigator.push<CrawlInterval>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CrawlIntervalConfigScreen(current: source.crawlInterval),
+      ),
+    );
+
+    if (!mounted || selected == null || selected == source.crawlInterval) {
+      return;
+    }
+
+    await _store.updateSourceCrawlInterval(source.id, selected);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (_store.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_store.errorMessage!)),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Đã cập nhật tần suất cho "${source.name}"'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<void> _confirmDelete(KnowledgeSource source) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -190,7 +225,7 @@ class _KnowledgeSourceListScreenState
         ],
       ),
     );
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       await _store.deleteSource(source.id);
     }
   }
