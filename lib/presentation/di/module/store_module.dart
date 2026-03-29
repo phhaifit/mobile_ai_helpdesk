@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
-import 'package:ai_helpdesk/domain/repository/customer_management/customer_repository.dart';
+import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
@@ -26,7 +26,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_u
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
-import 'package:ai_helpdesk/presentation/customer_management/store/customer_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
@@ -128,6 +128,11 @@ class StoreModule {
     );
     getIt.registerFactory(
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
+    );
+
+    // --- Customer Store ---
+    getIt.registerSingleton<CustomerStore>(
+      CustomerStore(getIt<CustomerRepository>()),
     );
 
     // --- Chat Stores ---
