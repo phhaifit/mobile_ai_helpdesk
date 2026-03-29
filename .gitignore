@@ -87,6 +87,11 @@ unlinked_spec.ds
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 
+# Flutter generated files
+windows/flutter/
+linux/flutter/
+macos/Flutter/
+
 # macOS
 **/Flutter/ephemeral/
 **/Pods/
