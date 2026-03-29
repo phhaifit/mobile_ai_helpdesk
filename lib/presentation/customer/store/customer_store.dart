@@ -149,10 +149,10 @@ abstract class _CustomerStore with Store {
   }
 
   @action
-  Future<Tag?> createNewTag(String name, {String colorHex = '#AAAAAA'}) async {
+  Future<Tag?> createNewTag(String name) async {
     isSaving = true;
     try {
-      final newTag = await _repository.createTag(name: name, colorHex: colorHex);
+      final newTag = await _repository.createTag(name: name);
       availableTags.add(newTag);
       return newTag;
     } catch (e) {

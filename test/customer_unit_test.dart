@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 class MockRepository implements CustomerRepository {
   List<Customer> _customers = [];
   final List<Tag> _tags = [
-    const Tag(id: 'tag_1', name: 'VIP', colorHex: '#FFD700'),
+    const Tag(id: 'tag_1', name: 'VIP'),
   ];
 
   set customersData(List<Customer> list) => _customers = list;
@@ -46,7 +46,6 @@ class MockRepository implements CustomerRepository {
   @override
   Future<Tag> createTag({
     required String name,
-    required String colorHex,
   }) async => _tags.first;
   @override
   Future<Customer> addTagToCustomer(String customerId, String tagId) async =>

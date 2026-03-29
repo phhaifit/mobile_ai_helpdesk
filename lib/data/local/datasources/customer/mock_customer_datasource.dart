@@ -12,9 +12,9 @@ class MockCustomerDataSource {
   void _seedData() {
     // Tags
     _tags.addAll([
-      const Tag(id: 'tag_1', name: 'VIP', colorHex: '#FFD700'),
-      const Tag(id: 'tag_2', name: 'New', colorHex: '#00FF00'),
-      const Tag(id: 'tag_3', name: 'Luxury', colorHex: '#FF0000'),
+      const Tag(id: 'tag_1', name: 'VIP'),
+      const Tag(id: 'tag_2', name: 'New'),
+      const Tag(id: 'tag_3', name: 'Luxury'),
     ]);
 
     // Customers
@@ -154,13 +154,11 @@ class MockCustomerDataSource {
 
   Future<Tag> createTag({
     required String name,
-    required String colorHex,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final newTag = Tag(
       id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
       name: name,
-      colorHex: colorHex,
     );
     _tags.add(newTag);
     return newTag;

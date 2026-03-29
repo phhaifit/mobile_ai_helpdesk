@@ -21,7 +21,7 @@ abstract class CustomerRepository {
   });
 
   Future<List<Tag>> getAvailableTags();
-  Future<Tag> createTag({required String name, required String colorHex});
+  Future<Tag> createTag({required String name});
 
   // New methods based on requirements
   Future<Customer> addTagToCustomer(String customerId, String tagId);

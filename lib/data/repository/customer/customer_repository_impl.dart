@@ -56,8 +56,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
   }
 
   @override
-  Future<Tag> createTag({required String name, required String colorHex}) {
-    return _dataSource.createTag(name: name, colorHex: colorHex);
+  Future<Tag> createTag({required String name}) {
+    return _dataSource.createTag(name: name);
   }
 
   @override

@@ -196,10 +196,8 @@ mixin _$CustomerStore on _CustomerStore, Store {
   );
 
   @override
-  Future<Tag?> createNewTag(String name, {String colorHex = '#AAAAAA'}) {
-    return _$createNewTagAsyncAction.run(
-      () => super.createNewTag(name, colorHex: colorHex),
-    );
+  Future<Tag?> createNewTag(String name) {
+    return _$createNewTagAsyncAction.run(() => super.createNewTag(name));
   }
 
   late final _$addTagToCustomerAsyncAction = AsyncAction(
