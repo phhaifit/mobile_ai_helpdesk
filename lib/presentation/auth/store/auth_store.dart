@@ -1,8 +1,10 @@
+import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
 import 'package:ai_helpdesk/data/models/auth/register_request.dart';
 import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
@@ -12,6 +14,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'auth_store.g.dart';
@@ -26,6 +29,7 @@ abstract class _AuthStoreBase with Store {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final AnalyticsService _analyticsService;
 
   _AuthStoreBase(
     this._loginUseCase,
@@ -34,6 +38,7 @@ abstract class _AuthStoreBase with Store {
     this._getCurrentUserUseCase,
     this._changePasswordUseCase,
     this._resetPasswordUseCase,
+    this._analyticsService,
   );
 
   // ============================================================================
@@ -145,12 +150,35 @@ abstract class _AuthStoreBase with Store {
             params: LoginRequest(email: email, password: password),
           )
           .then((result) {
-            result.fold((failure) => errorMessage = failure.message, (
-              authResp,
-            ) {
+            result.fold((failure) {
+              errorMessage = failure.message;
+              _analyticsService.trackEvent(
+                AnalyticsEvents.userLogin,
+                parameters: {
+                  'method': 'email',
+                  'success': 'false',
+                  'error_code': 'auth_failure',
+                },
+              );
+            }, (authResp) {
               authResponse = authResp;
               currentUser = authResp.user;
               successMessage = 'Login successful!';
+
+              // Track successful login & set user properties
+              _analyticsService.trackEvent(
+                AnalyticsEvents.userLogin,
+                parameters: {'method': 'email', 'success': 'true'},
+              );
+              _analyticsService.setUserProperties(
+                authResp.user.id,
+                userProperties: {
+                  'user_role': 'agent',
+                  'plan_type': 'free',
+                  'tenant_id': 'default_tenant',
+                },
+              );
+              debugPrint('[AuthStore] User properties set for ${authResp.user.id}');
             });
           }),
     );
@@ -232,6 +260,7 @@ abstract class _AuthStoreBase with Store {
     logoutFuture = ObservableFuture(
       _logoutUseCase.call(params: null).then((result) {
         result.fold((failure) => errorMessage = failure.message, (_) {
+          _analyticsService.trackEvent(AnalyticsEvents.userLogout);
           authResponse = null;
           currentUser = null;
           successMessage = 'Logged out successfully';
