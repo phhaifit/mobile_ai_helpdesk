@@ -400,5 +400,19 @@
   "create_tenant_step5_title": "Nâng cấp AI Agent",
   "create_tenant_step5_subtitle": "Thêm website để AI Agent hiểu sâu hơn về doanh nghiệp bạn",
   "create_tenant_step5_website_optional": "Website của bạn (không bắt buộc)",
-  "create_tenant_step5_website_helper": "AI Agent sẽ tự động quét website và học về sản phẩm, dịch vụ, chính sách của bạn."
+  "create_tenant_step5_website_helper": "AI Agent sẽ tự động quét website và học về sản phẩm, dịch vụ, chính sách của bạn.",
+  "invite_response_confirm_title": "Xác nhận tham gia tổ chức",
+  "invite_response_body_part1": "Bạn đã được mời tham gia ",
+  "invite_response_body_part2": " với vai trò ",
+  "invite_response_body_part3": ". Nhấn Tham gia để tham gia tổ chức",
+  "invite_response_join": "Tham gia",
+  "invite_response_decline": "Từ chối",
+  "invite_response_close": "Đóng",
+  "invite_response_success_accept": "Bạn đã tham gia tổ chức.",
+  "invite_response_success_decline": "Bạn đã từ chối lời mời.",
+  "invite_response_error_invalid": "Liên kết lời mời không hợp lệ.",
+  "invite_response_error_not_pending": "Lời mời này không còn hiệu lực.",
+  "invite_response_error_failed": "Đã xảy ra lỗi. Vui lòng thử lại.",
+  "invite_response_organization_fallback": "Tổ chức",
+  "invite_response_role_member": "Nhân viên hỗ trợ"
 }

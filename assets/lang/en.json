@@ -400,5 +400,19 @@
   "create_tenant_step5_title": "Upgrade AI Agent",
   "create_tenant_step5_subtitle": "Add a website so the AI Agent understands your business more deeply",
   "create_tenant_step5_website_optional": "Your website (optional)",
-  "create_tenant_step5_website_helper": "The AI Agent will automatically scan the website and learn about your products, services, and policies."
+  "create_tenant_step5_website_helper": "The AI Agent will automatically scan the website and learn about your products, services, and policies.",
+  "invite_response_confirm_title": "Confirm joining organization",
+  "invite_response_body_part1": "You have been invited to join ",
+  "invite_response_body_part2": " with the role of ",
+  "invite_response_body_part3": ". Tap Join to join the organization.",
+  "invite_response_join": "Join",
+  "invite_response_decline": "Decline",
+  "invite_response_close": "Close",
+  "invite_response_success_accept": "You have joined the organization.",
+  "invite_response_success_decline": "You have declined the invitation.",
+  "invite_response_error_invalid": "This invitation link is invalid.",
+  "invite_response_error_not_pending": "This invitation is no longer active.",
+  "invite_response_error_failed": "Something went wrong. Please try again.",
+  "invite_response_organization_fallback": "Organization",
+  "invite_response_role_member": "Support staff"
 }

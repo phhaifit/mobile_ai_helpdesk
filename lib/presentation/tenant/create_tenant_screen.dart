@@ -635,13 +635,13 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               selected: sel,
               onSelected: (_) => _toggleProblem(key),
               selectedColor: _brandBlue.withValues(alpha: 0.15),
-              checkmarkColor: _brandBlue,
               labelStyle: TextStyle(
                 color: sel ? _brandBlue : Colors.grey.shade800,
                 fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
               side: BorderSide(color: sel ? _brandBlue : Colors.grey.shade300),
+              showCheckmark: false,
             );
           }).toList(),
         ),
