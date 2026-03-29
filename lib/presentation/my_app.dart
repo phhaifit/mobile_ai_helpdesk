@@ -25,36 +25,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<ThemeStore>.value(value: _themeStore),
-        Provider<LanguageStore>.value(value: _languageStore),
-        Provider<TenantStore>.value(value: _tenantStore),
-        Provider<TeamStore>.value(value: _teamStore),
-      ],
-      child: Observer(
-        builder: (context) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: Strings.appName,
-            theme: _themeStore.darkMode
-                ? AppThemeData.darkThemeData
-                : AppThemeData.lightThemeData,
-            onGenerateRoute: Routes.onGenerateRoute,
-            locale: Locale(_languageStore.locale),
-            supportedLocales: _languageStore.supportedLanguages
-                .map((language) => Locale(language.locale, language.code))
-                .toList(),
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            home: const MainScreen(),
-          );
-        },
-      ),
+    return Observer(
+      builder: (context) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: Strings.appName,
+          theme: _themeStore.darkMode
+              ? AppThemeData.darkThemeData
+              : AppThemeData.lightThemeData,
+          onGenerateRoute: Routes.onGenerateRoute,
+          locale: Locale(_languageStore.locale),
+          supportedLocales: _languageStore.supportedLanguages
+              .map((language) => Locale(language.locale, language.code))
+              .toList(),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          initialRoute: Routes.login,
+        );
+      },
     );
   }
 }

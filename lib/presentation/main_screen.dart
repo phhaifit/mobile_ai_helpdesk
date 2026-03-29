@@ -11,6 +11,10 @@ import 'ticket/screens/ticket_list_screen.dart';
 import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
+import 'monetization/monetization_screen.dart';
+import 'omnichannel/omnichannel_hub_screen.dart';
+import 'prompt/prompt_library_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -37,6 +41,16 @@ class _MainScreenState extends State<MainScreen> {
 
   void _initializeCategories() {
     _categories = [
+      MenuCategory(
+        title: 'Tổng quan',
+        icon: Icons.dashboard_outlined,
+        items: [
+          MenuItem(
+            title: 'Dashboard',
+            onTap: () => _selectCategory('Dashboard'),
+          ),
+        ],
+      ),
       MenuCategory(
         title: 'Hỗ trợ khách hàng',
         icon: Icons.confirmation_number_outlined,
@@ -81,6 +95,27 @@ class _MainScreenState extends State<MainScreen> {
             id: 'promotions',
             title: 'Khuyến mãi & Vòng quay',
             onTap: () => _selectCategory('promotions'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'Công cụ AI',
+        icon: Icons.library_books_outlined,
+        items: [
+          MenuItem(
+            title: 'Prompt Library',
+            onTap: () => _selectCategory('Prompt Library'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'Kênh tích hợp',
+        icon: Icons.hub_outlined,
+        items: [
+          MenuItem(
+            id: 'Omnichannel',
+            title: 'Omnichannel',
+            onTap: () => _selectCategory('Omnichannel'),
           ),
         ],
       ),
@@ -152,6 +187,17 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+      MenuCategory(
+        title: 'Gói dịch vụ',
+        icon: Icons.monetization_on_outlined,
+        items: [
+          MenuItem(
+            id: 'Monetization',
+            title: 'Monetization',
+            onTap: () => _selectCategory('Monetization'),
+          ),
+        ],
+      ),
     ];
   }
 
@@ -209,44 +255,49 @@ class _MainScreenState extends State<MainScreen> {
     // Build content based on category
     Widget contentWidget;
 
-    if (_selectedCategory == 'pending_tickets') {
-      contentWidget = const TicketListScreen();
-    } else if (_selectedCategory == 'support_inbox') {
-      contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
-    } else if (_selectedCategory == 'tenant_info') {
-      contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
-    } else if (_selectedCategory == 'employee_list') {
-      contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
-    } else if (_selectedCategory == 'customers') {
-      contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
-    } else {
-      // Placeholder for other categories
-      contentWidget = Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.construction_rounded,
-              size: 80,
-              color: AppColors.primaryBlue.withOpacity(0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _selectedCategory,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tính năng sắp ra mắt',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      );
+    final isMobile = !isDesktop;
+
+    switch (_selectedCategory) {
+      case 'Dashboard':
+        contentWidget = _wrapWithMenuBar(
+          title: 'Dashboard',
+          child: _buildDashboardContent(),
+          showMenuButton: isMobile,
+        );
+      case 'pending_tickets':
+        contentWidget = const TicketListScreen();
+      case 'support_inbox':
+        contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
+      case 'customers':
+        contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
+      case 'tenant_info':
+        contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
+      case 'employee_list':
+        contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
+      case 'Prompt Library':
+        contentWidget = _wrapWithMenuBar(
+          title: 'Prompt Library',
+          child: const PromptLibraryScreen(embedInParent: true),
+          showMenuButton: isMobile,
+        );
+      case 'Omnichannel':
+        contentWidget = _wrapWithMenuBar(
+          title: 'Kênh tích hợp',
+          child: const OmnichannelHubScreen(showAppBar: false),
+          showMenuButton: isMobile,
+        );
+      case 'Monetization':
+        contentWidget = _wrapWithMenuBar(
+          title: 'Gói dịch vụ',
+          child: const MonetizationScreen(embedded: true),
+          showMenuButton: isMobile,
+        );
+      default:
+        contentWidget = _wrapWithMenuBar(
+          title: _selectedCategory,
+          child: _buildPlaceholder(_selectedCategory),
+          showMenuButton: isMobile,
+        );
     }
 
     // On desktop: wrap content to prevent full-screen takeover
@@ -260,6 +311,133 @@ class _MainScreenState extends State<MainScreen> {
   // Desktop chat view with 3-column layout
   Widget _buildDesktopChatView() {
     return SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
+  }
+
+  Widget _buildDashboardContent() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tổng quan hệ thống',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              _buildStatCard('Tổng phiếu', '12', Icons.confirmation_number, Colors.blue),
+              _buildStatCard('Đang mở', '5', Icons.fiber_new, Colors.orange),
+              _buildStatCard('Đang xử lý', '4', Icons.autorenew, Colors.amber),
+              _buildStatCard('Đã giải quyết', '3', Icons.check_circle, Colors.green),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+    return SizedBox(
+      width: 160,
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Wraps a child widget with an AppBar that includes a menu button (mobile only).
+  Widget _wrapWithMenuBar({
+    required String title,
+    required Widget child,
+    required bool showMenuButton,
+  }) {
+    if (!showMenuButton) return child;
+
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          color: Colors.white,
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: _toggleMobileSidebar,
+              ),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _buildPlaceholder(String title) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.construction_rounded,
+            size: 80,
+            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tính năng sắp ra mắt',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
