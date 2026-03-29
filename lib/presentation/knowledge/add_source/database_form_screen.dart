@@ -1,12 +1,14 @@
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/crawl_interval_grid.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class DatabaseFormScreen extends StatefulWidget {
   final KnowledgeStore store;
 
-  const DatabaseFormScreen({super.key, required this.store});
+  const DatabaseFormScreen({required this.store, super.key});
 
   @override
   State<DatabaseFormScreen> createState() => _DatabaseFormScreenState();
@@ -45,6 +47,8 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -58,6 +62,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
           onPressed: () {
             if (_step == 2) {
               setState(() => _step = 1);
+              widget.store.resetConnectionTest();
             } else {
               Navigator.pop(context);
             }
@@ -76,9 +81,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
       body: Column(
         children: [
           const Divider(height: 1),
-          Expanded(
-            child: _step == 1 ? _buildStep1() : _buildStep2(),
-          ),
+          Expanded(child: _step == 1 ? _buildStep1() : _buildStep2(l)),
           _buildBottomBar(),
         ],
       ),
@@ -132,7 +135,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
   // ---------------------------------------------------------------------------
   // Step 2: Connection Details
   // ---------------------------------------------------------------------------
-  Widget _buildStep2() {
+  Widget _buildStep2(AppLocalizations l) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -140,7 +143,8 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         children: [
           // DB type dropdown (acts as sync interval label in web)
           DropdownButtonFormField<String>(
-            value: _crawlInterval == CrawlInterval.manual ? 'Thủ công' : 'Hàng ngày',
+            initialValue:
+                _crawlInterval == CrawlInterval.manual ? 'Thủ công' : 'Hàng ngày',
             items: const [
               DropdownMenuItem(value: 'Thủ công', child: Text('Thủ công')),
               DropdownMenuItem(value: 'Hàng ngày', child: Text('Hàng ngày')),
@@ -205,14 +209,18 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
                   children: [
                     const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
-                      value: _dbType,
+                      initialValue: _dbType,
                       items: const [
                         DropdownMenuItem(
                             value: 'PostgreSQL', child: Text('PostgreSQL')),
                         DropdownMenuItem(
                             value: 'SQL Server', child: Text('SQL Server')),
                       ],
-                      onChanged: (v) => setState(() => _dbType = v!),
+                      onChanged: (v) {
+                        if (v == null) return;
+                        setState(() => _dbType = v);
+                        _onConnectionConfigChanged();
+                      },
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 13),
@@ -254,9 +262,40 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
           TextField(
             controller: _sqlController,
             maxLines: 4,
+            onChanged: (_) => _onConnectionConfigChanged(),
             decoration: _inputDecoration(
                 'Nhập câu truy vấn SQL để lấy dữ liệu từ CSDL'),
           ),
+          const SizedBox(height: 16),
+          Observer(
+            builder: (_) => SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: widget.store.isTesting ? null : _testConnection,
+                icon: widget.store.isTesting
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.wifi_protected_setup),
+                label: Text(
+                  widget.store.isTesting
+                      ? l.translate('knowledge_db_testing_connection')
+                      : l.translate('knowledge_db_test_connection'),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(color: Colors.grey[300]!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildConnectionStatusBanner(l),
         ],
       ),
     );
@@ -268,6 +307,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
     String hint, {
     bool required = false,
     TextInputType keyboardType = TextInputType.text,
+    ValueChanged<String>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,6 +317,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         TextField(
           controller: controller,
           keyboardType: keyboardType,
+          onChanged: onChanged ?? (_) => _onConnectionConfigChanged(),
           decoration: _inputDecoration(hint),
         ),
       ],
@@ -292,6 +333,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         TextField(
           controller: _passwordController,
           obscureText: _obscurePassword,
+          onChanged: (_) => _onConnectionConfigChanged(),
           decoration: _inputDecoration('Mật khẩu kết nối cơ sở dữ liệu')
               .copyWith(
             suffixIcon: GestureDetector(
@@ -368,6 +410,76 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
     );
   }
 
+  Widget _buildConnectionStatusBanner(AppLocalizations l) {
+    return Observer(
+      builder: (_) {
+        final testResult = widget.store.connectionTestSuccess;
+
+        if (widget.store.isTesting) {
+          return _statusBanner(
+            message: l.translate('knowledge_db_testing_connection'),
+            foreground: const Color(0xFF1A73E8),
+            background: const Color(0xFFEFF6FF),
+            icon: Icons.sync,
+          );
+        }
+
+        if (testResult == null) {
+          return const SizedBox.shrink();
+        }
+
+        if (testResult) {
+          return _statusBanner(
+            message: l.translate('knowledge_db_connection_success'),
+            foreground: const Color(0xFF16A34A),
+            background: const Color(0xFFECFDF3),
+            icon: Icons.check_circle_outline,
+          );
+        }
+
+        return _statusBanner(
+          message: l.translate('knowledge_db_connection_failed'),
+          foreground: const Color(0xFFDC2626),
+          background: const Color(0xFFFEF2F2),
+          icon: Icons.error_outline,
+        );
+      },
+    );
+  }
+
+  Widget _statusBanner({
+    required String message,
+    required Color foreground,
+    required Color background,
+    required IconData icon,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: foreground.withAlpha(77)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: foreground),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: foreground,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLabel(String text, {bool required = false}) {
     return RichText(
       text: TextSpan(
@@ -411,7 +523,29 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
       setState(() => _nameError = true);
       return;
     }
+    widget.store.resetConnectionTest();
     setState(() => _step = 2);
+  }
+
+  Future<void> _testConnection() async {
+    await widget.store.testConnection(_buildConnectionConfig());
+  }
+
+  Map<String, dynamic> _buildConnectionConfig() {
+    return {
+      'host': _hostController.text.trim(),
+      'port': _portController.text.trim(),
+      'database': _dbController.text.trim(),
+      'username': _userController.text.trim(),
+      'password': _passwordController.text.trim(),
+      'dbType': _dbType,
+    };
+  }
+
+  void _onConnectionConfigChanged() {
+    if (widget.store.connectionTestSuccess != null) {
+      widget.store.resetConnectionTest();
+    }
   }
 
   Future<void> _submit() async {
@@ -430,6 +564,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         'port': _portController.text.trim(),
         'database': _dbController.text.trim(),
         'username': _userController.text.trim(),
+        'password': _passwordController.text.trim(),
         'sql': _sqlController.text.trim(),
         'dbType': _dbType,
       },
