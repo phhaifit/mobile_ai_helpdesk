@@ -1,4 +1,5 @@
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
@@ -273,7 +274,16 @@ class Routes {
     Future.microtask(() async {
       try {
         final getIt = GetIt.instance;
+        final sentryService = getIt<SentryService>();
         final analyticsService = getIt<AnalyticsService>();
+
+        await sentryService.setCurrentScreen(screenName);
+        await sentryService.addBreadcrumb(
+          message: 'Navigated to $screenName',
+          category: 'navigation',
+          data: utmData.hasAnyParams ? utmData.toMap() : null,
+          type: 'navigation',
+        );
 
         // Track screen view with UTM parameters if available
         if (utmData.hasAnyParams) {

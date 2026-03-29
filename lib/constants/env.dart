@@ -54,6 +54,14 @@ enum EnvConfig {
   });
 
   static const _envName = String.fromEnvironment('ENV', defaultValue: 'dev');
+  static const _sentryDsnDev = String.fromEnvironment(
+    'SENTRY_DSN_DEV',
+    defaultValue: '',
+  );
+  static const _sentryDsnProd = String.fromEnvironment(
+    'SENTRY_DSN_PROD',
+    defaultValue: '',
+  );
 
   static final EnvConfig instance = _fromName(_envName);
 
@@ -72,4 +80,27 @@ enum EnvConfig {
   bool get isDev => environment == Environment.dev;
   bool get isStaging => environment == Environment.staging;
   bool get isProd => environment == Environment.prod;
+
+  String get sentryDsn {
+    switch (environment) {
+      case Environment.prod:
+        return _sentryDsnProd;
+      case Environment.staging:
+      case Environment.dev:
+        return _sentryDsnDev;
+    }
+  }
+
+  String get sentryEnvironment {
+    switch (environment) {
+      case Environment.prod:
+        return 'production';
+      case Environment.staging:
+        return 'staging';
+      case Environment.dev:
+        return 'development';
+    }
+  }
+
+  bool get isSentryEnabled => sentryDsn.isNotEmpty;
 }

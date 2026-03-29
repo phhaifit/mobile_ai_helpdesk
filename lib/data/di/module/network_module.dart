@@ -1,6 +1,7 @@
 import 'package:event_bus/event_bus.dart';
 
 import '/constants/env.dart';
+import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/data/network/dio/configs/dio_configs.dart';
 import '/core/data/network/dio/dio_client.dart';
 import '/core/data/network/dio/interceptors/auth_interceptor.dart';
@@ -24,6 +25,9 @@ class NetworkModule {
         debugMode: EnvConfig.instance.enableAnalyticsDebug,
       ),
     );
+
+    // error monitoring:--------------------------------------------------------
+    getIt.registerSingleton<SentryService>(SentryService());
 
     // interceptors:------------------------------------------------------------
     getIt.registerSingleton<LoggingInterceptor>(LoggingInterceptor());
