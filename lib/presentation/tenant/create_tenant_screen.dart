@@ -970,7 +970,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: const Color(0xFFF3F4F6),
-            border: Border.all(color: Color(0xFFD1D5DB)),
+            border: Border.all(color: const Color(0xFFD1D5DB)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1009,10 +1009,9 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
 
   Widget _stepFooter(AppLocalizations l) {
     if (_stepIndex == 0) {
-      return _gradientButton(
+      return _primaryButton(
         label: l.translate('create_tenant_continue'),
         onPressed: _tenantStore.isLoading ? null : _goNext,
-        fullWidth: true,
       );
     }
     if (_stepIndex == 4) {
@@ -1026,7 +1025,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _gradientButton(
+              child: _primaryButton(
               label: l.translate('create_tenant_finish'),
               onPressed: _tenantStore.isLoading ? null : _finishAndCreateTenant,
             ),
@@ -1044,7 +1043,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _gradientButton(
+          child: _primaryButton(
             label: l.translate('create_tenant_continue'),
             onPressed: _tenantStore.isLoading ? null : _goNext,
           ),
@@ -1059,55 +1058,34 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
       style: OutlinedButton.styleFrom(
         foregroundColor: _brandBlue,
         backgroundColor: const Color(0xFFEFF6FF),
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        minimumSize: const Size(double.infinity, 50),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         side: BorderSide(color: _brandBlue.withValues(alpha: 0.35)),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
     );
   }
 
-  Widget _gradientButton({
-    required String label,
-    required VoidCallback? onPressed,
-    bool fullWidth = false,
-  }) {
-    final inner = Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          child: Center(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ),
+  Widget _primaryButton({
+  required String label,
+  required VoidCallback? onPressed,
+}) {
+  return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _brandBlue,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 0, 
+      ),
+      child: Text(
+        label, 
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
       ),
     );
-    return SizedBox(
-      width: fullWidth ? double.infinity : null,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          gradient: onPressed == null
-              ? null
-              : const LinearGradient(
-                  colors: [Color(0xFF1890FF), Color(0xFF6366F1)],
-                ),
-          color: onPressed == null ? Colors.grey.shade400 : null,
-        ),
-        child: inner,
-      ),
-    );
-  }
+}
 }
 
 class _TrialBubble {

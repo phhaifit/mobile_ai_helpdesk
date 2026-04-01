@@ -175,8 +175,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     required bool isMobile,
     required String label,
     required Widget field,
+    bool forceHorizontal = false,
   }) {
-    if (isMobile) {
+    if (isMobile && !forceHorizontal) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -193,6 +194,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ],
       );
     }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -301,6 +303,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         children: [
                           _labeledRow(
                             isMobile: isMobile,
+                            forceHorizontal: true,
                             label: l.translate('employee_detail_profile_picture'),
                             field: Align(
                               alignment: Alignment.centerLeft,
@@ -322,6 +325,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           const SizedBox(height: 16),
                           _labeledRow(
                             isMobile: isMobile,
+                            forceHorizontal: true,
                             label: l.translate('employee_detail_email'),
                             field: Text(
                               member.email,
