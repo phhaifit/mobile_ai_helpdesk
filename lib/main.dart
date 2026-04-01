@@ -1,36 +1,29 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'dart:async';
 import 'dart:developer';
 
-// // import 'package:ai_helpdesk/di/service_locator.dart';
-// // import 'package:ai_helpdesk/firebase_options.dart';
-// // import 'package:ai_helpdesk/presentation/my_app.dart';
-// // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-// import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/data/analytics/first_launch_manager.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/firebase_options.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import '/di/service_locator.dart';
-import '/data/analytics/first_launch_manager.dart';
-import '/domain/analytics/analytics_service.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
-import '/presentation/main_screen.dart';
-import '/presentation/login/login_screen.dart';
-import '/presentation/my_app.dart';
-import '/utils/routes/routes.dart';
-import 'constants/colors.dart';
-import 'firebase_options.dart';
-import 'utils/locale/app_localization.dart';
-
-void main() async {
-  // Ensure Flutter bindings are initialized before any async operations
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await setPreferredOrientations();
 
-  // Initialize Firebase after bindings are ready
+  final env = EnvConfig.instance;
+  log('Running in ${env.environment.name} mode — ${env.baseUrl}');
+
+  // Initialize Firebase
   try {
     try {
       Firebase.app();
@@ -41,12 +34,30 @@ void main() async {
     }
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
-    // Continue app startup even if Firebase init fails (graceful degradation)
   }
 
   // Configure service locator and all dependencies
   await ServiceLocator.configureDependencies();
 
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = env.sentryDsn;
+      options.environment = env.sentryEnvironment;
+      options.debug = env.isDev;
+      options.enableAutoSessionTracking = true;
+      options.attachStacktrace = true;
+      options.tracesSampleRate = env.isProd ? 0.2 : 1.0;
+      options.sendDefaultPii = false;
+    },
+    appRunner: () async {
+      await _configureSentryContext();
+      await _trackFirstLaunch();
+      runApp(MyApp());
+    },
+  );
+}
+
+Future<void> _trackFirstLaunch() async {
   // Check and track first app launch
   try {
     final getIt = GetIt.instance;
@@ -61,56 +72,38 @@ void main() async {
     debugPrint('[Main] App initialization complete: $firstLaunchData');
   } catch (e) {
     debugPrint('[Main] First launch tracking failed: $e');
-    // Continue app startup even if first launch tracking fails
   }
-
-  runApp(const MyApp());
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // if (!kIsWeb) {
-  //   // Catch framework errors
-  //   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-  //   // Catch async errors
-  //   PlatformDispatcher.instance.onError = (error, stack) {
-  //     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-  //     return !kDebugMode;
-  //   };
-
-  //   // Enable crashlytics explicitly and add custom logs/keys.
-  //   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-  //   await FirebaseCrashlytics.instance.setUserIdentifier('test-user-123');
-  //   await FirebaseCrashlytics.instance.setCustomKey('tenant', 'default_tenant');
-  //   await FirebaseCrashlytics.instance.setCustomKey('screen', 'startup_screen');
-  //   await FirebaseCrashlytics.instance.log(
-  //     'App started - Initializing services',
-  //   );
-  // }
-
-  // runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future<void> _configureSentryContext() async {
+  try {
+    final getIt = GetIt.instance;
+    final env = EnvConfig.instance;
+    final sentryService = getIt<SentryService>();
+    final sharedPrefHelper = getIt<SharedPreferenceHelper>();
+    final User? user = await sharedPrefHelper.getUser();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'AI Helpdesk',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
-        useMaterial3: true,
-      ),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        AppLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('en'), Locale('vi')],
-      home: const LoginScreen(),
-      onGenerateRoute: Routes.onGenerateRoute,
+    await sentryService.setEnvironmentContext(env.sentryEnvironment);
+    await sentryService.addBreadcrumb(
+      message: 'Application started',
+      category: 'app.lifecycle',
+      data: {'environment': env.sentryEnvironment},
+      type: 'navigation',
     );
+
+    if (user != null) {
+      await sentryService.setUserContext(userId: user.id, email: user.email);
+    }
+  } catch (e) {
+    debugPrint('[Main] Sentry context setup failed: $e');
   }
+}
+
+Future<void> setPreferredOrientations() {
+  return SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeRight,
+    DeviceOrientation.landscapeLeft,
+  ]);
 }

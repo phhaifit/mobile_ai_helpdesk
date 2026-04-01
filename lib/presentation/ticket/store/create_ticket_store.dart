@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
@@ -12,8 +15,13 @@ class CreateTicketStore = _CreateTicketStoreBase with _$CreateTicketStore;
 abstract class _CreateTicketStoreBase with Store {
   final CreateTicketUseCase _createTicketUseCase;
   final SessionStore _sessionStore;
+  final AnalyticsService _analyticsService;
 
-  _CreateTicketStoreBase(this._createTicketUseCase, this._sessionStore);
+  _CreateTicketStoreBase(
+    this._createTicketUseCase,
+    this._sessionStore,
+    this._analyticsService,
+  );
 
   @observable
   String title = '';
@@ -159,6 +167,17 @@ abstract class _CreateTicketStoreBase with Store {
     try {
       final ticket = await submitFuture;
       createdTicket = ticket;
+
+      // Track ticket creation
+      _analyticsService.trackEvent(
+        AnalyticsEvents.ticketCreated,
+        parameters: {
+          'priority': priority.name,
+          'status': ticketStatus.name,
+          'category': 'general',
+        },
+      );
+
       return ticket;
     } catch (e) {
       submitError = e.toString();

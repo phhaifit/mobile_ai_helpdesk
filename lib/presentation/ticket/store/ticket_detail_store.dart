@@ -1,4 +1,6 @@
 import 'package:mobx/mobx.dart';
+import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
@@ -30,6 +32,7 @@ abstract class _TicketDetailStoreBase with Store {
   final AddCommentUseCase _addCommentUseCase;
   final GetTicketHistoryUseCase _getTicketHistoryUseCase;
   final SessionStore _sessionStore;
+  final AnalyticsService _analyticsService;
 
   _TicketDetailStoreBase(
     this._getTicketByIdUseCase,
@@ -42,6 +45,7 @@ abstract class _TicketDetailStoreBase with Store {
     this._addCommentUseCase,
     this._getTicketHistoryUseCase,
     this._sessionStore,
+    this._analyticsService,
   );
 
   @observable
@@ -88,6 +92,17 @@ abstract class _TicketDetailStoreBase with Store {
       comments = List<Comment>.from(results[1] as List);
       history = List<TicketHistory>.from(results[2] as List);
       availableAgents = List<Agent>.from(results[3] as List);
+
+      if (ticket != null) {
+        _analyticsService.trackEvent(
+          AnalyticsEvents.ticketViewed,
+          parameters: {
+            'ticket_id': ticket!.id,
+            'status': ticket!.status.name,
+            'priority': ticket!.priority.name,
+          },
+        );
+      }
     } catch (e) {
       errorMessage = e.toString();
     } finally {
@@ -108,6 +123,15 @@ abstract class _TicketDetailStoreBase with Store {
         ),
       );
       ticket = updated;
+
+      _analyticsService.trackEvent(
+        AnalyticsEvents.ticketUpdated,
+        parameters: {
+          'ticket_id': updated.id,
+          'field_updated': 'status',
+          'new_value': newStatus.name,
+        },
+      );
     } catch (e) {
       errorMessage = e.toString();
     }

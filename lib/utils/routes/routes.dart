@@ -1,9 +1,11 @@
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
@@ -71,6 +73,8 @@ class Routes {
   static const String upgradeConfirmation = '/upgrade-confirmation';
   static const String tenantInfo = '/tenant-info';
   static const String tenantInviteRespond = '/invite/respond';
+  static const String knowledge = '/knowledge';
+
   // route generator -----------------------------------------------------------
   /// Generates routes with integrated UTM parameter parsing and analytics tracking.
   ///
@@ -242,6 +246,10 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const TenantInfoScreen(),
+      case knowledge:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const KnowledgeSourceListScreen(),
         );
       default:
         return MaterialPageRoute(
@@ -275,7 +283,16 @@ class Routes {
     Future.microtask(() async {
       try {
         final getIt = GetIt.instance;
+        final sentryService = getIt<SentryService>();
         final analyticsService = getIt<AnalyticsService>();
+
+        await sentryService.setCurrentScreen(screenName);
+        await sentryService.addBreadcrumb(
+          message: 'Navigated to $screenName',
+          category: 'navigation',
+          data: utmData.hasAnyParams ? utmData.toMap() : null,
+          type: 'navigation',
+        );
 
         // Track screen view with UTM parameters if available
         if (utmData.hasAnyParams) {
