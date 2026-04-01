@@ -246,6 +246,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const TenantInfoScreen(),
+        );
       case knowledge:
         return MaterialPageRoute(
           settings: settings,

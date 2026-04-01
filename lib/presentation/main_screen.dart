@@ -15,7 +15,6 @@ import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
 import 'prompt/prompt_library_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -47,8 +46,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.dashboard_outlined,
         items: [
           MenuItem(
+            id: 'dashboard',
             title: 'Dashboard',
-            onTap: () => _selectCategory('Dashboard'),
+            onTap: () => _selectCategory('dashboard'),
           ),
         ],
       ),
@@ -104,8 +104,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.library_books_outlined,
         items: [
           MenuItem(
+            id: 'prompt_library',
             title: 'Prompt Library',
-            onTap: () => _selectCategory('Prompt Library'),
+            onTap: () => _selectCategory('prompt_library'),
           ),
         ],
       ),
@@ -114,9 +115,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.hub_outlined,
         items: [
           MenuItem(
-            id: 'Omnichannel',
+            id: 'omnichannel',
             title: 'Omnichannel',
-            onTap: () => _selectCategory('Omnichannel'),
+            onTap: () => _selectCategory('omnichannel'),
           ),
         ],
       ),
@@ -193,9 +194,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.monetization_on_outlined,
         items: [
           MenuItem(
-            id: 'Monetization',
+            id: 'monetization',
             title: 'Monetization',
-            onTap: () => _selectCategory('Monetization'),
+            onTap: () => _selectCategory('monetization'),
           ),
         ],
       ),
@@ -204,8 +205,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.auto_stories_outlined,
         items: [
           MenuItem(
+            id: 'knowledge',
             title: 'Nạp kiến thức',
-            onTap: () => _selectCategory('Nạp kiến thức'),
+            onTap: () => _selectCategory('knowledge'),
           ),
         ],
       ),
@@ -269,7 +271,7 @@ class _MainScreenState extends State<MainScreen> {
     final isMobile = !isDesktop;
 
     switch (_selectedCategory) {
-      case 'Dashboard':
+      case 'dashboard':
         contentWidget = _wrapWithMenuBar(
           title: 'Dashboard',
           child: _buildDashboardContent(),
@@ -279,7 +281,7 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const TicketListScreen();
       case 'support_inbox':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
-      case 'Nạp kiến thức':
+      case 'knowledge':
         contentWidget = KnowledgeSourceListScreen(
           embedded: true,
           onMenuTap: _toggleMobileSidebar,
@@ -290,19 +292,19 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
       case 'employee_list':
         contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
-      case 'Prompt Library':
+      case 'prompt_library':
         contentWidget = _wrapWithMenuBar(
           title: 'Prompt Library',
           child: const PromptLibraryScreen(embedInParent: true),
           showMenuButton: isMobile,
         );
-      case 'Omnichannel':
+      case 'omnichannel':
         contentWidget = _wrapWithMenuBar(
           title: 'Kênh tích hợp',
           child: const OmnichannelHubScreen(showAppBar: false),
           showMenuButton: isMobile,
         );
-      case 'Monetization':
+      case 'monetization':
         contentWidget = _wrapWithMenuBar(
           title: 'Gói dịch vụ',
           child: const MonetizationScreen(embedded: true),
