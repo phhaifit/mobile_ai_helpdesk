@@ -1,8 +1,11 @@
+import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
 import 'package:ai_helpdesk/data/models/auth/register_request.dart';
 import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
 import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
@@ -12,7 +15,9 @@ import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'auth_store.g.dart';
 
@@ -26,6 +31,8 @@ abstract class _AuthStoreBase with Store {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final AnalyticsService _analyticsService;
+  final SentryService _sentryService;
 
   _AuthStoreBase(
     this._loginUseCase,
@@ -34,6 +41,8 @@ abstract class _AuthStoreBase with Store {
     this._getCurrentUserUseCase,
     this._changePasswordUseCase,
     this._resetPasswordUseCase,
+    this._analyticsService,
+    this._sentryService,
   );
 
   // ============================================================================
@@ -139,19 +148,72 @@ abstract class _AuthStoreBase with Store {
     errorMessage = null;
     successMessage = null;
 
+    _sentryService.addBreadcrumb(
+      message: 'User submitted login form',
+      category: 'auth',
+      data: {'email': email, 'action': 'login_attempt'},
+      type: 'user',
+    );
+
     loginFuture = ObservableFuture(
       _loginUseCase
           .call(
             params: LoginRequest(email: email, password: password),
           )
           .then((result) {
-            result.fold((failure) => errorMessage = failure.message, (
-              authResp,
-            ) {
-              authResponse = authResp;
-              currentUser = authResp.user;
-              successMessage = 'Login successful!';
-            });
+            result.fold(
+              (failure) {
+                errorMessage = failure.message;
+                _analyticsService.trackEvent(
+                  AnalyticsEvents.userLogin,
+                  parameters: {
+                    'method': 'email',
+                    'success': 'false',
+                    'error_code': 'auth_failure',
+                  },
+                );
+                _sentryService.addBreadcrumb(
+                  message: 'Login failed',
+                  category: 'auth',
+                  level: SentryLevel.warning,
+                  data: {'reason': failure.message},
+                  type: 'user',
+                );
+              },
+              (authResp) {
+                authResponse = authResp;
+                currentUser = authResp.user;
+                successMessage = 'Login successful!';
+
+                // Track successful login & set user properties
+                _analyticsService.trackEvent(
+                  AnalyticsEvents.userLogin,
+                  parameters: {'method': 'email', 'success': 'true'},
+                );
+                _analyticsService.setUserProperties(
+                  authResp.user.id,
+                  userProperties: {
+                    'user_role': 'agent',
+                    'plan_type': 'free',
+                    'tenant_id': 'default_tenant',
+                  },
+                );
+                _sentryService.setUserContext(
+                  userId: authResp.user.id,
+                  email: authResp.user.email,
+                  tenantId: SentryService.defaultTenantId,
+                );
+                _sentryService.addBreadcrumb(
+                  message: 'Login successful',
+                  category: 'auth',
+                  data: {'user_id': authResp.user.id},
+                  type: 'user',
+                );
+                debugPrint(
+                  '[AuthStore] User properties set for ${authResp.user.id}',
+                );
+              },
+            );
           }),
     );
 
@@ -232,6 +294,13 @@ abstract class _AuthStoreBase with Store {
     logoutFuture = ObservableFuture(
       _logoutUseCase.call(params: null).then((result) {
         result.fold((failure) => errorMessage = failure.message, (_) {
+          _analyticsService.trackEvent(AnalyticsEvents.userLogout);
+          _sentryService.addBreadcrumb(
+            message: 'User logged out',
+            category: 'auth',
+            type: 'user',
+          );
+          _sentryService.clearUserContext();
           authResponse = null;
           currentUser = null;
           successMessage = 'Logged out successfully';

@@ -15,6 +15,7 @@ import '/utils/locale/app_localization.dart';
 import '/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../di/service_locator.dart';
@@ -95,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLeftSide() {
     return SizedBox.expand(
       child: Image.asset(
-        Assets.appLogo,
+        Assets.imgLogin,
         fit: BoxFit.cover,
       ),
     );
@@ -135,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
           autoFocus: false,
           onChanged: (value) {
             _formStore.setUserId(_userEmailController.text);
+            _loginStore.setEmail(_userEmailController.text);
           },
           onFieldSubmitted: (value) {
             FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -160,6 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
           errorText: _formStore.formErrorStore.password,
           onChanged: (value) {
             _formStore.setPassword(_passwordController.text);
+            _loginStore.setPassword(_passwordController.text);
           },
         );
       },
@@ -191,9 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () async {
         if (_formStore.canLogin) {
           DeviceUtils.hideKeyboard(context);
-          _loginStore.setEmail(_userEmailController.text);
-          _loginStore.setPassword(_passwordController.text);
-          _loginStore.login();
+          await _loginStore.login();
         } else {
           _showErrorMessage('Please fill in all fields');
         }

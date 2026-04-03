@@ -12,62 +12,75 @@ mixin _$AuthStore on _AuthStoreBase, Store {
   Computed<bool>? _$isAuthenticatedComputed;
 
   @override
-  bool get isAuthenticated => (_$isAuthenticatedComputed ??= Computed<bool>(
-    () => super.isAuthenticated,
-    name: '_AuthStoreBase.isAuthenticated',
-  )).value;
+  bool get isAuthenticated =>
+      (_$isAuthenticatedComputed ??= Computed<bool>(
+            () => super.isAuthenticated,
+            name: '_AuthStoreBase.isAuthenticated',
+          ))
+          .value;
   Computed<bool>? _$isLoginLoadingComputed;
 
   @override
-  bool get isLoginLoading => (_$isLoginLoadingComputed ??= Computed<bool>(
-    () => super.isLoginLoading,
-    name: '_AuthStoreBase.isLoginLoading',
-  )).value;
+  bool get isLoginLoading =>
+      (_$isLoginLoadingComputed ??= Computed<bool>(
+            () => super.isLoginLoading,
+            name: '_AuthStoreBase.isLoginLoading',
+          ))
+          .value;
   Computed<bool>? _$isRegisterLoadingComputed;
 
   @override
-  bool get isRegisterLoading => (_$isRegisterLoadingComputed ??= Computed<bool>(
-    () => super.isRegisterLoading,
-    name: '_AuthStoreBase.isRegisterLoading',
-  )).value;
+  bool get isRegisterLoading =>
+      (_$isRegisterLoadingComputed ??= Computed<bool>(
+            () => super.isRegisterLoading,
+            name: '_AuthStoreBase.isRegisterLoading',
+          ))
+          .value;
   Computed<bool>? _$isLogoutLoadingComputed;
 
   @override
-  bool get isLogoutLoading => (_$isLogoutLoadingComputed ??= Computed<bool>(
-    () => super.isLogoutLoading,
-    name: '_AuthStoreBase.isLogoutLoading',
-  )).value;
+  bool get isLogoutLoading =>
+      (_$isLogoutLoadingComputed ??= Computed<bool>(
+            () => super.isLogoutLoading,
+            name: '_AuthStoreBase.isLogoutLoading',
+          ))
+          .value;
   Computed<bool>? _$isGetCurrentUserLoadingComputed;
 
   @override
   bool get isGetCurrentUserLoading =>
       (_$isGetCurrentUserLoadingComputed ??= Computed<bool>(
-        () => super.isGetCurrentUserLoading,
-        name: '_AuthStoreBase.isGetCurrentUserLoading',
-      )).value;
+            () => super.isGetCurrentUserLoading,
+            name: '_AuthStoreBase.isGetCurrentUserLoading',
+          ))
+          .value;
   Computed<bool>? _$isChangePasswordLoadingComputed;
 
   @override
   bool get isChangePasswordLoading =>
       (_$isChangePasswordLoadingComputed ??= Computed<bool>(
-        () => super.isChangePasswordLoading,
-        name: '_AuthStoreBase.isChangePasswordLoading',
-      )).value;
+            () => super.isChangePasswordLoading,
+            name: '_AuthStoreBase.isChangePasswordLoading',
+          ))
+          .value;
   Computed<bool>? _$isResetPasswordLoadingComputed;
 
   @override
   bool get isResetPasswordLoading =>
       (_$isResetPasswordLoadingComputed ??= Computed<bool>(
-        () => super.isResetPasswordLoading,
-        name: '_AuthStoreBase.isResetPasswordLoading',
-      )).value;
+            () => super.isResetPasswordLoading,
+            name: '_AuthStoreBase.isResetPasswordLoading',
+          ))
+          .value;
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_AuthStoreBase.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_AuthStoreBase.isLoading',
+          ))
+          .value;
 
   late final _$currentUserAtom = Atom(
     name: '_AuthStoreBase.currentUser',

@@ -40,13 +40,13 @@ abstract class _PostStore with Store {
 
   // actions:-------------------------------------------------------------------
   @action
-  Future getPosts() async {
+  Future<void> getPosts() async {
     final future = _getPostUseCase.call(params: null);
     fetchPostsFuture = ObservableFuture(future);
 
     future.then((postList) {
       this.postList = postList;
-    }).catchError((Object error) {
+    }).catchError((error) {
       if (error is DioException) {
         errorStore.errorMessage = DioExceptionUtil.handleError(error);
       } else {

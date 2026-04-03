@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 
 class StatusPriorityBadgeWidget extends StatelessWidget {

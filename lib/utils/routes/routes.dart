@@ -1,9 +1,11 @@
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
@@ -21,6 +23,12 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import '/domain/entity/ai_agent/ai_agent.dart';
+import '/presentation/ai_agent/agent_create_edit_screen.dart';
+import '/presentation/ai_agent/agent_detail_screen.dart';
+import '/presentation/ai_agent/agent_list_screen.dart';
+import '/presentation/ai_agent/team_assistant_screen.dart';
+import '/presentation/playground/playground_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
@@ -66,6 +74,15 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
+  // AI Agent
+  static const String agentList = '/ai-agents';
+  static const String agentCreate = '/ai-agents/create';
+  static const String agentEdit = '/ai-agents/edit';
+  static const String agentDetail = '/ai-agents/detail';
+  static const String teamAssistant = '/ai-agents/team-assistant';
+  // Playground
+  static const String playground = '/playground';
+  static const String knowledge = '/knowledge';
 
   // route generator -----------------------------------------------------------
   /// Generates routes with integrated UTM parameter parsing and analytics tracking.
@@ -111,7 +128,9 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
+          builder: (_) => ResetPasswordScreen(
+            email: args?['email'] as String?,
+          ),
         );
       case home:
         return MaterialPageRoute(
@@ -234,6 +253,44 @@ class Routes {
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
         );
+      case agentList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentListScreen(),
+        );
+      case agentCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentCreateEditScreen(),
+        );
+      case agentEdit:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentCreateEditScreen(agent: agent),
+        );
+      case agentDetail:
+        final agent = settings.arguments as AiAgent;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentDetailScreen(agent: agent),
+        );
+      case teamAssistant:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TeamAssistantScreen(),
+        );
+      case playground:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PlaygroundScreen(agent: agent),
+        );
+      case knowledge:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const KnowledgeSourceListScreen(),
+        );
       default:
         return MaterialPageRoute(
           settings: settings,
@@ -266,7 +323,16 @@ class Routes {
     Future.microtask(() async {
       try {
         final getIt = GetIt.instance;
+        final sentryService = getIt<SentryService>();
         final analyticsService = getIt<AnalyticsService>();
+
+        await sentryService.setCurrentScreen(screenName);
+        await sentryService.addBreadcrumb(
+          message: 'Navigated to $screenName',
+          category: 'navigation',
+          data: utmData.hasAnyParams ? utmData.toMap() : null,
+          type: 'navigation',
+        );
 
         // Track screen view with UTM parameters if available
         if (utmData.hasAnyParams) {

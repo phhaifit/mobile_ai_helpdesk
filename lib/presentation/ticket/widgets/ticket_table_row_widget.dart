@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '../store/ticket_column_visibility_store.dart';
 import 'status_priority_badge_widget.dart';
 import 'ticket_table_columns.dart';
@@ -72,8 +71,6 @@ class TicketTableRowWidget extends StatelessWidget {
   }
 
   Widget _buildPrimaryActionButton(BuildContext context) {
-    final l = AppLocalizations.of(context);
-
     return ElevatedButton(
       onPressed: onAcceptPressed,
       style: ElevatedButton.styleFrom(
@@ -92,7 +89,6 @@ class TicketTableRowWidget extends StatelessWidget {
   }
 
   Widget _buildCancelActionButton(BuildContext context) {
-    final l = AppLocalizations.of(context);
     return OutlinedButton(
       onPressed: onCancelPressed,
       style: OutlinedButton.styleFrom(
@@ -113,7 +109,6 @@ class TicketTableRowWidget extends StatelessWidget {
   }
 
   Widget _buildDetailButton(BuildContext context) {
-    final l = AppLocalizations.of(context);
     return OutlinedButton(
       onPressed: onDetailPressed,
       style: OutlinedButton.styleFrom(

@@ -1,6 +1,8 @@
 import 'package:mobx/mobx.dart' hide Reaction;
 import 'dart:async';
 import 'dart:math';
+import '../../../constants/analytics_events.dart';
+import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/entity/chat/message.dart';
 import '../../../domain/entity/chat/reaction.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
@@ -11,6 +13,7 @@ class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
   final ChatRepository _chatRepository;
+  final AnalyticsService _analyticsService;
 
   // Canned responses for auto-reply simulation
   static const List<String> _defaultResponses = [
@@ -24,7 +27,7 @@ abstract class _ChatStore with Store {
     'Tôi đang tìm kiếm thông tin phù hợp cho bạn.',
   ];
 
-  _ChatStore(this._chatRepository);
+  _ChatStore(this._chatRepository, this._analyticsService);
 
   @observable
   ObservableList<Message> messageList = ObservableList<Message>();
@@ -77,6 +80,12 @@ abstract class _ChatStore with Store {
       readStatus: MessageReadStatus.sent,
     );
     messageList.add(newMessage);
+
+    // Track message sent event
+    _analyticsService.trackEvent(
+      AnalyticsEvents.messageSent,
+      parameters: {'channel': 'chat'},
+    );
 
     // Simulate delivery status progression
     _simulateReadStatusProgression(newMessage.id);

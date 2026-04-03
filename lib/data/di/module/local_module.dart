@@ -8,16 +8,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/core/data/local/sembast/sembast_client.dart';
 import '/data/local/constants/db_constants.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
+import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
+// import '../../local/datasources/customer_management/customer_datasource.dart';
+import '../../local/datasources/playground/playground_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
 
 class LocalModule {
   static Future<void> configureLocalModuleInjection() async {
     final getIt = GetIt.instance;
 
+    // --- AI Agent DataSources ---
+    getIt.registerSingleton<AiAgentDataSource>(AiAgentDataSource());
+    getIt.registerSingleton<PlaygroundDataSource>(PlaygroundDataSource());
+
     // --- Chat DataSources ---
     getIt.registerSingleton<ChatDataSource>(ChatDataSource());
     getIt.registerSingleton<ChatRoomDataSource>(ChatRoomDataSource());
+
+    // --- Customer DataSources ---
+    getIt.registerSingleton<MockCustomerDataSource>(MockCustomerDataSource());
 
     // preference manager:------------------------------------------------------
     getIt.registerSingletonAsync<SharedPreferences>(
