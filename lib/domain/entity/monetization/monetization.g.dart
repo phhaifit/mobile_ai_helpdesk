@@ -11,9 +11,10 @@ CurrentPlanStatus _$CurrentPlanStatusFromJson(Map<String, dynamic> json) =>
       tier: $enumDecode(_$PlanTierEnumMap, json['tier']),
       planNameKey: json['planNameKey'] as String,
       isActive: json['isActive'] as bool,
-      expiresAt: json['expiresAt'] == null
-          ? null
-          : DateTime.parse(json['expiresAt'] as String),
+      expiresAt:
+          json['expiresAt'] == null
+              ? null
+              : DateTime.parse(json['expiresAt'] as String),
     );
 
 Map<String, dynamic> _$CurrentPlanStatusToJson(CurrentPlanStatus instance) =>
@@ -46,9 +47,10 @@ SubscriptionPlan _$SubscriptionPlanFromJson(Map<String, dynamic> json) =>
       billingCycle: json['billingCycle'] as String,
       isCurrentPlan: json['isCurrentPlan'] as bool,
       isRecommended: json['isRecommended'] as bool,
-      featureKeys: (json['featureKeys'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+      featureKeys:
+          (json['featureKeys'] as List<dynamic>)
+              .map((e) => e as String)
+              .toList(),
     );
 
 Map<String, dynamic> _$SubscriptionPlanToJson(SubscriptionPlan instance) =>
@@ -83,12 +85,14 @@ MonetizationOverview _$MonetizationOverviewFromJson(
     json['currentPlan'] as Map<String, dynamic>,
   ),
   usageLimit: UsageLimit.fromJson(json['usageLimit'] as Map<String, dynamic>),
-  plans: (json['plans'] as List<dynamic>)
-      .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  featureGates: (json['featureGates'] as List<dynamic>)
-      .map((e) => FeatureGate.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  plans:
+      (json['plans'] as List<dynamic>)
+          .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
+          .toList(),
+  featureGates:
+      (json['featureGates'] as List<dynamic>)
+          .map((e) => FeatureGate.fromJson(e as Map<String, dynamic>))
+          .toList(),
 );
 
 Map<String, dynamic> _$MonetizationOverviewToJson(

@@ -3,6 +3,8 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
+import 'ai_agent/agent_list_screen.dart';
+import 'playground/playground_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
@@ -31,6 +33,21 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _selectedCategory = widget.initialCategory;
     _initializeCategories();
+
+    // If initialCategory is a category title (e.g. 'Hỗ trợ khách hàng'),
+    // default to the first menu item inside that category. Otherwise use
+    // the provided initialCategory (which may already be a menu item).
+    String initial = widget.initialCategory;
+    final matchingCategory = _categories.firstWhere(
+      (c) => c.title == initial,
+      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+    );
+
+    if (matchingCategory.items.isNotEmpty) {
+      _selectedCategory = matchingCategory.items.first.title;
+    } else {
+      _selectedCategory = initial;
+    }
   }
 
   void _initializeCategories() {
@@ -125,6 +142,20 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       MenuCategory(
+        title: 'AI & Playground',
+        icon: Icons.smart_toy_outlined,
+        items: [
+          MenuItem(
+            title: 'AI Agents',
+            onTap: () => _selectCategory('AI Agents'),
+          ),
+          MenuItem(
+            title: 'Playground',
+            onTap: () => _selectCategory('Playground'),
+          ),
+        ],
+      ),
+      MenuCategory(
         title: 'Gói dịch vụ',
         icon: Icons.monetization_on_outlined,
         items: [
@@ -200,6 +231,10 @@ class _MainScreenState extends State<MainScreen> {
           embedded: true,
           onMenuTap: _toggleMobileSidebar,
         );
+      case 'AI Agents':
+        contentWidget = const AgentListScreen();
+      case 'Playground':
+        contentWidget = const PlaygroundScreen(agent: null);
       case 'Khách hàng':
         contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
       case 'Prompt Library':

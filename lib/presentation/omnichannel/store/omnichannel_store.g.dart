@@ -12,10 +12,12 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_OmnichannelStore.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_OmnichannelStore.isLoading',
+          ))
+          .value;
 
   late final _$fetchFutureAtom = Atom(
     name: '_OmnichannelStore.fetchFuture',
