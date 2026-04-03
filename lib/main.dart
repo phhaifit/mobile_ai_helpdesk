@@ -47,6 +47,9 @@ Future<void> main() async {
   // Configure service locator and all dependencies
   await ServiceLocator.configureDependencies();
 
+  await _trackFirstLaunch();
+  runApp(MyApp());
+
   // await SentryFlutter.init(
   //   (options) {
   //     options.dsn = env.sentryDsn;
