@@ -13,6 +13,7 @@ import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
 // import '../../local/datasources/customer_management/customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
 
 class LocalModule {
   static Future<void> configureLocalModuleInjection() async {
@@ -25,6 +26,9 @@ class LocalModule {
     // --- Chat DataSources ---
     getIt.registerSingleton<ChatDataSource>(ChatDataSource());
     getIt.registerSingleton<ChatRoomDataSource>(ChatRoomDataSource());
+
+    // --- Customer DataSources ---
+    getIt.registerSingleton<MockCustomerDataSource>(MockCustomerDataSource());
 
     // preference manager:------------------------------------------------------
     getIt.registerSingletonAsync<SharedPreferences>(

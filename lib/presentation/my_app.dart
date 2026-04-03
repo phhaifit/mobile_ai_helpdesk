@@ -2,12 +2,12 @@ import 'package:ai_helpdesk/constants/app_theme.dart';
 import 'package:ai_helpdesk/constants/strings.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/main_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../di/service_locator.dart';
 
@@ -38,7 +38,8 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: const MainScreen(),
+          navigatorObservers: [SentryNavigatorObserver()],
+          initialRoute: Routes.login,
         );
       },
     );

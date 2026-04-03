@@ -7,11 +7,21 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
+import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
@@ -34,6 +44,12 @@ import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 // import '../../repository/customer_management/customer_repository_impl.dart';
 import '../../repository/playground/playground_repository_impl.dart';
+import '../../local/datasources/chat/chat_datasource.dart';
+import '../../local/datasources/chat/chat_room_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
+import '../../repository/chat/chat_repository_impl.dart';
+import '../../repository/chat/chat_room_repository_impl.dart';
+import '../../repository/customer/customer_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -76,6 +92,11 @@ class RepositoryModule {
       ChatRepositoryImpl(getIt<ChatDataSource>()),
     );
 
+    // --- Customer Repositories ---
+    getIt.registerSingleton<CustomerRepository>(
+      CustomerRepositoryImpl(getIt<MockCustomerDataSource>()),
+    );
+
     getIt.registerSingleton<OmnichannelRepository>(
       MockOmnichannelRepositoryImpl(),
     );
@@ -94,6 +115,15 @@ class RepositoryModule {
 
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
+    );
+
+    // --- Prompt Repository ---
+    getIt.registerSingleton<PromptRepository>(
+      MockPromptRepositoryImpl(),
+    );
+
+    getIt.registerSingleton<KnowledgeRepository>(
+      MockKnowledgeRepositoryImpl(),
     );
   }
 }

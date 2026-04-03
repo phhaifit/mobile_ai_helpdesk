@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
@@ -10,6 +11,12 @@ import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -26,6 +33,7 @@ import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/delete_ticket_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_available_agents_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
@@ -44,6 +52,7 @@ import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 
@@ -189,6 +198,25 @@ class UseCaseModule {
     );
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
+    );
+    // Knowledge Use Cases:-----------------------------------------------------
+    getIt.registerSingleton<GetKnowledgeSourcesUseCase>(
+      GetKnowledgeSourcesUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<AddKnowledgeSourceUseCase>(
+      AddKnowledgeSourceUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<DeleteKnowledgeSourceUseCase>(
+      DeleteKnowledgeSourceUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<ReindexSourceUseCase>(
+      ReindexSourceUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<TestDbConnectionUseCase>(
+      TestDbConnectionUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
+      UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

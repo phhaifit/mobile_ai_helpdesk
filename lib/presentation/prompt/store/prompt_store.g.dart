@@ -145,7 +145,9 @@ mixin _$PromptStore on _PromptStore, Store {
 
   @override
   Future<void> toggleFavorite(String promptId) {
-    return _$toggleFavoriteAsyncAction.run(() => super.toggleFavorite(promptId));
+    return _$toggleFavoriteAsyncAction.run(
+      () => super.toggleFavorite(promptId),
+    );
   }
 
   late final _$upsertPrivatePromptAsyncAction = AsyncAction(

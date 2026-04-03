@@ -155,8 +155,15 @@ abstract class _LoginStoreBase with Store {
           parameters: {'method': 'email', 'success': 'true'},
         );
 
-        // Set user properties
-        await _analyticsService.setUserProperty('user_type', 'customer');
+        // Set user properties for segmentation
+        await _analyticsService.setUserProperties(
+          'logged_in_user',
+          userProperties: {
+            'user_role': 'agent',
+            'plan_type': 'free',
+            'tenant_id': 'default_tenant',
+          },
+        );
 
         debugPrint('[LoginStore] Login successful');
       } else {
