@@ -1,37 +1,52 @@
-import 'package:mobile_ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/auth/profile/profile_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/auth/registration/registration_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/home/home.dart';
-import 'package:mobile_ai_helpdesk/presentation/login/login_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/main_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/messenger/messenger_settings_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_account_assignment_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_connect_qr_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/monetization/monetization_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/marketing/marketing.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/marketing_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_list_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_create_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/campaign_detail_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/template_library_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/template_create_edit_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/recipient_targeting_screen.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/facebook_admin_setup_screen.dart';
-import '/presentation/home/home.dart';
-import '/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.dart';
+import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
+import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
+import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/presentation/main_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_create_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_detail_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_list_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/facebook_admin_setup_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/marketing_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/recipient_targeting_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/template_create_edit_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/template_library_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
+import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_settings_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_account_assignment_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_connect_qr_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
+import '/domain/entity/ai_agent/ai_agent.dart';
+import '/presentation/ai_agent/agent_create_edit_screen.dart';
+import '/presentation/ai_agent/agent_detail_screen.dart';
+import '/presentation/ai_agent/agent_list_screen.dart';
+import '/presentation/ai_agent/team_assistant_screen.dart';
+import '/presentation/playground/playground_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+import '/domain/analytics/analytics_service.dart';
+import '/utils/deep_linking/utm_param_parser.dart';
 
 class Routes {
   Routes._();
@@ -43,8 +58,14 @@ class Routes {
   static const String resetPassword = '/reset-password';
   static const String main = '/main';
   static const String home = '/home';
+  static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
+  static const String ticketList = '/ticket';
+  static const String createTicket = '/create_ticket';
+  static const String ticketDetail = '/ticket/ticket-detail';
+  static const String editTicket = '/edit_ticket';
+  static const String customerHistory = '/customer_history';
   static const String omnichannelHub = '/omnichannel';
   static const String messengerDashboard = '/omnichannel/messenger/dashboard';
   static const String messengerOauthStatus =
@@ -71,10 +92,41 @@ class Routes {
   static const String templateCreateEdit = '/marketing/templates/edit';
   static const String recipientTargeting = '/marketing/targeting';
   static const String facebookAdminSetup = '/marketing/facebook-admin';
+  // AI Agent
+  static const String agentList = '/ai-agents';
+  static const String agentCreate = '/ai-agents/create';
+  static const String agentEdit = '/ai-agents/edit';
+  static const String agentDetail = '/ai-agents/detail';
+  static const String teamAssistant = '/ai-agents/team-assistant';
+  // Playground
+  static const String playground = '/playground';
+  static const String knowledge = '/knowledge';
 
   // route generator -----------------------------------------------------------
+  /// Generates routes with integrated UTM parameter parsing and analytics tracking.
+  ///
+  /// This method:
+  /// 1. Extracts the route name from settings
+  /// 2. Parses any UTM parameters from the route path
+  /// 3. Tracks screen view with analytics
+  /// 4. Returns the appropriate widget
+  ///
+  /// Example routes:
+  /// - '/home' (no UTM params)
+  /// - '/home?utm_source=google&utm_campaign=promo' (with UTM params)
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
+    // Extract route name (without query parameters)
+    final routePath = settings.name ?? '';
+    final screenName = _extractRouteName(routePath);
+
+    // Parse UTM parameters if present
+    final utmData = UTMParamParser.parseRoutePath(routePath);
+
+    // Track screen view with analytics asynchronously
+    _trackScreenView(screenName, utmData);
+
+    // Generate the appropriate route
+    switch (screenName) {
       case login:
         return MaterialPageRoute(
           settings: settings,
@@ -95,7 +147,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => ResetPasswordScreen(
-            email: args?['email'],
+            email: args?['email'] as String?,
           ),
         );
       case main:
@@ -106,7 +158,12 @@ class Routes {
       case home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const MainScreen(),
+        );
+      case promptEditor:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const PrivatePromptEditorScreen(),
         );
       case profile:
         return MaterialPageRoute(
@@ -117,6 +174,37 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ChangePasswordScreen(),
+        );
+      case ticketList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainScreen(initialCategory: 'Phiếu chưa xử lý'),
+        );
+      case createTicket:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CreateTicketScreen(),
+        );
+      case ticketDetail:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) =>
+              TicketDetailScreen(ticketId: settings.arguments as String),
+        );
+      case editTicket:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) =>
+              EditTicketScreen(ticket: settings.arguments as Ticket),
+        );
+      case customerHistory:
+        final args = settings.arguments as Map<String, String>;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => CustomerTicketHistoryScreen(
+            customerId: args['customerId']!,
+            customerName: args['customerName']!,
+          ),
         );
       case omnichannelHub:
         return MaterialPageRoute(
@@ -229,13 +317,108 @@ class Routes {
           settings: settings,
           builder: (_) => const FacebookAdminSetupScreen(),
         );
+      case agentList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentListScreen(),
+        );
+      case agentCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentCreateEditScreen(),
+        );
+      case agentEdit:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentCreateEditScreen(agent: agent),
+        );
+      case agentDetail:
+        final agent = settings.arguments as AiAgent;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentDetailScreen(agent: agent),
+        );
+      case teamAssistant:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TeamAssistantScreen(),
+        );
+      case playground:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PlaygroundScreen(agent: agent),
+        );
+      case knowledge:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const KnowledgeSourceListScreen(),
+        );
       default:
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => Scaffold(
-            body: Center(child: Text('No route defined for ${settings.name}')),
+            body: Center(child: Text('No route defined for $screenName')),
           ),
         );
     }
+  }
+
+  /// Extracts the route name from a full route path (removes query parameters).
+  ///
+  /// Example:
+  /// - '/home?utm_source=google' → '/home'
+  /// - '/login' → '/login'
+  static String _extractRouteName(String routePath) {
+    if (routePath.contains('?')) {
+      return routePath.split('?')[0];
+    }
+    return routePath;
+  }
+
+  /// Tracks a screen view with UTM parameters via analytics service.
+  ///
+  /// This method is called asynchronously to avoid blocking navigation.
+  /// If analytics service is not available, the error is silently ignored
+  /// to ensure navigation continues regardless of analytics availability.
+  static void _trackScreenView(String screenName, UTMData utmData) {
+    // Run analytics tracking asynchronously (non-blocking)
+    Future.microtask(() async {
+      try {
+        final getIt = GetIt.instance;
+        final sentryService = getIt<SentryService>();
+        final analyticsService = getIt<AnalyticsService>();
+
+        await sentryService.setCurrentScreen(screenName);
+        await sentryService.addBreadcrumb(
+          message: 'Navigated to $screenName',
+          category: 'navigation',
+          data: utmData.hasAnyParams ? utmData.toMap() : null,
+          type: 'navigation',
+        );
+
+        // Track screen view with UTM parameters if available
+        if (utmData.hasAnyParams) {
+          await analyticsService.trackScreenView(
+            screenName,
+            screenClass: 'Screen',
+            utmParams: utmData.toMap(),
+          );
+          debugPrint(
+            '[Routes] Screen view tracked: $screenName with UTM params: ${utmData.toMap()}',
+          );
+        } else {
+          await analyticsService.trackScreenView(
+            screenName,
+            screenClass: 'Screen',
+          );
+          debugPrint('[Routes] Screen view tracked: $screenName');
+        }
+      } catch (e) {
+        debugPrint('[Routes] Failed to track screen view: $e');
+        // Silently fail - don't block navigation if analytics fails
+      }
+    });
   }
 }

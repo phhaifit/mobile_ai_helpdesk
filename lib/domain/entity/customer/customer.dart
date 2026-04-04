@@ -1,52 +1,53 @@
-import 'support_ticket.dart';
+import 'tag.dart';
 
 class Customer {
   final String id;
   final String fullName;
-  final String? email;
-  final String? phoneNumber;
-  final String? zalo;
-  final String? messenger;
-  final List<String> tags;
-  final String? segment;
-  final bool isBlocked;
-  final SupportTicket? ticket;
+  final List<String> emails;
+  final List<String> phones;
+  final List<String> zalos;
+  final List<String> messengers;
+  final DateTime createdAt;
+  final DateTime? lastContactedAt;
+  final int totalTickets;
+  final List<Tag> tags;
 
-  Customer({
+  const Customer({
     required this.id,
     required this.fullName,
-    this.email,
-    this.phoneNumber,
-    this.zalo,
-    this.messenger,
+    this.emails = const [],
+    this.phones = const [],
+    this.zalos = const [],
+    this.messengers = const [],
+    required this.createdAt,
+    this.lastContactedAt,
+    this.totalTickets = 0,
     this.tags = const [],
-    this.segment,
-    this.isBlocked = false,
-    this.ticket,
   });
 
   Customer copyWith({
+    String? id,
     String? fullName,
-    String? email,
-    String? phoneNumber,
-    String? zalo,
-    String? messenger,
-    List<String>? tags,
-    String? segment,
-    bool? isBlocked,
-    SupportTicket? ticket,
+    List<String>? emails,
+    List<String>? phones,
+    List<String>? zalos,
+    List<String>? messengers,
+    DateTime? createdAt,
+    DateTime? lastContactedAt,
+    int? totalTickets,
+    List<Tag>? tags,
   }) {
     return Customer(
-      id: id,
+      id: id ?? this.id,
       fullName: fullName ?? this.fullName,
-      email: email ?? this.email,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      zalo: zalo ?? this.zalo,
-      messenger: messenger ?? this.messenger,
+      emails: emails ?? this.emails,
+      phones: phones ?? this.phones,
+      zalos: zalos ?? this.zalos,
+      messengers: messengers ?? this.messengers,
+      createdAt: createdAt ?? this.createdAt,
+      lastContactedAt: lastContactedAt ?? this.lastContactedAt,
+      totalTickets: totalTickets ?? this.totalTickets,
       tags: tags ?? this.tags,
-      segment: segment ?? this.segment,
-      isBlocked: isBlocked ?? this.isBlocked,
-      ticket: ticket ?? this.ticket,
     );
   }
 }

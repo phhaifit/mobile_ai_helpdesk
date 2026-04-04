@@ -1,15 +1,23 @@
+import 'dart:developer';
+
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/data/analytics/first_launch_manager.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/firebase_options.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/di/service_locator.dart';
-import '/firebase_options.dart';
-import '/presentation/my_app.dart';
+import '/presentation/main_screen.dart';
+import 'constants/colors.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   await ServiceLocator.configureDependencies();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -34,4 +42,21 @@ void main() async {
   }
 
   runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'AI Helpdesk',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.messengerBlue),
+        useMaterial3: true,
+      ),
+      home: const MainScreen(),
+    );
+  }
 }

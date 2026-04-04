@@ -1,6 +1,8 @@
 import 'package:mobx/mobx.dart' hide Reaction;
 import 'dart:async';
 import 'dart:math';
+import '../../../constants/analytics_events.dart';
+import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/entity/chat/message.dart';
 import '../../../domain/entity/chat/reaction.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
@@ -11,6 +13,7 @@ class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
   final ChatRepository _chatRepository;
+  final AnalyticsService _analyticsService;
 
   // Canned responses for auto-reply simulation
   static const List<String> _defaultResponses = [
@@ -24,7 +27,7 @@ abstract class _ChatStore with Store {
     'Tôi đang tìm kiếm thông tin phù hợp cho bạn.',
   ];
 
-  _ChatStore(this._chatRepository);
+  _ChatStore(this._chatRepository, this._analyticsService);
 
   @observable
   ObservableList<Message> messageList = ObservableList<Message>();
@@ -72,11 +75,17 @@ abstract class _ChatStore with Store {
       content: text,
       timestamp: DateTime.now(),
       isMe: true,
-      senderName: "User",
+      senderName: 'User',
       isPending: false,
       readStatus: MessageReadStatus.sent,
     );
     messageList.add(newMessage);
+
+    // Track message sent event
+    _analyticsService.trackEvent(
+      AnalyticsEvents.messageSent,
+      parameters: {'channel': 'chat'},
+    );
 
     // Simulate delivery status progression
     _simulateReadStatusProgression(newMessage.id);
@@ -128,7 +137,7 @@ abstract class _ChatStore with Store {
     }
   }
 
-  void _simulateReadStatusProgression(int messageId) async {
+  Future<void> _simulateReadStatusProgression(int messageId) async {
     // Sent → Delivered (after 500ms)
     await Future.delayed(const Duration(milliseconds: 500), () {
       _updateMessageReadStatus(messageId, MessageReadStatus.delivered);
@@ -140,7 +149,7 @@ abstract class _ChatStore with Store {
     });
   }
 
-  void _simulateAutoReply() async {
+  Future<void> _simulateAutoReply() async {
     // Show typing indicator after 3 second from sending message
     await Future.delayed(const Duration(milliseconds: 3000), () {
       isTyping = true;
@@ -156,7 +165,7 @@ abstract class _ChatStore with Store {
         content: randomResponse,
         timestamp: DateTime.now(),
         isMe: false,
-        senderName: "AI Assistant",
+        senderName: 'AI Assistant',
         isPending: false,
         readStatus: MessageReadStatus.sent,
       );

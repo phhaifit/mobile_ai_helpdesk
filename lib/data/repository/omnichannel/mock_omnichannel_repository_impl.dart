@@ -7,7 +7,7 @@ import 'package:mobile_ai_helpdesk/domain/repository/omnichannel/omnichannel_rep
 class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   final Random _random = Random();
 
-  OmnichannelOverview _state = OmnichannelOverview(
+  OmnichannelOverview _state = const OmnichannelOverview(
     messenger: MessengerIntegrationState(
       connectionStatus: IntegrationConnectionStatus.disconnected,
       oauthState: OAuthState.unverified,
@@ -25,7 +25,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
       syncState: SyncState.offline,
       accountName: 'Jarvis OA',
       lastMessageSyncAt: null,
-      assignments: const [
+      assignments: [
         ZaloAccountAssignment(
           accountId: 'zalo_01',
           accountName: 'Zalo OA Main Inbox',

@@ -1,30 +1,65 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:io';
 
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/login/login_screen.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:mobile_ai_helpdesk/presentation/my_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (call) async => call.method == 'getApplicationDocumentsDirectory'
+          ? Directory.systemTemp.path
+          : null,
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/firebase_core'),
+      (call) async => {
+        'name': '[DEFAULT]',
+        'options': {
+          'apiKey': 'test',
+          'appId': '1:0:android:0',
+          'messagingSenderId': '0',
+          'projectId': 'test',
+        },
+        'pluginConstants': {},
+      },
+    );
+
+    SharedPreferences.setMockInitialValues({});
+    await ServiceLocator.configureDependencies();
+  });
+
+  test('Service locator registers ThemeStore + LanguageStore', () {
+    expect(getIt.isRegistered<ThemeStore>(), isTrue);
+    expect(getIt.isRegistered<LanguageStore>(), isTrue);
+  });
+
+  testWidgets('LoginScreen renders without crashing', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en')],
+        home: const LoginScreen(),
+      ),
+    );
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
   });
 }

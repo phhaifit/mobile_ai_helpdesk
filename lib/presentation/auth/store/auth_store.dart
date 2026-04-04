@@ -1,19 +1,23 @@
+import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
+import 'package:ai_helpdesk/data/models/auth/login_request.dart';
+import 'package:ai_helpdesk/data/models/auth/register_request.dart';
+import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-
-import 'package:mobile_ai_helpdesk/core/domain/error/failure.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:mobile_ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/login_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/register_usecase.dart';
-import 'package:mobile_ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'auth_store.g.dart';
 
@@ -27,6 +31,8 @@ abstract class _AuthStoreBase with Store {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final AnalyticsService _analyticsService;
+  final SentryService _sentryService;
 
   _AuthStoreBase(
     this._loginUseCase,
@@ -35,6 +41,8 @@ abstract class _AuthStoreBase with Store {
     this._getCurrentUserUseCase,
     this._changePasswordUseCase,
     this._resetPasswordUseCase,
+    this._analyticsService,
+    this._sentryService,
   );
 
   // ============================================================================
@@ -87,7 +95,8 @@ abstract class _AuthStoreBase with Store {
 
   /// Check if user is authenticated
   @computed
-  bool get isAuthenticated => authResponse != null && authResponse!.token.isNotEmpty;
+  bool get isAuthenticated =>
+      authResponse != null && authResponse!.token.isNotEmpty;
 
   /// Check if login is loading
   @computed
@@ -103,15 +112,18 @@ abstract class _AuthStoreBase with Store {
 
   /// Check if get current user is loading
   @computed
-  bool get isGetCurrentUserLoading => getCurrentUserFuture.status == FutureStatus.pending;
+  bool get isGetCurrentUserLoading =>
+      getCurrentUserFuture.status == FutureStatus.pending;
 
   /// Check if change password is loading
   @computed
-  bool get isChangePasswordLoading => changePasswordFuture.status == FutureStatus.pending;
+  bool get isChangePasswordLoading =>
+      changePasswordFuture.status == FutureStatus.pending;
 
   /// Check if reset password is loading
   @computed
-  bool get isResetPasswordLoading => resetPasswordFuture.status == FutureStatus.pending;
+  bool get isResetPasswordLoading =>
+      resetPasswordFuture.status == FutureStatus.pending;
 
   /// Check if any operation is loading
   @computed
@@ -136,23 +148,79 @@ abstract class _AuthStoreBase with Store {
     errorMessage = null;
     successMessage = null;
 
+    _sentryService.addBreadcrumb(
+      message: 'User submitted login form',
+      category: 'auth',
+      data: {'email': email, 'action': 'login_attempt'},
+      type: 'user',
+    );
+
     loginFuture = ObservableFuture(
       _loginUseCase
-          .call(params: LoginRequest(email: email, password: password))
+          .call(
+            params: LoginRequest(email: email, password: password),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
-            authResponse = authResp;
-            currentUser = authResp.user;
-            successMessage = 'Login successful!';
-          },
-        );
-      }),
+            result.fold(
+              (failure) {
+                errorMessage = failure.message;
+                _analyticsService.trackEvent(
+                  AnalyticsEvents.userLogin,
+                  parameters: {
+                    'method': 'email',
+                    'success': 'false',
+                    'error_code': 'auth_failure',
+                  },
+                );
+                _sentryService.addBreadcrumb(
+                  message: 'Login failed',
+                  category: 'auth',
+                  level: SentryLevel.warning,
+                  data: {'reason': failure.message},
+                  type: 'user',
+                );
+              },
+              (authResp) {
+                authResponse = authResp;
+                currentUser = authResp.user;
+                successMessage = 'Login successful!';
+
+                // Track successful login & set user properties
+                _analyticsService.trackEvent(
+                  AnalyticsEvents.userLogin,
+                  parameters: {'method': 'email', 'success': 'true'},
+                );
+                _analyticsService.setUserProperties(
+                  authResp.user.id,
+                  userProperties: {
+                    'user_role': 'agent',
+                    'plan_type': 'free',
+                    'tenant_id': 'default_tenant',
+                  },
+                );
+                _sentryService.setUserContext(
+                  userId: authResp.user.id,
+                  email: authResp.user.email,
+                  tenantId: SentryService.defaultTenantId,
+                );
+                _sentryService.addBreadcrumb(
+                  message: 'Login successful',
+                  category: 'auth',
+                  data: {'user_id': authResp.user.id},
+                  type: 'user',
+                );
+                debugPrint(
+                  '[AuthStore] User properties set for ${authResp.user.id}',
+                );
+              },
+            );
+          }),
     );
 
     await loginFuture;
-    return isAuthenticated ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Login failed'));
+    return isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Login failed'));
   }
 
   /// Register new account
@@ -169,23 +237,22 @@ abstract class _AuthStoreBase with Store {
     registerFuture = ObservableFuture(
       _registerUseCase
           .call(
-        params: RegisterRequest(
-          email: email,
-          username: username,
-          password: password,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: RegisterRequest(
+              email: email,
+              username: username,
+              password: password,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (authResp) {
-            authResponse = authResp;
-            currentUser = authResp.user;
-            successMessage = 'Registration successful!';
-          },
-        );
-      }),
+            result.fold((failure) => errorMessage = failure.message, (
+              authResp,
+            ) {
+              authResponse = authResp;
+              currentUser = authResp.user;
+              successMessage = 'Registration successful!';
+            });
+          }),
     );
 
     await registerFuture;
@@ -213,7 +280,9 @@ abstract class _AuthStoreBase with Store {
     );
 
     await getCurrentUserFuture;
-    return currentUser != null ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
+    return currentUser != null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
   }
 
   /// Logout current user
@@ -224,19 +293,25 @@ abstract class _AuthStoreBase with Store {
 
     logoutFuture = ObservableFuture(
       _logoutUseCase.call(params: null).then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) {
-            authResponse = null;
-            currentUser = null;
-            successMessage = 'Logged out successfully';
-          },
-        );
+        result.fold((failure) => errorMessage = failure.message, (_) {
+          _analyticsService.trackEvent(AnalyticsEvents.userLogout);
+          _sentryService.addBreadcrumb(
+            message: 'User logged out',
+            category: 'auth',
+            type: 'user',
+          );
+          _sentryService.clearUserContext();
+          authResponse = null;
+          currentUser = null;
+          successMessage = 'Logged out successfully';
+        });
       }),
     );
 
     await logoutFuture;
-    return !isAuthenticated ? const Right(null) : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
+    return !isAuthenticated
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
   }
 
   // ============================================================================
@@ -256,18 +331,18 @@ abstract class _AuthStoreBase with Store {
     changePasswordFuture = ObservableFuture(
       _changePasswordUseCase
           .call(
-        params: ChangePasswordRequest(
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: ChangePasswordRequest(
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) => successMessage = 'Password changed successfully',
-        );
-      }),
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password changed successfully',
+            );
+          }),
     );
 
     await changePasswordFuture;
@@ -290,19 +365,19 @@ abstract class _AuthStoreBase with Store {
     resetPasswordFuture = ObservableFuture(
       _resetPasswordUseCase
           .call(
-        params: ResetPasswordRequest(
-          email: email,
-          token: token,
-          newPassword: newPassword,
-          confirmPassword: confirmPassword,
-        ),
-      )
+            params: ResetPasswordRequest(
+              email: email,
+              token: token,
+              newPassword: newPassword,
+              confirmPassword: confirmPassword,
+            ),
+          )
           .then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (_) => successMessage = 'Password reset successfully',
-        );
-      }),
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Password reset successfully',
+            );
+          }),
     );
 
     await resetPasswordFuture;

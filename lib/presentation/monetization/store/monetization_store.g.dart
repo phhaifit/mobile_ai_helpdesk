@@ -12,25 +12,30 @@ mixin _$MonetizationStore on _MonetizationStore, Store {
   Computed<bool>? _$isLoadingOverviewComputed;
 
   @override
-  bool get isLoadingOverview => (_$isLoadingOverviewComputed ??= Computed<bool>(
-    () => super.isLoadingOverview,
-    name: '_MonetizationStore.isLoadingOverview',
-  )).value;
+  bool get isLoadingOverview =>
+      (_$isLoadingOverviewComputed ??= Computed<bool>(
+            () => super.isLoadingOverview,
+            name: '_MonetizationStore.isLoadingOverview',
+          ))
+          .value;
   Computed<bool>? _$isSubmittingUpgradeComputed;
 
   @override
   bool get isSubmittingUpgrade =>
       (_$isSubmittingUpgradeComputed ??= Computed<bool>(
-        () => super.isSubmittingUpgrade,
-        name: '_MonetizationStore.isSubmittingUpgrade',
-      )).value;
+            () => super.isSubmittingUpgrade,
+            name: '_MonetizationStore.isSubmittingUpgrade',
+          ))
+          .value;
   Computed<double>? _$usageProgressComputed;
 
   @override
-  double get usageProgress => (_$usageProgressComputed ??= Computed<double>(
-    () => super.usageProgress,
-    name: '_MonetizationStore.usageProgress',
-  )).value;
+  double get usageProgress =>
+      (_$usageProgressComputed ??= Computed<double>(
+            () => super.usageProgress,
+            name: '_MonetizationStore.usageProgress',
+          ))
+          .value;
 
   late final _$fetchOverviewFutureAtom = Atom(
     name: '_MonetizationStore.fetchOverviewFuture',

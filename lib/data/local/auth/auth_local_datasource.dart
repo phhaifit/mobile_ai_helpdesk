@@ -1,8 +1,5 @@
-import 'dart:convert';
-
-import 'package:mobile_ai_helpdesk/data/sharedpref/constants/preferences.dart';
-import 'package:mobile_ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 
 /// Local data source for auth-related local storage operations
 class AuthLocalDatasource {
@@ -11,7 +8,7 @@ class AuthLocalDatasource {
   AuthLocalDatasource(this._prefs);
 
   // Auth Token operations
-  
+
   /// Save auth token
   Future<void> saveAuthToken(String token) async {
     await _prefs.saveAuthToken(token);

@@ -52,24 +52,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
-  void _handleChangePassword() async {
+  Future<void> _handleChangePassword() async {
     final currentPassword = _currentPasswordController.text;
     final newPassword = _newPasswordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
     // Validate
     if (currentPassword.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter current password').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter current password',
+      ).show(context);
       return;
     }
 
     if (newPassword.isEmpty) {
-      FlushbarHelper.createError(message: 'Please enter new password').show(context);
+      FlushbarHelper.createError(
+        message: 'Please enter new password',
+      ).show(context);
       return;
     }
 
     if (confirmPassword.isEmpty) {
-      FlushbarHelper.createError(message: 'Please confirm new password').show(context);
+      FlushbarHelper.createError(
+        message: 'Please confirm new password',
+      ).show(context);
       return;
     }
 
@@ -105,9 +111,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.translate('change_password_tv_title')),
-      ),
+      appBar: AppBar(title: Text(l.translate('change_password_tv_title'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -137,7 +141,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: true,
                 prefixIcon: const Icon(Icons.lock_outlined),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Current password is required';
+                  if (value == null || value.isEmpty)
+                    return 'Current password is required';
                   return null;
                 },
               ),
@@ -150,8 +155,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: true,
                 prefixIcon: const Icon(Icons.lock_outlined),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'New password is required';
-                  if (value.length < 8) return 'Password must be at least 8 characters';
+                  if (value == null || value.isEmpty)
+                    return 'New password is required';
+                  if (value.length < 8)
+                    return 'Password must be at least 8 characters';
                   return null;
                 },
               ),
@@ -164,8 +171,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 obscureText: true,
                 prefixIcon: const Icon(Icons.lock_outlined),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Confirm password is required';
-                  if (value != _newPasswordController.text) return 'Passwords do not match';
+                  if (value == null || value.isEmpty)
+                    return 'Confirm password is required';
+                  if (value != _newPasswordController.text)
+                    return 'Passwords do not match';
                   return null;
                 },
               ),
@@ -176,17 +185,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 builder: (_) => SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed:
-                        _authStore.isChangePasswordLoading ? null : _handleChangePassword,
+                    onPressed: _authStore.isChangePasswordLoading
+                        ? null
+                        : _handleChangePassword,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: _authStore.isChangePasswordLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : Text(l.translate('change_password_btn_change')),
                     ),
