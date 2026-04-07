@@ -1,3 +1,11 @@
+import 'dart:async';
+
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/firebase_options.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:ai_helpdesk/constants/env.dart';
@@ -16,6 +24,8 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 // import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import '/di/service_locator.dart';
 import '/data/analytics/first_launch_manager.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
