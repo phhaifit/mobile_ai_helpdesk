@@ -1,3 +1,11 @@
+import 'dart:async';
+
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/firebase_options.dart';
+import 'package:ai_helpdesk/presentation/my_app.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:ai_helpdesk/constants/env.dart';
@@ -14,7 +22,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+// import 'package:sentry_flutter/sentry_flutter.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import '/di/service_locator.dart';
+import '/data/analytics/first_launch_manager.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
+import '/domain/analytics/analytics_service.dart';
+import '/presentation/login/login_screen.dart';
+import '/utils/routes/routes.dart';
+import 'constants/colors.dart';
+import 'utils/locale/app_localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,22 +57,25 @@ Future<void> main() async {
   // Configure service locator and all dependencies
   await ServiceLocator.configureDependencies();
 
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = env.sentryDsn;
-      options.environment = env.sentryEnvironment;
-      options.debug = env.isDev;
-      options.enableAutoSessionTracking = true;
-      options.attachStacktrace = true;
-      options.tracesSampleRate = env.isProd ? 0.2 : 1.0;
-      options.sendDefaultPii = false;
-    },
-    appRunner: () async {
-      await _configureSentryContext();
-      await _trackFirstLaunch();
-      runApp(MyApp());
-    },
-  );
+  await _trackFirstLaunch();
+  runApp(MyApp());
+
+  // await SentryFlutter.init(
+  //   (options) {
+  //     options.dsn = env.sentryDsn;
+  //     options.environment = env.sentryEnvironment;
+  //     options.debug = env.isDev;
+  //     options.enableAutoSessionTracking = true;
+  //     options.attachStacktrace = true;
+  //     options.tracesSampleRate = env.isProd ? 0.2 : 1.0;
+  //     options.sendDefaultPii = false;
+  //   },
+  //   appRunner: () async {
+  //     await _configureSentryContext();
+  //     await _trackFirstLaunch();
+  //     runApp(MyApp());
+  //   },
+  // );
 }
 
 Future<void> _trackFirstLaunch() async {

@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     await _store.login();
     if (mounted && _store.errorMessage == null) {
-      Navigator.pushReplacementNamed(context, Routes.home);
+      await Navigator.pushReplacementNamed(context, Routes.home);
     }
   }
 }

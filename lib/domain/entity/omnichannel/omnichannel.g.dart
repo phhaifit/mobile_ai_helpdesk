@@ -27,9 +27,10 @@ MessengerIntegrationState _$MessengerIntegrationStateFromJson(
   ),
   oauthState: $enumDecode(_$OAuthStateEnumMap, json['oauthState']),
   pageName: json['pageName'] as String,
-  lastSyncAt: json['lastSyncAt'] == null
-      ? null
-      : DateTime.parse(json['lastSyncAt'] as String),
+  lastSyncAt:
+      json['lastSyncAt'] == null
+          ? null
+          : DateTime.parse(json['lastSyncAt'] as String),
   syncedCustomers: (json['syncedCustomers'] as num).toInt(),
   failedCustomers: (json['failedCustomers'] as num).toInt(),
   autoReply: json['autoReply'] as bool,
@@ -91,12 +92,14 @@ ZaloIntegrationState _$ZaloIntegrationStateFromJson(
   oauthState: $enumDecode(_$OAuthStateEnumMap, json['oauthState']),
   syncState: $enumDecode(_$SyncStateEnumMap, json['syncState']),
   accountName: json['accountName'] as String,
-  lastMessageSyncAt: json['lastMessageSyncAt'] == null
-      ? null
-      : DateTime.parse(json['lastMessageSyncAt'] as String),
-  assignments: (json['assignments'] as List<dynamic>)
-      .map((e) => ZaloAccountAssignment.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  lastMessageSyncAt:
+      json['lastMessageSyncAt'] == null
+          ? null
+          : DateTime.parse(json['lastMessageSyncAt'] as String),
+  assignments:
+      (json['assignments'] as List<dynamic>)
+          .map((e) => ZaloAccountAssignment.fromJson(e as Map<String, dynamic>))
+          .toList(),
 );
 
 Map<String, dynamic> _$ZaloIntegrationStateToJson(

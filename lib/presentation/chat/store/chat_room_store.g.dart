@@ -12,10 +12,12 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   Computed<int>? _$totalUnreadComputed;
 
   @override
-  int get totalUnread => (_$totalUnreadComputed ??= Computed<int>(
-    () => super.totalUnread,
-    name: '_ChatRoomStore.totalUnread',
-  )).value;
+  int get totalUnread =>
+      (_$totalUnreadComputed ??= Computed<int>(
+            () => super.totalUnread,
+            name: '_ChatRoomStore.totalUnread',
+          ))
+          .value;
 
   late final _$chatRoomsAtom = Atom(
     name: '_ChatRoomStore.chatRooms',

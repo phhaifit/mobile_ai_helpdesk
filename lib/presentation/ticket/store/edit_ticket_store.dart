@@ -2,7 +2,6 @@ import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
-import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 
 part 'edit_ticket_store.g.dart';
 
@@ -10,9 +9,8 @@ class EditTicketStore = _EditTicketStoreBase with _$EditTicketStore;
 
 abstract class _EditTicketStoreBase with Store {
   final UpdateTicketUseCase _updateTicketUseCase;
-  final SessionStore _sessionStore;
 
-  _EditTicketStoreBase(this._updateTicketUseCase, this._sessionStore);
+  _EditTicketStoreBase(this._updateTicketUseCase);
 
   Ticket? _originalTicket;
 

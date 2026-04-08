@@ -36,6 +36,21 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_available_agents_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
+
+// AI Agent
+import '/domain/repository/ai_agent/ai_agent_repository.dart';
+import '/domain/usecase/ai_agent/create_agent_usecase.dart';
+import '/domain/usecase/ai_agent/delete_agent_usecase.dart';
+import '/domain/usecase/ai_agent/get_agent_usecase.dart';
+import '/domain/usecase/ai_agent/get_agents_usecase.dart';
+import '/domain/usecase/ai_agent/update_agent_usecase.dart';
+// Playground
+import '/domain/repository/playground/playground_repository.dart';
+import '/domain/usecase/playground/create_session_usecase.dart';
+import '/domain/usecase/playground/get_sessions_usecase.dart';
+import '/domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
@@ -157,6 +172,33 @@ class UseCaseModule {
       SimulateUpgradeUseCase(getIt<MonetizationRepository>()),
     );
 
+    // --- AI Agent Use Cases ---
+    getIt.registerSingleton<GetAgentsUseCase>(
+      GetAgentsUseCase(getIt<AiAgentRepository>()),
+    );
+    getIt.registerSingleton<GetAgentUseCase>(
+      GetAgentUseCase(getIt<AiAgentRepository>()),
+    );
+    getIt.registerSingleton<CreateAgentUseCase>(
+      CreateAgentUseCase(getIt<AiAgentRepository>()),
+    );
+    getIt.registerSingleton<UpdateAgentUseCase>(
+      UpdateAgentUseCase(getIt<AiAgentRepository>()),
+    );
+    getIt.registerSingleton<DeleteAgentUseCase>(
+      DeleteAgentUseCase(getIt<AiAgentRepository>()),
+    );
+
+    // --- Playground Use Cases ---
+    getIt.registerSingleton<GetSessionsUseCase>(
+      GetSessionsUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<CreateSessionUseCase>(
+      CreateSessionUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<SendPlaygroundMessageUseCase>(
+      SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
+    );
     // Knowledge Use Cases:-----------------------------------------------------
     getIt.registerSingleton<GetKnowledgeSourcesUseCase>(
       GetKnowledgeSourcesUseCase(getIt<KnowledgeRepository>()),
