@@ -12,10 +12,12 @@ mixin _$LanguageStore on _LanguageStore, Store {
   Computed<String>? _$localeComputed;
 
   @override
-  String get locale => (_$localeComputed ??= Computed<String>(
-    () => super.locale,
-    name: '_LanguageStore.locale',
-  )).value;
+  String get locale =>
+      (_$localeComputed ??= Computed<String>(
+            () => super.locale,
+            name: '_LanguageStore.locale',
+          ))
+          .value;
 
   late final _$_localeAtom = Atom(
     name: '_LanguageStore._locale',

@@ -1,4 +1,15 @@
-storePassword=YOUR_STORE_PASSWORD
+# Android signing key configuration
+# Copy this file to android/key.properties (never commit that file — it's in .gitignore)
+# Fill in each value with your actual keystore credentials
+
+# Path to the .jks keystore file, relative to android/app/
+storeFile=release.jks
+
+# Keystore password
+storePassword=YOUR_KEYSTORE_PASSWORD
+
+# Key alias inside the keystore
+keyAlias=YOUR_KEY_ALIAS
+
+# Key password
 keyPassword=YOUR_KEY_PASSWORD
-keyAlias=upload
-storeFile=../keystore/upload-keystore.jks

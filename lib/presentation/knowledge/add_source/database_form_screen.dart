@@ -143,7 +143,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         children: [
           // DB type dropdown (acts as sync interval label in web)
           DropdownButtonFormField<String>(
-            initialValue:
+            value:
                 _crawlInterval == CrawlInterval.manual ? 'Thủ công' : 'Hàng ngày',
             items: const [
               DropdownMenuItem(value: 'Thủ công', child: Text('Thủ công')),
@@ -209,7 +209,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
                   children: [
                     const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
-                      initialValue: _dbType,
+                      value: _dbType,
                       items: const [
                         DropdownMenuItem(
                             value: 'PostgreSQL', child: Text('PostgreSQL')),

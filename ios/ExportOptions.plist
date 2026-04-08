@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Set method to "app-store" for TestFlight / App Store distribution -->
+    <!-- Use "ad-hoc" for ad-hoc distribution or "development" for dev builds -->
+    <key>method</key>
+    <string>app-store</string>
+
+    <!-- Set your Team ID from Apple Developer Portal → Membership -->
+    <key>teamID</key>
+    <string>YOUR_TEAM_ID</string>
+
+    <!-- signingStyle: "automatic" lets Xcode manage signing, "manual" uses the
+         provisioning profile below. Use "manual" in CI to ensure the correct
+         profile installed in the previous step is used. -->
+    <key>signingStyle</key>
+    <string>manual</string>
+
+    <key>provisioningProfiles</key>
+    <dict>
+        <!-- Key: bundle identifier of the app (set in Xcode → Runner → Signing & Capabilities)
+             Value: name of the provisioning profile as it appears in Apple Developer Portal -->
+        <key>com.example.mobileAiHelpdesk</key>
+        <string>Mobile AI Helpdesk App Store Distribution</string>
+    </dict>
+
+    <key>uploadSymbols</key>
+    <true/>
+
+    <key>uploadBitcode</key>
+    <false/>
+</dict>
+</plist>
