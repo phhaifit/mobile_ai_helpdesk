@@ -24,6 +24,19 @@ class SharedPreferenceHelper {
     return _sharedPreference.remove(Preferences.authToken);
   }
 
+  // Refresh Token:-------------------------------------------------------------
+  Future<String?> get refreshToken async {
+    return _sharedPreference.getString(Preferences.authRefreshToken);
+  }
+
+  Future<bool> saveRefreshToken(String token) async {
+    return _sharedPreference.setString(Preferences.authRefreshToken, token);
+  }
+
+  Future<bool> removeRefreshToken() async {
+    return _sharedPreference.remove(Preferences.authRefreshToken);
+  }
+
   // Login:---------------------------------------------------------------------
   Future<bool> get isLoggedIn async {
     return _sharedPreference.getBool(Preferences.isLoggedIn) ?? false;

@@ -7,57 +7,63 @@ class AuthLocalDatasource {
 
   AuthLocalDatasource(this._prefs);
 
-  // Auth Token operations
+  // Access Token operations ---------------------------------------------------
 
-  /// Save auth token
   Future<void> saveAuthToken(String token) async {
     await _prefs.saveAuthToken(token);
   }
 
-  /// Get saved auth token
   Future<String?> getAuthToken() async {
     return await _prefs.authToken;
   }
 
-  /// Remove auth token
   Future<void> clearAuthToken() async {
     await _prefs.removeAuthToken();
   }
 
-  // User operations
+  // Refresh Token operations --------------------------------------------------
 
-  /// Save user data locally
+  Future<void> saveRefreshToken(String token) async {
+    await _prefs.saveRefreshToken(token);
+  }
+
+  Future<String?> getRefreshToken() async {
+    return await _prefs.refreshToken;
+  }
+
+  Future<void> clearRefreshToken() async {
+    await _prefs.removeRefreshToken();
+  }
+
+  // User operations -----------------------------------------------------------
+
   Future<void> saveUser(User user) async {
     await _prefs.saveUser(user);
   }
 
-  /// Get saved user data
   Future<User?> getUser() async {
     return await _prefs.getUser();
   }
 
-  /// Remove user data
   Future<void> clearUser() async {
     await _prefs.removeUser();
   }
 
-  // Login status
+  // Login status --------------------------------------------------------------
 
-  /// Mark user as logged in
   Future<void> setLoggedIn(bool value) async {
     await _prefs.saveIsLoggedIn(value);
   }
 
-  /// Check if user is logged in
   Future<bool> isLoggedIn() async {
     return await _prefs.isLoggedIn;
   }
 
-  // Clear all auth data (logout)
+  // Clear all auth data (logout) ----------------------------------------------
 
-  /// Clear all user authentication data
   Future<void> clearAllAuthData() async {
     await _prefs.removeAuthToken();
+    await _prefs.removeRefreshToken();
     await _prefs.removeUser();
     await _prefs.saveIsLoggedIn(false);
   }

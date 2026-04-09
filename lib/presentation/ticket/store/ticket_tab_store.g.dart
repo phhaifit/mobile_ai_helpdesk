@@ -12,31 +12,39 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   Computed<String>? _$currentAgentIdComputed;
 
   @override
-  String get currentAgentId => (_$currentAgentIdComputed ??= Computed<String>(
-    () => super.currentAgentId,
-    name: '_TicketTabStoreBase.currentAgentId',
-  )).value;
+  String get currentAgentId =>
+      (_$currentAgentIdComputed ??= Computed<String>(
+            () => super.currentAgentId,
+            name: '_TicketTabStoreBase.currentAgentId',
+          ))
+          .value;
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_TicketTabStoreBase.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_TicketTabStoreBase.isLoading',
+          ))
+          .value;
   Computed<int>? _$ticketCountComputed;
 
   @override
-  int get ticketCount => (_$ticketCountComputed ??= Computed<int>(
-    () => super.ticketCount,
-    name: '_TicketTabStoreBase.ticketCount',
-  )).value;
+  int get ticketCount =>
+      (_$ticketCountComputed ??= Computed<int>(
+            () => super.ticketCount,
+            name: '_TicketTabStoreBase.ticketCount',
+          ))
+          .value;
   Computed<String>? _$tabTitleComputed;
 
   @override
-  String get tabTitle => (_$tabTitleComputed ??= Computed<String>(
-    () => super.tabTitle,
-    name: '_TicketTabStoreBase.tabTitle',
-  )).value;
+  String get tabTitle =>
+      (_$tabTitleComputed ??= Computed<String>(
+            () => super.tabTitle,
+            name: '_TicketTabStoreBase.tabTitle',
+          ))
+          .value;
 
   late final _$selectedTabIndexAtom = Atom(
     name: '_TicketTabStoreBase.selectedTabIndex',

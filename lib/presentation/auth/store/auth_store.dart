@@ -13,6 +13,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/request_password_reset_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
@@ -30,6 +31,7 @@ abstract class _AuthStoreBase with Store {
   final LogoutUseCase _logoutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
+  final RequestPasswordResetUseCase _requestPasswordResetUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
   final AnalyticsService _analyticsService;
   final SentryService _sentryService;
@@ -40,6 +42,7 @@ abstract class _AuthStoreBase with Store {
     this._logoutUseCase,
     this._getCurrentUserUseCase,
     this._changePasswordUseCase,
+    this._requestPasswordResetUseCase,
     this._resetPasswordUseCase,
     this._analyticsService,
     this._sentryService,
@@ -85,6 +88,10 @@ abstract class _AuthStoreBase with Store {
   @observable
   ObservableFuture<void> changePasswordFuture = ObservableFuture.value(null);
 
+  /// Loading state for request password reset operation
+  @observable
+  ObservableFuture<void> requestPasswordResetFuture = ObservableFuture.value(null);
+
   /// Loading state for reset password operation
   @observable
   ObservableFuture<void> resetPasswordFuture = ObservableFuture.value(null);
@@ -119,6 +126,11 @@ abstract class _AuthStoreBase with Store {
   @computed
   bool get isChangePasswordLoading =>
       changePasswordFuture.status == FutureStatus.pending;
+
+  /// Check if request password reset is loading
+  @computed
+  bool get isRequestPasswordResetLoading =>
+      requestPasswordResetFuture.status == FutureStatus.pending;
 
   /// Check if reset password is loading
   @computed
@@ -185,32 +197,37 @@ abstract class _AuthStoreBase with Store {
                 currentUser = authResp.user;
                 successMessage = 'Login successful!';
 
+                final uid = authResp.userId ?? authResp.user?.id ?? '';
+                final userEmail = authResp.user?.email ?? '';
+
                 // Track successful login & set user properties
                 _analyticsService.trackEvent(
                   AnalyticsEvents.userLogin,
                   parameters: {'method': 'email', 'success': 'true'},
                 );
-                _analyticsService.setUserProperties(
-                  authResp.user.id,
-                  userProperties: {
-                    'user_role': 'agent',
-                    'plan_type': 'free',
-                    'tenant_id': 'default_tenant',
-                  },
-                );
+                if (uid.isNotEmpty) {
+                  _analyticsService.setUserProperties(
+                    uid,
+                    userProperties: {
+                      'user_role': 'agent',
+                      'plan_type': 'free',
+                      'tenant_id': 'default_tenant',
+                    },
+                  );
+                }
                 _sentryService.setUserContext(
-                  userId: authResp.user.id,
-                  email: authResp.user.email,
+                  userId: uid,
+                  email: userEmail,
                   tenantId: SentryService.defaultTenantId,
                 );
                 _sentryService.addBreadcrumb(
                   message: 'Login successful',
                   category: 'auth',
-                  data: {'user_id': authResp.user.id},
+                  data: {'user_id': uid},
                   type: 'user',
                 );
                 debugPrint(
-                  '[AuthStore] User properties set for ${authResp.user.id}',
+                  '[AuthStore] User properties set for $uid',
                 );
               },
             );
@@ -384,6 +401,46 @@ abstract class _AuthStoreBase with Store {
     return errorMessage == null
         ? const Right(null)
         : Left(UnknownFailure(errorMessage ?? 'Failed to reset password'));
+  }
+
+  // ============================================================================
+  // Actions - Request Password Reset
+  // ============================================================================
+
+  /// Request password reset email
+  @action
+  Future<Either<Failure, void>> requestPasswordReset({
+    required String email,
+  }) async {
+    errorMessage = null;
+    successMessage = null;
+
+    requestPasswordResetFuture = ObservableFuture(
+      _requestPasswordResetUseCase
+          .call(params: email)
+          .then((result) {
+            result.fold(
+              (failure) => errorMessage = failure.message,
+              (_) => successMessage = 'Reset link sent to your email',
+            );
+          }),
+    );
+
+    await requestPasswordResetFuture;
+    return errorMessage == null
+        ? const Right(null)
+        : Left(UnknownFailure(errorMessage ?? 'Failed to send reset email'));
+  }
+
+  // ============================================================================
+  // Actions - Sync from external login
+  // ============================================================================
+
+  /// Set auth response from an external login (e.g. LoginStore)
+  @action
+  void setAuthFromResponse(AuthResponse response) {
+    authResponse = response;
+    currentUser = response.user;
   }
 
   // ============================================================================

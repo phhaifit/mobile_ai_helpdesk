@@ -1,7 +1,10 @@
 import 'package:ai_helpdesk/core/widgets/auth_text_field.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 /// FORGOT PASSWORD SCREEN WIDGET TREE:
 /// Scaffold
@@ -27,11 +30,13 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   late final TextEditingController _emailController;
+  late final AuthStore _authStore;
 
   @override
   void initState() {
     super.initState();
     _emailController = TextEditingController();
+    _authStore = getIt<AuthStore>();
   }
 
   @override
@@ -50,16 +55,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    // For now, just show success (in mock API, request is accepted)
-    FlushbarHelper.createSuccess(
-      message: 'Reset link sent to your email',
-    ).show(context);
+    await _authStore.requestPasswordReset(email: email);
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    });
+    if (!mounted) return;
+
+    if (_authStore.errorMessage == null) {
+      FlushbarHelper.createSuccess(
+        message: _authStore.successMessage ?? 'Reset link sent to your email',
+      ).show(context);
+
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+    } else {
+      FlushbarHelper.createError(
+        message: _authStore.errorMessage ?? 'Failed to send reset email',
+      ).show(context);
+    }
   }
 
   @override
@@ -115,15 +129,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 32),
 
               // Send reset link button
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _handleRequestReset,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(l.translate('forgot_password_btn_reset')),
-                  ),
-                ),
+              Observer(
+                builder:
+                    (_) => SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed:
+                            _authStore.isRequestPasswordResetLoading
+                                ? null
+                                : _handleRequestReset,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child:
+                              _authStore.isRequestPasswordResetLoading
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    l.translate('forgot_password_btn_reset'),
+                                  ),
+                        ),
+                      ),
+                    ),
               ),
             ],
           ),

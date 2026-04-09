@@ -12,17 +12,30 @@ mixin _$LoginStore on _LoginStoreBase, Store {
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_LoginStoreBase.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_LoginStoreBase.isLoading',
+          ))
+          .value;
   Computed<bool>? _$canSubmitComputed;
 
   @override
-  bool get canSubmit => (_$canSubmitComputed ??= Computed<bool>(
-    () => super.canSubmit,
-    name: '_LoginStoreBase.canSubmit',
-  )).value;
+  bool get canSubmit =>
+      (_$canSubmitComputed ??= Computed<bool>(
+            () => super.canSubmit,
+            name: '_LoginStoreBase.canSubmit',
+          ))
+          .value;
+  Computed<bool>? _$isAuthenticatedComputed;
+
+  @override
+  bool get isAuthenticated =>
+      (_$isAuthenticatedComputed ??= Computed<bool>(
+            () => super.isAuthenticated,
+            name: '_LoginStoreBase.isAuthenticated',
+          ))
+          .value;
 
   late final _$emailAtom = Atom(
     name: '_LoginStoreBase.email',
@@ -114,6 +127,24 @@ mixin _$LoginStore on _LoginStoreBase, Store {
     });
   }
 
+  late final _$authResponseAtom = Atom(
+    name: '_LoginStoreBase.authResponse',
+    context: context,
+  );
+
+  @override
+  AuthResponse? get authResponse {
+    _$authResponseAtom.reportRead();
+    return super.authResponse;
+  }
+
+  @override
+  set authResponse(AuthResponse? value) {
+    _$authResponseAtom.reportWrite(value, super.authResponse, () {
+      super.authResponse = value;
+    });
+  }
+
   late final _$loginAsyncAction = AsyncAction(
     '_LoginStoreBase.login',
     context: context,
@@ -185,8 +216,10 @@ password: ${password},
 loginFuture: ${loginFuture},
 errorMessage: ${errorMessage},
 isPasswordVisible: ${isPasswordVisible},
+authResponse: ${authResponse},
 isLoading: ${isLoading},
-canSubmit: ${canSubmit}
+canSubmit: ${canSubmit},
+isAuthenticated: ${isAuthenticated}
     ''';
   }
 }

@@ -63,6 +63,15 @@ mixin _$AuthStore on _AuthStoreBase, Store {
             name: '_AuthStoreBase.isChangePasswordLoading',
           ))
           .value;
+  Computed<bool>? _$isRequestPasswordResetLoadingComputed;
+
+  @override
+  bool get isRequestPasswordResetLoading =>
+      (_$isRequestPasswordResetLoadingComputed ??= Computed<bool>(
+            () => super.isRequestPasswordResetLoading,
+            name: '_AuthStoreBase.isRequestPasswordResetLoading',
+          ))
+          .value;
   Computed<bool>? _$isResetPasswordLoadingComputed;
 
   @override
@@ -252,6 +261,28 @@ mixin _$AuthStore on _AuthStoreBase, Store {
     );
   }
 
+  late final _$requestPasswordResetFutureAtom = Atom(
+    name: '_AuthStoreBase.requestPasswordResetFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<void> get requestPasswordResetFuture {
+    _$requestPasswordResetFutureAtom.reportRead();
+    return super.requestPasswordResetFuture;
+  }
+
+  @override
+  set requestPasswordResetFuture(ObservableFuture<void> value) {
+    _$requestPasswordResetFutureAtom.reportWrite(
+      value,
+      super.requestPasswordResetFuture,
+      () {
+        super.requestPasswordResetFuture = value;
+      },
+    );
+  }
+
   late final _$resetPasswordFutureAtom = Atom(
     name: '_AuthStoreBase.resetPasswordFuture',
     context: context,
@@ -369,10 +400,34 @@ mixin _$AuthStore on _AuthStoreBase, Store {
     );
   }
 
+  late final _$requestPasswordResetAsyncAction = AsyncAction(
+    '_AuthStoreBase.requestPasswordReset',
+    context: context,
+  );
+
+  @override
+  Future<Either<Failure, void>> requestPasswordReset({required String email}) {
+    return _$requestPasswordResetAsyncAction.run(
+      () => super.requestPasswordReset(email: email),
+    );
+  }
+
   late final _$_AuthStoreBaseActionController = ActionController(
     name: '_AuthStoreBase',
     context: context,
   );
+
+  @override
+  void setAuthFromResponse(AuthResponse response) {
+    final _$actionInfo = _$_AuthStoreBaseActionController.startAction(
+      name: '_AuthStoreBase.setAuthFromResponse',
+    );
+    try {
+      return super.setAuthFromResponse(response);
+    } finally {
+      _$_AuthStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void clearErrorMessage() {
@@ -422,6 +477,7 @@ registerFuture: ${registerFuture},
 logoutFuture: ${logoutFuture},
 getCurrentUserFuture: ${getCurrentUserFuture},
 changePasswordFuture: ${changePasswordFuture},
+requestPasswordResetFuture: ${requestPasswordResetFuture},
 resetPasswordFuture: ${resetPasswordFuture},
 isAuthenticated: ${isAuthenticated},
 isLoginLoading: ${isLoginLoading},
@@ -429,6 +485,7 @@ isRegisterLoading: ${isRegisterLoading},
 isLogoutLoading: ${isLogoutLoading},
 isGetCurrentUserLoading: ${isGetCurrentUserLoading},
 isChangePasswordLoading: ${isChangePasswordLoading},
+isRequestPasswordResetLoading: ${isRequestPasswordResetLoading},
 isResetPasswordLoading: ${isResetPasswordLoading},
 isLoading: ${isLoading}
     ''';

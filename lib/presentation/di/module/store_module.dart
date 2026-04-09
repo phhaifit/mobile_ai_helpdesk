@@ -13,6 +13,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/request_password_reset_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
@@ -103,17 +104,22 @@ class StoreModule {
 
     // --- Login Store ---
     getIt.registerFactory<LoginStore>(
-      () => LoginStore(analyticsService: getIt<AnalyticsService>()),
+      () => LoginStore(
+        loginUseCase: getIt<LoginUseCase>(),
+        analyticsService: getIt<AnalyticsService>(),
+        authStore: getIt<AuthStore>(),
+      ),
     );
 
-    // --- Auth Store ---
-    getIt.registerFactory<AuthStore>(
+    // --- Auth Store (singleton — shared across all screens) ---
+    getIt.registerLazySingleton<AuthStore>(
       () => AuthStore(
         getIt<LoginUseCase>(),
         getIt<RegisterUseCase>(),
         getIt<LogoutUseCase>(),
         getIt<GetCurrentUserUseCase>(),
         getIt<ChangePasswordUseCase>(),
+        getIt<RequestPasswordResetUseCase>(),
         getIt<ResetPasswordUseCase>(),
         getIt<AnalyticsService>(),
         getIt<SentryService>(),

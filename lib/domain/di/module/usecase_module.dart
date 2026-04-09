@@ -10,6 +10,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/request_password_reset_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
@@ -83,6 +84,10 @@ class UseCaseModule {
 
     getIt.registerSingleton<ResetPasswordUseCase>(
       ResetPasswordUseCase(getIt<AuthRepository>()),
+    );
+
+    getIt.registerSingleton<RequestPasswordResetUseCase>(
+      RequestPasswordResetUseCase(getIt<AuthRepository>()),
     );
 
     // Ticket Use Cases:--------------------------------------------------------

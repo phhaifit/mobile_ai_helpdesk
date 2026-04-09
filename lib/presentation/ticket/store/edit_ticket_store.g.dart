@@ -12,17 +12,21 @@ mixin _$EditTicketStore on _EditTicketStoreBase, Store {
   Computed<bool>? _$isFormValidComputed;
 
   @override
-  bool get isFormValid => (_$isFormValidComputed ??= Computed<bool>(
-    () => super.isFormValid,
-    name: '_EditTicketStoreBase.isFormValid',
-  )).value;
+  bool get isFormValid =>
+      (_$isFormValidComputed ??= Computed<bool>(
+            () => super.isFormValid,
+            name: '_EditTicketStoreBase.isFormValid',
+          ))
+          .value;
   Computed<bool>? _$isSubmittingComputed;
 
   @override
-  bool get isSubmitting => (_$isSubmittingComputed ??= Computed<bool>(
-    () => super.isSubmitting,
-    name: '_EditTicketStoreBase.isSubmitting',
-  )).value;
+  bool get isSubmitting =>
+      (_$isSubmittingComputed ??= Computed<bool>(
+            () => super.isSubmitting,
+            name: '_EditTicketStoreBase.isSubmitting',
+          ))
+          .value;
 
   late final _$titleAtom = Atom(
     name: '_EditTicketStoreBase.title',

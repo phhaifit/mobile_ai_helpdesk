@@ -41,24 +41,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _handleLogout() {
     final l = AppLocalizations.of(context);
+    final screenContext = context; // capture screen context before dialog
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l.translate('logout_confirm_title')),
         content: Text(l.translate('logout_confirm_message')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l.translate('logout_confirm_no')),
           ),
           FilledButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               await _authStore.logout();
-              
+
               if (mounted) {
-                Navigator.pushReplacementNamed(context, Routes.login);
+                Navigator.of(screenContext).pushNamedAndRemoveUntil(
+                  Routes.login,
+                  (route) => false,
+                );
               }
             },
             child: Text(l.translate('logout_confirm_yes')),

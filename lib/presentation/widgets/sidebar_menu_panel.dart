@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../constants/colors.dart';
+import '../../di/service_locator.dart';
+import '../../presentation/auth/store/auth_store.dart';
+import '../../utils/routes/routes.dart';
 
 class MenuCategory {
   final String title;
@@ -244,55 +248,199 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
   }
 
   Widget _buildProfileSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF7C3AED),
-              shape: BoxShape.circle,
+    final authStore = getIt<AuthStore>();
+
+    return Observer(
+      builder: (_) {
+        final user = authStore.currentUser;
+        final displayName = user?.fullName ?? user?.username ?? 'User';
+        final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
+        final email = user?.email ?? '';
+
+        return InkWell(
+          onTap: () => _showProfileMenu(context, authStore),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
             ),
-            child: const Center(
-              child: Text(
-                'T',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.all(12),
+            child: Row(
               children: [
-                const Text(
-                  'Tân Nguyễn Huy',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF7C3AED),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
-                Text(
-                  'Quản lý',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (email.isNotEmpty)
+                        Text(
+                          email,
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.more_vert,
+                  size: 18,
+                  color: Colors.grey.shade600,
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.notifications_active_outlined,
-            size: 18,
-            color: Colors.grey.shade600,
+        );
+      },
+    );
+  }
+
+  void _showProfileMenu(BuildContext context, AuthStore authStore) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        final user = authStore.currentUser;
+        final displayName = user?.fullName ?? user?.username ?? 'User';
+        final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
+        final email = user?.email ?? '';
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // User header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: const Color(0xFF7C3AED),
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (email.isNotEmpty)
+                              Text(
+                                email,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: const Text('Profile'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.pushNamed(context, Routes.profile);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text('Change Password'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.pushNamed(context, Routes.changePassword);
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    _confirmLogout(context, authStore);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmLogout(BuildContext context, AuthStore authStore) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await authStore.logout();
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  Routes.login,
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text('Logout'),
           ),
         ],
       ),
@@ -615,58 +763,75 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
   }
 
   Widget _buildProfileSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF7C3AED),
-              shape: BoxShape.circle,
+    final authStore = getIt<AuthStore>();
+
+    return Observer(
+      builder: (_) {
+        final user = authStore.currentUser;
+        final displayName = user?.fullName ?? user?.username ?? 'User';
+        final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
+        final email = user?.email ?? '';
+
+        return InkWell(
+          onTap: () => Navigator.pushNamed(context, Routes.profile),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
             ),
-            child: const Center(
-              child: Text(
-                'T',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.all(12),
+            child: Row(
               children: [
-                const Text(
-                  'Tân Nguyễn Huy',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF7C3AED),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
-                Text(
-                  'Quản lý',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (email.isNotEmpty)
+                        Text(
+                          email,
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.more_vert,
+                  size: 18,
+                  color: Colors.grey.shade600,
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.notifications_active_outlined,
-            size: 18,
-            color: Colors.grey.shade600,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
