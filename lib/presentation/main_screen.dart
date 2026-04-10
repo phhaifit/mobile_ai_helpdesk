@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
-import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
-import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
-import 'tenant/employee_screen.dart';
-import 'tenant/tenant_info_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
@@ -25,7 +18,7 @@ import 'widgets/sidebar_menu_panel.dart';
 class MainScreen extends StatefulWidget {
   final String initialCategory;
 
-  const MainScreen({super.key, this.initialCategory = 'support_inbox'});
+  const MainScreen({super.key, this.initialCategory = 'Hộp thư hỗ trợ'});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -257,7 +250,7 @@ class _MainScreenState extends State<MainScreen> {
       _showSidebarMobile = !_showSidebarMobile;
     });
   }
-
+  
   /// Opens the invitation response flow using a pending invite from the team store
   /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
   /// TODO: remove this after testing
@@ -299,7 +292,7 @@ class _MainScreenState extends State<MainScreen> {
     final isDesktop = screenWidth >= 600;
 
     // Build desktop layout for chat
-    if (isDesktop && _selectedCategory == 'support_inbox') {
+    if (isDesktop && _selectedCategory == 'Hộp thư hỗ trợ') {
       return _buildDesktopChatView();
     }
 

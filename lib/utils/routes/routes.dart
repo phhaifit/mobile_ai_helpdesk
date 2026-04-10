@@ -85,8 +85,6 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
-  static const String tenantInfo = '/tenant-info';
-  static const String tenantInviteRespond = '/invite/respond';
   static const String marketingHub = '/marketing';
   static const String campaignList = '/marketing/campaigns';
   static const String campaignCreate = '/marketing/campaigns/create';

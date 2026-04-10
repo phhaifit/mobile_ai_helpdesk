@@ -4,9 +4,9 @@ import 'package:sembast/sembast.dart';
 import 'package:xxtea/xxtea.dart';
 
 SembastCodec getXXTeaCodec({required String password}) => SembastCodec(
-  codec: XXTeaCodec(password: password),
-  signature: 'xxtea',
-);
+      codec: XXTeaCodec(password: password),
+      signature: 'xxtea',
+    );
 
 class XXTeaCodec extends Codec<Object?, String> {
   final String password;
