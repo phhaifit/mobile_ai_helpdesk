@@ -56,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               Navigator.pop(context);
               await _authStore.logout();
-
+              
               if (mounted) {
                 Navigator.pushReplacementNamed(context, Routes.login);
               }
@@ -74,7 +74,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.translate('profile_tv_title'))),
+      appBar: AppBar(
+        title: Text(l.translate('profile_tv_title')),
+      ),
       body: SafeArea(
         child: Observer(
           builder: (_) {
@@ -101,9 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             radius: 40,
                             backgroundColor: theme.colorScheme.primary,
                             child: Text(
-                              user.username.isNotEmpty
-                                  ? user.username[0].toUpperCase()
-                                  : 'U',
+                              user.username.isNotEmpty ? user.username[0].toUpperCase() : 'U',
                               style: const TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
