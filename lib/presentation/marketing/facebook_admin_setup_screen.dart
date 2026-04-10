@@ -22,7 +22,8 @@ class FacebookAdminSetupScreen extends StatefulWidget {
   const FacebookAdminSetupScreen({super.key});
 
   @override
-  State<FacebookAdminSetupScreen> createState() => _FacebookAdminSetupScreenState();
+  State<FacebookAdminSetupScreen> createState() =>
+      _FacebookAdminSetupScreenState();
 }
 
 class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
@@ -34,7 +35,9 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
   void initState() {
     super.initState();
     _store = getIt<MarketingStore>();
-    _tokenController.addListener(() => _store.setFacebookAccessTokenDraft(_tokenController.text));
+    _tokenController.addListener(
+      () => _store.setFacebookAccessTokenDraft(_tokenController.text),
+    );
     if (_store.overview == null) _store.fetchOverview();
   }
 
@@ -47,72 +50,110 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Scaffold(
       appBar: AppBar(title: Text(l.translate('marketing_tv_facebook_admin'))),
       body: Observer(
-        builder: (_) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildStatusCard(l),
-              const SizedBox(height: 16),
-              if (_store.facebookAdmin.status != FacebookAdminStatus.connected) ...[
-                const Divider(),
-                const SizedBox(height: 16),
-                Text(l.translate('marketing_tv_facebook_admin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
-                  child: const Text(
-                    'Nhập Access Token từ Facebook Business Manager để kết nối tài khoản Admin. Token này sẽ cho phép gửi tin nhắn qua Messenger.',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _tokenController,
-                  obscureText: _obscureToken,
-                  decoration: InputDecoration(
-                    labelText: l.translate('marketing_tv_access_token'),
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.vpn_key_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscureToken ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                      onPressed: () => setState(() => _obscureToken = !_obscureToken),
+        builder:
+            (_) => SingleChildScrollView(
+              padding: EdgeInsets.all(isSmall ? 12 : 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStatusCard(l),
+                  SizedBox(height: isSmall ? 12 : 16),
+                  if (_store.facebookAdmin.status !=
+                      FacebookAdminStatus.connected) ...[
+                    const Divider(),
+                    SizedBox(height: isSmall ? 12 : 16),
+                    Text(
+                      l.translate('marketing_tv_facebook_admin'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: isSmall ? 14 : 16,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: _store.isSubmitting || _tokenController.text.isEmpty
-                        ? null
-                        : _store.connectFacebookAdmin,
-                    icon: const Icon(Icons.facebook),
-                    label: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: _store.isSubmitting
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : Text(l.translate('marketing_btn_connect_facebook')),
+                    SizedBox(height: isSmall ? 6 : 8),
+                    Container(
+                      padding: EdgeInsets.all(isSmall ? 10 : 12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Nhập Access Token từ Facebook Business Manager để kết nối tài khoản Admin. Token này sẽ cho phép gửi tin nhắn qua Messenger.',
+                        style: TextStyle(fontSize: isSmall ? 12 : 13),
+                      ),
                     ),
-                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
-                  ),
-                ),
-              ],
-              if (_store.isSubmitting) ...[
-                const SizedBox(height: 12),
-                const LinearProgressIndicator(),
-              ],
-              if (_store.actionMessageKey != null) ...[
-                const SizedBox(height: 16),
-                _buildFeedbackBanner(l),
-              ],
-            ],
-          ),
-        ),
+                    SizedBox(height: isSmall ? 10 : 12),
+                    TextField(
+                      controller: _tokenController,
+                      obscureText: _obscureToken,
+                      decoration: InputDecoration(
+                        labelText: l.translate('marketing_tv_access_token'),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.vpn_key_outlined),
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: isSmall ? 8 : 12,
+                          horizontal: 12,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureToken
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed:
+                              () => setState(
+                                () => _obscureToken = !_obscureToken,
+                              ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: isSmall ? 12 : 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed:
+                            _store.isSubmitting || _tokenController.text.isEmpty
+                                ? null
+                                : _store.connectFacebookAdmin,
+                        icon: const Icon(Icons.facebook),
+                        label:
+                            _store.isSubmitting
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : Text(
+                                  l.translate('marketing_btn_connect_facebook'),
+                                ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF1877F2),
+                          padding: EdgeInsets.symmetric(
+                            vertical: isSmall ? 10 : 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (_store.isSubmitting) ...[
+                    SizedBox(height: isSmall ? 10 : 12),
+                    const LinearProgressIndicator(),
+                  ],
+                  if (_store.actionMessageKey != null) ...[
+                    SizedBox(height: isSmall ? 12 : 16),
+                    _buildFeedbackBanner(l),
+                  ],
+                ],
+              ),
+            ),
       ),
     );
   }
@@ -120,9 +161,11 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
   Widget _buildStatusCard(AppLocalizations l) {
     final fa = _store.facebookAdmin;
     final isConnected = fa.status == FacebookAdminStatus.connected;
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -133,44 +176,96 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                   height: 10,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isConnected
-                        ? Colors.green
-                        : (fa.status == FacebookAdminStatus.connecting ? Colors.orange : Colors.grey),
+                    color:
+                        isConnected
+                            ? Colors.green
+                            : (fa.status == FacebookAdminStatus.connecting
+                                ? Colors.orange
+                                : Colors.grey),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: isSmall ? 6 : 8),
                 Text(
-                  isConnected ? l.translate('marketing_tv_facebook_connected') : 'Chưa kết nối',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  isConnected
+                      ? l.translate('marketing_tv_facebook_connected')
+                      : 'Chưa kết nối',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: isSmall ? 13 : 15,
+                  ),
                 ),
               ],
             ),
             if (isConnected) ...[
               const Divider(height: 20),
               _infoRow(Icons.person_outline, 'Admin', fa.adminName ?? ''),
-              const SizedBox(height: 6),
+              SizedBox(height: isSmall ? 4 : 6),
               _infoRow(Icons.email_outlined, 'Email', fa.adminEmail ?? ''),
-              const SizedBox(height: 6),
-              _infoRow(Icons.pages_outlined, l.translate('marketing_tv_facebook_page'), fa.pageName ?? ''),
+              SizedBox(height: isSmall ? 4 : 6),
+              _infoRow(
+                Icons.pages_outlined,
+                l.translate('marketing_tv_facebook_page'),
+                fa.pageName ?? '',
+              ),
               if (fa.connectedAt != null) ...[
-                const SizedBox(height: 6),
-                _infoRow(Icons.calendar_today_outlined, 'Kết nối lúc', _formatDate(fa.connectedAt!)),
+                SizedBox(height: isSmall ? 4 : 6),
+                _infoRow(
+                  Icons.calendar_today_outlined,
+                  'Kết nối lúc',
+                  _formatDate(fa.connectedAt!),
+                ),
               ],
-              const SizedBox(height: 12),
+              SizedBox(height: isSmall ? 10 : 12),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _store.isSubmitting ? null : _store.disconnectFacebookAdmin,
-                  icon: const Icon(Icons.link_off, color: Colors.red),
-                  label: Text(l.translate('marketing_btn_disconnect_facebook'), style: const TextStyle(color: Colors.red)),
-                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.red)),
-                ),
+                child:
+                    isSmall
+                        ? OutlinedButton.icon(
+                          onPressed:
+                              _store.isSubmitting
+                                  ? null
+                                  : _store.disconnectFacebookAdmin,
+                          icon: const Icon(
+                            Icons.link_off,
+                            color: Colors.red,
+                            size: 18,
+                          ),
+                          label: Text(
+                            l.translate('marketing_btn_disconnect_facebook'),
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                        )
+                        : OutlinedButton.icon(
+                          onPressed:
+                              _store.isSubmitting
+                                  ? null
+                                  : _store.disconnectFacebookAdmin,
+                          icon: const Icon(Icons.link_off, color: Colors.red),
+                          label: Text(
+                            l.translate('marketing_btn_disconnect_facebook'),
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                        ),
               ),
             ] else ...[
-              const SizedBox(height: 8),
+              SizedBox(height: isSmall ? 6 : 8),
               Text(
                 'Kết nối Facebook Admin để gửi tin nhắn Messenger từ hệ thống.',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: isSmall ? 12 : 13,
+                ),
               ),
             ],
           ],
@@ -180,36 +275,74 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
   }
 
   Widget _infoRow(IconData icon, String label, String value) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 8),
-        Text('$label: ', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13))),
+        Icon(icon, size: isSmall ? 14 : 16, color: Colors.grey),
+        SizedBox(width: isSmall ? 6 : 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: isSmall ? 12 : 13,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: isSmall ? 12 : 13,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildFeedbackBanner(AppLocalizations l) {
     final isSuccess = _store.actionWasSuccess;
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(isSmall ? 10 : 12),
       decoration: BoxDecoration(
         color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
-          Icon(isSuccess ? Icons.check_circle_outline : Icons.error_outline, color: isSuccess ? Colors.green : Colors.red),
-          const SizedBox(width: 8),
-          Expanded(child: Text(l.translate(_store.actionMessageKey ?? ''))),
-          IconButton(icon: const Icon(Icons.close, size: 16), onPressed: _store.clearActionFeedback),
+          Icon(
+            isSuccess ? Icons.check_circle_outline : Icons.error_outline,
+            color: isSuccess ? Colors.green : Colors.red,
+            size: isSmall ? 18 : 20,
+          ),
+          SizedBox(width: isSmall ? 6 : 8),
+          Expanded(
+            child: Text(
+              l.translate(_store.actionMessageKey ?? ''),
+              style: TextStyle(fontSize: isSmall ? 12 : 13),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: _store.clearActionFeedback,
+          ),
         ],
       ),
     );
   }
 
-  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year} ${d.hour}:${d.minute.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime d) =>
+      '${d.day}/${d.month}/${d.year} ${d.hour}:${d.minute.toString().padLeft(2, '0')}';
 }

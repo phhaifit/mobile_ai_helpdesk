@@ -151,9 +151,7 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(
-            email: args?['email'] as String?,
-          ),
+          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
         );
       case main:
         return MaterialPageRoute(
@@ -193,23 +191,24 @@ class Routes {
       case ticketDetail:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) =>
-              TicketDetailScreen(ticketId: settings.arguments as String),
+          builder:
+              (_) => TicketDetailScreen(ticketId: settings.arguments as String),
         );
       case editTicket:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) =>
-              EditTicketScreen(ticket: settings.arguments as Ticket),
+          builder:
+              (_) => EditTicketScreen(ticket: settings.arguments as Ticket),
         );
       case customerHistory:
         final args = settings.arguments as Map<String, String>;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => CustomerTicketHistoryScreen(
-            customerId: args['customerId']!,
-            customerName: args['customerName']!,
-          ),
+          builder:
+              (_) => CustomerTicketHistoryScreen(
+                customerId: args['customerId']!,
+                customerName: args['customerName']!,
+              ),
         );
       case omnichannelHub:
         return MaterialPageRoute(
@@ -285,6 +284,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const TenantInfoScreen(),
+        );
       case marketingHub:
         return MaterialPageRoute(
           settings: settings,
@@ -367,9 +367,10 @@ class Routes {
       default:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => Scaffold(
-            body: Center(child: Text('No route defined for $screenName')),
-          ),
+          builder:
+              (_) => Scaffold(
+                body: Center(child: Text('No route defined for $screenName')),
+              ),
         );
     }
   }

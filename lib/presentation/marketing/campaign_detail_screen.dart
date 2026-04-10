@@ -40,44 +40,70 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Observer(builder: (_) {
-      final campaign = _store.selectedCampaign;
-      if (campaign == null) {
-        return Scaffold(appBar: AppBar(), body: const Center(child: Text('No campaign selected')));
-      }
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(campaign.name),
-          actions: [
-            if (_store.isSubmitting)
-              const Padding(padding: EdgeInsets.all(16), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
-          ],
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(child: _buildStatusBadge(campaign.status, l)),
-              const SizedBox(height: 16),
-              _buildInfoCard(campaign, l),
-              const SizedBox(height: 12),
-              _buildStatsCard(campaign, l),
-              const SizedBox(height: 12),
-              _buildTargetingCard(campaign, l),
-              const SizedBox(height: 12),
-              _buildScheduleCard(campaign, l),
-              const SizedBox(height: 20),
-              _buildActionButtons(campaign, l),
-              if (_store.actionMessageKey != null) ...[
-                const SizedBox(height: 12),
-                _buildFeedbackBanner(l),
-              ],
+    return Observer(
+      builder: (_) {
+        final campaign = _store.selectedCampaign;
+        if (campaign == null) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: const Center(child: Text('No campaign selected')),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(campaign.name),
+            actions: [
+              if (_store.isSubmitting)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
             ],
           ),
-        ),
-      );
-    });
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(
+              MediaQuery.of(context).size.width < 400 ? 12 : 16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(child: _buildStatusBadge(campaign.status, l)),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width < 400 ? 12 : 16,
+                ),
+                _buildInfoCard(campaign, l),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                ),
+                _buildStatsCard(campaign, l),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                ),
+                _buildTargetingCard(campaign, l),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                ),
+                _buildScheduleCard(campaign, l),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width < 400 ? 16 : 20,
+                ),
+                _buildActionButtons(campaign, l),
+                if (_store.actionMessageKey != null) ...[
+                  SizedBox(
+                    height: MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                  ),
+                  _buildFeedbackBanner(l),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildStatusBadge(CampaignStatus status, AppLocalizations l) {
@@ -102,26 +128,49 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
         children: [
           Icon(_statusIcon(status), color: color, size: 16),
           const SizedBox(width: 6),
-          Text(_statusLabel(status, l), style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(
+            _statusLabel(status, l),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildInfoCard(BroadcastCampaign c, AppLocalizations l) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Thông tin chiến dịch', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              'Thông tin chiến dịch',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmall ? 14 : 15,
+              ),
+            ),
             const Divider(height: 16),
             _infoRow(Icons.label_outline, 'Tên', c.name),
-            const SizedBox(height: 8),
-            _infoRow(_channelIcon(c.channel), l.translate('marketing_tv_channel_messenger'), _channelLabel(c.channel, l)),
-            const SizedBox(height: 8),
-            _infoRow(Icons.article_outlined, l.translate('marketing_tv_template'), 'ID: ${c.templateId}'),
+            SizedBox(height: isSmall ? 6 : 8),
+            _infoRow(
+              _channelIcon(c.channel),
+              l.translate('marketing_tv_channel_messenger'),
+              _channelLabel(c.channel, l),
+            ),
+            SizedBox(height: isSmall ? 6 : 8),
+            _infoRow(
+              Icons.article_outlined,
+              l.translate('marketing_tv_template'),
+              'ID: ${c.templateId}',
+            ),
           ],
         ),
       ),
@@ -129,39 +178,118 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }
 
   Widget _infoRow(IconData icon, String label, String value) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 8),
-        Text('$label: ', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13))),
+        Icon(icon, size: isSmall ? 14 : 16, color: Colors.grey),
+        SizedBox(width: isSmall ? 6 : 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: isSmall ? 12 : 13,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: isSmall ? 12 : 13,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildStatsCard(BroadcastCampaign c, AppLocalizations l) {
-    final deliveredRatio = c.sentCount > 0 ? c.deliveredCount / c.sentCount : 0.0;
+    final deliveredRatio =
+        c.sentCount > 0 ? c.deliveredCount / c.sentCount : 0.0;
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Thống kê', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            const Divider(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _statColumn(l.translate('marketing_tv_sent'), '${c.sentCount}', Colors.blue),
-                _statColumn(l.translate('marketing_tv_delivered'), '${c.deliveredCount}', Colors.green),
-                _statColumn(l.translate('marketing_tv_failed_count'), '${c.failedCount}', Colors.red),
-              ],
+            Text(
+              'Thống kê',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmall ? 14 : 15,
+              ),
             ),
+            const Divider(height: 16),
+            if (isSmall)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 40) / 2,
+                    child: _statColumn(
+                      l.translate('marketing_tv_sent'),
+                      '${c.sentCount}',
+                      Colors.blue,
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 40) / 2,
+                    child: _statColumn(
+                      l.translate('marketing_tv_delivered'),
+                      '${c.deliveredCount}',
+                      Colors.green,
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 40) / 2,
+                    child: _statColumn(
+                      l.translate('marketing_tv_failed_count'),
+                      '${c.failedCount}',
+                      Colors.red,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _statColumn(
+                    l.translate('marketing_tv_sent'),
+                    '${c.sentCount}',
+                    Colors.blue,
+                  ),
+                  _statColumn(
+                    l.translate('marketing_tv_delivered'),
+                    '${c.deliveredCount}',
+                    Colors.green,
+                  ),
+                  _statColumn(
+                    l.translate('marketing_tv_failed_count'),
+                    '${c.failedCount}',
+                    Colors.red,
+                  ),
+                ],
+              ),
             if (c.sentCount > 0) ...[
-              const SizedBox(height: 12),
-              Text('Tỷ lệ nhận: ${(deliveredRatio * 100).toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              const SizedBox(height: 4),
-              LinearProgressIndicator(value: deliveredRatio.clamp(0.0, 1.0), backgroundColor: Colors.grey.shade200, color: Colors.green),
+              SizedBox(height: isSmall ? 10 : 12),
+              Text(
+                'Tỷ lệ nhận: ${(deliveredRatio * 100).toStringAsFixed(1)}%',
+                style: TextStyle(
+                  fontSize: isSmall ? 11 : 12,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: isSmall ? 3 : 4),
+              LinearProgressIndicator(
+                value: deliveredRatio.clamp(0.0, 1.0),
+                backgroundColor: Colors.grey.shade200,
+                color: Colors.green,
+              ),
             ],
           ],
         ),
@@ -170,39 +298,69 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }
 
   Widget _statColumn(String label, String value, Color color) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
     return Column(
       children: [
-        Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isSmall ? 18 : 22,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: isSmall ? 11 : 12, color: Colors.grey),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
 
   Widget _buildTargetingCard(BroadcastCampaign c, AppLocalizations l) {
     final t = c.targeting;
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     String filterDesc;
     switch (t.filterType) {
       case RecipientFilterType.all:
         filterDesc = l.translate('marketing_tv_filter_all');
       case RecipientFilterType.tag:
-        filterDesc = '${l.translate('marketing_tv_filter_tag')}: ${t.tagValues.join(', ')}';
+        filterDesc =
+            '${l.translate('marketing_tv_filter_tag')}: ${t.tagValues.join(', ')}';
       case RecipientFilterType.segment:
-        filterDesc = '${l.translate('marketing_tv_filter_segment')}: ${t.segmentValue ?? ''}';
+        filterDesc =
+            '${l.translate('marketing_tv_filter_segment')}: ${t.segmentValue ?? ''}';
       case RecipientFilterType.channel:
-        filterDesc = '${l.translate('marketing_tv_filter_channel')}: ${t.channelFilter?.name ?? ''}';
+        filterDesc =
+            '${l.translate('marketing_tv_filter_channel')}: ${t.channelFilter?.name ?? ''}';
     }
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Đối tượng nhận', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              'Đối tượng nhận',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmall ? 14 : 15,
+              ),
+            ),
             const Divider(height: 16),
             _infoRow(Icons.people_outline, 'Bộ lọc', filterDesc),
             if (t.estimatedCount > 0) ...[
-              const SizedBox(height: 8),
-              _infoRow(Icons.person_outline, l.translate('marketing_tv_estimated_count'), '${t.estimatedCount}'),
+              SizedBox(height: isSmall ? 6 : 8),
+              _infoRow(
+                Icons.person_outline,
+                l.translate('marketing_tv_estimated_count'),
+                '${t.estimatedCount}',
+              ),
             ],
           ],
         ),
@@ -211,29 +369,41 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }
 
   Widget _buildScheduleCard(BroadcastCampaign c, AppLocalizations l) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Thời gian', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              'Thời gian',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: isSmall ? 14 : 15,
+              ),
+            ),
             const Divider(height: 16),
-            _infoRow(Icons.calendar_today_outlined, 'Tạo lúc', _formatDate(c.createdAt)),
+            _infoRow(
+              Icons.calendar_today_outlined,
+              'Tạo lúc',
+              _formatDate(c.createdAt),
+            ),
             if (c.scheduledAt != null) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: isSmall ? 6 : 8),
               _infoRow(Icons.schedule, 'Lên lịch', _formatDate(c.scheduledAt!)),
             ],
             if (c.startedAt != null) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: isSmall ? 6 : 8),
               _infoRow(Icons.play_arrow, 'Bắt đầu', _formatDate(c.startedAt!)),
             ],
             if (c.completedAt != null) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: isSmall ? 6 : 8),
               _infoRow(Icons.check, 'Hoàn thành', _formatDate(c.completedAt!)),
             ],
             if (c.errorMessage != null) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: isSmall ? 6 : 8),
               _infoRow(Icons.error_outline, 'Lỗi', c.errorMessage!),
             ],
           ],
@@ -243,9 +413,12 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }
 
   Widget _buildActionButtons(BroadcastCampaign c, AppLocalizations l) {
-    if (c.status == CampaignStatus.completed || c.status == CampaignStatus.failed) {
+    if (c.status == CampaignStatus.completed ||
+        c.status == CampaignStatus.failed) {
       return const SizedBox.shrink();
     }
+
+    final isSmall = MediaQuery.of(context).size.width < 400;
 
     return Card(
       color: const Color(0xFFF8FAFF),
@@ -254,18 +427,28 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
         side: const BorderSide(color: Color(0xFFDDE3F5)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.settings_outlined, size: 16, color: Color(0xFF6B7280)),
-                SizedBox(width: 6),
-                Text('Điều khiển chiến dịch', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                const Icon(
+                  Icons.settings_outlined,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Điều khiển chiến dịch',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: isSmall ? 13 : 14,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isSmall ? 10 : 12),
             if (_store.isSubmitting)
               const LinearProgressIndicator()
             else
@@ -277,84 +460,141 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }
 
   Widget _buildControlRow(BroadcastCampaign c, AppLocalizations l) {
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     switch (c.status) {
       case CampaignStatus.draft:
       case CampaignStatus.scheduled:
         return SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: () => _confirmAction(
-              label: l.translate('marketing_btn_start_campaign'),
-              message: 'Bắt đầu chiến dịch "${c.name}"?',
-              color: Colors.green,
-              icon: Icons.play_arrow_rounded,
-              onConfirm: () => _store.startCampaign(c.id),
-            ),
+            onPressed:
+                () => _confirmAction(
+                  label: l.translate('marketing_btn_start_campaign'),
+                  message: 'Bắt đầu chiến dịch "${c.name}"?',
+                  color: Colors.green,
+                  icon: Icons.play_arrow_rounded,
+                  onConfirm: () => _store.startCampaign(c.id),
+                ),
             icon: const Icon(Icons.play_arrow_rounded),
             label: Text(l.translate('marketing_btn_start_campaign')),
             style: FilledButton.styleFrom(
               backgroundColor: Colors.green,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 14),
             ),
           ),
         );
       case CampaignStatus.running:
-        return Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _confirmAction(
-                  label: l.translate('marketing_btn_stop_campaign'),
-                  message: 'Tạm dừng chiến dịch "${c.name}"?',
-                  color: Colors.orange,
-                  icon: Icons.pause_rounded,
-                  onConfirm: () => _store.stopCampaign(c.id),
+        return isSmall
+            ? Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed:
+                        () => _confirmAction(
+                          label: l.translate('marketing_btn_stop_campaign'),
+                          message: 'Tạm dừng chiến dịch "${c.name}"?',
+                          color: Colors.orange,
+                          icon: Icons.pause_rounded,
+                          onConfirm: () => _store.stopCampaign(c.id),
+                        ),
+                    icon: const Icon(Icons.pause_rounded, color: Colors.orange),
+                    label: Text(
+                      l.translate('marketing_btn_stop_campaign'),
+                      style: const TextStyle(color: Colors.orange),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.orange),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
-                icon: const Icon(Icons.pause_rounded, color: Colors.orange),
-                label: Text(l.translate('marketing_btn_stop_campaign'),
-                    style: const TextStyle(color: Colors.orange)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.orange),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed:
+                        () => _confirmAction(
+                          label: 'Dừng hẳn',
+                          message:
+                              'Dừng hẳn chiến dịch "${c.name}"? Hành động này không thể hoàn tác.',
+                          color: Colors.red,
+                          icon: Icons.stop_rounded,
+                          onConfirm: () => _store.stopCampaign(c.id),
+                        ),
+                    icon: const Icon(Icons.stop_rounded),
+                    label: const Text('Dừng hẳn'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: () => _confirmAction(
-                  label: 'Dừng hẳn',
-                  message: 'Dừng hẳn chiến dịch "${c.name}"? Hành động này không thể hoàn tác.',
-                  color: Colors.red,
-                  icon: Icons.stop_rounded,
-                  onConfirm: () => _store.stopCampaign(c.id),
+              ],
+            )
+            : Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed:
+                        () => _confirmAction(
+                          label: l.translate('marketing_btn_stop_campaign'),
+                          message: 'Tạm dừng chiến dịch "${c.name}"?',
+                          color: Colors.orange,
+                          icon: Icons.pause_rounded,
+                          onConfirm: () => _store.stopCampaign(c.id),
+                        ),
+                    icon: const Icon(Icons.pause_rounded, color: Colors.orange),
+                    label: Text(
+                      l.translate('marketing_btn_stop_campaign'),
+                      style: const TextStyle(color: Colors.orange),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.orange),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
                 ),
-                icon: const Icon(Icons.stop_rounded),
-                label: const Text('Dừng hẳn'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed:
+                        () => _confirmAction(
+                          label: 'Dừng hẳn',
+                          message:
+                              'Dừng hẳn chiến dịch "${c.name}"? Hành động này không thể hoàn tác.',
+                          color: Colors.red,
+                          icon: Icons.stop_rounded,
+                          onConfirm: () => _store.stopCampaign(c.id),
+                        ),
+                    icon: const Icon(Icons.stop_rounded),
+                    label: const Text('Dừng hẳn'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
-        );
+              ],
+            );
       case CampaignStatus.paused:
         return SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: () => _confirmAction(
-              label: l.translate('marketing_btn_resume_campaign'),
-              message: 'Tiếp tục chiến dịch "${c.name}"?',
-              color: Colors.green,
-              icon: Icons.play_arrow_rounded,
-              onConfirm: () => _store.resumeCampaign(c.id),
-            ),
+            onPressed:
+                () => _confirmAction(
+                  label: l.translate('marketing_btn_resume_campaign'),
+                  message: 'Tiếp tục chiến dịch "${c.name}"?',
+                  color: Colors.green,
+                  icon: Icons.play_arrow_rounded,
+                  onConfirm: () => _store.resumeCampaign(c.id),
+                ),
             icon: const Icon(Icons.play_arrow_rounded),
             label: Text(l.translate('marketing_btn_resume_campaign')),
             style: FilledButton.styleFrom(
               backgroundColor: Colors.green,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 14),
             ),
           ),
         );
@@ -373,29 +613,33 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   }) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        content: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withValues(alpha: 0.12),
-              child: Icon(icon, color: color),
+      builder:
+          (_) => AlertDialog(
+            content: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: 0.12),
+                  child: Icon(icon, color: color),
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: Text(message)),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: color),
-            onPressed: () {
-              Navigator.pop(context);
-              onConfirm();
-            },
-            child: Text(label),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Hủy'),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: color),
+                onPressed: () {
+                  Navigator.pop(context);
+                  onConfirm();
+                },
+                child: Text(label),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -408,14 +652,22 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
       decoration: BoxDecoration(
         color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.3)),
+        border: Border.all(
+          color: (isSuccess ? Colors.green : Colors.red).withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
-          Icon(isSuccess ? Icons.check_circle_outline : Icons.error_outline, color: isSuccess ? Colors.green : Colors.red),
+          Icon(
+            isSuccess ? Icons.check_circle_outline : Icons.error_outline,
+            color: isSuccess ? Colors.green : Colors.red,
+          ),
           const SizedBox(width: 8),
           Expanded(child: Text(l.translate(msg))),
-          IconButton(icon: const Icon(Icons.close, size: 16), onPressed: _store.clearActionFeedback),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            onPressed: _store.clearActionFeedback,
+          ),
         ],
       ),
     );
@@ -423,43 +675,64 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
 
   IconData _statusIcon(CampaignStatus s) {
     switch (s) {
-      case CampaignStatus.running: return Icons.play_circle;
-      case CampaignStatus.paused: return Icons.pause_circle;
-      case CampaignStatus.completed: return Icons.check_circle;
-      case CampaignStatus.failed: return Icons.error;
-      case CampaignStatus.scheduled: return Icons.schedule;
-      case CampaignStatus.draft: return Icons.edit_note;
+      case CampaignStatus.running:
+        return Icons.play_circle;
+      case CampaignStatus.paused:
+        return Icons.pause_circle;
+      case CampaignStatus.completed:
+        return Icons.check_circle;
+      case CampaignStatus.failed:
+        return Icons.error;
+      case CampaignStatus.scheduled:
+        return Icons.schedule;
+      case CampaignStatus.draft:
+        return Icons.edit_note;
     }
   }
 
   String _statusLabel(CampaignStatus s, AppLocalizations l) {
     switch (s) {
-      case CampaignStatus.draft: return l.translate('marketing_tv_status_draft');
-      case CampaignStatus.scheduled: return l.translate('marketing_tv_status_scheduled');
-      case CampaignStatus.running: return l.translate('marketing_tv_status_running');
-      case CampaignStatus.paused: return l.translate('marketing_tv_status_paused');
-      case CampaignStatus.completed: return l.translate('marketing_tv_status_completed');
-      case CampaignStatus.failed: return l.translate('marketing_tv_status_failed');
+      case CampaignStatus.draft:
+        return l.translate('marketing_tv_status_draft');
+      case CampaignStatus.scheduled:
+        return l.translate('marketing_tv_status_scheduled');
+      case CampaignStatus.running:
+        return l.translate('marketing_tv_status_running');
+      case CampaignStatus.paused:
+        return l.translate('marketing_tv_status_paused');
+      case CampaignStatus.completed:
+        return l.translate('marketing_tv_status_completed');
+      case CampaignStatus.failed:
+        return l.translate('marketing_tv_status_failed');
     }
   }
 
   String _channelLabel(CampaignChannel c, AppLocalizations l) {
     switch (c) {
-      case CampaignChannel.messenger: return l.translate('marketing_tv_channel_messenger');
-      case CampaignChannel.zalo: return l.translate('marketing_tv_channel_zalo');
-      case CampaignChannel.email: return l.translate('marketing_tv_channel_email');
-      case CampaignChannel.sms: return l.translate('marketing_tv_channel_sms');
+      case CampaignChannel.messenger:
+        return l.translate('marketing_tv_channel_messenger');
+      case CampaignChannel.zalo:
+        return l.translate('marketing_tv_channel_zalo');
+      case CampaignChannel.email:
+        return l.translate('marketing_tv_channel_email');
+      case CampaignChannel.sms:
+        return l.translate('marketing_tv_channel_sms');
     }
   }
 
   IconData _channelIcon(CampaignChannel c) {
     switch (c) {
-      case CampaignChannel.messenger: return Icons.chat_bubble_outline;
-      case CampaignChannel.zalo: return Icons.message_outlined;
-      case CampaignChannel.email: return Icons.email_outlined;
-      case CampaignChannel.sms: return Icons.sms_outlined;
+      case CampaignChannel.messenger:
+        return Icons.chat_bubble_outline;
+      case CampaignChannel.zalo:
+        return Icons.message_outlined;
+      case CampaignChannel.email:
+        return Icons.email_outlined;
+      case CampaignChannel.sms:
+        return Icons.sms_outlined;
     }
   }
 
-  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year} ${d.hour}:${d.minute.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime d) =>
+      '${d.day}/${d.month}/${d.year} ${d.hour}:${d.minute.toString().padLeft(2, '0')}';
 }

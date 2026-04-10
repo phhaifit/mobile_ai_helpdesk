@@ -418,7 +418,7 @@
   "invite_response_error_not_pending": "This invitation is no longer active.",
   "invite_response_error_failed": "Something went wrong. Please try again.",
   "invite_response_organization_fallback": "Organization",
-  "invite_response_role_member": "Support staff"
+  "invite_response_role_member": "Support staff",
   "marketing_tv_title": "Marketing",
   "marketing_tv_campaigns": "Campaigns",
   "marketing_tv_template_library": "Template Library",

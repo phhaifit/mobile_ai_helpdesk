@@ -31,14 +31,16 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: Strings.appName,
-          theme: _themeStore.darkMode
-              ? AppThemeData.darkThemeData
-              : AppThemeData.lightThemeData,
+          theme:
+              _themeStore.darkMode
+                  ? AppThemeData.darkThemeData
+                  : AppThemeData.lightThemeData,
           onGenerateRoute: Routes.onGenerateRoute,
           locale: Locale(_languageStore.locale),
-          supportedLocales: _languageStore.supportedLanguages
-              .map((language) => Locale(language.locale, language.code))
-              .toList(),
+          supportedLocales:
+              _languageStore.supportedLanguages
+                  .map((language) => Locale(language.locale, language.code))
+                  .toList(),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           navigatorObservers: [SentryNavigatorObserver()],
-          initialRoute: Routes.login,
+          initialRoute: Routes.home,
         );
       },
     );

@@ -418,7 +418,7 @@
   "invite_response_error_not_pending": "Lời mời này không còn hiệu lực.",
   "invite_response_error_failed": "Đã xảy ra lỗi. Vui lòng thử lại.",
   "invite_response_organization_fallback": "Tổ chức",
-  "invite_response_role_member": "Nhân viên hỗ trợ"
+  "invite_response_role_member": "Nhân viên hỗ trợ",
   "login_btn_test_crash": "Thử nghiệm Crashlytics",
   "marketing_tv_title": "Marketing",
   "marketing_tv_campaigns": "Chiến dịch",
