@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
-import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
-import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
@@ -21,6 +17,10 @@ import 'omnichannel/omnichannel_hub_screen.dart';
 import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
+import 'team/store/team_store.dart';
+import 'tenant/invitation_response_screen.dart';
+import '../../../di/service_locator.dart';
+import '../../../domain/entity/invitation/invitation.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
