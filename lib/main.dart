@@ -78,6 +78,7 @@ Future<void> _trackFirstLaunch() async {
   }
 }
 
+// ignore: unused_element
 Future<void> _configureSentryContext() async {
   try {
     final getIt = GetIt.instance;
