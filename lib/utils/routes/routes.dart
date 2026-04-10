@@ -36,9 +36,6 @@ import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dar
 import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
-import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
-import 'package:ai_helpdesk/presentation/tenant/tenant_info_screen.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '/domain/entity/ai_agent/ai_agent.dart';
 import '/presentation/ai_agent/agent_create_edit_screen.dart';
 import '/presentation/ai_agent/agent_detail_screen.dart';
@@ -87,8 +84,6 @@ class Routes {
   static const String monetization = '/monetization';
   static const String upgradePayment = '/upgrade-payment';
   static const String upgradeConfirmation = '/upgrade-confirmation';
-  static const String tenantInfo = '/tenant-info';
-  static const String tenantInviteRespond = '/invite/respond';
   static const String marketingHub = '/marketing';
   static const String campaignList = '/marketing/campaigns';
   static const String campaignCreate = '/marketing/campaigns/create';
@@ -281,10 +276,6 @@ class Routes {
           settings: settings,
           builder: (_) => const UpgradeConfirmationScreen(),
         );
-      case tenantInfo:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const TenantInfoScreen(),
       case marketingHub:
         return MaterialPageRoute(
           settings: settings,
