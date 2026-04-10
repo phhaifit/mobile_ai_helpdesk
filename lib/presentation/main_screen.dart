@@ -4,12 +4,15 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
-import 'playground/playground_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
+import 'knowledge/knowledge_source_list_screen.dart';
+import 'marketing/campaign_list_screen.dart';
+import 'marketing/facebook_admin_setup_screen.dart';
+import 'marketing/template_library_screen.dart';
 import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
+import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
-import 'knowledge/knowledge_source_list_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
@@ -125,6 +128,7 @@ class _MainScreenState extends State<MainScreen> {
             onTap: () => _selectCategory('Chiến dịch'),
           ),
           MenuItem(title: 'Template', onTap: () => _selectCategory('Template')),
+          MenuItem(title: 'Facebook Admin', onTap: () => _selectCategory('Facebook Admin')),
         ],
       ),
       MenuCategory(
@@ -237,6 +241,12 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const PlaygroundScreen(agent: null);
       case 'Khách hàng':
         contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
+      case 'Chiến dịch':
+        contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
+      case 'Template':
+        contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
+      case 'Facebook Admin':
+        contentWidget = const FacebookAdminSetupScreen();
       case 'Prompt Library':
         contentWidget = _wrapWithMenuBar(
           title: 'Prompt Library',
