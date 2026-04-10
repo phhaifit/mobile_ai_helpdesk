@@ -8,6 +8,9 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
@@ -71,6 +74,8 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
+import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import '../../ai_agent/store/ai_agent_store.dart';
 // import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
@@ -193,6 +198,21 @@ class StoreModule {
       ),
     );
 
+    // --- Tenant Store ---
+    getIt.registerSingleton<TenantStore>(
+      TenantStore(getIt<TenantRepository>(), getIt<ErrorStore>()),
+    );
+
+    // --- Team Store ---
+    getIt.registerSingleton<TeamStore>(
+      TeamStore(
+        getIt<TeamRepository>(),
+        getIt<InvitationRepository>(),
+        getIt<TenantStore>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+    
     getIt.registerFactory<MarketingStore>(
       () => MarketingStore(
         getIt<GetMarketingOverviewUseCase>(),

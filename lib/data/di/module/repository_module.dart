@@ -19,7 +19,10 @@ import 'package:ai_helpdesk/domain/repository/monetization/monetization_reposito
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
+import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:get_it/get_it.dart';
 
 // Import Interfaces (Domain)
@@ -38,6 +41,9 @@ import '../../local/datasources/playground/playground_datasource.dart';
 import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
+import '../../repository/team/mock_team_repository_impl.dart';
+import '../../repository/tenant/mock_tenant_repository_impl.dart';
+import '../../repository/invitation/mock_invitation_repository_impl.dart';
 // import '../../repository/customer_management/customer_repository_impl.dart';
 import '../../repository/playground/playground_repository_impl.dart';
 import '../../local/datasources/customer/mock_customer_datasource.dart';
@@ -104,6 +110,15 @@ class RepositoryModule {
     getIt.registerLazySingleton<SettingRepository>(
       () => SettingRepositoryImpl(getIt<SharedPreferenceHelper>()),
     );
+
+    // --- Tenant Repository ---
+    getIt.registerSingleton<TenantRepository>(MockTenantRepositoryImpl());
+
+    // --- Team Repository ---
+    getIt.registerSingleton<TeamRepository>(MockTeamRepositoryImpl());
+
+    // --- Invitation Repository ---
+    getIt.registerSingleton<InvitationRepository>(MockInvitationRepositoryImpl(getIt<TeamRepository>()));
 
     getIt.registerSingleton<MonetizationRepository>(
       MockMonetizationRepositoryImpl(),
