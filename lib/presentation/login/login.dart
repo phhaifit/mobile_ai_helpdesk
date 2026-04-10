@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:mobx/mobx.dart';
 import '/constants/assets.dart';
 import '/core/stores/form/form_store.dart';
 import '/core/widgets/app_icon_widget.dart';
@@ -72,12 +73,12 @@ class _LoginScreenState extends State<LoginScreen> {
             : Center(child: _buildRightSide()),
         Observer(
           builder: (context) {
-            // Navigate when login future completed successfully (no error)
             if (_loginStore.loginFuture.status == FutureStatus.fulfilled &&
-                (_loginStore.errorMessage == null || _loginStore.errorMessage!.isEmpty)) {
+                _loginStore.errorMessage == null) {
               return navigate(context);
             }
-            return _showErrorMessage(_formStore.errorStore.errorMessage);
+            final err = _loginStore.errorMessage ?? _formStore.errorStore.errorMessage;
+            return _showErrorMessage(err);
           },
         ),
         Observer(
