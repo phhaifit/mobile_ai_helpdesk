@@ -141,6 +141,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
 
+                if (kDebugMode) ...[
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Column(
+                      children: [
+                        Text(
+                          'Test Account',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Email: test@example.com',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        Text(
+                          'Password: Test@123456',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 if (kDebugMode && !kIsWeb) ...[
                   const SizedBox(height: 24),
                   TextButton(
@@ -161,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     await _store.login();
     if (mounted && _store.errorMessage == null) {
-      Navigator.pushReplacementNamed(context, Routes.home);
+      await Navigator.pushReplacementNamed(context, Routes.home);
     }
   }
 }

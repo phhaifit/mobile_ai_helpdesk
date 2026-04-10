@@ -86,7 +86,7 @@ class _ZaloAccountAssignmentScreenState
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
-                          initialValue: current,
+                          value: current,
                           items: _agents
                               .map(
                                 (agent) => DropdownMenuItem(

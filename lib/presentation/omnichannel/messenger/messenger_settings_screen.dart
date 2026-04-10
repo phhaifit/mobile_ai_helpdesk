@@ -79,7 +79,7 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
               Text(l.translate('omnichannel_messenger_language')),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
-                initialValue: _language,
+                value: _language,
                 items: const [
                   DropdownMenuItem(value: 'vi', child: Text('Vietnamese')),
                   DropdownMenuItem(value: 'en', child: Text('English')),

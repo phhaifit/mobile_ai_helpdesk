@@ -1,5 +1,6 @@
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
@@ -7,8 +8,15 @@ import 'package:ai_helpdesk/presentation/auth/registration/registration_screen.d
 import 'package:ai_helpdesk/presentation/auth/reset_password/reset_password_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/knowledge_source_list_screen.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
-import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/main_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_create_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_detail_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/campaign_list_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/facebook_admin_setup_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/marketing_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/recipient_targeting_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/template_create_edit_screen.dart';
+import 'package:ai_helpdesk/presentation/marketing/template_library_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/monetization_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_screen.dart';
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
@@ -23,6 +31,7 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
@@ -30,6 +39,12 @@ import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dar
 import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/tenant_info_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import '/domain/entity/ai_agent/ai_agent.dart';
+import '/presentation/ai_agent/agent_create_edit_screen.dart';
+import '/presentation/ai_agent/agent_detail_screen.dart';
+import '/presentation/ai_agent/agent_list_screen.dart';
+import '/presentation/ai_agent/team_assistant_screen.dart';
+import '/presentation/playground/playground_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -44,6 +59,7 @@ class Routes {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
+  static const String main = '/main';
   static const String home = '/home';
   static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
@@ -73,6 +89,22 @@ class Routes {
   static const String upgradeConfirmation = '/upgrade-confirmation';
   static const String tenantInfo = '/tenant-info';
   static const String tenantInviteRespond = '/invite/respond';
+  static const String marketingHub = '/marketing';
+  static const String campaignList = '/marketing/campaigns';
+  static const String campaignCreate = '/marketing/campaigns/create';
+  static const String campaignDetail = '/marketing/campaigns/detail';
+  static const String templateLibrary = '/marketing/templates';
+  static const String templateCreateEdit = '/marketing/templates/edit';
+  static const String recipientTargeting = '/marketing/targeting';
+  static const String facebookAdminSetup = '/marketing/facebook-admin';
+  // AI Agent
+  static const String agentList = '/ai-agents';
+  static const String agentCreate = '/ai-agents/create';
+  static const String agentEdit = '/ai-agents/edit';
+  static const String agentDetail = '/ai-agents/detail';
+  static const String teamAssistant = '/ai-agents/team-assistant';
+  // Playground
+  static const String playground = '/playground';
   static const String knowledge = '/knowledge';
 
   // route generator -----------------------------------------------------------
@@ -119,7 +151,14 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
+          builder: (_) => ResetPasswordScreen(
+            email: args?['email'] as String?,
+          ),
+        );
+      case main:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainScreen(),
         );
       case home:
         return MaterialPageRoute(
@@ -246,6 +285,79 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const TenantInfoScreen(),
+      case marketingHub:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MarketingScreen(),
+        );
+      case campaignList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignListScreen(),
+        );
+      case campaignCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignCreateScreen(),
+        );
+      case campaignDetail:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CampaignDetailScreen(),
+        );
+      case templateLibrary:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TemplateLibraryScreen(),
+        );
+      case templateCreateEdit:
+        final template = settings.arguments as MarketingTemplate?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => TemplateCreateEditScreen(template: template),
+        );
+      case recipientTargeting:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const RecipientTargetingScreen(),
+        );
+      case facebookAdminSetup:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const FacebookAdminSetupScreen(),
+        );
+      case agentList:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentListScreen(),
+        );
+      case agentCreate:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AgentCreateEditScreen(),
+        );
+      case agentEdit:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentCreateEditScreen(agent: agent),
+        );
+      case agentDetail:
+        final agent = settings.arguments as AiAgent;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => AgentDetailScreen(agent: agent),
+        );
+      case teamAssistant:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TeamAssistantScreen(),
+        );
+      case playground:
+        final agent = settings.arguments as AiAgent?;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => PlaygroundScreen(agent: agent),
         );
       case knowledge:
         return MaterialPageRoute(

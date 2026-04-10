@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
@@ -23,6 +23,18 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -34,6 +46,22 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.d
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
+import 'package:get_it/get_it.dart';
+import 'package:ai_helpdesk/presentation/stores/session_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -51,21 +79,21 @@ import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import '../../ai_agent/store/ai_agent_store.dart';
+// import '../../customer_management/store/customer_store.dart';
+import '../../playground/store/playground_store.dart';
+
+import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
+import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
+import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
+import '../../../domain/usecase/playground/create_session_usecase.dart';
+import '../../../domain/usecase/playground/get_sessions_usecase.dart';
+import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
-import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
-import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
-import 'package:ai_helpdesk/presentation/stores/session_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
-import 'package:get_it/get_it.dart';
+import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -124,8 +152,7 @@ class StoreModule {
       ),
     );
     getIt.registerFactory(
-      () =>
-          EditTicketStore(getIt<UpdateTicketUseCase>(), getIt<SessionStore>()),
+      () => EditTicketStore(getIt<UpdateTicketUseCase>()),
     );
     getIt.registerFactory(
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
@@ -166,7 +193,6 @@ class StoreModule {
         getIt<UpdateZaloAssignmentsUseCase>(),
       ),
     );
-
     // --- Monetization Store ---
     getIt.registerFactory(
       () => MonetizationStore(
@@ -187,6 +213,44 @@ class StoreModule {
         getIt<InvitationRepository>(),
         getIt<TenantStore>(),
         getIt<ErrorStore>(),
+      ),
+    );
+    
+    getIt.registerFactory<MarketingStore>(
+      () => MarketingStore(
+        getIt<GetMarketingOverviewUseCase>(),
+        getIt<GetTemplatesUseCase>(),
+        getIt<SaveTemplateUseCase>(),
+        getIt<DeleteTemplateUseCase>(),
+        getIt<GetCampaignsUseCase>(),
+        getIt<CreateCampaignUseCase>(),
+        getIt<StartCampaignUseCase>(),
+        getIt<StopCampaignUseCase>(),
+        getIt<ResumeCampaignUseCase>(),
+        getIt<EstimateAudienceUseCase>(),
+        getIt<ConnectFacebookAdminUseCase>(),
+        getIt<DisconnectFacebookAdminUseCase>(),
+      ),
+    );
+
+    // --- AI Agent Store ---
+    getIt.registerLazySingleton<AiAgentStore>(
+      () => AiAgentStore(
+        getIt<GetAgentsUseCase>(),
+        getIt<GetAgentUseCase>(),
+        getIt<CreateAgentUseCase>(),
+        getIt<UpdateAgentUseCase>(),
+        getIt<DeleteAgentUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Playground Store ---
+    getIt.registerLazySingleton<PlaygroundStore>(
+      () => PlaygroundStore(
+        getIt<GetSessionsUseCase>(),
+        getIt<CreateSessionUseCase>(),
+        getIt<SendPlaygroundMessageUseCase>(),
       ),
     );
 

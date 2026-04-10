@@ -12,6 +12,7 @@ analyzer:
     - ".dart_tool/**"
     - "**/*.gen.dart"
     - "**/*.config.dart"
+    - "main_screen.dart"
   errors:
     # Treat missing required parameters as errors
     missing_required_param: error

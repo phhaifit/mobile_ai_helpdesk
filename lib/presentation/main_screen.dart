@@ -10,11 +10,18 @@ import 'chat/support_inbox_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
+import 'ai_agent/agent_list_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
+import 'knowledge/knowledge_source_list_screen.dart';
+import 'marketing/campaign_list_screen.dart';
+import 'marketing/facebook_admin_setup_screen.dart';
+import 'marketing/template_library_screen.dart';
 import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
+import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -37,6 +44,21 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _selectedCategory = widget.initialCategory;
     _initializeCategories();
+
+    // If initialCategory is a category title (e.g. 'Hỗ trợ khách hàng'),
+    // default to the first menu item inside that category. Otherwise use
+    // the provided initialCategory (which may already be a menu item).
+    String initial = widget.initialCategory;
+    final matchingCategory = _categories.firstWhere(
+      (c) => c.title == initial,
+      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+    );
+
+    if (matchingCategory.items.isNotEmpty) {
+      _selectedCategory = matchingCategory.items.first.title;
+    } else {
+      _selectedCategory = initial;
+    }
   }
 
   void _initializeCategories() {
@@ -171,6 +193,8 @@ class _MainScreenState extends State<MainScreen> {
             title: 'Mock invitation response',
             onTap: _openMockInvitationResponse,
           ),
+          MenuItem(id: 'template', title: 'Template', onTap: () => _selectCategory('template')),
+          MenuItem(id: 'facebook_admin', title: 'Facebook Admin', onTap: () => _selectCategory('facebook_admin')),
         ],
       ),
       MenuCategory(
@@ -186,6 +210,22 @@ class _MainScreenState extends State<MainScreen> {
             id: 'status_reports',
             title: 'Thống kê theo trạng thái',
             onTap: () => _selectCategory('status_reports'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'AI & Playground',
+        icon: Icons.smart_toy_outlined,
+        items: [
+          MenuItem(
+            id: 'ai_agents',
+            title: 'AI Agents',
+            onTap: () => _selectCategory('ai_agents'),
+          ),
+          MenuItem(
+            id: 'playground',
+            title: 'Playground',
+            onTap: () => _selectCategory('playground'),
           ),
         ],
       ),
@@ -292,6 +332,18 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
       case 'employee_list':
         contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
+      case 'ai_agents':
+        contentWidget = const AgentListScreen();
+      case 'playground':
+        contentWidget = const PlaygroundScreen(agent: null);
+      case 'customers':
+        contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
+      case 'campaigns':
+        contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
+      case 'template':
+        contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
+      case 'facebook_admin':
+        contentWidget = const FacebookAdminSetupScreen();
       case 'prompt_library':
         contentWidget = _wrapWithMenuBar(
           title: 'Prompt Library',

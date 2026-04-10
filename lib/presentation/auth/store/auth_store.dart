@@ -1,6 +1,6 @@
 import 'package:ai_helpdesk/constants/analytics_events.dart';
-import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
 import 'package:ai_helpdesk/data/models/auth/login_request.dart';
 import 'package:ai_helpdesk/data/models/auth/register_request.dart';

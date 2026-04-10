@@ -67,21 +67,21 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     // Validate
     if (email.isEmpty || !email.contains('@')) {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: 'Please enter valid email',
       ).show(context);
       return;
     }
 
     if (token.isEmpty) {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: 'Please enter reset token',
       ).show(context);
       return;
     }
 
     if (newPassword.isEmpty) {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: 'Please enter new password',
       ).show(context);
       return;
@@ -98,17 +98,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     if (!mounted) return;
 
     if (_authStore.errorMessage == null) {
-      FlushbarHelper.createSuccess(
+      await FlushbarHelper.createSuccess(
         message: 'Password reset successfully!',
       ).show(context);
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, Routes.login);
-        }
-      });
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, Routes.login);
+      }
     } else {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: _authStore.errorMessage ?? 'Reset failed',
       ).show(context);
     }

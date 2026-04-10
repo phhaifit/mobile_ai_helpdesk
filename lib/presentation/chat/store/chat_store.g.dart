@@ -14,9 +14,10 @@ mixin _$ChatStore on _ChatStore, Store {
   @override
   List<Message> get filteredMessages =>
       (_$filteredMessagesComputed ??= Computed<List<Message>>(
-        () => super.filteredMessages,
-        name: '_ChatStore.filteredMessages',
-      )).value;
+            () => super.filteredMessages,
+            name: '_ChatStore.filteredMessages',
+          ))
+          .value;
 
   late final _$messageListAtom = Atom(
     name: '_ChatStore.messageList',

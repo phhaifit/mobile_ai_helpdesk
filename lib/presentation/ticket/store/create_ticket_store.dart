@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
