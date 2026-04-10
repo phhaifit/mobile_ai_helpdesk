@@ -1,4 +1,4 @@
-import 'package:mobile_ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
+import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:flutter/material.dart';
 
 String connectionStatusKey(IntegrationConnectionStatus status) {

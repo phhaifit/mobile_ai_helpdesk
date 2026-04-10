@@ -11,10 +11,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobile_ai_helpdesk/di/service_locator.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/marketing/marketing.dart';
-import 'package:mobile_ai_helpdesk/presentation/marketing/store/marketing_store.dart';
-import 'package:mobile_ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class RecipientTargetingScreen extends StatefulWidget {
   const RecipientTargetingScreen({super.key});

@@ -5,6 +5,8 @@ import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,20 +25,8 @@ void main() {
           : null,
     );
 
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/firebase_core'),
-      (call) async => {
-        'name': '[DEFAULT]',
-        'options': {
-          'apiKey': 'test',
-          'appId': '1:0:android:0',
-          'messagingSenderId': '0',
-          'projectId': 'test',
-        },
-        'pluginConstants': {},
-      },
-    );
+    setupFirebaseCoreMocks();
+    await Firebase.initializeApp();
 
     SharedPreferences.setMockInitialValues({});
     await ServiceLocator.configureDependencies();

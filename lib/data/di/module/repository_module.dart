@@ -26,7 +26,7 @@ import 'package:get_it/get_it.dart';
 import '../../../domain/repository/ai_agent/ai_agent_repository.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
-// import '../../../domain/repository/customer_management/customer_repository.dart';
+import '../../../domain/repository/customer/customer_repository.dart';
 import '../../../domain/repository/playground/playground_repository.dart';
 // Import DataSources
 import '../../local/datasources/ai_agent/ai_agent_datasource.dart';

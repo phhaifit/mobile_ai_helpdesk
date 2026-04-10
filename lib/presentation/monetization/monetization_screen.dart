@@ -1,9 +1,9 @@
-import 'package:mobile_ai_helpdesk/constants/dimens.dart';
-import 'package:mobile_ai_helpdesk/di/service_locator.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/monetization/monetization.dart';
-import 'package:mobile_ai_helpdesk/presentation/monetization/store/monetization_store.dart';
-import 'package:mobile_ai_helpdesk/utils/locale/app_localization.dart';
-import 'package:mobile_ai_helpdesk/utils/routes/routes.dart';
+import 'package:ai_helpdesk/constants/dimens.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/entity/monetization/monetization.dart';
+import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

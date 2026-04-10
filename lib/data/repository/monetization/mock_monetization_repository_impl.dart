@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:mobile_ai_helpdesk/domain/entity/monetization/monetization.dart';
-import 'package:mobile_ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
+import 'package:ai_helpdesk/domain/entity/monetization/monetization.dart';
+import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 
 class MockMonetizationRepositoryImpl implements MonetizationRepository {
   final MonetizationOverview _overview = MonetizationOverview(

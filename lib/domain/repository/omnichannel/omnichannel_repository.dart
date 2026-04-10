@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mobile_ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
+import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 
 class MessengerSettingsUpdate {
   final bool autoReply;

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mobile_ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 
 abstract class MarketingRepository {
   Future<MarketingOverview> getMarketingOverview();

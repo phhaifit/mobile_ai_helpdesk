@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mobile_ai_helpdesk/core/domain/usecase/use_case.dart';
-import 'package:mobile_ai_helpdesk/domain/entity/monetization/monetization.dart';
-import 'package:mobile_ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
+import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
+import 'package:ai_helpdesk/domain/entity/monetization/monetization.dart';
+import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 
 class SimulateUpgradeParams {
   final String planId;
