@@ -8,6 +8,9 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
@@ -195,6 +198,21 @@ class StoreModule {
       ),
     );
 
+    // --- Tenant Store ---
+    getIt.registerSingleton<TenantStore>(
+      TenantStore(getIt<TenantRepository>(), getIt<ErrorStore>()),
+    );
+
+    // --- Team Store ---
+    getIt.registerSingleton<TeamStore>(
+      TeamStore(
+        getIt<TeamRepository>(),
+        getIt<InvitationRepository>(),
+        getIt<TenantStore>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+    
     getIt.registerFactory<MarketingStore>(
       () => MarketingStore(
         getIt<GetMarketingOverviewUseCase>(),

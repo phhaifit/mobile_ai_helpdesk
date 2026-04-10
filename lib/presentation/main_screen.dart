@@ -3,6 +3,9 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
+import 'tenant/employee_screen.dart';
+import 'tenant/tenant_info_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
@@ -14,11 +17,15 @@ import 'omnichannel/omnichannel_hub_screen.dart';
 import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
+import 'team/store/team_store.dart';
+import 'tenant/invitation_response_screen.dart';
+import '../../../di/service_locator.dart';
+import '../../../domain/entity/invitation/invitation.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
 
-  const MainScreen({super.key, this.initialCategory = 'Hộp thư hỗ trợ'});
+  const MainScreen({super.key, this.initialCategory = 'support_inbox'});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -270,6 +277,25 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  /// Opens the invitation response flow using a pending invite from the team store
+  /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
+  /// TODO: remove this after testing
+  void _openMockInvitationResponse() {
+    final teamStore = getIt<TeamStore>();
+    String invitationId = 'inv-001';
+    for (final inv in teamStore.invitations) {
+      if (inv.status == InvitationStatus.pending) {
+        invitationId = inv.id;
+        break;
+      }
+    }
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => InvitationResponseScreen(invitationId: invitationId),
+      ),
+    );
+  }
+
   void _selectCategory(String category) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
     if (category == 'pending_tickets' && currentRoute != Routes.ticketList) {
@@ -292,7 +318,7 @@ class _MainScreenState extends State<MainScreen> {
     final isDesktop = screenWidth >= 600;
 
     // Build desktop layout for chat
-    if (isDesktop && _selectedCategory == 'Hộp thư hỗ trợ') {
+    if (isDesktop && _selectedCategory == 'support_inbox') {
       return _buildDesktopChatView();
     }
 
