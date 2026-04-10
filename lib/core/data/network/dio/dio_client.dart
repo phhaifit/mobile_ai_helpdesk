@@ -7,12 +7,14 @@ class DioClient {
   final Dio _dio;
 
   DioClient({required this.dioConfigs})
-      : _dio = Dio()
-          ..options.baseUrl = dioConfigs.baseUrl
-          ..options.connectTimeout =
-              Duration(milliseconds: dioConfigs.connectionTimeout)
-          ..options.receiveTimeout =
-              Duration(milliseconds: dioConfigs.receiveTimeout);
+    : _dio = Dio()
+        ..options.baseUrl = dioConfigs.baseUrl
+        ..options.connectTimeout = Duration(
+          milliseconds: dioConfigs.connectionTimeout,
+        )
+        ..options.receiveTimeout = Duration(
+          milliseconds: dioConfigs.receiveTimeout,
+        );
 
   Dio get dio => _dio;
 

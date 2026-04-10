@@ -176,7 +176,6 @@ class UseCaseModule {
     getIt.registerSingleton<GetMonetizationOverviewUseCase>(
       GetMonetizationOverviewUseCase(getIt<MonetizationRepository>()),
     );
-
     getIt.registerSingleton<SimulateUpgradeUseCase>(
       SimulateUpgradeUseCase(getIt<MonetizationRepository>()),
     );

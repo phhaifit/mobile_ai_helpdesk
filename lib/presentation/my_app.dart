@@ -1,12 +1,17 @@
+import 'package:ai_helpdesk/presentation/main_screen.dart';
+
 import 'package:ai_helpdesk/constants/app_theme.dart';
 import 'package:ai_helpdesk/constants/strings.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../di/service_locator.dart';
@@ -14,6 +19,8 @@ import '../di/service_locator.dart';
 class MyApp extends StatelessWidget {
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
+  final TenantStore _tenantStore = getIt<TenantStore>();
+  final TeamStore _teamStore = getIt<TeamStore>();
 
   MyApp({super.key});
 

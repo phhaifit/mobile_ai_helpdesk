@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
+import 'tenant_switcher.dart';
 
 class MenuCategory {
   final String title;
@@ -16,10 +17,11 @@ class MenuCategory {
 }
 
 class MenuItem {
+  final String id;
   final String title;
   final VoidCallback onTap;
 
-  MenuItem({required this.title, required this.onTap});
+  MenuItem({required this.id, required this.title, required this.onTap});
 }
 
 // Sidebar menu content widget (for reuse in desktop and mobile)
@@ -100,37 +102,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
             ],
           ),
         ),
-        // Dropdown selector
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.primaryBlue),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Test',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Icon(
-                    Icons.expand_more_rounded,
-                    size: 18,
-                    color: AppColors.primaryBlue,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        const TenantSwitcher(),
         // Menu categories
         Expanded(
           child: SingleChildScrollView(
@@ -170,7 +142,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
                 Expanded(
                   child: Text(
                     category.title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
@@ -193,22 +165,19 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: category.items
-                .map((item) => _buildMenuItem(item, category.title))
+                .map((item) => _buildMenuItem(item))
                 .toList(),
           ),
       ],
     );
   }
 
-  Widget _buildMenuItem(MenuItem item, String categoryTitle) {
-    final bool isSelected =
-        widget.selectedCategory == item.title ||
-        widget.selectedCategory == categoryTitle;
+  Widget _buildMenuItem(MenuItem item) {
+    final bool isSelected = widget.selectedCategory == item.id;
 
     return GestureDetector(
       onTap: () {
         item.onTap();
-        widget.onCategorySelected(item.title);
       },
       child: Container(
         color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : null,
@@ -335,14 +304,17 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         icon: Icons.help_outline_rounded,
         items: [
           MenuItem(
+            id: 'support_inbox',
             title: 'Hộp thư hỗ trợ',
             onTap: () => widget.onCategorySelected('Hộp thư hỗ trợ'),
           ),
           MenuItem(
+            id: 'pending_tickets',
             title: 'Phiếu chưa xử lý',
             onTap: () => widget.onCategorySelected('Phiếu chưa xử lý'),
           ),
           MenuItem(
+            id: 'ai_chat_bot',
             title: 'AI Chat Bot',
             onTap: () => widget.onCategorySelected('AI Chat Bot'),
           ),
@@ -353,18 +325,22 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         icon: Icons.people_outline_rounded,
         items: [
           MenuItem(
+            id: 'customers',
             title: 'Khách hàng',
             onTap: () => widget.onCategorySelected('Khách hàng'),
           ),
           MenuItem(
+            id: 'orders',
             title: 'Đơn hàng',
             onTap: () => widget.onCategorySelected('Đơn hàng'),
           ),
           MenuItem(
+            id: 'products',
             title: 'Sản phẩm',
             onTap: () => widget.onCategorySelected('Sản phẩm'),
           ),
           MenuItem(
+            id: 'promotions',
             title: 'Khuyến mãi & Vòng quay',
             onTap: () => widget.onCategorySelected('Khuyến mãi & Vòng quay'),
           ),
@@ -375,10 +351,12 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         icon: Icons.campaign_outlined,
         items: [
           MenuItem(
+            id: 'campaigns',
             title: 'Chiến dịch',
             onTap: () => widget.onCategorySelected('Chiến dịch'),
           ),
           MenuItem(
+            id: 'template',
             title: 'Template',
             onTap: () => widget.onCategorySelected('Template'),
           ),
@@ -389,6 +367,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         icon: Icons.bar_chart_outlined,
         items: [
           MenuItem(
+            id: 'detailed_reports',
             title: 'Báo cáo chi tiết',
             onTap: () => widget.onCategorySelected('Báo cáo chi tiết'),
           ),
@@ -466,40 +445,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                 ],
               ),
             ),
-            // Dropdown selector
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primaryBlue),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Quản lý tài khoản',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const Icon(
-                        Icons.expand_more_rounded,
-                        size: 18,
-                        color: AppColors.primaryBlue,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            const TenantSwitcher(),
             // Menu categories
             Expanded(
               child: SingleChildScrollView(
