@@ -58,7 +58,7 @@ class TenantSwitcher extends StatelessWidget {
                   );
                 },
               ),
-              if (tenants.isNotEmpty) const PopupMenuDivider(height: 2, color: AppColors.dividerColor),
+              if (tenants.isNotEmpty) const PopupMenuDivider(height: 2),
               PopupMenuItem<String>(
                 //Center the button in the dropdown menu
                 child: Align(
