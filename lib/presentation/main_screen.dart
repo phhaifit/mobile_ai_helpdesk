@@ -20,8 +20,6 @@ import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
 import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
-import 'knowledge/knowledge_source_list_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 
 class MainScreen extends StatefulWidget {
@@ -336,8 +334,6 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const AgentListScreen();
       case 'playground':
         contentWidget = const PlaygroundScreen(agent: null);
-      case 'customers':
-        contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
       case 'campaigns':
         contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
       case 'template':

@@ -76,9 +76,6 @@ import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
 import '../../ai_agent/store/ai_agent_store.dart';
 // import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
@@ -251,6 +248,7 @@ class StoreModule {
         getIt<GetSessionsUseCase>(),
         getIt<CreateSessionUseCase>(),
         getIt<SendPlaygroundMessageUseCase>(),
+        getIt<ErrorStore>(),
       ),
     );
 

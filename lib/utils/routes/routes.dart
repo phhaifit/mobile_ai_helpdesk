@@ -36,9 +36,7 @@ import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dar
 import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
-import 'package:ai_helpdesk/presentation/tenant/invitation_response_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/tenant_info_screen.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '/domain/entity/ai_agent/ai_agent.dart';
 import '/presentation/ai_agent/agent_create_edit_screen.dart';
 import '/presentation/ai_agent/agent_detail_screen.dart';
@@ -285,6 +283,7 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const TenantInfoScreen(),
+        );
       case marketingHub:
         return MaterialPageRoute(
           settings: settings,
