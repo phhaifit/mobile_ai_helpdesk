@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
@@ -35,6 +36,21 @@ import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_facebook_admin_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/delete_broadcast_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/delete_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/execute_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_recipients_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_templates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcasts_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_delivery_receipts_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_facebook_admin_accounts_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/resume_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -67,6 +83,7 @@ import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
@@ -79,6 +96,7 @@ import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dar
 import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
@@ -225,6 +243,28 @@ class StoreModule {
         getIt<EstimateAudienceUseCase>(),
         getIt<ConnectFacebookAdminUseCase>(),
         getIt<DisconnectFacebookAdminUseCase>(),
+      ),
+    );
+
+    getIt.registerFactory<MarketingBroadcastStore>(
+      () => MarketingBroadcastStore(
+        getIt<GetBroadcastTemplatesUseCase>(),
+        getIt<CreateBroadcastTemplateUseCase>(),
+        getIt<UpdateBroadcastTemplateUseCase>(),
+        getIt<DeleteBroadcastTemplateUseCase>(),
+        getIt<GetBroadcastsUseCase>(),
+        getIt<CreateBroadcastUseCase>(),
+        getIt<UpdateBroadcastUseCase>(),
+        getIt<DeleteBroadcastUseCase>(),
+        getIt<ExecuteBroadcastUseCase>(),
+        getIt<StopBroadcastUseCase>(),
+        getIt<ResumeBroadcastUseCase>(),
+        getIt<GetBroadcastRecipientsUseCase>(),
+        getIt<GetDeliveryReceiptsUseCase>(),
+        getIt<GetFacebookAdminAccountsUseCase>(),
+        getIt<CreateFacebookAdminAccountUseCase>(),
+        getIt<MarketingBroadcastRealtimeService>(),
+        getIt<EventBus>(),
       ),
     );
 
