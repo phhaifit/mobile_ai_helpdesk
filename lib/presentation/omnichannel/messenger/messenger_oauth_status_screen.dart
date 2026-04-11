@@ -17,13 +17,23 @@ class MessengerOauthStatusScreen extends StatefulWidget {
 class _MessengerOauthStatusScreenState
     extends State<MessengerOauthStatusScreen> {
   late final OmnichannelStore _store;
+  late final TextEditingController _authCodeController;
   int _currentStep = 0;
 
   @override
   void initState() {
     super.initState();
     _store = getIt<OmnichannelStore>();
+    _authCodeController = TextEditingController();
+    _authCodeController.addListener(_handleAuthCodeChanged);
     _store.fetchOverview();
+  }
+
+  @override
+  void dispose() {
+    _authCodeController.removeListener(_handleAuthCodeChanged);
+    _authCodeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,6 +61,9 @@ class _MessengerOauthStatusScreenState
           final bool isConnected =
               messenger.connectionStatus ==
               IntegrationConnectionStatus.connected;
+          final bool hasAuthCode = _authCodeController.text.trim().isNotEmpty;
+          final int currentStep =
+              isConnected ? 2 : (_currentStep == 2 ? 1 : _currentStep);
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -78,9 +91,32 @@ class _MessengerOauthStatusScreenState
                 ),
               ),
               const SizedBox(height: 12),
+              if (!isConnected) ...[
+                TextField(
+                  controller: _authCodeController,
+                  enabled: !_store.isLoading,
+                  decoration: InputDecoration(
+                    labelText: l.translate(
+                      'omnichannel_messenger_auth_code_label',
+                    ),
+                    hintText: l.translate(
+                      'omnichannel_messenger_auth_code_hint',
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l.translate('omnichannel_messenger_oauth_help'),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                ),
+                const SizedBox(height: 12),
+              ],
               Stepper(
                 physics: const NeverScrollableScrollPhysics(),
-                currentStep: isConnected ? 2 : _currentStep,
+                currentStep: currentStep,
                 controlsBuilder: (_, _) => const SizedBox.shrink(),
                 steps: [
                   Step(
@@ -104,37 +140,19 @@ class _MessengerOauthStatusScreenState
               ),
               const SizedBox(height: 8),
               ElevatedButton.icon(
-                onPressed: _store.isLoading
-                    ? null
-                    : () async {
-                        if (isConnected) {
-                          await _store.disconnectMessenger();
-                          if (mounted) {
-                            setState(() {
-                              _currentStep = 0;
-                            });
-                          }
-                          return;
-                        }
-
-                        setState(() {
-                          _currentStep = 1;
-                        });
-                        await Future.delayed(const Duration(milliseconds: 400));
-                        if (!mounted) {
-                          return;
-                        }
-                        setState(() {
-                          _currentStep = 2;
-                        });
-                        await _store.connectMessenger();
-                      },
+                onPressed:
+                    _store.isLoading
+                        ? null
+                        : () => _handlePrimaryAction(
+                          isConnected: isConnected,
+                          hasAuthCode: hasAuthCode,
+                        ),
                 icon: Icon(isConnected ? Icons.link_off : Icons.verified_user),
                 label: Text(
                   l.translate(
                     isConnected
                         ? 'omnichannel_disconnect_button'
-                        : 'omnichannel_oauth_verify_button',
+                        : 'omnichannel_messenger_verify_and_connect_button',
                   ),
                 ),
               ),
@@ -165,5 +183,56 @@ class _MessengerOauthStatusScreenState
       );
       _store.clearActionMessage();
     });
+  }
+
+  Future<void> _handlePrimaryAction({
+    required bool isConnected,
+    required bool hasAuthCode,
+  }) async {
+    if (isConnected) {
+      await _store.disconnectMessenger();
+      if (mounted) {
+        setState(() {
+          _currentStep = 0;
+        });
+      }
+      return;
+    }
+
+    if (!hasAuthCode) {
+      _store.setPendingMessengerAuthCode(null);
+      await _store.connectMessenger();
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _currentStep = 1;
+      });
+    }
+
+    _store.setPendingMessengerAuthCode(_authCodeController.text);
+    await _store.connectMessenger();
+
+    if (mounted && _store.actionWasSuccess) {
+      setState(() {
+        _currentStep = 2;
+      });
+    }
+  }
+
+  void _handleAuthCodeChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep = 0;
+      });
+      return;
+    }
+
+    setState(() {});
   }
 }

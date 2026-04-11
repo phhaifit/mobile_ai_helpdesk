@@ -52,7 +52,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> connectMessenger() async {
+  Future<ActionFeedback> connectMessenger({String? authCode}) async {
     await Future.delayed(const Duration(milliseconds: 700));
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
@@ -68,7 +68,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> disconnectMessenger() async {
+  Future<ActionFeedback> disconnectMessenger({String? channelId}) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
@@ -193,9 +193,10 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
 
     return ActionFeedback(
       isSuccess: true,
-      messageKey: healthy
-          ? 'omnichannel_zalo_sync_healthy'
-          : 'omnichannel_zalo_sync_degraded',
+      messageKey:
+          healthy
+              ? 'omnichannel_zalo_sync_healthy'
+              : 'omnichannel_zalo_sync_degraded',
     );
   }
 

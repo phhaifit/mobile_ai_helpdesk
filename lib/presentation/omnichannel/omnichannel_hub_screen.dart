@@ -486,13 +486,21 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
                                     return;
                                   }
 
-                                  await _store.connectMessenger();
+                                  Navigator.of(dialogContext).pop();
                                   if (!dialogContext.mounted) {
                                     return;
                                   }
-                                  if (_store.actionWasSuccess) {
-                                    Navigator.of(dialogContext).pop();
+
+                                  await Navigator.pushNamed(
+                                    dialogContext,
+                                    Routes.messengerOauthStatus,
+                                  );
+
+                                  if (!mounted) {
+                                    return;
                                   }
+
+                                  await _store.fetchOverview();
                                 },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size.fromHeight(52),
