@@ -21,8 +21,83 @@ class Endpoints {
 
   // Playground endpoints (stubs — mock data served locally)
   static String playgroundSessions() => '/api/playground/sessions';
-  static String playgroundSession(String id) =>
-      '/api/playground/sessions/$id';
+  static String playgroundSession(String id) => '/api/playground/sessions/$id';
   static String playgroundMessages(String sessionId) =>
       '/api/playground/sessions/$sessionId/messages';
+
+  // Marketing/Broadcasting endpoints (Phase A contract baseline)
+  // Templates
+  static String marketingTemplates() => '/api/marketing/templates';
+  static String marketingTemplate(String id) => '/api/marketing/templates/$id';
+  static String marketingTemplateSearch() => '/api/marketing/templates/search';
+
+  // Marketing/Broadcasting endpoints (Phase C backend aligned)
+  static String marketingV1BroadcastTemplates() =>
+      '/api/v1/marketing/templates';
+  static String marketingV1BroadcastTemplate(String id) =>
+      '/api/v1/marketing/templates/$id';
+
+  static String marketingV1Broadcasts() => '/api/v1/marketing/broadcasts';
+  static String marketingV1Broadcast(String id) =>
+      '/api/v1/marketing/broadcasts/$id';
+  static String marketingV1BroadcastExecute(String id) =>
+      '/api/v1/marketing/broadcasts/$id/execute';
+  static String marketingV1BroadcastStop(String id) =>
+      '/api/v1/marketing/broadcasts/$id/stop';
+  static String marketingV1BroadcastResume(String id) =>
+      '/api/v1/marketing/broadcasts/$id/resume';
+  static String marketingV1BroadcastRecipients(String id) =>
+      '/api/v1/marketing/broadcasts/$id/recipients';
+  static String marketingV1BroadcastReceipts(String id) =>
+      '/api/v1/marketing/broadcasts/$id/receipts';
+
+  static String marketingV1FacebookAdminAccounts() =>
+      '/api/v1/marketing/facebook-admin/accounts';
+
+  // Campaigns
+  static String marketingCampaigns() => '/api/marketing/campaigns';
+  static String marketingCampaign(String id) => '/api/marketing/campaigns/$id';
+  static String marketingCampaignStart(String id) =>
+      '/api/marketing/campaigns/$id/start';
+  static String marketingCampaignStop(String id) =>
+      '/api/marketing/campaigns/$id/stop';
+  static String marketingCampaignResume(String id) =>
+      '/api/marketing/campaigns/$id/resume';
+
+  // Audience / recipient resolution
+  static String marketingAudienceEstimate() =>
+      '/api/marketing/audience/estimate';
+  static String marketingAudienceResolve() => '/api/marketing/audience/resolve';
+
+  // Facebook admin
+  static String marketingFacebookConnect() =>
+      '/api/marketing/facebook-admin/connect';
+  static String marketingFacebookDisconnect() =>
+      '/api/marketing/facebook-admin/disconnect';
+  static String marketingFacebookReauth() =>
+      '/api/marketing/facebook-admin/reauth';
+  static String marketingFacebookPages() =>
+      '/api/marketing/facebook-admin/pages';
+  static String marketingFacebookSelectPage() =>
+      '/api/marketing/facebook-admin/select-page';
+
+  // Delivery receipts / status timeline
+  static String marketingDeliveryReceipts(String campaignId) =>
+      '/api/marketing/campaigns/$campaignId/receipts';
+  static String marketingCampaignStatusTimeline(String campaignId) =>
+      '/api/marketing/campaigns/$campaignId/status-timeline';
+
+  // Realtime
+  static String marketingCampaignStatusSse(String campaignId) =>
+      '/api/marketing/campaigns/$campaignId/events';
+
+  static Uri marketingCampaignStatusWsUri(String campaignId) {
+    final base = Uri.parse(baseUrl);
+    final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
+    return base.replace(
+      scheme: wsScheme,
+      path: '/ws/marketing/campaigns/$campaignId/status',
+      query: '',
+    );
+  }
 }
