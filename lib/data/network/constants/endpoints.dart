@@ -3,8 +3,8 @@ import '/constants/env.dart';
 class Endpoints {
   Endpoints._();
 
-  // base url — sourced from EnvConfig
-  static String get baseUrl => EnvConfig.instance.baseUrl;
+  // base url — sourced from EnvConfig with dart-define override support
+  static String get baseUrl => EnvConfig.getResolvedBaseUrl();
 
   // receiveTimeout — sourced from EnvConfig
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;

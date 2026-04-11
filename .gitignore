@@ -126,6 +126,11 @@ app.*.symbols
 .swiftpm/
 migrate_working_dir/
 
+# Environment configuration (local overrides)
+.env
+.env.local
+.env.*.local
+
 # IntelliJ related
 *.iml
 *.ipr

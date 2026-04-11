@@ -1,17 +1,17 @@
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/campaign_id_params.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/campaign_id_params.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'marketing_store.g.dart';
@@ -145,10 +145,13 @@ abstract class _MarketingStore with Store {
   bool get isSubmitting => actionFuture?.status == FutureStatus.pending;
 
   @computed
-  List<MarketingTemplate> get filteredTemplates => templates.where((t) {
-        final matchesSearch = templateSearchQuery.isEmpty ||
+  List<MarketingTemplate> get filteredTemplates =>
+      templates.where((t) {
+        final matchesSearch =
+            templateSearchQuery.isEmpty ||
             t.name.toLowerCase().contains(templateSearchQuery.toLowerCase());
-        final matchesCategory = templateFilterCategory == null ||
+        final matchesCategory =
+            templateFilterCategory == null ||
             t.category == templateFilterCategory;
         return matchesSearch && matchesCategory;
       }).toList();
@@ -158,8 +161,7 @@ abstract class _MarketingStore with Store {
       campaigns.where((c) => c.status == CampaignStatus.running).length;
 
   @computed
-  int get totalSentCount =>
-      campaigns.fold(0, (sum, c) => sum + c.sentCount);
+  int get totalSentCount => campaigns.fold(0, (sum, c) => sum + c.sentCount);
 
   // --- Actions: fetch ---
   @action
@@ -186,9 +188,7 @@ abstract class _MarketingStore with Store {
   @action
   Future<void> fetchCampaigns() async {
     errorMessage = null;
-    final future = ObservableFuture(
-      _getCampaignsUseCase.call(params: null),
-    );
+    final future = ObservableFuture(_getCampaignsUseCase.call(params: null));
     actionFuture = future;
     try {
       final result = await future;
@@ -203,9 +203,7 @@ abstract class _MarketingStore with Store {
   @action
   Future<void> fetchTemplates() async {
     errorMessage = null;
-    final future = ObservableFuture(
-      _getTemplatesUseCase.call(params: null),
-    );
+    final future = ObservableFuture(_getTemplatesUseCase.call(params: null));
     actionFuture = future;
     try {
       final result = await future;
@@ -307,7 +305,9 @@ abstract class _MarketingStore with Store {
       createdAt: DateTime.now(),
     );
     final future = ObservableFuture(
-      _createCampaignUseCase.call(params: CreateCampaignParams(campaign: campaign)),
+      _createCampaignUseCase.call(
+        params: CreateCampaignParams(campaign: campaign),
+      ),
     );
     actionFuture = future;
     try {
@@ -395,7 +395,9 @@ abstract class _MarketingStore with Store {
       estimatedCount: 0,
     );
     final future = ObservableFuture(
-      _estimateAudienceUseCase.call(params: EstimateAudienceParams(target: target)),
+      _estimateAudienceUseCase.call(
+        params: EstimateAudienceParams(target: target),
+      ),
     );
     actionFuture = future;
     try {
@@ -412,7 +414,9 @@ abstract class _MarketingStore with Store {
     errorMessage = null;
     final future = ObservableFuture(
       _connectFacebookAdminUseCase.call(
-        params: ConnectFacebookAdminParams(accessToken: facebookAccessTokenDraft),
+        params: ConnectFacebookAdminParams(
+          accessToken: facebookAccessTokenDraft,
+        ),
       ),
     );
     actionFuture = future;

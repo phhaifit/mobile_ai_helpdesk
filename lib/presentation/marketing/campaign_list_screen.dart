@@ -377,7 +377,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
         final end = (start + _rowsPerPage).clamp(0, all.length);
         final paged = all.sublist(start, end);
 
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
