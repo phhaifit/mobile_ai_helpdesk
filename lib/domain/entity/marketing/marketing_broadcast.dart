@@ -205,6 +205,7 @@ class FacebookAdAccount {
   final String? pageName;
   final String? status;
   final DateTime? connectedAt;
+  final DateTime? tokenExpiresAt;
 
   const FacebookAdAccount({
     required this.id,
@@ -214,7 +215,16 @@ class FacebookAdAccount {
     this.pageName,
     this.status,
     this.connectedAt,
+    this.tokenExpiresAt,
   });
+}
+
+class FacebookPage {
+  final String id;
+  final String name;
+  final bool? isSelected;
+
+  const FacebookPage({required this.id, required this.name, this.isSelected});
 }
 
 class FacebookAdminAccountCreateData {

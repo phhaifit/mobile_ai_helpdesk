@@ -46,8 +46,8 @@ class Endpoints {
       '/api/v1/marketing/broadcasts/$id/stop';
   static String marketingV1BroadcastResume(String id) =>
       '/api/v1/marketing/broadcasts/$id/resume';
-  static String marketingV1BroadcastRecipients(String id) =>
-      '/api/v1/marketing/broadcasts/$id/recipients';
+  static String marketingV1BroadcastRecipients() =>
+      '/api/v1/marketing/broadcasts/recipients';
   static String marketingV1BroadcastReceipts(String id) =>
       '/api/v1/marketing/broadcasts/$id/receipts';
   static String marketingV1BroadcastStatusTimeline(String id) =>
@@ -56,7 +56,19 @@ class Endpoints {
       '/api/v1/marketing/broadcasts/$id/events';
 
   static String marketingV1FacebookAdminAccounts() =>
-      '/api/v1/marketing/facebook-admin/accounts';
+      '/api/v1/marketing/ad-accounts';
+  static String marketingV1FacebookAdminAccountsFetch() =>
+      '/api/v1/marketing/ad-accounts/fetch';
+  static String marketingV1FacebookAdminAccount(String id) =>
+      '/api/v1/marketing/facebook-admin/accounts/$id';
+  static String marketingV1FacebookAdminDisconnect(String id) =>
+      '/api/v1/marketing/facebook-admin/accounts/$id/disconnect';
+  static String marketingV1FacebookAdminReauth(String id) =>
+      '/api/v1/marketing/facebook-admin/accounts/$id/reauth';
+  static String marketingV1FacebookAdminPages(String id) =>
+      '/api/v1/marketing/facebook-admin/accounts/$id/pages';
+  static String marketingV1FacebookAdminSelectPage(String id) =>
+      '/api/v1/marketing/facebook-admin/accounts/$id/select-page';
 
   // Campaigns
   static String marketingCampaigns() => '/api/marketing/campaigns';

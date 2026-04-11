@@ -190,6 +190,54 @@ class MarketingBroadcastRepositoryImpl implements MarketingBroadcastRepository {
     });
   }
 
+  @override
+  Future<bool> disconnectFacebookAdminAccount(String accountId) {
+    return _execute(() async {
+      final response = await _api.disconnectFacebookAdminAccount(accountId);
+      return _extractBool(response, const [
+        'success',
+        'isSuccess',
+        'disconnected',
+      ], fallback: true);
+    });
+  }
+
+  @override
+  Future<FacebookAdAccount> reauthFacebookAdminAccount({
+    required String accountId,
+    required String accessToken,
+  }) {
+    return _execute(() async {
+      final response = await _api.reauthFacebookAdminAccount(
+        accountId: accountId,
+        accessToken: accessToken,
+      );
+      return _mapFacebookAccount(_extractPayloadMap(response));
+    });
+  }
+
+  @override
+  Future<List<FacebookPage>> getFacebookAdminPages(String accountId) {
+    return _execute(() async {
+      final response = await _api.getFacebookAdminPages(accountId);
+      return response.map(_mapFacebookPage).toList();
+    });
+  }
+
+  @override
+  Future<FacebookAdAccount> selectFacebookAdminPage({
+    required String accountId,
+    required String pageId,
+  }) {
+    return _execute(() async {
+      final response = await _api.selectFacebookAdminPage(
+        accountId: accountId,
+        pageId: pageId,
+      );
+      return _mapFacebookAccount(_extractPayloadMap(response));
+    });
+  }
+
   Future<T> _execute<T>(Future<T> Function() action) async {
     try {
       return await action();
@@ -347,6 +395,21 @@ class MarketingBroadcastRepositoryImpl implements MarketingBroadcastRepository {
       pageName: _extractNullableString(raw, const ['pageName']),
       status: _extractNullableString(raw, const ['status']),
       connectedAt: _extractDateTime(raw, const ['connectedAt', 'connected_at']),
+      tokenExpiresAt: _extractDateTime(raw, const [
+        'tokenExpiresAt',
+        'token_expires_at',
+      ]),
+    );
+  }
+
+  FacebookPage _mapFacebookPage(Map<String, dynamic> raw) {
+    return FacebookPage(
+      id: _extractString(raw, const ['id', '_id', 'pageId']),
+      name: _extractString(raw, const ['name', 'pageName']),
+      isSelected: _extractBool(raw, const [
+        'isSelected',
+        'selected',
+      ], fallback: false),
     );
   }
 

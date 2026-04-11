@@ -473,6 +473,7 @@
   "marketing_success_campaign_created": "Tạo chiến dịch thành công.",
   "marketing_success_template_saved": "Lưu template thành công.",
   "marketing_success_template_deleted": "Xóa template thành công.",
+  "marketing_error_facebook_not_connected": "Hãy kết nối Facebook Admin và chọn trang trước khi bắt đầu chiến dịch.",
   "marketing_success_facebook_connected": "Kết nối Facebook Admin thành công.",
   "marketing_success_facebook_disconnected": "Đã ngắt kết nối Facebook Admin.",
   "marketing_tv_template_content_hint": "Dùng {{biến}} để thêm giá trị động",

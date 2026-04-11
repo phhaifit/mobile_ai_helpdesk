@@ -157,16 +157,17 @@ class MarketingBroadcastApi {
   Future<Map<String, dynamic>> getBroadcastRecipients({
     required BroadcastRecipientsQuery query,
   }) async {
-    final response = await _dioClient.dio.get(
-      Endpoints.marketingV1BroadcastRecipients(query.broadcastId),
-      queryParameters: {
-        if (_hasText(query.filter.segmentValue))
-          'segmentValue': query.filter.segmentValue,
-        if (_hasText(query.filter.channel)) 'channel': query.filter.channel,
-        if (query.filter.tagValues.isNotEmpty)
-          'tagValues': query.filter.tagValues,
-        'offset': query.offset,
-        'limit': query.limit,
+    final response = await _dioClient.dio.post(
+      Endpoints.marketingV1BroadcastRecipients(),
+      data: {
+        'broadcastId': query.broadcastId,
+        'filters': {
+          if (_hasText(query.filter.segmentValue))
+            'segmentValue': query.filter.segmentValue,
+          if (_hasText(query.filter.channel)) 'channel': query.filter.channel,
+          if (query.filter.tagValues.isNotEmpty)
+            'tagValues': query.filter.tagValues,
+        },
       },
     );
     return _asMap(response.data);
@@ -202,6 +203,46 @@ class MarketingBroadcastApi {
         if (_hasText(data.pageId)) 'pageId': data.pageId,
         if (_hasText(data.pageName)) 'pageName': data.pageName,
       },
+    );
+    return _asMap(response.data);
+  }
+
+  Future<Map<String, dynamic>> disconnectFacebookAdminAccount(
+    String accountId,
+  ) async {
+    final response = await _dioClient.dio.post(
+      Endpoints.marketingV1FacebookAdminDisconnect(accountId),
+    );
+    return _asMap(response.data);
+  }
+
+  Future<Map<String, dynamic>> reauthFacebookAdminAccount({
+    required String accountId,
+    required String accessToken,
+  }) async {
+    final response = await _dioClient.dio.post(
+      Endpoints.marketingV1FacebookAdminReauth(accountId),
+      data: {'accessToken': accessToken},
+    );
+    return _asMap(response.data);
+  }
+
+  Future<List<Map<String, dynamic>>> getFacebookAdminPages(
+    String accountId,
+  ) async {
+    final response = await _dioClient.dio.get(
+      Endpoints.marketingV1FacebookAdminPages(accountId),
+    );
+    return _asMapList(response.data);
+  }
+
+  Future<Map<String, dynamic>> selectFacebookAdminPage({
+    required String accountId,
+    required String pageId,
+  }) async {
+    final response = await _dioClient.dio.post(
+      Endpoints.marketingV1FacebookAdminSelectPage(accountId),
+      data: {'pageId': pageId},
     );
     return _asMap(response.data);
   }

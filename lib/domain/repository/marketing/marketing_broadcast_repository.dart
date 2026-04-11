@@ -53,4 +53,18 @@ abstract class MarketingBroadcastRepository {
   Future<FacebookAdAccount> createFacebookAdminAccount(
     FacebookAdminAccountCreateData data,
   );
+
+  Future<bool> disconnectFacebookAdminAccount(String accountId);
+
+  Future<FacebookAdAccount> reauthFacebookAdminAccount({
+    required String accountId,
+    required String accessToken,
+  });
+
+  Future<List<FacebookPage>> getFacebookAdminPages(String accountId);
+
+  Future<FacebookAdAccount> selectFacebookAdminPage({
+    required String accountId,
+    required String pageId,
+  });
 }

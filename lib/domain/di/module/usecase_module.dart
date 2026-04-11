@@ -44,6 +44,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_facebook_admin_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/delete_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/delete_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/disconnect_facebook_admin_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/execute_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_detail_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_recipients_usecase.dart';
@@ -52,7 +53,10 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_tem
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcasts_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_delivery_receipts_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_facebook_admin_accounts_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_facebook_admin_pages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/reauth_facebook_admin_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/resume_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/select_facebook_admin_page_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
@@ -285,6 +289,20 @@ class UseCaseModule {
     );
     getIt.registerSingleton<CreateFacebookAdminAccountUseCase>(
       CreateFacebookAdminAccountUseCase(getIt<MarketingBroadcastRepository>()),
+    );
+    getIt.registerSingleton<DisconnectFacebookAdminAccountUseCase>(
+      DisconnectFacebookAdminAccountUseCase(
+        getIt<MarketingBroadcastRepository>(),
+      ),
+    );
+    getIt.registerSingleton<ReauthFacebookAdminAccountUseCase>(
+      ReauthFacebookAdminAccountUseCase(getIt<MarketingBroadcastRepository>()),
+    );
+    getIt.registerSingleton<GetFacebookAdminPagesUseCase>(
+      GetFacebookAdminPagesUseCase(getIt<MarketingBroadcastRepository>()),
+    );
+    getIt.registerSingleton<SelectFacebookAdminPageUseCase>(
+      SelectFacebookAdminPageUseCase(getIt<MarketingBroadcastRepository>()),
     );
 
     // --- AI Agent Use Cases ---
