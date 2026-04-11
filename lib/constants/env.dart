@@ -15,6 +15,7 @@ enum EnvConfig {
     enableLogging: true,
     enableAnalytics: true,
     enableAnalyticsDebug: true,
+    enableRealOmnichannel: false,
   ),
   staging._(
     environment: Environment.staging,
@@ -24,6 +25,7 @@ enum EnvConfig {
     enableLogging: true,
     enableAnalytics: true,
     enableAnalyticsDebug: false,
+    enableRealOmnichannel: true,
   ),
   prod._(
     environment: Environment.prod,
@@ -33,6 +35,7 @@ enum EnvConfig {
     enableLogging: false,
     enableAnalytics: true,
     enableAnalyticsDebug: false,
+    enableRealOmnichannel: true,
   );
 
   final Environment environment;
@@ -42,6 +45,7 @@ enum EnvConfig {
   final bool enableLogging;
   final bool enableAnalytics;
   final bool enableAnalyticsDebug;
+  final bool enableRealOmnichannel;
 
   const EnvConfig._({
     required this.environment,
@@ -51,9 +55,14 @@ enum EnvConfig {
     required this.enableLogging,
     required this.enableAnalytics,
     required this.enableAnalyticsDebug,
+    required this.enableRealOmnichannel,
   });
 
   static const _envName = String.fromEnvironment('ENV', defaultValue: 'dev');
+  static const _useRealOmnichannelFromDefine = bool.fromEnvironment(
+    'USE_REAL_OMNICHANNEL',
+    defaultValue: false,
+  );
   static const _sentryDsnDev = String.fromEnvironment(
     'SENTRY_DSN_DEV',
     defaultValue: '',
@@ -103,4 +112,8 @@ enum EnvConfig {
   }
 
   bool get isSentryEnabled => sentryDsn.isNotEmpty;
+
+  // The dart-define flag can force-enable real omnichannel integration.
+  bool get useRealOmnichannel =>
+      _useRealOmnichannelFromDefine || enableRealOmnichannel;
 }
