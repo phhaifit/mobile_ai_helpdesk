@@ -31,7 +31,10 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
 
       setState(() {
         _autoReply = messenger.autoReply;
-        _language = messenger.language;
+        _language =
+            _isSupportedLanguage(messenger.language)
+                ? messenger.language
+                : 'vi';
         _businessHourController.text = messenger.businessHours;
       });
     });
@@ -64,6 +67,9 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
             );
           }
 
+          final String dropdownValue =
+              _isSupportedLanguage(_language) ? _language : 'vi';
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -80,8 +86,8 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
               Text(l.translate('omnichannel_messenger_language')),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
-                key: ValueKey<String>(_language),
-                initialValue: _language,
+                key: ValueKey<String>(dropdownValue),
+                value: dropdownValue,
                 items: const [
                   DropdownMenuItem(value: 'vi', child: Text('Vietnamese')),
                   DropdownMenuItem(value: 'en', child: Text('English')),
@@ -149,5 +155,9 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
       );
       _store.clearActionMessage();
     });
+  }
+
+  bool _isSupportedLanguage(String language) {
+    return language == 'vi' || language == 'en';
   }
 }
