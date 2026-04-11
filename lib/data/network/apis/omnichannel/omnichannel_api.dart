@@ -7,6 +7,10 @@ class MessengerPageDto {
   final String name;
   final String pageId;
   final bool connected;
+  final bool? autoReply;
+  final String? language;
+  final String? businessHours;
+  final DateTime? lastSyncAt;
 
   const MessengerPageDto({
     required this.id,
@@ -14,6 +18,10 @@ class MessengerPageDto {
     required this.name,
     required this.pageId,
     required this.connected,
+    this.autoReply,
+    this.language,
+    this.businessHours,
+    this.lastSyncAt,
   });
 
   factory MessengerPageDto.fromJson(Map<String, dynamic> json) {
@@ -28,6 +36,16 @@ class MessengerPageDto {
       'page_id',
       'id',
     ]);
+    final String rawLanguage = _readString(json, const <String>[
+      'language',
+      'lang',
+      'locale',
+    ]);
+    final String rawBusinessHours = _readString(json, const <String>[
+      'businessHours',
+      'business_hours',
+      'greeting',
+    ]);
 
     return MessengerPageDto(
       id: id,
@@ -38,6 +56,18 @@ class MessengerPageDto {
         'connected',
         'isConnected',
         'is_connected',
+      ]),
+      autoReply: _readNullableBool(json, const <String>[
+        'autoReply',
+        'auto_reply',
+      ]),
+      language: rawLanguage.isEmpty ? null : rawLanguage,
+      businessHours: rawBusinessHours.isEmpty ? null : rawBusinessHours,
+      lastSyncAt: _readDateTime(json, const <String>[
+        'lastSyncAt',
+        'last_sync_at',
+        'updatedAt',
+        'updated_at',
       ]),
     );
   }
@@ -184,4 +214,56 @@ bool _readBool(Map<String, dynamic> map, List<String> keys) {
     }
   }
   return false;
+}
+
+bool? _readNullableBool(Map<String, dynamic> map, List<String> keys) {
+  for (final String key in keys) {
+    if (!map.containsKey(key)) {
+      continue;
+    }
+
+    final dynamic value = map[key];
+    if (value is bool) {
+      return value;
+    }
+    if (value is num) {
+      return value != 0;
+    }
+    if (value is String) {
+      final String normalized = value.trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1') {
+        return true;
+      }
+      if (normalized == 'false' || normalized == '0') {
+        return false;
+      }
+    }
+  }
+
+  return null;
+}
+
+DateTime? _readDateTime(Map<String, dynamic> map, List<String> keys) {
+  for (final String key in keys) {
+    final dynamic raw = map[key];
+    if (raw == null) {
+      continue;
+    }
+
+    if (raw is int) {
+      if (raw <= 0) {
+        continue;
+      }
+      return DateTime.fromMillisecondsSinceEpoch(raw);
+    }
+
+    if (raw is String) {
+      final DateTime? parsed = DateTime.tryParse(raw);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+  }
+
+  return null;
 }
