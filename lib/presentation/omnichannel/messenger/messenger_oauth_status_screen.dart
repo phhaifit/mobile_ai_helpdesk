@@ -200,7 +200,7 @@ class _MessengerOauthStatusScreenState
     }
 
     if (!hasAuthCode) {
-      _store.setPendingMessengerAuthCode(null);
+      _store.pendingMessengerAuthCode = null;
       await _store.connectMessenger();
       return;
     }
@@ -211,7 +211,7 @@ class _MessengerOauthStatusScreenState
       });
     }
 
-    _store.setPendingMessengerAuthCode(_authCodeController.text);
+    _store.pendingMessengerAuthCode = _authCodeController.text;
     await _store.connectMessenger();
 
     if (mounted && _store.actionWasSuccess) {

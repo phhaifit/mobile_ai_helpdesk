@@ -1,6 +1,12 @@
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/domain/entity/ai_agent/ai_agent.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/agent_create_edit_screen.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/agent_detail_screen.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/agent_list_screen.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/team_assistant_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/change_password/change_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/forgot_password/forgot_password_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
@@ -31,22 +37,15 @@ import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_integration_scree
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_oauth_management_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_personal_message_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/zalo/zalo_sync_status_screen.dart';
+import 'package:ai_helpdesk/presentation/playground/playground_screen.dart';
 import 'package:ai_helpdesk/presentation/prompt/private_prompt_editor_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/customer_ticket_history_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/edit_ticket_screen.dart';
 import 'package:ai_helpdesk/presentation/ticket/screens/ticket_detail_screen.dart';
-import '/domain/entity/ai_agent/ai_agent.dart';
-import '/presentation/ai_agent/agent_create_edit_screen.dart';
-import '/presentation/ai_agent/agent_detail_screen.dart';
-import '/presentation/ai_agent/agent_list_screen.dart';
-import '/presentation/ai_agent/team_assistant_screen.dart';
-import '/presentation/playground/playground_screen.dart';
+import 'package:ai_helpdesk/utils/deep_linking/utm_param_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '/domain/analytics/analytics_service.dart';
-import '/utils/deep_linking/utm_param_parser.dart';
 
 class Routes {
   Routes._();
@@ -146,9 +145,7 @@ class Routes {
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => ResetPasswordScreen(
-            email: args?['email'] as String?,
-          ),
+          builder: (_) => ResetPasswordScreen(email: args?['email'] as String?),
         );
       case main:
         return MaterialPageRoute(
@@ -188,23 +185,24 @@ class Routes {
       case ticketDetail:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) =>
-              TicketDetailScreen(ticketId: settings.arguments as String),
+          builder:
+              (_) => TicketDetailScreen(ticketId: settings.arguments as String),
         );
       case editTicket:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) =>
-              EditTicketScreen(ticket: settings.arguments as Ticket),
+          builder:
+              (_) => EditTicketScreen(ticket: settings.arguments as Ticket),
         );
       case customerHistory:
         final args = settings.arguments as Map<String, String>;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => CustomerTicketHistoryScreen(
-            customerId: args['customerId']!,
-            customerName: args['customerName']!,
-          ),
+          builder:
+              (_) => CustomerTicketHistoryScreen(
+                customerId: args['customerId']!,
+                customerName: args['customerName']!,
+              ),
         );
       case omnichannelHub:
         return MaterialPageRoute(
@@ -358,9 +356,10 @@ class Routes {
       default:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => Scaffold(
-            body: Center(child: Text('No route defined for $screenName')),
-          ),
+          builder:
+              (_) => Scaffold(
+                body: Center(child: Text('No route defined for $screenName')),
+              ),
         );
     }
   }

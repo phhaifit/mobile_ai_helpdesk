@@ -1,8 +1,10 @@
-import '/core/stores/error/error_store.dart';
 import 'package:mobx/mobx.dart';
+
+import '/core/stores/error/error_store.dart';
 
 part 'form_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class FormStore = _FormStore with _$FormStore;
 
 abstract class _FormStore with Store {
@@ -23,7 +25,7 @@ abstract class _FormStore with Store {
     _disposers = [
       reaction((_) => userEmail, validateUserEmail),
       reaction((_) => password, validatePassword),
-      reaction((_) => confirmPassword, validateConfirmPassword)
+      reaction((_) => confirmPassword, validateConfirmPassword),
     ];
   }
 
@@ -42,7 +44,9 @@ abstract class _FormStore with Store {
 
   @computed
   bool get canLogin =>
-      !formErrorStore.hasErrorsInLogin && userEmail.isNotEmpty && password.isNotEmpty;
+      !formErrorStore.hasErrorsInLogin &&
+      userEmail.isNotEmpty &&
+      password.isNotEmpty;
 
   @computed
   bool get canRegister =>
@@ -57,16 +61,19 @@ abstract class _FormStore with Store {
 
   // actions:-------------------------------------------------------------------
   @action
+  // ignore: use_setters_to_change_properties
   void setUserId(String value) {
     userEmail = value;
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void setPassword(String value) {
     password = value;
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void setConfirmPassword(String value) {
     confirmPassword = value;
   }
@@ -87,7 +94,7 @@ abstract class _FormStore with Store {
     if (value.isEmpty) {
       formErrorStore.password = "Password can't be empty";
     } else if (value.length < 6) {
-      formErrorStore.password = "Password must be at-least 6 characters long";
+      formErrorStore.password = 'Password must be at-least 6 characters long';
     } else {
       formErrorStore.password = null;
     }
@@ -98,7 +105,7 @@ abstract class _FormStore with Store {
     if (value.isEmpty) {
       formErrorStore.confirmPassword = "Confirm password can't be empty";
     } else if (value != password) {
-      formErrorStore.confirmPassword = "Password doesn't match";
+      formErrorStore.confirmPassword = 'Password doesn\'t match';
     } else {
       formErrorStore.confirmPassword = null;
     }
@@ -117,6 +124,7 @@ abstract class _FormStore with Store {
   }
 }
 
+// ignore: library_private_types_in_public_api
 class FormErrorStore = _FormErrorStore with _$FormErrorStore;
 
 abstract class _FormErrorStore with Store {

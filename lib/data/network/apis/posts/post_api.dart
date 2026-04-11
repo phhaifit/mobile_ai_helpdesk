@@ -16,19 +16,18 @@ class PostApi {
       final res = await _dioClient.dio.get(Endpoints.getPosts);
       return PostList.fromJson(res.data as List<dynamic>);
     } catch (e) {
-      print(e.toString());
-      throw e;
+      rethrow;
     }
   }
 
   /// sample api call with default rest client
-//   Future<PostList> getPosts() async {
-//     try {
-//       final res = await _restClient.get(Endpoints.getPosts);
-//       return PostList.fromJson(res.data);
-//     } catch (e) {
-//       print(e.toString());
-//       throw e;
-//     }
-//   }
+  //   Future<PostList> getPosts() async {
+  //     try {
+  //       final res = await _restClient.get(Endpoints.getPosts);
+  //       return PostList.fromJson(res.data);
+  //     } catch (e) {
+  //       print(e.toString());
+  //       throw e;
+  //     }
+  //   }
 }

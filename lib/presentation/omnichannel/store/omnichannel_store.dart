@@ -13,6 +13,7 @@ import 'package:mobx/mobx.dart';
 
 part 'omnichannel_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class OmnichannelStore = _OmnichannelStore with _$OmnichannelStore;
 
 abstract class _OmnichannelStore with Store {
@@ -90,7 +91,7 @@ abstract class _OmnichannelStore with Store {
     );
   }
 
-  void setPendingMessengerAuthCode(String? authCode) {
+  set pendingMessengerAuthCode(String? authCode) {
     _pendingMessengerAuthCode = authCode;
   }
 
