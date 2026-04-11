@@ -298,7 +298,7 @@ packages:
     source: hosted
     version: "4.5.0"
   firebase_core_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: firebase_core_platform_interface
       sha256: cccb4f572325dc14904c02fcc7db6323ad62ba02536833dddb5c02cac7341c64
@@ -452,15 +452,15 @@ packages:
       sha256: "178d74305e7866013777bab2c3d8726205dc5a4dd935297175b19a23a2e66571"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.2"
+    version: "4.1.2"https://github.com/phhaifit/mobile_ai_helpdesk/pull/67/conflict?name=pubspec.lock&ancestor_oid=bbb53292add05dc094f55bb0895e3cedb99cf7f0&base_oid=a285dcd80cec15d2fc5ce4acf555d9b1288a07f7&head_oid=846b20a65ab5f54c2ef96abd7cf28228e4dab64e
   idb_shim:
     dependency: transitive
     description:
       name: idb_shim
-      sha256: "62b37b2415074f3c104e93b22c3ef24c4adc52890e74c30ed36a09dd0948a2de"
+      sha256: "6cd94b71a33f1223b01ea2b359c3a6fde5980872b23b31d176a64c74d4dede57"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.5+1"
+    version: "2.8.5+2"
   intl:
     dependency: transitive
     description:
