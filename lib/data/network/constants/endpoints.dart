@@ -50,6 +50,10 @@ class Endpoints {
       '/api/v1/marketing/broadcasts/$id/recipients';
   static String marketingV1BroadcastReceipts(String id) =>
       '/api/v1/marketing/broadcasts/$id/receipts';
+  static String marketingV1BroadcastStatusTimeline(String id) =>
+      '/api/v1/marketing/broadcasts/$id/status-timeline';
+  static String marketingV1BroadcastStatusSse(String id) =>
+      '/api/v1/marketing/broadcasts/$id/events';
 
   static String marketingV1FacebookAdminAccounts() =>
       '/api/v1/marketing/facebook-admin/accounts';
@@ -90,6 +94,16 @@ class Endpoints {
   // Realtime
   static String marketingCampaignStatusSse(String campaignId) =>
       '/api/marketing/campaigns/$campaignId/events';
+
+  static Uri marketingV1BroadcastStatusWsUri(String broadcastId) {
+    final base = Uri.parse(baseUrl);
+    final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
+    return base.replace(
+      scheme: wsScheme,
+      path: '/ws/v1/marketing/broadcasts/$broadcastId/status',
+      query: '',
+    );
+  }
 
   static Uri marketingCampaignStatusWsUri(String campaignId) {
     final base = Uri.parse(baseUrl);
