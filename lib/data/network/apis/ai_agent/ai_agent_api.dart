@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-
 import '/core/data/network/dio/dio_client.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/models/request/update_ai_agent_request.dart';

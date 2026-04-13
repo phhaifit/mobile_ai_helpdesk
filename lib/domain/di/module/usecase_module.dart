@@ -67,12 +67,6 @@ import '/domain/usecase/playground/get_draft_response_usecase.dart';
 import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
 import '/domain/usecase/playground/stream_draft_response_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
-
 import '../../../di/service_locator.dart';
 
 class UseCaseModule {

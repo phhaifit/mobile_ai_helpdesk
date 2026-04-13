@@ -90,7 +90,11 @@ class PlaygroundApi {
                 },
               );
         })
-        .catchError(controller.addError);
+        .catchError((e, st) {
+          // ensure types match StreamController.addError(Object, [StackTrace?])
+          controller.addError(e as Object, st as StackTrace?);
+          return null;
+        });
 
     return controller.stream;
   }
