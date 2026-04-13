@@ -61,7 +61,8 @@ class PlaygroundApi {
         )
         .then((response) {
           response.data!.stream
-              .transform(const Utf8Decoder())
+              .cast<List<int>>()
+              .transform(utf8.decoder)
               .transform(const LineSplitter())
               .listen(
                 (line) {

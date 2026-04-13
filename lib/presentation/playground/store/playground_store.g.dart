@@ -100,6 +100,60 @@ mixin _$PlaygroundStore on _PlaygroundStore, Store {
     });
   }
 
+  late final _$draftResponseAtom = Atom(
+    name: '_PlaygroundStore.draftResponse',
+    context: context,
+  );
+
+  @override
+  String get draftResponse {
+    _$draftResponseAtom.reportRead();
+    return super.draftResponse;
+  }
+
+  @override
+  set draftResponse(String value) {
+    _$draftResponseAtom.reportWrite(value, super.draftResponse, () {
+      super.draftResponse = value;
+    });
+  }
+
+  late final _$isDraftLoadingAtom = Atom(
+    name: '_PlaygroundStore.isDraftLoading',
+    context: context,
+  );
+
+  @override
+  bool get isDraftLoading {
+    _$isDraftLoadingAtom.reportRead();
+    return super.isDraftLoading;
+  }
+
+  @override
+  set isDraftLoading(bool value) {
+    _$isDraftLoadingAtom.reportWrite(value, super.isDraftLoading, () {
+      super.isDraftLoading = value;
+    });
+  }
+
+  late final _$isDraftStreamingAtom = Atom(
+    name: '_PlaygroundStore.isDraftStreaming',
+    context: context,
+  );
+
+  @override
+  bool get isDraftStreaming {
+    _$isDraftStreamingAtom.reportRead();
+    return super.isDraftStreaming;
+  }
+
+  @override
+  set isDraftStreaming(bool value) {
+    _$isDraftStreamingAtom.reportWrite(value, super.isDraftStreaming, () {
+      super.isDraftStreaming = value;
+    });
+  }
+
   late final _$fetchSessionsAsyncAction = AsyncAction(
     '_PlaygroundStore.fetchSessions',
     context: context,
@@ -137,6 +191,18 @@ mixin _$PlaygroundStore on _PlaygroundStore, Store {
   }) {
     return _$sendMessageAsyncAction.run(
       () => super.sendMessage(content, attachments: attachments),
+    );
+  }
+
+  late final _$fetchDraftResponseAsyncAction = AsyncAction(
+    '_PlaygroundStore.fetchDraftResponse',
+    context: context,
+  );
+
+  @override
+  Future<void> fetchDraftResponse(DraftResponseParams params) {
+    return _$fetchDraftResponseAsyncAction.run(
+      () => super.fetchDraftResponse(params),
     );
   }
 
@@ -194,12 +260,39 @@ mixin _$PlaygroundStore on _PlaygroundStore, Store {
   }
 
   @override
+  void startDraftStream(DraftResponseParams params) {
+    final _$actionInfo = _$_PlaygroundStoreActionController.startAction(
+      name: '_PlaygroundStore.startDraftStream',
+    );
+    try {
+      return super.startDraftStream(params);
+    } finally {
+      _$_PlaygroundStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cancelDraftStream() {
+    final _$actionInfo = _$_PlaygroundStoreActionController.startAction(
+      name: '_PlaygroundStore.cancelDraftStream',
+    );
+    try {
+      return super.cancelDraftStream();
+    } finally {
+      _$_PlaygroundStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 fetchSessionsFuture: ${fetchSessionsFuture},
 sessions: ${sessions},
 activeSession: ${activeSession},
 isStreaming: ${isStreaming},
+draftResponse: ${draftResponse},
+isDraftLoading: ${isDraftLoading},
+isDraftStreaming: ${isDraftStreaming},
 isLoadingSessions: ${isLoadingSessions},
 messages: ${messages}
     ''';
