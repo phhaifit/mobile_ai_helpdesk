@@ -33,6 +33,19 @@ class SharedPreferenceHelper {
     return _sharedPreference.setBool(Preferences.isLoggedIn, value);
   }
 
+  // Tenant:--------------------------------------------------------------------
+  Future<String?> get tenantId async {
+    return _sharedPreference.getString(Preferences.tenantId);
+  }
+
+  Future<bool> saveTenantId(String id) async {
+    return _sharedPreference.setString(Preferences.tenantId, id);
+  }
+
+  Future<bool> removeTenantId() async {
+    return _sharedPreference.remove(Preferences.tenantId);
+  }
+
   // Theme:---------------------------------------------------------------------
   bool get isDarkMode {
     return _sharedPreference.getBool(Preferences.isDarkMode) ?? false;

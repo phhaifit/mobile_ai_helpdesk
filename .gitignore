@@ -159,3 +159,6 @@ ticket_widget_trees.md
 pubspec.yaml
 testplan.md
 plan-ai-agent-playground.md
+
+# Local planning docs
+docs/tasklist-api-integration-ai-agent.md

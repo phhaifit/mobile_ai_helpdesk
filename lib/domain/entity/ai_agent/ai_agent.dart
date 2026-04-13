@@ -16,16 +16,30 @@ class AiAgent {
   final String? teamId;
   final DateTime createdAt;
 
+  // API configuration fields (from UpdateAiAgentDto)
+  final String? toneOfAI;
+  final String? language;
+  final bool? includeReference;
+  final bool? autoResponse;
+  final bool? autoDraftResponse;
+  final bool? enableTemplate;
+
   const AiAgent({
     required this.id,
     required this.name,
     required this.description,
-    this.avatarUrl,
     required this.mode,
     required this.platforms,
     required this.workflows,
-    this.teamId,
     required this.createdAt,
+    this.avatarUrl,
+    this.teamId,
+    this.toneOfAI,
+    this.language,
+    this.includeReference,
+    this.autoResponse,
+    this.autoDraftResponse,
+    this.enableTemplate,
   });
 
   factory AiAgent.fromJson(Map<String, dynamic> json) =>
@@ -43,6 +57,12 @@ class AiAgent {
     List<String>? workflows,
     String? teamId,
     DateTime? createdAt,
+    String? toneOfAI,
+    String? language,
+    bool? includeReference,
+    bool? autoResponse,
+    bool? autoDraftResponse,
+    bool? enableTemplate,
   }) =>
       AiAgent(
         id: id ?? this.id,
@@ -54,5 +74,11 @@ class AiAgent {
         workflows: workflows ?? this.workflows,
         teamId: teamId ?? this.teamId,
         createdAt: createdAt ?? this.createdAt,
+        toneOfAI: toneOfAI ?? this.toneOfAI,
+        language: language ?? this.language,
+        includeReference: includeReference ?? this.includeReference,
+        autoResponse: autoResponse ?? this.autoResponse,
+        autoDraftResponse: autoDraftResponse ?? this.autoDraftResponse,
+        enableTemplate: enableTemplate ?? this.enableTemplate,
       );
 }
