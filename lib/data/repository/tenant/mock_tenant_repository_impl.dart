@@ -103,4 +103,46 @@ class MockTenantRepositoryImpl implements TenantRepository {
     _tenants.removeAt(index);
     return true;
   }
+
+  @override
+  Future<TenantSettings> getTenantSettings(String tenantId) async {
+    await _delay(320);
+    final tenant = await getTenantById(tenantId);
+    if (tenant == null) {
+      throw StateError('Tenant not found: $tenantId');
+    }
+    return tenant.settings;
+  }
+
+  @override
+  Future<TenantSettings> updateTenantSettings({
+    required String tenantId,
+    required bool autoResolutionEnabled,
+    required int autoResolutionTimeoutHours,
+  }) async {
+    await _delay(420);
+    final index = _tenants.indexWhere((t) => t.id == tenantId);
+    if (index == -1) {
+      throw StateError('Tenant not found: $tenantId');
+    }
+
+    final tenant = _tenants[index];
+    final updatedSettings = TenantSettings(
+      allowInvitations: tenant.settings.allowInvitations,
+      defaultRole: tenant.settings.defaultRole,
+      enableAuditLog: tenant.settings.enableAuditLog,
+      autoResolutionEnabled: autoResolutionEnabled,
+      autoResolutionTimeoutHours: autoResolutionTimeoutHours,
+    );
+
+    _tenants[index] = Tenant(
+      id: tenant.id,
+      name: tenant.name,
+      slug: tenant.slug,
+      settings: updatedSettings,
+      createdAt: tenant.createdAt,
+    );
+
+    return updatedSettings;
+  }
 }

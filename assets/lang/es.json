@@ -50,5 +50,10 @@
   "playground_session_label": "Sesión",
   "common_try_again": "Intentar de nuevo",
   "common_error_loading": "Error al cargar datos.",
-  "playground_ai_typing": "La IA está escribiendo..."
+  "playground_ai_typing": "La IA está escribiendo...",
+  "tenant_info_auto_resolution_timeout_label": "Tiempo de auto-resolución (horas)",
+  "tenant_info_auto_resolution_timeout_hint": "Ingresa el número de horas (p. ej. 24)",
+  "tenant_info_msg_auto_resolution_invalid_timeout": "El tiempo debe ser un número positivo de horas.",
+  "tenant_info_msg_auto_resolution_updated": "La configuración de auto-resolución se actualizó correctamente.",
+  "tenant_info_msg_auto_resolution_failed": "No se pudo actualizar la configuración de auto-resolución."
 }

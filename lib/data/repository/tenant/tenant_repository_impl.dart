@@ -1,5 +1,6 @@
 import '/data/network/apis/tenant/tenant_api.dart';
 import '/domain/entity/tenant/tenant.dart';
+import '/domain/entity/tenant_settings/tenant_settings.dart';
 import '/domain/repository/tenant/tenant_repository.dart';
 
 class TenantRepositoryImpl implements TenantRepository {
@@ -24,4 +25,24 @@ class TenantRepositoryImpl implements TenantRepository {
 
   @override
   Future<bool> deleteTenant(String id) => _tenantApi.deleteTenant(id);
+
+  @override
+  Future<TenantSettings> getTenantSettings(String tenantId) {
+    return _tenantApi.getTenantSettings(tenantId);
+  }
+
+  @override
+  Future<TenantSettings> updateTenantSettings({
+    required String tenantId,
+    required bool autoResolutionEnabled,
+    required int autoResolutionTimeoutHours,
+  }) {
+    return _tenantApi.updateTenantSettings(
+      tenantId: tenantId,
+      payload: {
+        'autoResolutionEnabled': autoResolutionEnabled,
+        'autoResolutionTimeoutHours': autoResolutionTimeoutHours,
+      },
+    );
+  }
 }

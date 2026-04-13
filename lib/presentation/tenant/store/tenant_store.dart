@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/entity/tenant/tenant.dart';
+import 'package:ai_helpdesk/domain/entity/tenant_settings/tenant_settings.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:mobx/mobx.dart';
 
@@ -23,6 +24,14 @@ abstract class _TenantStore with Store {
 
   @observable
   bool isLoading = false;
+
+  void _syncCurrentTenant(Tenant tenant) {
+    final index = tenantList.indexWhere((item) => item.id == tenant.id);
+    if (index >= 0) {
+      tenantList[index] = tenant;
+    }
+    currentTenant = tenant;
+  }
 
   @action
   Future<void> loadTenants() async {
@@ -114,6 +123,72 @@ abstract class _TenantStore with Store {
         tenantList[index] = updated;
       }
       currentTenant = updated;
+      return true;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  Future<void> refreshAutoResolutionSettings() async {
+    final tenant = currentTenant;
+    if (tenant == null) {
+      return;
+    }
+
+    isLoading = true;
+    try {
+      final settings = await _tenantRepository.getTenantSettings(tenant.id);
+      _syncCurrentTenant(
+        Tenant(
+          id: tenant.id,
+          name: tenant.name,
+          slug: tenant.slug,
+          settings: settings,
+          createdAt: tenant.createdAt,
+        ),
+      );
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  Future<bool> updateAutoResolutionSettings({
+    required bool enabled,
+    required int timeoutHours,
+  }) async {
+    final tenant = currentTenant;
+    if (tenant == null || timeoutHours <= 0) {
+      return false;
+    }
+
+    isLoading = true;
+    try {
+      final settings = await _tenantRepository.updateTenantSettings(
+        tenantId: tenant.id,
+        autoResolutionEnabled: enabled,
+        autoResolutionTimeoutHours: timeoutHours,
+      );
+
+      _syncCurrentTenant(
+        Tenant(
+          id: tenant.id,
+          name: tenant.name,
+          slug: tenant.slug,
+          settings: TenantSettings(
+            allowInvitations: settings.allowInvitations,
+            defaultRole: settings.defaultRole,
+            enableAuditLog: settings.enableAuditLog,
+            autoResolutionEnabled: settings.autoResolutionEnabled,
+            autoResolutionTimeoutHours: settings.autoResolutionTimeoutHours,
+          ),
+          createdAt: tenant.createdAt,
+        ),
+      );
       return true;
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());

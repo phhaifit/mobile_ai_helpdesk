@@ -27,26 +27,26 @@ class Endpoints {
       '/api/playground/sessions/$sessionId/messages';
 
   // Tenant endpoints
-  static String tenants() => '/api/tenants';
-  static String tenant(String tenantId) => '/api/tenants/$tenantId';
-  static String switchTenant(String tenantId) => '/api/tenants/$tenantId/switch';
+  static String tenants() => '/api/v1/tenants';
+  static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
+  static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
   static String tenantSettings(String tenantId) =>
-      '/api/tenants/$tenantId/settings';
+      '/api/v1/tenants/$tenantId/settings';
 
   // Team member endpoints
-  static String tenantMembers(String tenantId) => '/api/tenants/$tenantId/members';
+  static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
   static String tenantMember(String tenantId, String memberId) =>
-      '/api/tenants/$tenantId/members/$memberId';
+      '/api/v1/tenants/$tenantId/members/$memberId';
   static String tenantMemberPermissions(String tenantId, String memberId) =>
-      '/api/tenants/$tenantId/members/$memberId/permissions';
+      '/api/v1/tenants/$tenantId/members/$memberId/permissions';
 
   // Invitation endpoints
   static String tenantInvitations(String tenantId) =>
-      '/api/tenants/$tenantId/invitations';
+      '/api/v1/tenants/$tenantId/invitations';
   static String resendInvitation(String invitationId) =>
-      '/api/invitations/$invitationId/resend';
+      '/api/v1/invitations/$invitationId/resend';
   static String acceptInvitation(String invitationId) =>
-      '/api/invitations/$invitationId/accept';
+      '/api/v1/invitations/$invitationId/accept';
   static String declineInvitation(String invitationId) =>
-      '/api/invitations/$invitationId/decline';
+      '/api/v1/invitations/$invitationId/decline';
 }

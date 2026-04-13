@@ -9,6 +9,15 @@ class TenantApi {
 
   final DioClient _dioClient;
 
+  TenantSettings _parseTenantSettings(dynamic payload) {
+    final data = ApiResponseParser.asMap(payload);
+    final settings = data['settings'];
+    if (settings is Map<String, dynamic>) {
+      return TenantSettings.fromJson(settings);
+    }
+    return TenantSettings.fromJson(data);
+  }
+
   Future<List<Tenant>> getTenants() async {
     final response = await _dioClient.dio.get(Endpoints.tenants());
     final items = ApiResponseParser.asMapList(response.data);
@@ -60,7 +69,7 @@ class TenantApi {
 
   Future<TenantSettings> getTenantSettings(String tenantId) async {
     final response = await _dioClient.dio.get(Endpoints.tenantSettings(tenantId));
-    return TenantSettings.fromJson(ApiResponseParser.asMap(response.data));
+    return _parseTenantSettings(response.data);
   }
 
   Future<TenantSettings> updateTenantSettings({
@@ -71,6 +80,6 @@ class TenantApi {
       Endpoints.tenantSettings(tenantId),
       data: payload,
     );
-    return TenantSettings.fromJson(ApiResponseParser.asMap(response.data));
+    return _parseTenantSettings(response.data);
   }
 }
