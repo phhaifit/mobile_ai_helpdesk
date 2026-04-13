@@ -25,4 +25,28 @@ class Endpoints {
       '/api/playground/sessions/$id';
   static String playgroundMessages(String sessionId) =>
       '/api/playground/sessions/$sessionId/messages';
+
+  // Tenant endpoints
+  static String tenants() => '/api/tenants';
+  static String tenant(String tenantId) => '/api/tenants/$tenantId';
+  static String switchTenant(String tenantId) => '/api/tenants/$tenantId/switch';
+  static String tenantSettings(String tenantId) =>
+      '/api/tenants/$tenantId/settings';
+
+  // Team member endpoints
+  static String tenantMembers(String tenantId) => '/api/tenants/$tenantId/members';
+  static String tenantMember(String tenantId, String memberId) =>
+      '/api/tenants/$tenantId/members/$memberId';
+  static String tenantMemberPermissions(String tenantId, String memberId) =>
+      '/api/tenants/$tenantId/members/$memberId/permissions';
+
+  // Invitation endpoints
+  static String tenantInvitations(String tenantId) =>
+      '/api/tenants/$tenantId/invitations';
+  static String resendInvitation(String invitationId) =>
+      '/api/invitations/$invitationId/resend';
+  static String acceptInvitation(String invitationId) =>
+      '/api/invitations/$invitationId/accept';
+  static String declineInvitation(String invitationId) =>
+      '/api/invitations/$invitationId/decline';
 }
