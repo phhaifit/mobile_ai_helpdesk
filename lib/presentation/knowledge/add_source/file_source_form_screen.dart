@@ -1,6 +1,5 @@
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
-import 'package:ai_helpdesk/presentation/knowledge/widgets/crawl_interval_grid.dart';
 import 'package:flutter/material.dart';
 
 class FileSourceFormScreen extends StatefulWidget {

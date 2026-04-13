@@ -3,20 +3,29 @@ import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
+import 'tenant/employee_screen.dart';
+import 'tenant/tenant_info_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
-import 'playground/playground_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
+import 'knowledge/knowledge_source_list_screen.dart';
+import 'marketing/campaign_list_screen.dart';
+import 'marketing/facebook_admin_setup_screen.dart';
+import 'marketing/template_library_screen.dart';
 import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
+import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
-import 'knowledge/knowledge_source_list_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
+import 'team/store/team_store.dart';
+import 'tenant/invitation_response_screen.dart';
+import '../../../di/service_locator.dart';
+import '../../../domain/entity/invitation/invitation.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
 
-  const MainScreen({super.key, this.initialCategory = 'Hộp thư hỗ trợ'});
+  const MainScreen({super.key, this.initialCategory = 'support_inbox'});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -57,8 +66,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.dashboard_outlined,
         items: [
           MenuItem(
+            id: 'dashboard',
             title: 'Dashboard',
-            onTap: () => _selectCategory('Dashboard'),
+            onTap: () => _selectCategory('dashboard'),
           ),
         ],
       ),
@@ -67,16 +77,19 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.confirmation_number_outlined,
         items: [
           MenuItem(
+            id: 'support_inbox',
             title: 'Hộp thư hỗ trợ',
-            onTap: () => _selectCategory('Hộp thư hỗ trợ'),
+            onTap: () => _selectCategory('support_inbox'),
           ),
           MenuItem(
+            id: 'pending_tickets',
             title: 'Phiếu chưa xử lý',
-            onTap: () => _selectCategory('Phiếu chưa xử lý'),
+            onTap: () => _selectCategory('pending_tickets'),
           ),
           MenuItem(
+            id: 'ai_chat_bot',
             title: 'AI Chat Bot',
-            onTap: () => _selectCategory('AI Chat Bot'),
+            onTap: () => _selectCategory('ai_chat_bot'),
           ),
         ],
       ),
@@ -85,14 +98,24 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.people_outline_rounded,
         items: [
           MenuItem(
+            id: 'customers',
             title: 'Khách hàng',
-            onTap: () => _selectCategory('Khách hàng'),
+            onTap: () => _selectCategory('customers'),
           ),
-          MenuItem(title: 'Đơn hàng', onTap: () => _selectCategory('Đơn hàng')),
-          MenuItem(title: 'Sản phẩm', onTap: () => _selectCategory('Sản phẩm')),
           MenuItem(
+            id: 'orders',
+            title: 'Đơn hàng',
+            onTap: () => _selectCategory('orders'),
+          ),
+          MenuItem(
+            id: 'products',
+            title: 'Sản phẩm',
+            onTap: () => _selectCategory('products'),
+          ),
+          MenuItem(
+            id: 'promotions',
             title: 'Khuyến mãi & Vòng quay',
-            onTap: () => _selectCategory('Khuyến mãi & Vòng quay'),
+            onTap: () => _selectCategory('promotions'),
           ),
         ],
       ),
@@ -101,8 +124,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.library_books_outlined,
         items: [
           MenuItem(
+            id: 'prompt_library',
             title: 'Prompt Library',
-            onTap: () => _selectCategory('Prompt Library'),
+            onTap: () => _selectCategory('prompt_library'),
           ),
         ],
       ),
@@ -111,8 +135,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.hub_outlined,
         items: [
           MenuItem(
+            id: 'omnichannel',
             title: 'Omnichannel',
-            onTap: () => _selectCategory('Omnichannel'),
+            onTap: () => _selectCategory('omnichannel'),
           ),
         ],
       ),
@@ -121,10 +146,53 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.campaign_outlined,
         items: [
           MenuItem(
+            id: 'campaigns',
             title: 'Chiến dịch',
-            onTap: () => _selectCategory('Chiến dịch'),
+            onTap: () => _selectCategory('campaigns'),
           ),
-          MenuItem(title: 'Template', onTap: () => _selectCategory('Template')),
+          MenuItem(
+            id: 'template',
+            title: 'Template',
+            onTap: () => _selectCategory('template'),
+          ),
+        ],
+      ),
+      MenuCategory(
+        title: 'Cài đặt',
+        icon: Icons.settings_outlined,
+        items: [
+          MenuItem(
+            id: 'tenant_info',
+            title: 'Thông tin doanh nghiệp',
+            onTap: () => _selectCategory('tenant_info'),
+          ),
+          MenuItem(
+            id: 'employee_list',
+            title: 'Nhân viên',
+            onTap: () => _selectCategory('employee_list'),
+          ),
+          MenuItem(
+            id: 'omnichannel_hub',
+            title: 'Tích hợp ứng dụng',
+            onTap: () => _selectCategory('omnichannel_hub'),
+          ),
+          MenuItem(
+            id: 'channel_permission',
+            title: 'Phân quyền kênh',
+            onTap: () => _selectCategory('channel_permission'),
+          ),
+          MenuItem(
+            id: 'payment',
+            title: 'Thanh toán',
+            onTap: () => _selectCategory('payment'),
+          ),
+          MenuItem(
+            id: 'mock_invitation_response',
+            title: 'Mock invitation response',
+            onTap: _openMockInvitationResponse,
+          ),
+          MenuItem(id: 'template', title: 'Template', onTap: () => _selectCategory('template')),
+          MenuItem(id: 'facebook_admin', title: 'Facebook Admin', onTap: () => _selectCategory('facebook_admin')),
         ],
       ),
       MenuCategory(
@@ -132,12 +200,14 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.bar_chart_outlined,
         items: [
           MenuItem(
+            id: 'detailed_reports',
             title: 'Báo cáo chi tiết',
-            onTap: () => _selectCategory('Báo cáo chi tiết'),
+            onTap: () => _selectCategory('detailed_reports'),
           ),
           MenuItem(
+            id: 'status_reports',
             title: 'Thống kê theo trạng thái',
-            onTap: () => _selectCategory('Thống kê theo trạng thái'),
+            onTap: () => _selectCategory('status_reports'),
           ),
         ],
       ),
@@ -146,12 +216,14 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.smart_toy_outlined,
         items: [
           MenuItem(
+            id: 'ai_agents',
             title: 'AI Agents',
-            onTap: () => _selectCategory('AI Agents'),
+            onTap: () => _selectCategory('ai_agents'),
           ),
           MenuItem(
+            id: 'playground',
             title: 'Playground',
-            onTap: () => _selectCategory('Playground'),
+            onTap: () => _selectCategory('playground'),
           ),
         ],
       ),
@@ -160,8 +232,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.monetization_on_outlined,
         items: [
           MenuItem(
+            id: 'monetization',
             title: 'Monetization',
-            onTap: () => _selectCategory('Monetization'),
+            onTap: () => _selectCategory('monetization'),
           ),
         ],
       ),
@@ -170,8 +243,9 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.auto_stories_outlined,
         items: [
           MenuItem(
+            id: 'knowledge',
             title: 'Nạp kiến thức',
-            onTap: () => _selectCategory('Nạp kiến thức'),
+            onTap: () => _selectCategory('knowledge'),
           ),
         ],
       ),
@@ -183,10 +257,29 @@ class _MainScreenState extends State<MainScreen> {
       _showSidebarMobile = !_showSidebarMobile;
     });
   }
+  
+  /// Opens the invitation response flow using a pending invite from the team store
+  /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
+  /// TODO: remove this after testing
+  void _openMockInvitationResponse() {
+    final teamStore = getIt<TeamStore>();
+    String invitationId = 'inv-001';
+    for (final inv in teamStore.invitations) {
+      if (inv.status == InvitationStatus.pending) {
+        invitationId = inv.id;
+        break;
+      }
+    }
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => InvitationResponseScreen(invitationId: invitationId),
+      ),
+    );
+  }
 
   void _selectCategory(String category) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
-    if (category == 'Phiếu chưa xử lý' && currentRoute != Routes.ticketList) {
+    if (category == 'pending_tickets' && currentRoute != Routes.ticketList) {
       Navigator.pushReplacementNamed(context, Routes.ticketList);
       return;
     }
@@ -206,7 +299,7 @@ class _MainScreenState extends State<MainScreen> {
     final isDesktop = screenWidth >= 600;
 
     // Build desktop layout for chat
-    if (isDesktop && _selectedCategory == 'Hộp thư hỗ trợ') {
+    if (isDesktop && _selectedCategory == 'support_inbox') {
       return _buildDesktopChatView();
     }
 
@@ -216,40 +309,50 @@ class _MainScreenState extends State<MainScreen> {
     final isMobile = !isDesktop;
 
     switch (_selectedCategory) {
-      case 'Dashboard':
+      case 'dashboard':
         contentWidget = _wrapWithMenuBar(
           title: 'Dashboard',
           child: _buildDashboardContent(),
           showMenuButton: isMobile,
         );
-      case 'Phiếu chưa xử lý':
+      case 'pending_tickets':
         contentWidget = const TicketListScreen();
-      case 'Hộp thư hỗ trợ':
+      case 'support_inbox':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
-      case 'Nạp kiến thức':
+      case 'knowledge':
         contentWidget = KnowledgeSourceListScreen(
           embedded: true,
           onMenuTap: _toggleMobileSidebar,
         );
-      case 'AI Agents':
-        contentWidget = const AgentListScreen();
-      case 'Playground':
-        contentWidget = const PlaygroundScreen(agent: null);
-      case 'Khách hàng':
+      case 'customers':
         contentWidget = CustomerMainScreen(onMenuTap: _toggleMobileSidebar);
-      case 'Prompt Library':
+      case 'tenant_info':
+        contentWidget = TenantInfoScreen(onMenuTap: _toggleMobileSidebar);
+      case 'employee_list':
+        contentWidget = EmployeeScreen(onMenuTap: _toggleMobileSidebar);
+      case 'ai_agents':
+        contentWidget = const AgentListScreen();
+      case 'playground':
+        contentWidget = const PlaygroundScreen(agent: null);
+      case 'campaigns':
+        contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
+      case 'template':
+        contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
+      case 'facebook_admin':
+        contentWidget = const FacebookAdminSetupScreen();
+      case 'prompt_library':
         contentWidget = _wrapWithMenuBar(
           title: 'Prompt Library',
           child: const PromptLibraryScreen(embedInParent: true),
           showMenuButton: isMobile,
         );
-      case 'Omnichannel':
+      case 'omnichannel':
         contentWidget = _wrapWithMenuBar(
           title: 'Kênh tích hợp',
           child: const OmnichannelHubScreen(showAppBar: false),
           showMenuButton: isMobile,
         );
-      case 'Monetization':
+      case 'monetization':
         contentWidget = _wrapWithMenuBar(
           title: 'Gói dịch vụ',
           child: const MonetizationScreen(embedded: true),

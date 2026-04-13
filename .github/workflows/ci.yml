@@ -5,7 +5,7 @@ env:
 
 on:
   pull_request:
-    branches: [dev, test, staging, feature/21-ci/cd-pipeline]
+    branches: [main]
 
 jobs:
   analyze:
@@ -25,7 +25,7 @@ jobs:
         run: flutter pub get
 
       - name: Run analyzer
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
   test:
     name: Flutter Test

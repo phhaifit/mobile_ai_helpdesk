@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
@@ -17,6 +18,18 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
@@ -36,8 +49,10 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_available_agents_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
-
+import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 // AI Agent
 import '/domain/repository/ai_agent/ai_agent_repository.dart';
 import '/domain/usecase/ai_agent/create_agent_usecase.dart';
@@ -172,6 +187,44 @@ class UseCaseModule {
 
     getIt.registerSingleton<SimulateUpgradeUseCase>(
       SimulateUpgradeUseCase(getIt<MonetizationRepository>()),
+    );
+
+    // Marketing Use Cases:-----------------------------------------------------
+    getIt.registerSingleton<GetMarketingOverviewUseCase>(
+      GetMarketingOverviewUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<GetCampaignsUseCase>(
+      GetCampaignsUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<GetTemplatesUseCase>(
+      GetTemplatesUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<SaveTemplateUseCase>(
+      SaveTemplateUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<DeleteTemplateUseCase>(
+      DeleteTemplateUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<CreateCampaignUseCase>(
+      CreateCampaignUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<StartCampaignUseCase>(
+      StartCampaignUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<StopCampaignUseCase>(
+      StopCampaignUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<ResumeCampaignUseCase>(
+      ResumeCampaignUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<EstimateAudienceUseCase>(
+      EstimateAudienceUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<ConnectFacebookAdminUseCase>(
+      ConnectFacebookAdminUseCase(getIt<MarketingRepository>()),
+    );
+    getIt.registerSingleton<DisconnectFacebookAdminUseCase>(
+      DisconnectFacebookAdminUseCase(getIt<MarketingRepository>()),
     );
 
     // --- AI Agent Use Cases ---
