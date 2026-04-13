@@ -48,8 +48,10 @@ import '/domain/usecase/ai_agent/update_agent_usecase.dart';
 // Playground
 import '/domain/repository/playground/playground_repository.dart';
 import '/domain/usecase/playground/create_session_usecase.dart';
+import '/domain/usecase/playground/get_draft_response_usecase.dart';
 import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
+import '/domain/usecase/playground/stream_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
@@ -198,6 +200,12 @@ class UseCaseModule {
     );
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<GetDraftResponseUseCase>(
+      GetDraftResponseUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<StreamDraftResponseUseCase>(
+      StreamDraftResponseUseCase(getIt<PlaygroundRepository>()),
     );
     // Knowledge Use Cases:-----------------------------------------------------
     getIt.registerSingleton<GetKnowledgeSourcesUseCase>(

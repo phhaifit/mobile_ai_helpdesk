@@ -39,7 +39,9 @@ import '../../local/datasources/chat/chat_room_datasource.dart';
 // import '../../local/datasources/customer_management/customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
 // Import Implementations (Data)
-import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
+import '../../network/apis/ai_agent/ai_agent_api.dart';
+import '../../network/apis/playground/playground_api.dart';
+import '../../repository/ai_agent/ai_agent_repository_impl.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 // import '../../repository/customer_management/customer_repository_impl.dart';
@@ -57,12 +59,18 @@ class RepositoryModule {
 
     // --- AI Agent Repository ---
     getIt.registerSingleton<AiAgentRepository>(
-      MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+      AiAgentRepositoryImpl(
+        getIt<AiAgentApi>(),
+        getIt<SharedPreferenceHelper>(),
+      ),
     );
 
     // --- Playground Repository ---
     getIt.registerSingleton<PlaygroundRepository>(
-      PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
+      PlaygroundRepositoryImpl(
+        getIt<PlaygroundDataSource>(),
+        getIt<PlaygroundApi>(),
+      ),
     );
 
     // Auth API:----------------------------------------------------------------

@@ -70,8 +70,10 @@ import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
 import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
 import '../../../domain/usecase/playground/create_session_usecase.dart';
+import '../../../domain/usecase/playground/get_draft_response_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
+import '../../../domain/usecase/playground/stream_draft_response_usecase.dart';
 import '../../../domain/analytics/analytics_service.dart';
 import '../../login/store/login_store.dart';
 
@@ -219,6 +221,8 @@ class StoreModule {
         getIt<GetSessionsUseCase>(),
         getIt<CreateSessionUseCase>(),
         getIt<SendPlaygroundMessageUseCase>(),
+        getIt<GetDraftResponseUseCase>(),
+        getIt<StreamDraftResponseUseCase>(),
         getIt<ErrorStore>(),
       ),
     );

@@ -9,6 +9,8 @@ import '/core/data/network/dio/interceptors/logging_interceptor.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
+import '/data/network/apis/ai_agent/ai_agent_api.dart';
+import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
@@ -57,5 +59,9 @@ class NetworkModule {
         getIt<LoggingInterceptor>(),
       ]),
     );
+
+    // api classes:-------------------------------------------------------------
+    getIt.registerSingleton<AiAgentApi>(AiAgentApi(getIt<DioClient>()));
+    getIt.registerSingleton<PlaygroundApi>(PlaygroundApi(getIt<DioClient>()));
   }
 }
