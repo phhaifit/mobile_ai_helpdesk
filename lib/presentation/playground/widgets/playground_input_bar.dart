@@ -1,5 +1,4 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '/constants/colors.dart';
@@ -10,7 +9,7 @@ import '/utils/locale/app_localization.dart';
 class PlaygroundInputBar extends StatefulWidget {
   final bool enabled;
   final ValueChanged<String> onSend;
-  final ValueChanged<List<String>>? onAttachmentsChanged;
+  final ValueChanged<List<PlatformFile>>? onAttachmentsChanged;
 
   /// Optional external controller. When provided, the widget uses it
   /// directly and does NOT dispose it — the caller is responsible.
@@ -31,7 +30,7 @@ class PlaygroundInputBar extends StatefulWidget {
 class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
   late final TextEditingController _controller;
   bool _ownsController = false;
-  final List<String> _attachments = [];
+  final List<PlatformFile> _attachments = [];
 
   @override
   void initState() {
@@ -61,13 +60,11 @@ class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
-      withData: kIsWeb,
+      withData: true,
     );
     if (result == null) return;
-    // On web, file.path is always null — use file.name for display on all platforms.
-    final names = result.files.map((f) => f.name).toList();
-    setState(() => _attachments.addAll(names));
-    widget.onAttachmentsChanged?.call(_attachments);
+    setState(() => _attachments.addAll(result.files));
+    widget.onAttachmentsChanged?.call(List.unmodifiable(_attachments));
   }
 
   @override
@@ -89,11 +86,15 @@ class _PlaygroundInputBarState extends State<PlaygroundInputBar> {
                   separatorBuilder: (_, __) => const SizedBox(width: 6),
                   itemBuilder: (_, i) => Chip(
                     label: Text(
-                      _attachments[i].split(RegExp(r'[/\\]')).last,
+                      _attachments[i].name,
                       style: const TextStyle(fontSize: 11),
                     ),
                     avatar: const Icon(Icons.attach_file, size: 14),
-                    onDeleted: () => setState(() => _attachments.removeAt(i)),
+                    onDeleted: () {
+                      setState(() => _attachments.removeAt(i));
+                      widget.onAttachmentsChanged
+                          ?.call(List.unmodifiable(_attachments));
+                    },
                     padding: EdgeInsets.zero,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
