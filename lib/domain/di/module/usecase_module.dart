@@ -65,6 +65,18 @@ import '/domain/repository/playground/playground_repository.dart';
 import '/domain/usecase/playground/create_session_usecase.dart';
 import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
+// Media
+import '/domain/repository/media/media_repository.dart';
+import '/domain/usecase/media/upload_file_usecase.dart';
+// Jarvis Agent
+import '/domain/repository/jarvis/jarvis_repository.dart';
+import '/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import '/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+// Messenger
+import '/domain/repository/messenger/messenger_repository.dart';
+import '/domain/usecase/messenger/connect_messenger_page_usecase.dart';
+import '/domain/usecase/messenger/disconnect_messenger_page_usecase.dart';
+import '/domain/usecase/messenger/get_messenger_pages_usecase.dart';
 import '../../../di/service_locator.dart';
 
 class UseCaseModule {
@@ -265,6 +277,30 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
       UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
+    );
+
+    // --- Media Use Cases ---
+    getIt.registerSingleton<UploadFileUseCase>(
+      UploadFileUseCase(getIt<MediaRepository>()),
+    );
+
+    // --- Jarvis Agent Use Cases ---
+    getIt.registerSingleton<SendJarvisMessageUseCase>(
+      SendJarvisMessageUseCase(getIt<JarvisRepository>()),
+    );
+    getIt.registerSingleton<ConfirmHitlUseCase>(
+      ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
+    // --- Messenger Use Cases ---
+    getIt.registerSingleton<GetMessengerPagesUseCase>(
+      GetMessengerPagesUseCase(getIt<MessengerRepository>()),
+    );
+    getIt.registerSingleton<ConnectMessengerPageUseCase>(
+      ConnectMessengerPageUseCase(getIt<MessengerRepository>()),
+    );
+    getIt.registerSingleton<DisconnectMessengerPageUseCase>(
+      DisconnectMessengerPageUseCase(getIt<MessengerRepository>()),
     );
   }
 }

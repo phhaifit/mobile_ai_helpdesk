@@ -22,26 +22,35 @@ import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
+import '/core/data/network/dio/dio_client.dart';
 // Import Interfaces (Domain)
 import '../../../domain/repository/ai_agent/ai_agent_repository.dart';
 import '../../../domain/repository/chat/chat_repository.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
 import '../../../domain/repository/customer/customer_repository.dart';
+import '../../../domain/repository/jarvis/jarvis_repository.dart';
+import '../../../domain/repository/media/media_repository.dart';
+import '../../../domain/repository/messenger/messenger_repository.dart';
 import '../../../domain/repository/playground/playground_repository.dart';
 // Import DataSources
 import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
-// import '../../local/datasources/customer_management/customer_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
+// Import API clients
+import '../../network/apis/jarvis/jarvis_agent_api.dart';
+import '../../network/apis/media/media_api.dart';
+import '../../network/apis/messenger/messenger_api.dart';
 // Import Implementations (Data)
 import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
-// import '../../repository/customer_management/customer_repository_impl.dart';
-import '../../repository/playground/playground_repository_impl.dart';
-import '../../local/datasources/customer/mock_customer_datasource.dart';
 import '../../repository/customer/customer_repository_impl.dart';
+import '../../repository/jarvis/jarvis_repository_impl.dart';
+import '../../repository/media/media_repository_impl.dart';
+import '../../repository/messenger/messenger_repository_impl.dart';
+import '../../repository/playground/playground_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -120,6 +129,26 @@ class RepositoryModule {
 
     getIt.registerSingleton<KnowledgeRepository>(
       MockKnowledgeRepositoryImpl(),
+    );
+
+    // --- Media API & Repository ---
+    getIt.registerSingleton<MediaApi>(MediaApi(getIt<DioClient>()));
+    getIt.registerSingleton<MediaRepository>(
+      MediaRepositoryImpl(getIt<MediaApi>()),
+    );
+
+    // --- Jarvis Agent API & Repository ---
+    getIt.registerSingleton<JarvisAgentApi>(
+      JarvisAgentApi(getIt<DioClient>()),
+    );
+    getIt.registerSingleton<JarvisRepository>(
+      JarvisRepositoryImpl(getIt<JarvisAgentApi>()),
+    );
+
+    // --- Messenger API & Repository ---
+    getIt.registerSingleton<MessengerApi>(MessengerApi(getIt<DioClient>()));
+    getIt.registerSingleton<MessengerRepository>(
+      MessengerRepositoryImpl(getIt<MessengerApi>()),
     );
   }
 }

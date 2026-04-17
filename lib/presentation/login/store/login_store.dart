@@ -146,7 +146,7 @@ abstract class _LoginStoreBase with Store {
       await Future.delayed(const Duration(seconds: 1));
 
       // For demo, only allow specific credentials to succeed
-      final isSuccess = email == 'test@example.com' && password == 'password';
+      final isSuccess = email == 'test@example.com' && password == 'Test@123456';
 
       if (isSuccess) {
         // Track successful login

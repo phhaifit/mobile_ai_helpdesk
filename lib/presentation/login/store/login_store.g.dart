@@ -12,17 +12,21 @@ mixin _$LoginStore on _LoginStoreBase, Store {
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_LoginStoreBase.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_LoginStoreBase.isLoading',
+          ))
+          .value;
   Computed<bool>? _$canSubmitComputed;
 
   @override
-  bool get canSubmit => (_$canSubmitComputed ??= Computed<bool>(
-    () => super.canSubmit,
-    name: '_LoginStoreBase.canSubmit',
-  )).value;
+  bool get canSubmit =>
+      (_$canSubmitComputed ??= Computed<bool>(
+            () => super.canSubmit,
+            name: '_LoginStoreBase.canSubmit',
+          ))
+          .value;
 
   late final _$emailAtom = Atom(
     name: '_LoginStoreBase.email',
