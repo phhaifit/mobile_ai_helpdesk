@@ -21,8 +21,18 @@ class Endpoints {
 
   // Playground endpoints (stubs — mock data served locally)
   static String playgroundSessions() => '/api/playground/sessions';
-  static String playgroundSession(String id) =>
-      '/api/playground/sessions/$id';
+  static String playgroundSession(String id) => '/api/playground/sessions/$id';
   static String playgroundMessages(String sessionId) =>
       '/api/playground/sessions/$sessionId/messages';
+
+  // Omnichannel: Messenger endpoints
+  static String messengerCustomers() => '/api/messenger/messenger-customers';
+  static String verifyMessengerAuthCode() => '/api/messenger/verify-auth-code';
+  static String updateMessengerPageConfig() =>
+      '/api/messenger/update-page-config';
+  static String messengerPages() => '/api/messenger/pages';
+  static String connectMessengerPage() => '/api/messenger/connect-page';
+  static String deleteMessengerPage(String channelId) =>
+      '/api/messenger/page/$channelId';
+  static String resyncMessengerPage() => '/api/messenger/resync-page';
 }

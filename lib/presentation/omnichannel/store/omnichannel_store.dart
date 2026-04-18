@@ -13,6 +13,7 @@ import 'package:mobx/mobx.dart';
 
 part 'omnichannel_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class OmnichannelStore = _OmnichannelStore with _$OmnichannelStore;
 
 abstract class _OmnichannelStore with Store {
@@ -25,6 +26,7 @@ abstract class _OmnichannelStore with Store {
   final DisconnectZaloUseCase _disconnectZaloUseCase;
   final RetryZaloSyncUseCase _retryZaloSyncUseCase;
   final UpdateZaloAssignmentsUseCase _updateZaloAssignmentsUseCase;
+  String? _pendingMessengerAuthCode;
 
   _OmnichannelStore(
     this._getOverviewUseCase,
@@ -79,7 +81,18 @@ abstract class _OmnichannelStore with Store {
 
   @action
   Future<void> connectMessenger() async {
-    await _runAction(() => _connectMessengerUseCase.call(params: null));
+    final String? authCode = _normalizedAuthCode(_pendingMessengerAuthCode);
+    _pendingMessengerAuthCode = null;
+
+    await _runAction(
+      () => _connectMessengerUseCase.call(
+        params: ConnectMessengerParams(authCode: authCode),
+      ),
+    );
+  }
+
+  set pendingMessengerAuthCode(String? authCode) {
+    _pendingMessengerAuthCode = authCode;
   }
 
   @action
@@ -149,5 +162,13 @@ abstract class _OmnichannelStore with Store {
     );
 
     await actionFuture;
+  }
+
+  String? _normalizedAuthCode(String? value) {
+    final String normalized = value?.trim() ?? '';
+    if (normalized.isEmpty) {
+      return null;
+    }
+    return normalized;
   }
 }
