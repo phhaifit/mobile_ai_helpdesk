@@ -9,7 +9,7 @@ enum Environment { dev, staging, prod }
 enum EnvConfig {
   dev._(
     environment: Environment.dev,
-    baseUrl: 'https://dev-api.jarvis-helpdesk.com',
+    baseUrl: 'https://mock.apidog.com/m1/1256275-1253679-default',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,

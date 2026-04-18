@@ -28,7 +28,9 @@ class Endpoints {
 
   // Tenant endpoints
   static String tenants() => '/api/v1/tenants';
+    static String createTenantOnFirstLogin() => '/api/v1/tenants/create-first-login';
   static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
+    static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
   static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
   static String tenantSettings(String tenantId) =>
       '/api/v1/tenants/$tenantId/settings';
@@ -49,4 +51,6 @@ class Endpoints {
       '/api/v1/invitations/$invitationId/accept';
   static String declineInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId/decline';
+  static String deleteInvitation(String invitationId) =>
+      '/api/v1/invitations/$invitationId';
 }

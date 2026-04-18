@@ -78,6 +78,21 @@ abstract class _TenantStore with Store {
     }
   }
 
+  Future<void> createTenantOnFirstLogin({required String name}) async {
+    isLoading = true;
+    try {
+      final created = await _tenantRepository.createTenantOnFirstLogin(
+        name: name,
+      );
+      tenantList.add(created);
+      currentTenant = created;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+    } finally {
+      isLoading = false;
+    }
+  }
+
   @action
   Future<void> deleteTenant(String id) async {
     isLoading = true;
@@ -195,6 +210,15 @@ abstract class _TenantStore with Store {
       return false;
     } finally {
       isLoading = false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getTenantJoinInfo() async {
+    try {
+      return await _tenantRepository.getTenantJoinInfo();
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return null;
     }
   }
 

@@ -83,6 +83,24 @@ class MockTenantRepositoryImpl implements TenantRepository {
   }
 
   @override
+  Future<Tenant> createTenantOnFirstLogin({required String name}) async {
+    final now = DateTime.now();
+    return createTenant(
+      Tenant(
+        id: 'tn-${now.millisecondsSinceEpoch}',
+        name: name,
+        slug: name.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-'),
+        settings: const TenantSettings(
+          allowInvitations: true,
+          defaultRole: TeamRole.member,
+          enableAuditLog: false,
+        ),
+        createdAt: now,
+      ),
+    );
+  }
+
+  @override
   Future<Tenant?> updateTenant(Tenant tenant) async {
     await _delay(520);
     final index = _tenants.indexWhere((t) => t.id == tenant.id);
@@ -144,5 +162,15 @@ class MockTenantRepositoryImpl implements TenantRepository {
     );
 
     return updatedSettings;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTenantJoinInfo() async {
+    await _delay(300);
+    final tenant = _tenants.isNotEmpty ? _tenants.first : null;
+    return <String, dynamic>{
+      'hasTenant': tenant != null,
+      'tenant': tenant?.toJson(),
+    };
   }
 }

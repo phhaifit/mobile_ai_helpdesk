@@ -49,6 +49,23 @@ class TenantApi {
     return Tenant.fromJson(ApiResponseParser.asMap(response.data));
   }
 
+  Future<Tenant> createTenantOnFirstLogin({
+    required String name,
+  }) async {
+    final response = await _dioClient.dio.post(
+      Endpoints.createTenantOnFirstLogin(),
+      data: {'name': name},
+    );
+    return Tenant.fromJson(ApiResponseParser.asMap(response.data));
+  }
+
+  Future<Map<String, dynamic>> getTenantJoinInfo() async {
+    final response = await _dioClient.dio.get(
+      Endpoints.tenantInvitationJoinInfo(),
+    );
+    return ApiResponseParser.asMap(response.data);
+  }
+
   Future<Tenant> updateTenant(Tenant tenant) async {
     final payload = <String, dynamic>{
       'name': tenant.name,

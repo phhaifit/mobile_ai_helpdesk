@@ -8,6 +8,8 @@ abstract class TenantRepository {
 
   Future<Tenant> createTenant(Tenant tenant);
 
+  Future<Tenant> createTenantOnFirstLogin({required String name});
+
   Future<Tenant?> updateTenant(Tenant tenant);
 
   Future<bool> deleteTenant(String id);
@@ -19,4 +21,6 @@ abstract class TenantRepository {
     required bool autoResolutionEnabled,
     required int autoResolutionTimeoutHours,
   });
+
+  Future<Map<String, dynamic>> getTenantJoinInfo();
 }

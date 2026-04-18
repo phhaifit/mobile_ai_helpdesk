@@ -157,6 +157,22 @@ abstract class _TeamStore with Store {
     }
   }
 
+  Future<bool> deleteInvitation(String invitationId) async {
+    isLoading = true;
+    try {
+      final deleted = await _invitationRepository.deleteInvitation(invitationId);
+      if (deleted) {
+        await _syncListsFromRepository();
+      }
+      return deleted;
+    } catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+      return false;
+    } finally {
+      isLoading = false;
+    }
+  }
+
   static const List<Permission> _ownerPermissionSet = [
     Permission(
       code: 'tenant:settings:write',

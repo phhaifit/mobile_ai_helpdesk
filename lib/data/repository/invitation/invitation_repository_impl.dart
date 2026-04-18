@@ -42,4 +42,9 @@ class InvitationRepositoryImpl implements InvitationRepository {
   Future<Invitation?> declineInvitation(String invitationId) {
     return _invitationApi.declineInvitation(invitationId);
   }
+
+  @override
+  Future<bool> deleteInvitation(String invitationId) {
+    return _invitationApi.deleteInvitation(invitationId);
+  }
 }

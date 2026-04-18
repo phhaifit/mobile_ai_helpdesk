@@ -52,4 +52,11 @@ class InvitationApi {
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
+
+  Future<bool> deleteInvitation(String invitationId) async {
+    final response = await _dioClient.dio.delete(
+      Endpoints.deleteInvitation(invitationId),
+    );
+    return ApiResponseParser.asDeleteSuccess(response.data);
+  }
 }

@@ -21,6 +21,11 @@ class TenantRepositoryImpl implements TenantRepository {
   Future<Tenant> createTenant(Tenant tenant) => _tenantApi.createTenant(tenant);
 
   @override
+  Future<Tenant> createTenantOnFirstLogin({required String name}) {
+    return _tenantApi.createTenantOnFirstLogin(name: name);
+  }
+
+  @override
   Future<Tenant?> updateTenant(Tenant tenant) => _tenantApi.updateTenant(tenant);
 
   @override
@@ -44,5 +49,10 @@ class TenantRepositoryImpl implements TenantRepository {
         'autoResolutionTimeoutHours': autoResolutionTimeoutHours,
       },
     );
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTenantJoinInfo() {
+    return _tenantApi.getTenantJoinInfo();
   }
 }
