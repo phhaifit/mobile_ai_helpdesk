@@ -37,10 +37,6 @@ class MockRepository implements OmnichannelRepository {
       const ActionFeedback(isSuccess: true, messageKey: 'success');
 
   @override
-  Future<ActionFeedback> deleteZalo() async =>
-      const ActionFeedback(isSuccess: true, messageKey: 'success');
-
-  @override
   Future<ActionFeedback> connectMessenger({String? authCode}) async =>
       const ActionFeedback(isSuccess: true, messageKey: 'success');
 

@@ -19,8 +19,6 @@ class MockOmnichannelRepository implements OmnichannelRepository {
   Future<ActionFeedback> connectZalo(String authCode) async =>
       throw UnimplementedError();
   @override
-  Future<ActionFeedback> deleteZalo() async => throw UnimplementedError();
-  @override
   Future<OmnichannelOverview> getOverview() async => throw UnimplementedError();
   @override
   Future<ActionFeedback> connectMessenger({String? authCode}) async =>
