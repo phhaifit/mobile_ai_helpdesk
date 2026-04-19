@@ -7,6 +7,24 @@ enum IntegrationConnectionStatus { connected, disconnected, connecting, error }
 enum OAuthState { verified, unverified, expired }
 
 enum SyncState { healthy, degraded, offline }
+enum ZaloQrStatus { pending, scanned, confirmed, expired }
+
+class ZaloQr {
+  final String code;
+  final String url;
+
+  const ZaloQr({
+    required this.code,
+    required this.url,
+  });
+}
+
+class ZaloQrStatusUpdate {
+  final ZaloQrStatus status;
+  final String? authCode;
+
+  const ZaloQrStatusUpdate({required this.status, this.authCode});
+}
 
 @JsonSerializable()
 class ActionFeedback {

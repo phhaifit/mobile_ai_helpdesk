@@ -239,13 +239,60 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> connectZaloFromQr() {
-    return _fallbackRepository.connectZaloFromQr();
+  Future<ZaloQr> generateZaloQr() async {
+    try {
+      final ZaloQrDto dto = await _api.generateZaloQr();
+      return dto.toEntity();
+    } on DioException {
+      return _fallbackRepository.generateZaloQr();
+    }
   }
 
   @override
-  Future<ActionFeedback> disconnectZalo() {
-    return _fallbackRepository.disconnectZalo();
+  Future<ZaloQrStatusUpdate> getZaloQrStatus(String code) async {
+    try {
+      final ZaloQrStatusDto dto = await _api.getZaloQrStatus(code);
+      return dto.toEntity();
+    } on DioException {
+      return _fallbackRepository.getZaloQrStatus(code);
+    }
+  }
+
+  @override
+  Future<ActionFeedback> connectZalo(String authCode) async {
+    final String normalizedCode = authCode.trim();
+    if (normalizedCode.isEmpty) {
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_auth_code_required',
+      );
+    }
+
+    try {
+      await _api.connectZalo(normalizedCode);
+      return const ActionFeedback(
+        isSuccess: true,
+        messageKey: 'omnichannel_zalo_connect_success',
+      );
+    } on DioException {
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_connect_failed',
+      );
+    }
+  }
+
+  @override
+  Future<ActionFeedback> disconnectZalo() async {
+    try {
+      await _api.deleteZalo();
+      return const ActionFeedback(
+        isSuccess: true,
+        messageKey: 'omnichannel_zalo_disconnect_success',
+      );
+    } on DioException {
+      return _fallbackRepository.disconnectZalo();
+    }
   }
 
   @override

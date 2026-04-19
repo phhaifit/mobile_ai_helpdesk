@@ -35,4 +35,15 @@ class Endpoints {
   static String deleteMessengerPage(String channelId) =>
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';
+  // Omnichannel: Zalo endpoints
+  static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
+  static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
+  static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
+  static String zaloConnect() => '/api/v1/zalo/connect';
+  static String zaloDisconnect() => '/api/v1/zalo/disconnect';
+  static String zaloConnections() => '/api/v1/zalo/connections';
+  static String sendZaloMessage() => '/api/v1/zalo/messages/send';
+  static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
+  static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
+  static String assignZaloCs() => '/api/v1/zalo/assign-cs';
 }

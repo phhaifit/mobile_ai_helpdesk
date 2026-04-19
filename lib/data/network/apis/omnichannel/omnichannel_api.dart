@@ -1,5 +1,9 @@
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
+import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'omnichannel_api.g.dart';
 
 class MessengerPageDto {
   final String id;
@@ -73,6 +77,57 @@ class MessengerPageDto {
   }
 }
 
+@JsonSerializable()
+class ZaloQrDto {
+  final String code;
+  final String qrUrl;
+
+  const ZaloQrDto({
+    required this.code,
+    required this.qrUrl,
+  });
+
+  factory ZaloQrDto.fromJson(Map<String, dynamic> json) => _$ZaloQrDtoFromJson(json);
+
+  ZaloQr toEntity() => ZaloQr(
+    code: code,
+    url: qrUrl,
+  );
+}
+
+@JsonSerializable()
+class ZaloQrStatusDto {
+  final String status;
+  final String? authCode;
+
+  const ZaloQrStatusDto({
+    required this.status,
+    this.authCode,
+  });
+
+  factory ZaloQrStatusDto.fromJson(Map<String, dynamic> json) => _$ZaloQrStatusDtoFromJson(json);
+
+  ZaloQrStatusUpdate toEntity() {
+    ZaloQrStatus domainStatus;
+    switch (status) {
+      case 'scanned':
+        domainStatus = ZaloQrStatus.scanned;
+        break;
+      case 'confirmed':
+        domainStatus = ZaloQrStatus.confirmed;
+        break;
+      case 'expired':
+        domainStatus = ZaloQrStatus.expired;
+        break;
+      case 'pending':
+      default:
+        domainStatus = ZaloQrStatus.pending;
+        break;
+    }
+    return ZaloQrStatusUpdate(status: domainStatus, authCode: authCode);
+  }
+}
+
 class OmnichannelApi {
   final DioClient _dioClient;
 
@@ -139,6 +194,38 @@ class OmnichannelApi {
       Endpoints.messengerCustomers(),
       queryParameters: <String, dynamic>{'offset': offset, 'limit': limit},
     );
+  }
+
+  Future<ZaloQrDto> generateZaloQr() async {
+    final res = await _dioClient.dio.get(Endpoints.zaloGenerateQr());
+    return ZaloQrDto.fromJson(
+      Map<String, dynamic>.from(_unwrapApiPayload(res.data) as Map),
+    );
+  }
+
+  Future<ZaloQrStatusDto> getZaloQrStatus(String code) async {
+    final response = await _dioClient.dio.get(
+      Endpoints.zaloQrStatus(code).replaceFirst('{code}', code),
+    );
+    return ZaloQrStatusDto.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<dynamic> verifyZaloAuthCode(String code) {
+    return _dioClient.dio.post(
+      Endpoints.verifyZaloAuthCode(),
+      data: <String, dynamic>{'code': code},
+    );
+  }
+
+  Future<dynamic> connectZalo(String authCode) {
+    return _dioClient.dio.post(
+      Endpoints.zaloConnect(),
+      data: <String, dynamic>{'authCode': authCode},
+    );
+  }
+
+  Future<dynamic> deleteZalo() {
+    return _dioClient.dio.delete(Endpoints.zaloDisconnect());
   }
 }
 
