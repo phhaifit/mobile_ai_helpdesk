@@ -7,8 +7,10 @@ import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dar
 import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
-import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
+import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
+import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
@@ -27,6 +29,7 @@ import 'package:ai_helpdesk/data/repository/team/mock_team_repository_impl.dart'
 import 'package:ai_helpdesk/data/repository/tenant/mock_tenant_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
@@ -59,17 +62,24 @@ class RepositoryModule {
       PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
     );
 
-    // Auth API:----------------------------------------------------------------
-    getIt.registerSingleton<AuthApi>(AuthApi());
-
-    // Auth Local Datasource:---------------------------------------------------
+    // --- Auth (Stack Auth OTP flow) ---
     getIt.registerSingleton<AuthLocalDatasource>(
       AuthLocalDatasource(getIt<SharedPreferenceHelper>()),
     );
-
-    // Auth Repository:----------------------------------------------------------
     getIt.registerSingleton<AuthRepository>(
-      AuthRepositoryImpl(getIt<AuthApi>(), getIt<AuthLocalDatasource>()),
+      AuthRepositoryImpl(
+        getIt<StackAuthApi>(),
+        getIt<AuthLocalDatasource>(),
+        EnvConfig.instance,
+      ),
+    );
+
+    // --- Account (Helpdesk) ---
+    getIt.registerSingleton<AccountRepository>(
+      AccountRepositoryImpl(
+        getIt<AccountApi>(),
+        getIt<AuthLocalDatasource>(),
+      ),
     );
 
     // --- Ticket Data Source & Repository ---
@@ -106,9 +116,6 @@ class RepositoryModule {
     getIt.registerSingleton<ChatRoomRepository>(
       ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
     );
-    // Ticket repository already registered above with its datasource.
-
-    // --- Monetization Repository ---
 
     // --- Setting Repository ---
     getIt.registerLazySingleton<SettingRepository>(

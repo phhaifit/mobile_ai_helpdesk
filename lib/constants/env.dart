@@ -9,7 +9,11 @@ enum Environment { dev, staging, prod }
 enum EnvConfig {
   dev._(
     environment: Environment.dev,
-    baseUrl: 'https://dev-api.jarvis-helpdesk.com',
+    authApiBaseUrl: 'https://auth-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
+    stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
@@ -19,7 +23,11 @@ enum EnvConfig {
   ),
   staging._(
     environment: Environment.staging,
-    baseUrl: 'https://staging-api.jarvis-helpdesk.com',
+    authApiBaseUrl: 'https://auth-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
+    stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
@@ -29,7 +37,11 @@ enum EnvConfig {
   ),
   prod._(
     environment: Environment.prod,
-    baseUrl: 'https://api.jarvis-helpdesk.com',
+    authApiBaseUrl: 'https://auth-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
+    stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: false,
@@ -39,7 +51,11 @@ enum EnvConfig {
   );
 
   final Environment environment;
-  final String baseUrl;
+  final String authApiBaseUrl;
+  final String helpdeskApiBaseUrl;
+  final String otpCallbackUrl;
+  final String stackProjectId;
+  final String stackPublishableClientKey;
   final int receiveTimeout;
   final int connectionTimeout;
   final bool enableLogging;
@@ -49,7 +65,11 @@ enum EnvConfig {
 
   const EnvConfig._({
     required this.environment,
-    required this.baseUrl,
+    required this.authApiBaseUrl,
+    required this.helpdeskApiBaseUrl,
+    required this.otpCallbackUrl,
+    required this.stackProjectId,
+    required this.stackPublishableClientKey,
     required this.receiveTimeout,
     required this.connectionTimeout,
     required this.enableLogging,
@@ -57,6 +77,10 @@ enum EnvConfig {
     required this.enableAnalyticsDebug,
     required this.enableRealOmnichannel,
   });
+
+  /// Backwards-compatible alias pointing at the Helpdesk host so legacy code
+  /// (OmnichannelApi, PostApi) keeps working while we migrate.
+  String get baseUrl => helpdeskApiBaseUrl;
 
   static const _envName = String.fromEnvironment('ENV', defaultValue: 'dev');
   static const _useRealOmnichannelFromDefine = bool.fromEnvironment(

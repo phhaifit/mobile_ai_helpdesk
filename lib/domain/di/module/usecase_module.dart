@@ -1,17 +1,19 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/refresh_session_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -69,29 +71,29 @@ import '../../../di/service_locator.dart';
 
 class UseCaseModule {
   static Future<void> configureUseCaseModuleInjection() async {
-    // Auth Use Cases:-----------------------------------------------------------
-    getIt.registerSingleton<LoginUseCase>(
-      LoginUseCase(getIt<AuthRepository>()),
+    // Auth Use Cases (Stack Auth OTP flow):------------------------------------
+    getIt.registerSingleton<SendOtpUseCase>(
+      SendOtpUseCase(getIt<AuthRepository>()),
+    );
+    getIt.registerSingleton<VerifyOtpUseCase>(
+      VerifyOtpUseCase(getIt<AuthRepository>()),
+    );
+    getIt.registerSingleton<RefreshSessionUseCase>(
+      RefreshSessionUseCase(getIt<AuthRepository>()),
+    );
+    getIt.registerSingleton<SignOutUseCase>(
+      SignOutUseCase(getIt<AuthRepository>()),
     );
 
-    getIt.registerSingleton<RegisterUseCase>(
-      RegisterUseCase(getIt<AuthRepository>()),
+    // Account Use Cases:-------------------------------------------------------
+    getIt.registerSingleton<GetCurrentAccountUseCase>(
+      GetCurrentAccountUseCase(getIt<AccountRepository>()),
     );
-
-    getIt.registerSingleton<LogoutUseCase>(
-      LogoutUseCase(getIt<AuthRepository>()),
+    getIt.registerSingleton<UpdateAccountUseCase>(
+      UpdateAccountUseCase(getIt<AccountRepository>()),
     );
-
-    getIt.registerSingleton<GetCurrentUserUseCase>(
-      GetCurrentUserUseCase(getIt<AuthRepository>()),
-    );
-
-    getIt.registerSingleton<ChangePasswordUseCase>(
-      ChangePasswordUseCase(getIt<AuthRepository>()),
-    );
-
-    getIt.registerSingleton<ResetPasswordUseCase>(
-      ResetPasswordUseCase(getIt<AuthRepository>()),
+    getIt.registerSingleton<UploadAvatarUseCase>(
+      UploadAvatarUseCase(getIt<AccountRepository>()),
     );
 
     // Ticket Use Cases:--------------------------------------------------------
