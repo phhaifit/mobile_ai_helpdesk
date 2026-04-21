@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/campaign_id_params.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
@@ -12,6 +16,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:mobx/mobx.dart';
 
 part 'marketing_store.g.dart';
@@ -31,6 +36,11 @@ abstract class _MarketingStore with Store {
   final EstimateAudienceUseCase _estimateAudienceUseCase;
   final ConnectFacebookAdminUseCase _connectFacebookAdminUseCase;
   final DisconnectFacebookAdminUseCase _disconnectFacebookAdminUseCase;
+  final MarketingBroadcastRealtimeService _realtimeService;
+  final EventBus _eventBus;
+
+  final Set<String> _subscribedCampaignIds = <String>{};
+  StreamSubscription<BroadcastStatusRealtimeEvent>? _statusSub;
 
   _MarketingStore(
     this._getMarketingOverviewUseCase,
@@ -45,7 +55,13 @@ abstract class _MarketingStore with Store {
     this._estimateAudienceUseCase,
     this._connectFacebookAdminUseCase,
     this._disconnectFacebookAdminUseCase,
-  );
+    this._realtimeService,
+    this._eventBus,
+  ) {
+    _statusSub = _eventBus.on<BroadcastStatusRealtimeEvent>().listen(
+      _onRealtimeEvent,
+    );
+  }
 
   // --- Observable state ---
   @observable
@@ -180,6 +196,7 @@ abstract class _MarketingStore with Store {
         ..clear()
         ..addAll(overview!.templates);
       facebookAdmin = overview!.facebookAdmin;
+      await _syncRealtimeSubscriptions();
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -195,6 +212,7 @@ abstract class _MarketingStore with Store {
       campaigns
         ..clear()
         ..addAll(result);
+      await _syncRealtimeSubscriptions();
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -277,6 +295,7 @@ abstract class _MarketingStore with Store {
       if (selectedCampaign?.id == id) {
         selectedCampaign = campaigns[index];
       }
+      unawaited(_syncRealtimeSubscriptions());
     }
   }
 
@@ -315,10 +334,92 @@ abstract class _MarketingStore with Store {
       campaigns.add(result);
       actionMessageKey = 'marketing_success_campaign_created';
       actionWasSuccess = true;
+      await _syncRealtimeSubscriptions();
       clearDraft();
     } catch (e) {
       errorMessage = e.toString();
       actionWasSuccess = false;
+    }
+  }
+
+  void _onRealtimeEvent(BroadcastStatusRealtimeEvent event) {
+    final index = campaigns.indexWhere((c) => c.id == event.campaignId);
+    if (index < 0) {
+      return;
+    }
+
+    final current = campaigns[index];
+    final mappedStatus = _mapRealtimeStatus(event.status) ?? current.status;
+
+    final updated = current.copyWith(
+      status: mappedStatus,
+      sentCount: event.sentCount,
+      deliveredCount: event.deliveredCount,
+      failedCount: event.failedCount,
+    );
+
+    campaigns[index] = updated;
+    if (selectedCampaign?.id == event.campaignId) {
+      selectedCampaign = updated;
+    }
+
+    unawaited(_syncRealtimeSubscriptions());
+  }
+
+  CampaignStatus? _mapRealtimeStatus(BroadcastStatus? status) {
+    switch (status) {
+      case BroadcastStatus.draft:
+        return CampaignStatus.draft;
+      case BroadcastStatus.scheduled:
+        return CampaignStatus.scheduled;
+      case BroadcastStatus.running:
+        return CampaignStatus.running;
+      case BroadcastStatus.paused:
+        return CampaignStatus.paused;
+      case BroadcastStatus.completed:
+        return CampaignStatus.completed;
+      case BroadcastStatus.failed:
+        return CampaignStatus.failed;
+      case null:
+        return null;
+    }
+  }
+
+  bool _shouldTrackRealtime(CampaignStatus status) {
+    return status == CampaignStatus.running ||
+        status == CampaignStatus.paused ||
+        status == CampaignStatus.scheduled;
+  }
+
+  Future<void> _syncRealtimeSubscriptions() async {
+    final activeIds =
+        campaigns
+            .where((c) => _shouldTrackRealtime(c.status))
+            .map((c) => c.id)
+            .where((id) => id.isNotEmpty)
+            .toSet();
+
+    final toUnsubscribe = _subscribedCampaignIds.difference(activeIds).toList();
+    for (final id in toUnsubscribe) {
+      await _realtimeService.unsubscribeCampaign(id);
+      _subscribedCampaignIds.remove(id);
+    }
+
+    final toSubscribe = activeIds.difference(_subscribedCampaignIds).toList();
+    for (final id in toSubscribe) {
+      await _realtimeService.subscribeCampaign(id);
+      _subscribedCampaignIds.add(id);
+    }
+  }
+
+  Future<void> dispose() async {
+    await _statusSub?.cancel();
+    _statusSub = null;
+
+    final campaignIds = _subscribedCampaignIds.toList();
+    _subscribedCampaignIds.clear();
+    for (final id in campaignIds) {
+      await _realtimeService.unsubscribeCampaign(id);
     }
   }
 

@@ -247,6 +247,8 @@ class StoreModule {
         getIt<EstimateAudienceUseCase>(),
         getIt<ConnectFacebookAdminUseCase>(),
         getIt<DisconnectFacebookAdminUseCase>(),
+        getIt<MarketingBroadcastRealtimeService>(),
+        getIt<EventBus>(),
       ),
     );
 

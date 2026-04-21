@@ -52,7 +52,9 @@ class MarketingBroadcastRealtimeService {
       return;
     }
 
-    if (_sessions.containsKey(normalizedCampaignId)) {
+    final existing = _sessions[normalizedCampaignId];
+    if (existing != null) {
+      existing.subscriberCount += 1;
       return;
     }
 
@@ -67,10 +69,17 @@ class MarketingBroadcastRealtimeService {
 
   Future<void> unsubscribeCampaign(String campaignId) async {
     final normalizedCampaignId = campaignId.trim();
-    final session = _sessions.remove(normalizedCampaignId);
+    final session = _sessions[normalizedCampaignId];
     if (session == null) {
       return;
     }
+
+    session.subscriberCount -= 1;
+    if (session.subscriberCount > 0) {
+      return;
+    }
+
+    _sessions.remove(normalizedCampaignId);
     await session.dispose();
   }
 
@@ -83,9 +92,13 @@ class MarketingBroadcastRealtimeService {
   }
 
   Future<void> _connectWebSocket(_RealtimeSession session) async {
-    if (session.isDisposed) {
+    if (session.isDisposed || session.reconnectInProgress) {
       return;
     }
+
+    session.reconnectInProgress = true;
+
+    await session.disposeWebSocketOnly();
 
     final wsUris = <Uri>[
       Endpoints.marketingV1BroadcastStatusWsUri(session.campaignId),
@@ -94,6 +107,7 @@ class MarketingBroadcastRealtimeService {
 
     for (final wsUri in wsUris) {
       if (session.isDisposed) {
+        session.reconnectInProgress = false;
         return;
       }
 
@@ -109,13 +123,20 @@ class MarketingBroadcastRealtimeService {
             }
           },
           onError: (_) {
-            _switchToPolling(session);
+            _handleWebSocketDisconnect(session);
           },
           onDone: () {
-            _switchToPolling(session);
+            _handleWebSocketDisconnect(session);
           },
           cancelOnError: true,
         );
+
+        session.reconnectAttempt = 0;
+        session.reconnectTimer?.cancel();
+        session.reconnectTimer = null;
+        session.pollingTimer?.cancel();
+        session.pollingTimer = null;
+        session.reconnectInProgress = false;
 
         return;
       } catch (_) {
@@ -123,21 +144,53 @@ class MarketingBroadcastRealtimeService {
       }
     }
 
+    session.reconnectInProgress = false;
+    _switchToPolling(session);
+  }
+
+  void _handleWebSocketDisconnect(_RealtimeSession session) {
     _switchToPolling(session);
   }
 
   void _switchToPolling(_RealtimeSession session) {
-    if (session.isDisposed || session.pollingTimer != null) {
+    if (session.isDisposed) {
       return;
     }
 
     unawaited(session.disposeWebSocketOnly());
 
-    session.pollingTimer = Timer.periodic(session.pollingInterval, (_) {
-      unawaited(_pollLatestStatus(session));
-    });
+    if (session.pollingTimer == null) {
+      session.pollingTimer = Timer.periodic(session.pollingInterval, (_) {
+        unawaited(_pollLatestStatus(session));
+      });
+    }
 
     unawaited(_pollLatestStatus(session));
+    _scheduleReconnect(session);
+  }
+
+  void _scheduleReconnect(_RealtimeSession session) {
+    if (session.isDisposed || session.reconnectTimer != null) {
+      return;
+    }
+
+    final delay = _computeReconnectDelay(session.reconnectAttempt);
+    session.reconnectAttempt += 1;
+
+    session.reconnectTimer = Timer(delay, () {
+      session.reconnectTimer = null;
+      if (session.isDisposed) {
+        return;
+      }
+      unawaited(_connectWebSocket(session));
+    });
+  }
+
+  Duration _computeReconnectDelay(int attempt) {
+    final safeAttempt = attempt < 0 ? 0 : attempt;
+    final exponentialSeconds = 1 << safeAttempt;
+    final boundedSeconds = exponentialSeconds > 30 ? 30 : exponentialSeconds;
+    return Duration(seconds: boundedSeconds);
   }
 
   Future<void> _pollLatestStatus(_RealtimeSession session) async {
@@ -407,10 +460,15 @@ class _RealtimeSession {
   final String campaignId;
   final Duration pollingInterval;
 
+  int subscriberCount = 1;
+
   bool isDisposed = false;
   WebSocketChannel? channel;
   StreamSubscription<dynamic>? wsSubscription;
   Timer? pollingTimer;
+  Timer? reconnectTimer;
+  int reconnectAttempt = 0;
+  bool reconnectInProgress = false;
   String? lastEventSignature;
 
   _RealtimeSession({required this.campaignId, required this.pollingInterval});
@@ -427,6 +485,8 @@ class _RealtimeSession {
     isDisposed = true;
     pollingTimer?.cancel();
     pollingTimer = null;
+    reconnectTimer?.cancel();
+    reconnectTimer = null;
     await disposeWebSocketOnly();
   }
 }
