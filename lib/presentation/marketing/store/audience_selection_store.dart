@@ -1,5 +1,5 @@
 import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/get_broadcast_recipients_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_recipients_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'audience_selection_store.g.dart';
@@ -108,7 +108,7 @@ abstract class _AudienceSelectionStoreBase with Store {
   Future<void> nextPage({required String broadcastId}) async {
     if (recipientsPage == null) return;
     final nextOffset = offset + limit;
-    if (nextOffset < (recipientsPage!.total ?? 0)) {
+    if (nextOffset < recipientsPage!.total) {
       offset = nextOffset;
       await fetchRecipients(broadcastId: broadcastId);
     }

@@ -91,7 +91,7 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.warning_outline,
+                                Icons.warning,
                                 color: Colors.orange,
                                 size:
                                     MediaQuery.of(context).size.width < 400

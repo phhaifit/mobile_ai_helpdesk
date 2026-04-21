@@ -67,7 +67,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.warning_outline,
+                      Icons.warning,
                       color: Colors.orange,
                       size: isSmall ? 18 : 20,
                     ),
