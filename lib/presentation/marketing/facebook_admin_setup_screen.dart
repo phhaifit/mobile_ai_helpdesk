@@ -15,6 +15,8 @@ class FacebookAdminSetupScreen extends StatefulWidget {
 
 class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
   late final MarketingBroadcastStore _store;
+  final _accountIdController = TextEditingController();
+  final _nameController = TextEditingController();
   final _tokenController = TextEditingController();
   final _reauthTokenController = TextEditingController();
   bool _obscureToken = true;
@@ -29,6 +31,8 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
 
   @override
   void dispose() {
+    _accountIdController.dispose();
+    _nameController.dispose();
     _tokenController.dispose();
     _reauthTokenController.dispose();
     super.dispose();
@@ -105,6 +109,36 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                     SizedBox(height: isSmall ? 10 : 12),
                   ],
                   TextField(
+                    controller: _accountIdController,
+                    decoration: InputDecoration(
+                      labelText: 'Account ID (optional)',
+                      hintText: 'Facebook Ad Account ID',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.account_balance_outlined),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 12,
+                        horizontal: 12,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 10 : 12),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Account Name (optional)',
+                      hintText: 'Display name for this account',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.label_outline),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 12,
+                        horizontal: 12,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 10 : 12),
+                  TextField(
                     controller: _tokenController,
                     obscureText: _obscureToken,
                     decoration: InputDecoration(
@@ -129,8 +163,7 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                     ),
                   ),
                   SizedBox(height: isSmall ? 12 : 16),
-                  SizedBox(
-                    width: double.infinity,
+                  SizedBox(width: double.infinity,
                     child: FilledButton.icon(
                       onPressed:
                           _store.isSubmitting ||
@@ -138,6 +171,14 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                               ? null
                               : () => _store.createFacebookAdminAccount(
                                 FacebookAdminAccountCreateData(
+                                  accountId: _accountIdController.text
+                                      .trim()
+                                      .isEmpty
+                                      ? null
+                                      : _accountIdController.text.trim(),
+                                  name: _nameController.text.trim().isEmpty
+                                      ? null
+                                      : _nameController.text.trim(),
                                   accessToken: _tokenController.text.trim(),
                                 ),
                               ),

@@ -228,6 +228,8 @@ class FacebookPage {
 }
 
 class FacebookAdminAccountCreateData {
+  final String? accountId;
+  final String? name;
   final String accessToken;
   final String? adminName;
   final String? adminEmail;
@@ -235,6 +237,8 @@ class FacebookAdminAccountCreateData {
   final String? pageName;
 
   const FacebookAdminAccountCreateData({
+    this.accountId,
+    this.name,
     required this.accessToken,
     this.adminName,
     this.adminEmail,

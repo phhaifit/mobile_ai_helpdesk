@@ -87,6 +87,7 @@ import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/audience_selection_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
@@ -275,6 +276,12 @@ class StoreModule {
         getIt<SelectFacebookAdminPageUseCase>(),
         getIt<MarketingBroadcastRealtimeService>(),
         getIt<EventBus>(),
+      ),
+    );
+
+    getIt.registerFactory<AudienceSelectionStore>(
+      () => AudienceSelectionStore(
+        getIt<GetBroadcastRecipientsUseCase>(),
       ),
     );
 

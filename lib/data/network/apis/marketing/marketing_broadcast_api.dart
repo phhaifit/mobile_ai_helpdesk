@@ -15,7 +15,7 @@ class MarketingBroadcastApi {
       queryParameters: {
         if (_hasText(query.search)) 'search': query.search,
         if (_hasText(query.category)) 'category': query.category,
-        if (_hasText(query.channel)) 'channel': query.channel,
+        if (_hasText(query.channel)) 'channelType': query.channel,
         'offset': query.offset,
         'limit': query.limit,
       },
@@ -35,15 +35,13 @@ class MarketingBroadcastApi {
   Future<Map<String, dynamic>> createBroadcastTemplate(
     BroadcastTemplateUpsertData data,
   ) async {
+    final channelType = data.channel?.toUpperCase();
     final response = await _dioClient.dio.post(
       Endpoints.marketingV1BroadcastTemplates(),
       data: {
         'name': data.name,
         'content': data.content,
-        if (_hasText(data.category)) 'category': data.category,
-        if (_hasText(data.channel)) 'channel': data.channel,
-        'variableKeys': data.variableKeys,
-        'isActive': data.isActive,
+        if (_hasText(channelType)) 'channelType': channelType,
       },
     );
     return _asMap(response.data);
@@ -53,15 +51,13 @@ class MarketingBroadcastApi {
     required String templateId,
     required BroadcastTemplateUpsertData data,
   }) async {
+    final channelType = data.channel?.toUpperCase();
     final response = await _dioClient.dio.put(
       Endpoints.marketingV1BroadcastTemplate(templateId),
       data: {
         'name': data.name,
         'content': data.content,
-        if (_hasText(data.category)) 'category': data.category,
-        if (_hasText(data.channel)) 'channel': data.channel,
-        'variableKeys': data.variableKeys,
-        'isActive': data.isActive,
+        if (_hasText(channelType)) 'channelType': channelType,
       },
     );
     return _asMap(response.data);
@@ -185,19 +181,32 @@ class MarketingBroadcastApi {
   }
 
   Future<List<Map<String, dynamic>>> getFacebookAdminAccounts() async {
-    final response = await _dioClient.dio.get(
-      Endpoints.marketingV1FacebookAdminAccounts(),
-    );
-    return _asMapList(response.data);
+    try {
+      final response = await _dioClient.dio.get(
+        Endpoints.marketingV1FacebookAdminAccountsFetch(),
+      );
+      return _asMapList(response.data);
+    } catch (_) {
+      final response = await _dioClient.dio.get(
+        Endpoints.marketingV1FacebookAdminAccounts(),
+      );
+      return _asMapList(response.data);
+    }
   }
 
   Future<Map<String, dynamic>> createFacebookAdminAccount(
     FacebookAdminAccountCreateData data,
   ) async {
+    final resolvedAccountId =
+        _hasText(data.accountId) ? data.accountId : data.pageId;
+    final resolvedName = _hasText(data.name) ? data.name : data.adminName;
+
     final response = await _dioClient.dio.post(
       Endpoints.marketingV1FacebookAdminAccounts(),
       data: {
-        'accessToken': data.accessToken,
+        if (_hasText(resolvedAccountId)) 'accountId': resolvedAccountId,
+        if (_hasText(resolvedName)) 'name': resolvedName,
+        if (_hasText(data.accessToken)) 'accessToken': data.accessToken,
         if (_hasText(data.adminName)) 'adminName': data.adminName,
         if (_hasText(data.adminEmail)) 'adminEmail': data.adminEmail,
         if (_hasText(data.pageId)) 'pageId': data.pageId,

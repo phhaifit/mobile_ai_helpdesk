@@ -14,6 +14,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class CampaignCreateScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class CampaignCreateScreen extends StatefulWidget {
 
 class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
   late final MarketingStore _store;
+  late final MarketingBroadcastStore _broadcastStore;
   int _currentStep = 0;
   final _nameController = TextEditingController();
 
@@ -32,8 +34,10 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
   void initState() {
     super.initState();
     _store = getIt<MarketingStore>();
+    _broadcastStore = getIt<MarketingBroadcastStore>();
     _store.clearDraft();
     if (_store.templates.isEmpty) _store.fetchTemplates();
+    _broadcastStore.fetchFacebookAdminAccounts();
     _nameController.addListener(
       () => _store.setDraftCampaignName(_nameController.text),
     );
@@ -55,6 +59,31 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
       body: Column(
         children: [
           _buildStepIndicator(l),
+          if (!_broadcastStore.hasValidFacebookIntegration)
+            Observer(
+              builder: (_) => Container(
+                color: Colors.orange.withValues(alpha: 0.1),
+                padding: EdgeInsets.all(isSmall ? 10 : 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_outline,
+                      color: Colors.orange,
+                      size: isSmall ? 18 : 20,
+                    ),
+                    SizedBox(width: isSmall ? 8 : 10),
+                    Expanded(
+                      child: Text(
+                        l.translate(
+                          'marketing_error_facebook_not_connected',
+                        ),
+                        style: TextStyle(fontSize: isSmall ? 12 : 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(isSmall ? 12 : 16),
@@ -603,22 +632,25 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                             onPressed: () => setState(() => _currentStep++),
                             child: const Text('Tiếp theo'),
                           )
-                          : FilledButton(
-                            onPressed:
-                                _store.isSubmitting
-                                    ? null
-                                    : () async {
-                                      await _store.createCampaign();
-                                      if (mounted && _store.actionWasSuccess)
-                                        Navigator.pop(context);
-                                    },
-                            child:
-                                _store.isSubmitting
-                                    ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                          : Observer(
+                            builder: (_) => FilledButton(
+                              onPressed:
+                                  _store.isSubmitting ||
+                                          !_broadcastStore
+                                              .hasValidFacebookIntegration
+                                      ? null
+                                      : () async {
+                                        await _store.createCampaign();
+                                        if (mounted && _store.actionWasSuccess)
+                                          Navigator.pop(context);
+                                      },
+                              child:
+                                  _store.isSubmitting
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
                                         color: Colors.white,
                                       ),
                                     )
@@ -627,6 +659,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                                         'marketing_btn_create_campaign',
                                       ),
                                     ),
+                            ),
                           ),
                 ),
               ],
@@ -650,30 +683,34 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                             onPressed: () => setState(() => _currentStep++),
                             child: const Text('Tiếp theo'),
                           )
-                          : FilledButton(
-                            onPressed:
-                                _store.isSubmitting
-                                    ? null
-                                    : () async {
-                                      await _store.createCampaign();
-                                      if (mounted && _store.actionWasSuccess)
-                                        Navigator.pop(context);
-                                    },
-                            child:
-                                _store.isSubmitting
-                                    ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
+                          : Observer(
+                            builder: (_) => FilledButton(
+                              onPressed:
+                                  _store.isSubmitting ||
+                                          !_broadcastStore
+                                              .hasValidFacebookIntegration
+                                      ? null
+                                      : () async {
+                                        await _store.createCampaign();
+                                        if (mounted && _store.actionWasSuccess)
+                                          Navigator.pop(context);
+                                      },
+                              child:
+                                  _store.isSubmitting
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                      : Text(
+                                        l.translate(
+                                          'marketing_btn_create_campaign',
+                                        ),
                                       ),
-                                    )
-                                    : Text(
-                                      l.translate(
-                                        'marketing_btn_create_campaign',
-                                      ),
-                                    ),
+                            ),
                           ),
                 ),
               ],

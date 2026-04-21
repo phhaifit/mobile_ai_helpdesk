@@ -19,6 +19,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class CampaignDetailScreen extends StatefulWidget {
@@ -30,11 +31,14 @@ class CampaignDetailScreen extends StatefulWidget {
 
 class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
   late final MarketingStore _store;
+  late final MarketingBroadcastStore _broadcastStore;
 
   @override
   void initState() {
     super.initState();
     _store = getIt<MarketingStore>();
+    _broadcastStore = getIt<MarketingBroadcastStore>();
+    _broadcastStore.fetchFacebookAdminAccounts();
   }
 
   @override
@@ -75,6 +79,54 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
                 SizedBox(
                   height: MediaQuery.of(context).size.width < 400 ? 12 : 16,
                 ),
+                if (!_broadcastStore.hasValidFacebookIntegration)
+                  Observer(
+                    builder: (_) => Column(
+                      children: [
+                        Container(
+                          color: Colors.orange.withValues(alpha: 0.1),
+                          padding: EdgeInsets.all(
+                            MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.warning_outline,
+                                color: Colors.orange,
+                                size:
+                                    MediaQuery.of(context).size.width < 400
+                                        ? 18
+                                        : 20,
+                              ),
+                              SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.width < 400
+                                        ? 8
+                                        : 10,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  l.translate(
+                                    'marketing_error_facebook_not_connected',
+                                  ),
+                                  style: TextStyle(
+                                    fontSize:
+                                        MediaQuery.of(context).size.width < 400
+                                            ? 12
+                                            : 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height:
+                              MediaQuery.of(context).size.width < 400 ? 10 : 12,
+                        ),
+                      ],
+                    ),
+                  ),
                 _buildInfoCard(campaign, l),
                 SizedBox(
                   height: MediaQuery.of(context).size.width < 400 ? 10 : 12,
@@ -465,22 +517,26 @@ class _CampaignDetailScreenState extends State<CampaignDetailScreen> {
     switch (c.status) {
       case CampaignStatus.draft:
       case CampaignStatus.scheduled:
-        return SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed:
-                () => _confirmAction(
-                  label: l.translate('marketing_btn_start_campaign'),
-                  message: 'Bắt đầu chiến dịch "${c.name}"?',
-                  color: Colors.green,
-                  icon: Icons.play_arrow_rounded,
-                  onConfirm: () => _store.startCampaign(c.id),
-                ),
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(l.translate('marketing_btn_start_campaign')),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.green,
-              padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 14),
+        return Observer(
+          builder: (_) => SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed:
+                  !_broadcastStore.hasValidFacebookIntegration
+                      ? null
+                      : () => _confirmAction(
+                        label: l.translate('marketing_btn_start_campaign'),
+                        message: 'Bắt đầu chiến dịch "${c.name}"?',
+                        color: Colors.green,
+                        icon: Icons.play_arrow_rounded,
+                        onConfirm: () => _store.startCampaign(c.id),
+                      ),
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: Text(l.translate('marketing_btn_start_campaign')),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 14),
+              ),
             ),
           ),
         );
