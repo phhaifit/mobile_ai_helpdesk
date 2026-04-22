@@ -101,6 +101,8 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
             ),
             const SizedBox(height: 12),
             _buildMessengerAppCard(context, data.messenger),
+            const SizedBox(height: 16),
+            _buildZaloAppCard(context, data.zalo),
           ],
         );
       },
@@ -554,6 +556,271 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
                                 Text(
                                   l.translate(
                                     'omnichannel_messenger_modal_info_body',
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleLarge?.copyWith(
+                                    color: const Color(0xFF0B5F85),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: Text(l.translate('omnichannel_close_button')),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildZaloAppCard(
+    BuildContext context,
+    ZaloIntegrationState zalo,
+  ) {
+    final l = AppLocalizations.of(context);
+    final bool isConnected =
+        zalo.connectionStatus == IntegrationConnectionStatus.connected;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
+        color: Colors.white,
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openZaloModal(context, zalo),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0068FF), Color(0xFF00BFFF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: const Icon(Icons.forum_rounded, color: Colors.white),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l.translate('omnichannel_zalo_title'),
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        if (isConnected)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              l.translate('omnichannel_connected_badge'),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelLarge?.copyWith(
+                                color: Colors.green.shade700,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      l.translate('omnichannel_zalo_card_description'),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleMedium?.copyWith(color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openZaloModal(
+    BuildContext context,
+    ZaloIntegrationState zalo,
+  ) async {
+    final l = AppLocalizations.of(context);
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Observer(
+          builder: (_) {
+            final bool isConnected =
+                (_store.overview?.zalo.connectionStatus ??
+                    zalo.connectionStatus) ==
+                IntegrationConnectionStatus.connected;
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.translate('omnichannel_zalo_modal_title'),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 18),
+                    Center(
+                      child: Container(
+                        width: 92,
+                        height: 92,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF0068FF), Color(0xFF00BFFF)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.forum_rounded,
+                          color: Colors.white,
+                          size: 44,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      l.translate('omnichannel_zalo_modal_intro'),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      l.translate('omnichannel_zalo_modal_hint'),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed:
+                            _store.isLoading
+                                ? null
+                                : () async {
+                                  Navigator.of(dialogContext).pop();
+                                  if (!dialogContext.mounted) {
+                                    return;
+                                  }
+
+                                  if (isConnected) {
+                                    await Navigator.pushNamed(
+                                      dialogContext,
+                                      Routes.zaloOverview,
+                                    );
+                                  } else {
+                                    await Navigator.pushNamed(
+                                      dialogContext,
+                                      Routes.zaloConnectQr,
+                                    );
+                                  }
+
+                                  if (!mounted) {
+                                    return;
+                                  }
+                                  await _store.fetchOverview();
+                                },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          l.translate(
+                            isConnected
+                                ? 'omnichannel_open_dashboard_button'
+                                : 'omnichannel_zalo_modal_connect_button',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE7F4FE),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: Color(0xFF0B5F85),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l.translate(
+                                    'omnichannel_zalo_modal_info_title',
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF0B5F85),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l.translate(
+                                    'omnichannel_zalo_modal_info_body',
                                   ),
                                   style: Theme.of(
                                     context,

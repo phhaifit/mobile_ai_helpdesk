@@ -37,7 +37,11 @@ abstract class OmnichannelRepository {
     MessengerSettingsUpdate update,
   );
 
-  Future<ActionFeedback> connectZaloFromQr();
+  Future<ZaloQr> generateZaloQr();
+
+  Future<ZaloQrStatusUpdate> getZaloQrStatus(String code);
+
+  Future<ActionFeedback> connectZalo(String authCode);
 
   Future<ActionFeedback> disconnectZalo();
 

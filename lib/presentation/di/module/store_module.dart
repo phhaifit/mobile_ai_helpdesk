@@ -39,10 +39,12 @@ import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart'
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_from_qr_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
@@ -214,10 +216,12 @@ class StoreModule {
         getIt<DisconnectMessengerUseCase>(),
         getIt<SyncMessengerDataUseCase>(),
         getIt<UpdateMessengerSettingsUseCase>(),
-        getIt<ConnectZaloFromQrUseCase>(),
         getIt<DisconnectZaloUseCase>(),
         getIt<RetryZaloSyncUseCase>(),
         getIt<UpdateZaloAssignmentsUseCase>(),
+        getIt<GenerateZaloQrUseCase>(),
+        getIt<GetZaloQrStatusUseCase>(),
+        getIt<ConnectZaloUseCase>(),
       ),
     );
     // --- Monetization Store ---
