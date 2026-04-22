@@ -1,20 +1,15 @@
+import 'dart:async';
+
 import 'package:ai_helpdesk/constants/analytics_events.dart';
-import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/events/auth_events.dart';
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
-import 'package:dartz/dartz.dart';
+import 'package:ai_helpdesk/domain/entity/account/account.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_session.dart';
+import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
+import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -24,384 +19,153 @@ part 'auth_store.g.dart';
 // ignore: library_private_types_in_public_api
 class AuthStore = _AuthStoreBase with _$AuthStore;
 
+/// App-wide auth session state. Individual screens own their own submit
+/// stores (sign-in email, verify OTP); this store is the single source of
+/// truth for "is the user signed in and who are they" once the app is past
+/// the splash guard.
 abstract class _AuthStoreBase with Store {
-  final LoginUseCase _loginUseCase;
-  final RegisterUseCase _registerUseCase;
-  final LogoutUseCase _logoutUseCase;
-  final GetCurrentUserUseCase _getCurrentUserUseCase;
-  final ChangePasswordUseCase _changePasswordUseCase;
-  final ResetPasswordUseCase _resetPasswordUseCase;
+  final AuthRepository _authRepository;
+  final AccountRepository _accountRepository;
+  final SignOutUseCase _signOutUseCase;
   final AnalyticsService _analyticsService;
   final SentryService _sentryService;
+  final EventBus _eventBus;
+  StreamSubscription<AuthUnauthorizedEvent>? _unauthorizedSub;
 
-  _AuthStoreBase(
-    this._loginUseCase,
-    this._registerUseCase,
-    this._logoutUseCase,
-    this._getCurrentUserUseCase,
-    this._changePasswordUseCase,
-    this._resetPasswordUseCase,
-    this._analyticsService,
-    this._sentryService,
-  );
+  _AuthStoreBase({
+    required AuthRepository authRepository,
+    required AccountRepository accountRepository,
+    required SignOutUseCase signOutUseCase,
+    required EventBus eventBus,
+    required AnalyticsService analyticsService,
+    required SentryService sentryService,
+  })  : _authRepository = authRepository,
+        _accountRepository = accountRepository,
+        _signOutUseCase = signOutUseCase,
+        _eventBus = eventBus,
+        _analyticsService = analyticsService,
+        _sentryService = sentryService {
+    _unauthorizedSub = _eventBus.on<AuthUnauthorizedEvent>().listen((event) {
+      onSignedOut(reason: event.reason);
+    });
+  }
 
-  // ============================================================================
-  // Observables
-  // ============================================================================
-
-  /// Current authenticated user
   @observable
-  User? currentUser;
+  AuthSession? session;
 
-  /// Auth response (token + user)
   @observable
-  AuthResponse? authResponse;
+  Account? account;
 
-  /// Error message from last operation
   @observable
-  String? errorMessage;
+  bool isSigningOut = false;
 
-  /// Success message to show to user
-  @observable
-  String? successMessage;
-
-  /// Loading state for login operation
-  @observable
-  ObservableFuture<void> loginFuture = ObservableFuture.value(null);
-
-  /// Loading state for register operation
-  @observable
-  ObservableFuture<void> registerFuture = ObservableFuture.value(null);
-
-  /// Loading state for logout operation
-  @observable
-  ObservableFuture<void> logoutFuture = ObservableFuture.value(null);
-
-  /// Loading state for get current user operation
-  @observable
-  ObservableFuture<void> getCurrentUserFuture = ObservableFuture.value(null);
-
-  /// Loading state for change password operation
-  @observable
-  ObservableFuture<void> changePasswordFuture = ObservableFuture.value(null);
-
-  /// Loading state for reset password operation
-  @observable
-  ObservableFuture<void> resetPasswordFuture = ObservableFuture.value(null);
-
-  // ============================================================================
-  // Computed
-  // ============================================================================
-
-  /// Check if user is authenticated
   @computed
-  bool get isAuthenticated =>
-      authResponse != null && authResponse!.token.isNotEmpty;
+  bool get isAuthenticated => session != null && account != null;
 
-  /// Check if login is loading
-  @computed
-  bool get isLoginLoading => loginFuture.status == FutureStatus.pending;
-
-  /// Check if register is loading
-  @computed
-  bool get isRegisterLoading => registerFuture.status == FutureStatus.pending;
-
-  /// Check if logout is loading
-  @computed
-  bool get isLogoutLoading => logoutFuture.status == FutureStatus.pending;
-
-  /// Check if get current user is loading
-  @computed
-  bool get isGetCurrentUserLoading =>
-      getCurrentUserFuture.status == FutureStatus.pending;
-
-  /// Check if change password is loading
-  @computed
-  bool get isChangePasswordLoading =>
-      changePasswordFuture.status == FutureStatus.pending;
-
-  /// Check if reset password is loading
-  @computed
-  bool get isResetPasswordLoading =>
-      resetPasswordFuture.status == FutureStatus.pending;
-
-  /// Check if any operation is loading
-  @computed
-  bool get isLoading =>
-      isLoginLoading ||
-      isRegisterLoading ||
-      isLogoutLoading ||
-      isGetCurrentUserLoading ||
-      isChangePasswordLoading ||
-      isResetPasswordLoading;
-
-  // ============================================================================
-  // Actions - Login & Register
-  // ============================================================================
-
-  /// Login with email and password
+  /// Called by the splash guard once it has loaded the persisted session +
+  /// account from local storage.
   @action
-  Future<Either<Failure, void>> login({
-    required String email,
-    required String password,
-  }) async {
-    errorMessage = null;
-    successMessage = null;
+  void hydrate({required AuthSession session, required Account account}) {
+    this.session = session;
+    this.account = account;
+    _sentryService.setUserContext(
+      userId: account.accountId,
+      email: account.email,
+      tenantId: account.tenantId,
+    );
+  }
 
+  /// Called by the sign-in flow immediately after a successful OTP exchange +
+  /// `/sso-validate` round-trip.
+  @action
+  void onSignedIn({
+    required AuthSession session,
+    required Account account,
+    bool isNewUser = false,
+  }) {
+    this.session = session;
+    this.account = account;
+    _analyticsService.trackEvent(
+      AnalyticsEvents.userLogin,
+      parameters: {
+        'method': 'otp',
+        'success': 'true',
+        'is_new_user': isNewUser ? 'true' : 'false',
+      },
+    );
+    _analyticsService.setUserProperties(
+      account.accountId,
+      userProperties: {
+        'user_role': account.role,
+        'tenant_id': account.tenantId,
+      },
+    );
+    _sentryService.setUserContext(
+      userId: account.accountId,
+      email: account.email,
+      tenantId: account.tenantId,
+    );
+  }
+
+  /// Keep cached access token fresh so reactive UI that reads from [session]
+  /// does not show a stale value. Called by refresh flows.
+  @action
+  void onAccessTokenRefreshed(String newAccessToken) {
+    final current = session;
+    if (current != null) {
+      session = current.copyWith(accessToken: newAccessToken);
+    }
+  }
+
+  @action
+  Future<void> signOut() async {
+    isSigningOut = true;
+    try {
+      await _signOutUseCase.call(params: null);
+      _analyticsService.trackEvent(AnalyticsEvents.userLogout);
+    } catch (e, s) {
+      debugPrint('[AuthStore] signOut error: $e\n$s');
+    } finally {
+      onSignedOut(reason: 'user_initiated');
+      isSigningOut = false;
+    }
+  }
+
+  /// Tear down session state — called by explicit sign-out and by the
+  /// unauthorized event listener. Safe to call multiple times.
+  @action
+  void onSignedOut({String reason = 'unknown'}) {
+    if (session == null && account == null) return;
+    session = null;
+    account = null;
+    _sentryService.clearUserContext();
     _sentryService.addBreadcrumb(
-      message: 'User submitted login form',
+      message: 'User signed out',
       category: 'auth',
-      data: {'email': email, 'action': 'login_attempt'},
-      type: 'user',
+      data: {'reason': reason},
+      level: SentryLevel.info,
     );
-
-    loginFuture = ObservableFuture(
-      _loginUseCase
-          .call(
-            params: LoginRequest(email: email, password: password),
-          )
-          .then((result) {
-            result.fold(
-              (failure) {
-                errorMessage = failure.message;
-                _analyticsService.trackEvent(
-                  AnalyticsEvents.userLogin,
-                  parameters: {
-                    'method': 'email',
-                    'success': 'false',
-                    'error_code': 'auth_failure',
-                  },
-                );
-                _sentryService.addBreadcrumb(
-                  message: 'Login failed',
-                  category: 'auth',
-                  level: SentryLevel.warning,
-                  data: {'reason': failure.message},
-                  type: 'user',
-                );
-              },
-              (authResp) {
-                authResponse = authResp;
-                currentUser = authResp.user;
-                successMessage = 'Login successful!';
-
-                // Track successful login & set user properties
-                _analyticsService.trackEvent(
-                  AnalyticsEvents.userLogin,
-                  parameters: {'method': 'email', 'success': 'true'},
-                );
-                _analyticsService.setUserProperties(
-                  authResp.user.id,
-                  userProperties: {
-                    'user_role': 'agent',
-                    'plan_type': 'free',
-                    'tenant_id': 'default_tenant',
-                  },
-                );
-                _sentryService.setUserContext(
-                  userId: authResp.user.id,
-                  email: authResp.user.email,
-                  tenantId: SentryService.defaultTenantId,
-                );
-                _sentryService.addBreadcrumb(
-                  message: 'Login successful',
-                  category: 'auth',
-                  data: {'user_id': authResp.user.id},
-                  type: 'user',
-                );
-                debugPrint(
-                  '[AuthStore] User properties set for ${authResp.user.id}',
-                );
-              },
-            );
-          }),
-    );
-
-    await loginFuture;
-    return isAuthenticated
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Login failed'));
   }
 
-  /// Register new account
+  /// Refresh the account payload in the background (called opportunistically
+  /// by screens that need the latest tenant/role info). Returns true on
+  /// success; callers can ignore failures since a cached Account is still
+  /// served.
   @action
-  Future<Either<Failure, void>> register({
-    required String email,
-    required String username,
-    required String password,
-    required String confirmPassword,
-  }) async {
-    errorMessage = null;
-    successMessage = null;
-
-    registerFuture = ObservableFuture(
-      _registerUseCase
-          .call(
-            params: RegisterRequest(
-              email: email,
-              username: username,
-              password: password,
-              confirmPassword: confirmPassword,
-            ),
-          )
-          .then((result) {
-            result.fold((failure) => errorMessage = failure.message, (
-              authResp,
-            ) {
-              authResponse = authResp;
-              currentUser = authResp.user;
-              successMessage = 'Registration successful!';
-            });
-          }),
-    );
-
-    await registerFuture;
-    return isAuthenticated
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Registration failed'));
+  Future<bool> refreshAccount() async {
+    final result = await _accountRepository.getCurrent();
+    return result.fold((_) => false, (a) {
+      account = a;
+      return true;
+    });
   }
 
-  // ============================================================================
-  // Actions - User Management
-  // ============================================================================
+  /// Expose the repository for the splash guard without leaking it across
+  /// the UI layer more broadly.
+  AuthRepository get authRepository => _authRepository;
+  AccountRepository get accountRepository => _accountRepository;
 
-  /// Get current logged-in user
-  @action
-  Future<Either<Failure, void>> getCurrentUser() async {
-    errorMessage = null;
-
-    getCurrentUserFuture = ObservableFuture(
-      _getCurrentUserUseCase.call(params: null).then((result) {
-        result.fold(
-          (failure) => errorMessage = failure.message,
-          (user) => currentUser = user,
-        );
-      }),
-    );
-
-    await getCurrentUserFuture;
-    return currentUser != null
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Failed to get user'));
-  }
-
-  /// Logout current user
-  @action
-  Future<Either<Failure, void>> logout() async {
-    errorMessage = null;
-    successMessage = null;
-
-    logoutFuture = ObservableFuture(
-      _logoutUseCase.call(params: null).then((result) {
-        result.fold((failure) => errorMessage = failure.message, (_) {
-          _analyticsService.trackEvent(AnalyticsEvents.userLogout);
-          _sentryService.addBreadcrumb(
-            message: 'User logged out',
-            category: 'auth',
-            type: 'user',
-          );
-          _sentryService.clearUserContext();
-          authResponse = null;
-          currentUser = null;
-          successMessage = 'Logged out successfully';
-        });
-      }),
-    );
-
-    await logoutFuture;
-    return !isAuthenticated
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Logout failed'));
-  }
-
-  // ============================================================================
-  // Actions - Password Management
-  // ============================================================================
-
-  /// Change current password
-  @action
-  Future<Either<Failure, void>> changePassword({
-    required String currentPassword,
-    required String newPassword,
-    required String confirmPassword,
-  }) async {
-    errorMessage = null;
-    successMessage = null;
-
-    changePasswordFuture = ObservableFuture(
-      _changePasswordUseCase
-          .call(
-            params: ChangePasswordRequest(
-              currentPassword: currentPassword,
-              newPassword: newPassword,
-              confirmPassword: confirmPassword,
-            ),
-          )
-          .then((result) {
-            result.fold(
-              (failure) => errorMessage = failure.message,
-              (_) => successMessage = 'Password changed successfully',
-            );
-          }),
-    );
-
-    await changePasswordFuture;
-    return errorMessage == null
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Failed to change password'));
-  }
-
-  /// Reset password with reset token
-  @action
-  Future<Either<Failure, void>> resetPassword({
-    required String email,
-    required String token,
-    required String newPassword,
-    required String confirmPassword,
-  }) async {
-    errorMessage = null;
-    successMessage = null;
-
-    resetPasswordFuture = ObservableFuture(
-      _resetPasswordUseCase
-          .call(
-            params: ResetPasswordRequest(
-              email: email,
-              token: token,
-              newPassword: newPassword,
-              confirmPassword: confirmPassword,
-            ),
-          )
-          .then((result) {
-            result.fold(
-              (failure) => errorMessage = failure.message,
-              (_) => successMessage = 'Password reset successfully',
-            );
-          }),
-    );
-
-    await resetPasswordFuture;
-    return errorMessage == null
-        ? const Right(null)
-        : Left(UnknownFailure(errorMessage ?? 'Failed to reset password'));
-  }
-
-  // ============================================================================
-  // Clear Messages
-  // ============================================================================
-
-  /// Clear error message
-  @action
-  void clearErrorMessage() => errorMessage = null;
-
-  /// Clear success message
-  @action
-  void clearSuccessMessage() => successMessage = null;
-
-  /// Clear all messages
-  @action
-  void clearAllMessages() {
-    errorMessage = null;
-    successMessage = null;
+  void dispose() {
+    _unauthorizedSub?.cancel();
   }
 }

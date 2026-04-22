@@ -3,14 +3,27 @@ import '/constants/env.dart';
 class Endpoints {
   Endpoints._();
 
-  // base url — sourced from EnvConfig
-  static String get baseUrl => EnvConfig.instance.baseUrl;
+  // Helpdesk host (tenant-scoped endpoints).
+  static String get baseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+  static String get helpdeskBaseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
 
-  // receiveTimeout — sourced from EnvConfig
+  // Stack Auth host (token issuance / refresh / revoke).
+  static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
+
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
-
-  // connectTimeout — sourced from EnvConfig
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
+
+  // ---- Stack Auth ---------------------------------------------------------
+  static const String authSendSignInCode = '/api/v1/auth/otp/send-sign-in-code';
+  static const String authOtpSignIn = '/api/v1/auth/otp/sign-in';
+  static const String authRefreshSession =
+      '/api/v1/auth/sessions/current/refresh';
+  static const String authCurrentSession = '/api/v1/auth/sessions/current';
+
+  // ---- Helpdesk Account ---------------------------------------------------
+  static const String accountSsoValidate = '/api/account/sso-validate';
+  static const String accountMe = '/api/account/me';
+  static const String accountAvatar = '/api/account/me/avatar';
 
   // Post endpoints (legacy)
   static const String getPosts = '/posts';

@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           navigatorObservers: [SentryNavigatorObserver()],
-          initialRoute: Routes.login,
+          initialRoute: Routes.splash,
         );
       },
     );
