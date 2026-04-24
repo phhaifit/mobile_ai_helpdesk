@@ -1,21 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
+import '../../domain/entity/chat/message.dart';
 import '../../domain/entity/chat/chat_room.dart';
 import '../../domain/entity/prompt/prompt.dart';
 import '../prompt/store/prompt_store.dart';
+import '../../data/realtime/socket/socket_service.dart';
 import 'slash_prompt_picker_overlay.dart';
 import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/typing_indicator.dart';
+import '../playground/widgets/draft_response_panel.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom? room;
-  final int? scrollToMessageId;
+  final String? scrollToMessageId;
   final VoidCallback? onInfoTap;
 
   const ChatScreen({
@@ -32,6 +37,10 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late final ChatStore _chatStore;
   late final PromptStore _promptStore;
+  late final SocketService _socketService;
+  StreamSubscription<Message>? _socketMessageSub;
+  StreamSubscription<String>? _socketTypingSub;
+  StreamSubscription<String>? _socketStopTypingSub;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
@@ -40,16 +49,21 @@ class _ChatScreenState extends State<ChatScreen> {
   int _previousItemCount = 0;
   bool _slashMode = false;
   bool _showSearch = false;
-  List<int> _searchResults = []; // Message IDs that match search query
+  List<String> _searchResults = []; // Message IDs that match search query
   int _currentSearchIndex = -1; // Index in _searchResults array
-  int? _highlightedMessageId; // ID of currently highlighted message
+  String? _highlightedMessageId; // ID of currently highlighted message
 
   @override
   void initState() {
     super.initState();
     _chatStore = getIt<ChatStore>();
     _promptStore = getIt<PromptStore>();
-    _chatStore.getMessages();
+    _socketService = getIt<SocketService>();
+    final roomId = widget.room?.id;
+    if (roomId != null) {
+      _chatStore.getMessages(roomId);
+      _bindSocket(roomId);
+    }
 
     _textController.addListener(_onComposerChanged);
     if (_promptStore.prompts.isEmpty) {
@@ -58,6 +72,31 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _scrollController.addListener(_onScrollPositionChanged);
     _inputFocusNode.addListener(_onInputFocusChanged);
+  }
+
+  void _bindSocket(String chatRoomId) {
+    _socketMessageSub?.cancel();
+    _socketTypingSub?.cancel();
+    _socketStopTypingSub?.cancel();
+
+    _socketMessageSub = _socketService.messages.listen((msg) {
+      // Only apply messages for this chat room.
+      // (We’ll update inbox list via ChatRoomStore separately.)
+      if (msg.chatRoomId == chatRoomId) {
+        _chatStore.onSocketMessage(msg);
+      }
+    });
+
+    _socketTypingSub = _socketService.typing.listen((roomId) {
+      if (roomId == chatRoomId) {
+        _chatStore.onSocketTyping(typing: true);
+      }
+    });
+    _socketStopTypingSub = _socketService.stopTyping.listen((roomId) {
+      if (roomId == chatRoomId) {
+        _chatStore.onSocketTyping(typing: false);
+      }
+    });
   }
 
   void _onComposerChanged() {
@@ -116,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final messages = _chatStore.messageList;
-    final results = <int>[];
+    final results = <String>[];
 
     for (final message in messages) {
       if (message.content.toLowerCase().contains(query.toLowerCase())) {
@@ -157,7 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToMessage(_highlightedMessageId!);
   }
 
-  void _scrollToMessage(int messageId) {
+  void _scrollToMessage(String messageId) {
     final messages = _chatStore.messageList;
     final messageIndex = messages.indexWhere((m) => m.id == messageId);
 
@@ -202,6 +241,12 @@ class _ChatScreenState extends State<ChatScreen> {
         isActive: widget.room!.isActive,
         room: widget.room,
         onInfoTap: widget.onInfoTap,
+        onAIAnalysisTap: () {
+          final roomId = widget.room?.id;
+          if (roomId != null) {
+            _chatStore.generateDraftResponses(chatRoomId: roomId);
+          }
+        },
         onSearchTap: () {
           setState(() => _showSearch = !_showSearch);
           if (_showSearch) {
@@ -213,6 +258,20 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
+          Observer(
+            builder: (_) => DraftResponsePanel(
+              drafts: _chatStore.draftResponses.toList(),
+              onUse: (draft) {
+                _textController.text = draft;
+                _textController.selection = TextSelection.collapsed(
+                  offset: _textController.text.length,
+                );
+              },
+              onDismiss: () {
+                _chatStore.draftResponses.clear();
+              },
+            ),
+          ),
           if (_showSearch)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -400,6 +459,10 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _textController.removeListener(_onComposerChanged);
+    _socketMessageSub?.cancel();
+    _socketTypingSub?.cancel();
+    _socketStopTypingSub?.cancel();
+    _chatStore.dispose();
     _scrollController.dispose();
     _textController.dispose();
     _searchController.dispose();

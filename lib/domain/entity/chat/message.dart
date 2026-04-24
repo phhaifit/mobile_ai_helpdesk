@@ -3,7 +3,8 @@ import 'reaction.dart';
 enum MessageReadStatus { sent, delivered, read }
 
 class Message {
-  final int id;
+  final String id;
+  final String? chatRoomId;
   final String content;
   final DateTime timestamp;
   final bool isMe;
@@ -14,6 +15,7 @@ class Message {
 
   Message({
     required this.id,
+    this.chatRoomId,
     required this.content,
     required this.timestamp,
     required this.isMe,
@@ -25,7 +27,8 @@ class Message {
 
   /// Create a copy with optional fields
   Message copyWith({
-    int? id,
+    String? id,
+    String? chatRoomId,
     String? content,
     DateTime? timestamp,
     bool? isMe,
@@ -36,6 +39,7 @@ class Message {
   }) {
     return Message(
       id: id ?? this.id,
+      chatRoomId: chatRoomId ?? this.chatRoomId,
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
       isMe: isMe ?? this.isMe,

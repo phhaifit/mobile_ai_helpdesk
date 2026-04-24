@@ -97,8 +97,8 @@ mixin _$ChatStore on _ChatStore, Store {
   );
 
   @override
-  Future<void> getMessages() {
-    return _$getMessagesAsyncAction.run(() => super.getMessages());
+  Future<void> getMessages(String chatRoomId) {
+    return _$getMessagesAsyncAction.run(() => super.getMessages(chatRoomId));
   }
 
   late final _$_ChatStoreActionController = ActionController(
@@ -131,7 +131,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void addReactionToMessage(int messageId, String emoji) {
+  void addReactionToMessage(String messageId, String emoji) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore.addReactionToMessage',
     );
@@ -143,7 +143,7 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void _updateMessageReadStatus(int messageId, MessageReadStatus newStatus) {
+  void _updateMessageReadStatus(String messageId, MessageReadStatus newStatus) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore._updateMessageReadStatus',
     );

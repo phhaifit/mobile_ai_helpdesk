@@ -9,7 +9,7 @@ enum Environment { dev, staging, prod }
 enum EnvConfig {
   dev._(
     environment: Environment.dev,
-    baseUrl: 'https://dev-api.jarvis-helpdesk.com',
+    baseUrl: 'https://helpdesk-api.jarvis.cx',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
@@ -18,7 +18,7 @@ enum EnvConfig {
   ),
   staging._(
     environment: Environment.staging,
-    baseUrl: 'https://staging-api.jarvis-helpdesk.com',
+    baseUrl: 'https://helpdesk-api.jarvis.cx',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: true,
@@ -27,7 +27,7 @@ enum EnvConfig {
   ),
   prod._(
     environment: Environment.prod,
-    baseUrl: 'https://api.jarvis-helpdesk.com',
+    baseUrl: 'https://helpdesk-api.jarvis.cx',
     receiveTimeout: 15000,
     connectionTimeout: 30000,
     enableLogging: false,

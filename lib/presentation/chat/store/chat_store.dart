@@ -1,7 +1,10 @@
-import 'package:mobx/mobx.dart' hide Reaction;
 import 'dart:async';
 import 'dart:math';
+import 'package:ai_helpdesk/core/events/socket/server/ai/draft_response_sse_event.dart';
+import 'package:ai_helpdesk/data/realtime/sse/draft_response_sse_client.dart';
+import 'package:mobx/mobx.dart' hide Reaction;
 import '../../../constants/analytics_events.dart';
+import '../../../di/service_locator.dart';
 import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/entity/chat/message.dart';
 import '../../../domain/entity/chat/reaction.dart';
@@ -39,6 +42,14 @@ abstract class _ChatStore with Store {
   bool isTyping = false;
 
   @observable
+  ObservableList<String> draftResponses = ObservableList<String>();
+
+  @observable
+  bool isDraftLoading = false;
+
+  StreamSubscription<DraftResponseSseEvent>? _draftSub;
+
+  @observable
   String searchQuery = '';
 
   @computed
@@ -59,10 +70,10 @@ abstract class _ChatStore with Store {
   }
 
   @action
-  Future<void> getMessages() async {
+  Future<void> getMessages(String chatRoomId) async {
     isLoading = true;
     messageList.clear(); // Clear sebelum load pesan baru
-    final messages = await _chatRepository.getMessages();
+    final messages = await _chatRepository.getMessages(chatRoomId: chatRoomId);
     messageList.addAll(messages);
     isLoading = false;
   }
@@ -70,8 +81,9 @@ abstract class _ChatStore with Store {
   @action
   void sendMessage(String text) {
     if (text.trim().isEmpty) return;
+    final id = DateTime.now().microsecondsSinceEpoch.toString();
     final newMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch,
+      id: id,
       content: text,
       timestamp: DateTime.now(),
       isMe: true,
@@ -95,7 +107,7 @@ abstract class _ChatStore with Store {
   }
 
   @action
-  void addReactionToMessage(int messageId, String emoji) {
+  void addReactionToMessage(String messageId, String emoji) {
     final index = messageList.indexWhere((m) => m.id == messageId);
     if (index != -1) {
       final message = messageList[index];
@@ -130,14 +142,68 @@ abstract class _ChatStore with Store {
   }
 
   @action
-  void _updateMessageReadStatus(int messageId, MessageReadStatus newStatus) {
+  void onSocketMessage(Message message) {
+    // Merge by id to avoid duplicates.
+    final index = messageList.indexWhere((m) => m.id == message.id);
+    if (index >= 0) {
+      messageList[index] = message;
+    } else {
+      messageList.add(message);
+    }
+  }
+
+  @action
+  void onSocketTyping({required bool typing}) {
+    isTyping = typing;
+  }
+
+  @action
+  Future<void> generateDraftResponses({required String chatRoomId}) async {
+    _draftSub?.cancel();
+    draftResponses.clear();
+    isDraftLoading = true;
+    final client = getIt<DraftResponseSseClient>();
+
+    _draftSub = client
+        .streamDraftResponse(chatRoomId: chatRoomId)
+        .listen((evt) {
+          if (evt.event == 'lastDraftResponseUpdate') {
+            final json = evt.dataJson;
+            final drafts = json?['drafts'];
+            if (drafts is List) {
+              draftResponses
+                ..clear()
+                ..addAll(drafts.whereType<String>());
+            } else {
+              // Fallback: treat data as a single draft.
+              if (evt.data.isNotEmpty) {
+                draftResponses
+                  ..clear()
+                  ..add(evt.data);
+              }
+            }
+            isDraftLoading = false;
+          }
+        }, onError: (_) {
+          isDraftLoading = false;
+        }, onDone: () {
+          isDraftLoading = false;
+        });
+  }
+
+  void dispose() {
+    _draftSub?.cancel();
+  }
+
+  @action
+  void _updateMessageReadStatus(String messageId, MessageReadStatus newStatus) {
     final index = messageList.indexWhere((m) => m.id == messageId);
     if (index != -1) {
       messageList[index] = messageList[index].copyWith(readStatus: newStatus);
     }
   }
 
-  Future<void> _simulateReadStatusProgression(int messageId) async {
+  Future<void> _simulateReadStatusProgression(String messageId) async {
     // Sent → Delivered (after 500ms)
     await Future.delayed(const Duration(milliseconds: 500), () {
       _updateMessageReadStatus(messageId, MessageReadStatus.delivered);
@@ -161,7 +227,7 @@ abstract class _ChatStore with Store {
           _defaultResponses[Random().nextInt(_defaultResponses.length)];
 
       final autoReplyMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch,
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
         content: randomResponse,
         timestamp: DateTime.now(),
         isMe: false,
