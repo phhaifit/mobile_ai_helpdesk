@@ -4,38 +4,85 @@ import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+import '../../../core/events/socket/client/authenticate_socket_connection_event.dart';
+import '../../../core/events/socket/client/send_typing_indicator_event.dart';
+import '../../../core/events/socket/client/stop_typing_indicator_event.dart';
+import '../../../core/events/socket/server/ai/socket_draft_response_progress_event.dart';
+import '../../../core/events/socket/server/interactions/agent_stopped_typing_event.dart';
+import '../../../core/events/socket/server/interactions/agent_typing_indicator_event.dart';
+import '../../../core/events/socket/server/interactions/chat_room_marked_as_seen_event.dart';
+import '../../../core/events/socket/server/interactions/customer_stopped_typing_event.dart';
+import '../../../core/events/socket/server/interactions/customer_typing_indicator_event.dart';
+import '../../../core/events/socket/server/interactions/message_reaction_update_event.dart';
+import '../../../core/events/socket/server/messages/email_message_event.dart';
+import '../../../core/events/socket/server/messages/facebook_messenger_message_event.dart';
+import '../../../core/events/socket/server/messages/generic_new_message_event.dart';
+import '../../../core/events/socket/server/messages/lazada_message_event.dart';
+import '../../../core/events/socket/server/messages/lazada_recalled_message_event.dart';
+import '../../../core/events/socket/server/messages/phone_sms_message_event.dart';
+import '../../../core/events/socket/server/messages/socket_message_payload.dart';
+import '../../../core/events/socket/server/messages/web_chat_message_event.dart';
+import '../../../core/events/socket/server/messages/zalo_message_event.dart';
+import '../../../core/events/socket/server/messages/zendesk_message_event.dart';
+import '../../../core/events/socket/server/messages/zohodesk_message_event.dart';
+import '../../../core/events/socket/server/tickets/socket_escalation_alert_event.dart';
+import '../../../core/events/socket/server/tickets/socket_inapp_notification_event.dart';
+import '../../../core/events/socket/server/tickets/socket_new_ticket_created_event.dart';
+import '../../../core/events/socket/server/tickets/socket_ticket_status_changed_event.dart';
+
 class SocketService {
   final SharedPreferenceHelper _prefs;
 
   io.Socket? _socket;
   String? _tenantId;
+  Timer? _authTimeout;
 
   final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<String>.broadcast(); // chatRoomId
   final _stopTypingController = StreamController<String>.broadcast();
-  final _seenController = StreamController<SocketSeenEvent>.broadcast();
-  final _reactionController = StreamController<SocketReactionEvent>.broadcast();
+  final _customerTypingController = StreamController<String>.broadcast();
+  final _customerStopTypingController = StreamController<String>.broadcast();
+  final _seenController =
+      StreamController<ChatRoomMarkedAsSeenEvent>.broadcast();
+  final _reactionController =
+      StreamController<MessageReactionUpdateEvent>.broadcast();
   final _ticketStatusController =
-      StreamController<SocketTicketStatusEvent>.broadcast();
+      StreamController<SocketTicketStatusChangedEvent>.broadcast();
+  final _newTicketController =
+      StreamController<SocketNewTicketCreatedEvent>.broadcast();
   final _notificationController =
-      StreamController<SocketNotificationEvent>.broadcast();
+      StreamController<SocketInAppNotificationEvent>.broadcast();
+  final _escalationController =
+      StreamController<SocketEscalationAlertEvent>.broadcast();
   final _draftProgressController =
-      StreamController<SocketDraftProgressEvent>.broadcast();
+      StreamController<SocketDraftResponseProgressEvent>.broadcast();
+  final _lazadaRecalledController =
+      StreamController<LazadaRecalledMessageEvent>.broadcast();
 
   SocketService(this._prefs);
 
   Stream<Message> get messages => _messageController.stream;
   Stream<String> get typing => _typingController.stream;
   Stream<String> get stopTyping => _stopTypingController.stream;
-  Stream<SocketSeenEvent> get seen => _seenController.stream;
-  Stream<SocketReactionEvent> get reactions => _reactionController.stream;
-  Stream<SocketTicketStatusEvent> get ticketStatus => _ticketStatusController.stream;
-  Stream<SocketNotificationEvent> get notifications =>
+  Stream<String> get customerTyping => _customerTypingController.stream;
+  Stream<String> get customerStopTyping => _customerStopTypingController.stream;
+  Stream<ChatRoomMarkedAsSeenEvent> get seen => _seenController.stream;
+  Stream<MessageReactionUpdateEvent> get reactions => _reactionController.stream;
+  Stream<SocketTicketStatusChangedEvent> get ticketStatus =>
+      _ticketStatusController.stream;
+  Stream<SocketNewTicketCreatedEvent> get newTickets =>
+      _newTicketController.stream;
+  Stream<SocketInAppNotificationEvent> get notifications =>
       _notificationController.stream;
-  Stream<SocketDraftProgressEvent> get draftProgress =>
+  Stream<SocketEscalationAlertEvent> get escalations =>
+      _escalationController.stream;
+  Stream<SocketDraftResponseProgressEvent> get draftProgress =>
       _draftProgressController.stream;
+  Stream<LazadaRecalledMessageEvent> get lazadaRecalled =>
+      _lazadaRecalledController.stream;
 
   bool get isConnected => _socket?.connected == true;
+  String? get socketId => _socket?.id;
 
   Future<void> connect({
     required String tenantId,
@@ -66,260 +113,168 @@ class SocketService {
     );
 
     _socket!.onConnect((_) {
-      _socket!.emit('SOCKET_AUTHENTICATE', {'token': token});
+      // Must authenticate within 2 seconds of connection per docs.
+      _authTimeout?.cancel();
+      _authTimeout = Timer(const Duration(seconds: 2), () {
+        _socket?.disconnect();
+      });
+
+      final auth = AuthenticateSocketConnectionEvent(token: token);
+      _socket!.emit(AuthenticateSocketConnectionEvent.name, auth.toJson());
     });
 
-    _socket!.on('SOCKET_MESSAGE', (payload) async {
-      final message = await _mapSocketMessage(payload);
-      if (message != null) {
-        _messageController.add(message);
-      }
+    _socket!.onDisconnect((_) {
+      _authTimeout?.cancel();
+      _authTimeout = null;
     });
 
-    _socket!.on('SOCKET_TYPING', (payload) {
-      final chatRoomId = _chatRoomIdFromPayload(payload);
-      if (chatRoomId != null) _typingController.add(chatRoomId);
+    _socket!.onConnectError((err) {
+      _authTimeout?.cancel();
+      _authTimeout = null;
     });
 
-    _socket!.on('SOCKET_STOP_TYPING', (payload) {
-      final chatRoomId = _chatRoomIdFromPayload(payload);
-      if (chatRoomId != null) _stopTypingController.add(chatRoomId);
+    void onAnyMessage(dynamic payload) async {
+      final p = _parseMessagePayload(payload);
+      if (p == null) return;
+      final message = await _mapSocketMessagePayload(p);
+      _messageController.add(message);
+    }
+
+    _socket!.on(GenericNewMessageEvent.name, onAnyMessage);
+    _socket!.on(FacebookMessengerMessageEvent.name, onAnyMessage);
+    _socket!.on(ZaloMessageEvent.name, onAnyMessage);
+    _socket!.on(EmailMessageEvent.name, onAnyMessage);
+    _socket!.on(PhoneSmsMessageEvent.name, onAnyMessage);
+    _socket!.on(WebChatMessageEvent.name, onAnyMessage);
+    _socket!.on(LazadaMessageEvent.name, onAnyMessage);
+    _socket!.on(ZendeskMessageEvent.name, onAnyMessage);
+    _socket!.on(ZohoDeskMessageEvent.name, onAnyMessage);
+
+    _socket!.on(AgentTypingIndicatorEvent.name, (payload) {
+      final e = AgentTypingIndicatorEvent.parse(payload);
+      if (e != null) _typingController.add(e.chatRoomId);
     });
 
-    _socket!.on('SOCKET_SEEN_CHAT_ROOM', (payload) {
-      final e = SocketSeenEvent.fromPayload(payload);
+    _socket!.on(AgentStoppedTypingEvent.name, (payload) {
+      final e = AgentStoppedTypingEvent.parse(payload);
+      if (e != null) _stopTypingController.add(e.chatRoomId);
+    });
+
+    _socket!.on(CustomerTypingIndicatorEvent.name, (payload) {
+      final e = CustomerTypingIndicatorEvent.parse(payload);
+      if (e != null) _customerTypingController.add(e.chatRoomId);
+    });
+
+    _socket!.on(CustomerStoppedTypingEvent.name, (payload) {
+      final e = CustomerStoppedTypingEvent.parse(payload);
+      if (e != null) _customerStopTypingController.add(e.chatRoomId);
+    });
+
+    _socket!.on(ChatRoomMarkedAsSeenEvent.name, (payload) {
+      final e = ChatRoomMarkedAsSeenEvent.parse(payload);
       if (e != null) _seenController.add(e);
     });
 
-    _socket!.on('SOCKET_REACT_MESSAGE', (payload) {
-      final e = SocketReactionEvent.fromPayload(payload);
+    _socket!.on(MessageReactionUpdateEvent.name, (payload) {
+      final e = MessageReactionUpdateEvent.parse(payload);
       if (e != null) _reactionController.add(e);
     });
 
-    _socket!.on('SOCKET_CHANGE_TICKET_STATUS', (payload) {
-      final e = SocketTicketStatusEvent.fromPayload(payload);
+    _socket!.on(SocketTicketStatusChangedEvent.name, (payload) {
+      final e = SocketTicketStatusChangedEvent.parse(payload);
       if (e != null) _ticketStatusController.add(e);
     });
 
-    _socket!.on('SOCKET_NOTI', (payload) {
-      final e = SocketNotificationEvent.fromPayload(payload);
+    _socket!.on(SocketNewTicketCreatedEvent.name, (payload) {
+      final e = SocketNewTicketCreatedEvent.parse(payload);
+      if (e != null) _newTicketController.add(e);
+    });
+
+    _socket!.on(SocketInAppNotificationEvent.name, (payload) {
+      final e = SocketInAppNotificationEvent.parse(payload);
       if (e != null) _notificationController.add(e);
     });
 
-    _socket!.on('SOCKET_DRAFT_RESPONSE_PROGRESS', (payload) {
-      final e = SocketDraftProgressEvent.fromPayload(payload);
+    _socket!.on(SocketEscalationAlertEvent.name, (payload) {
+      final e = SocketEscalationAlertEvent.parse(payload);
+      if (e != null) _escalationController.add(e);
+    });
+
+    _socket!.on(SocketDraftResponseProgressEvent.name, (payload) {
+      final e = SocketDraftResponseProgressEvent.parse(payload);
       if (e != null) _draftProgressController.add(e);
+    });
+
+    _socket!.on(LazadaRecalledMessageEvent.name, (payload) {
+      final e = LazadaRecalledMessageEvent.parse(payload);
+      if (e != null) _lazadaRecalledController.add(e);
     });
 
     _socket!.connect();
   }
 
   Future<void> disconnect() async {
+    _authTimeout?.cancel();
+    _authTimeout = null;
     _socket?.dispose();
     _socket = null;
     _tenantId = null;
   }
 
   void emitTyping(String chatRoomId) {
-    _socket?.emit('SOCKET_TYPING', {'chatRoomID': chatRoomId});
+    final e = SendTypingIndicatorEvent(chatRoomId: chatRoomId);
+    _socket?.emit(SendTypingIndicatorEvent.name, e.toJson());
   }
 
   void emitStopTyping(String chatRoomId) {
-    _socket?.emit('SOCKET_STOP_TYPING', {'chatRoomID': chatRoomId});
+    final e = StopTypingIndicatorEvent(chatRoomId: chatRoomId);
+    _socket?.emit(StopTypingIndicatorEvent.name, e.toJson());
   }
 
-  String? _chatRoomIdFromPayload(dynamic payload) {
-    if (payload is Map) {
-      final m = payload.cast<String, dynamic>();
-      final id = m['chatRoomID']?.toString();
-      if (id != null && id.isNotEmpty) return id;
-    }
-    return null;
+  SocketMessagePayload? _parseMessagePayload(dynamic payload) {
+    return GenericNewMessageEvent.parse(payload) ??
+        FacebookMessengerMessageEvent.parse(payload) ??
+        ZaloMessageEvent.parse(payload) ??
+        EmailMessageEvent.parse(payload) ??
+        PhoneSmsMessageEvent.parse(payload) ??
+        WebChatMessageEvent.parse(payload) ??
+        LazadaMessageEvent.parse(payload) ??
+        ZendeskMessageEvent.parse(payload) ??
+        ZohoDeskMessageEvent.parse(payload);
   }
 
-  Future<Message?> _mapSocketMessage(dynamic payload) async {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-
-    final messageId = m['messageID']?.toString() ?? '';
-    final chatRoomId = m['chatRoomID']?.toString() ?? '';
-    if (messageId.isEmpty || chatRoomId.isEmpty) return null;
-
+  Future<Message> _mapSocketMessagePayload(SocketMessagePayload p) async {
     final tokenUser = await _prefs.getUser();
     final myId = tokenUser?.id;
-    final sender = m['sender']?.toString();
-    final isMe = myId != null && sender != null && sender == myId;
-
-    final content = (m['content'] is String && (m['content'] as String).isNotEmpty)
-        ? (m['content'] as String)
-        : (m['contentInfo'] is Map &&
-                (m['contentInfo'] as Map).cast<String, dynamic>()['content']
-                    is String)
-            ? (m['contentInfo'] as Map).cast<String, dynamic>()['content'] as String
-            : '';
-
-    final createdAt = m['createdAt'] is String
-        ? DateTime.tryParse(m['createdAt'] as String)
-        : null;
+    final isMe = myId != null && p.sender != null && p.sender == myId;
 
     return Message(
-      id: messageId,
-      chatRoomId: chatRoomId,
-      content: content,
-      timestamp: createdAt ?? DateTime.now(),
+      id: p.messageId,
+      chatRoomId: p.chatRoomId,
+      content: p.displayContent,
+      timestamp: p.createdAt ?? DateTime.now(),
       isMe: isMe,
-      senderName: isMe ? 'You' : (sender == null ? 'Customer' : 'Agent'),
+      senderName: isMe ? 'You' : (p.sender == null ? 'Customer' : 'Agent'),
       isPending: false,
       readStatus: MessageReadStatus.delivered,
     );
   }
-}
 
-class SocketSeenEvent {
-  final String chatRoomId;
-  final String messageId;
-  final int messageOrder;
-  final String? customerSupportId;
-
-  SocketSeenEvent({
-    required this.chatRoomId,
-    required this.messageId,
-    required this.messageOrder,
-    required this.customerSupportId,
-  });
-
-  static SocketSeenEvent? fromPayload(dynamic payload) {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-    final chatRoomId = m['chatRoomID']?.toString() ?? '';
-    final messageId = m['messageID']?.toString() ?? '';
-    final order = m['messageOrder'];
-    if (chatRoomId.isEmpty || messageId.isEmpty || order is! num) return null;
-    return SocketSeenEvent(
-      chatRoomId: chatRoomId,
-      messageId: messageId,
-      messageOrder: order.toInt(),
-      customerSupportId: m['customerSupportID']?.toString(),
-    );
-  }
-}
-
-class SocketReactionEvent {
-  final String chatRoomId;
-  final String messageId;
-  final String emoji;
-  final int amount;
-  final String? messageReactionId;
-  final String? customerSupportId;
-  final String? customerId;
-
-  SocketReactionEvent({
-    required this.chatRoomId,
-    required this.messageId,
-    required this.emoji,
-    required this.amount,
-    required this.messageReactionId,
-    required this.customerSupportId,
-    required this.customerId,
-  });
-
-  static SocketReactionEvent? fromPayload(dynamic payload) {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-    final chatRoomId = m['chatRoomID']?.toString() ?? '';
-    final messageId = m['messageID']?.toString() ?? '';
-    final emoji = m['emoji']?.toString() ?? '';
-    final amount = m['amount'];
-    if (chatRoomId.isEmpty || messageId.isEmpty || emoji.isEmpty || amount is! num) {
-      return null;
-    }
-    return SocketReactionEvent(
-      chatRoomId: chatRoomId,
-      messageId: messageId,
-      emoji: emoji,
-      amount: amount.toInt(),
-      messageReactionId: m['messageReactionID']?.toString(),
-      customerSupportId: m['customerSupportID']?.toString(),
-      customerId: m['customerID']?.toString(),
-    );
-  }
-}
-
-class SocketTicketStatusEvent {
-  final String chatRoomId;
-  final String ticketId;
-  final String status;
-
-  SocketTicketStatusEvent({
-    required this.chatRoomId,
-    required this.ticketId,
-    required this.status,
-  });
-
-  static SocketTicketStatusEvent? fromPayload(dynamic payload) {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-    final chatRoomId = m['chatRoomID']?.toString() ?? '';
-    final ticketId = m['ticketID']?.toString() ?? '';
-    final status = m['status']?.toString() ?? '';
-    if (chatRoomId.isEmpty || ticketId.isEmpty || status.isEmpty) return null;
-    return SocketTicketStatusEvent(chatRoomId: chatRoomId, ticketId: ticketId, status: status);
-  }
-}
-
-class SocketNotificationEvent {
-  final String id;
-  final String title;
-  final String body;
-  final DateTime? createdAt;
-
-  SocketNotificationEvent({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.createdAt,
-  });
-
-  static SocketNotificationEvent? fromPayload(dynamic payload) {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-    final id = m['id']?.toString() ?? '';
-    if (id.isEmpty) return null;
-    return SocketNotificationEvent(
-      id: id,
-      title: m['title']?.toString() ?? '',
-      body: m['body']?.toString() ?? '',
-      createdAt: m['createdAt'] is String ? DateTime.tryParse(m['createdAt'] as String) : null,
-    );
-  }
-}
-
-class SocketDraftProgressEvent {
-  final String taskId;
-  final String step;
-  final String status;
-  final Map<String, dynamic>? result;
-
-  SocketDraftProgressEvent({
-    required this.taskId,
-    required this.step,
-    required this.status,
-    required this.result,
-  });
-
-  static SocketDraftProgressEvent? fromPayload(dynamic payload) {
-    if (payload is! Map) return null;
-    final m = payload.cast<String, dynamic>();
-    final taskId = m['taskId']?.toString() ?? '';
-    final step = m['step']?.toString() ?? '';
-    final status = m['status']?.toString() ?? '';
-    if (taskId.isEmpty || step.isEmpty || status.isEmpty) return null;
-    return SocketDraftProgressEvent(
-      taskId: taskId,
-      step: step,
-      status: status,
-      result: m['result'] is Map ? (m['result'] as Map).cast<String, dynamic>() : null,
-    );
+  void dispose() {
+    disconnect();
+    _messageController.close();
+    _typingController.close();
+    _stopTypingController.close();
+    _customerTypingController.close();
+    _customerStopTypingController.close();
+    _seenController.close();
+    _reactionController.close();
+    _ticketStatusController.close();
+    _newTicketController.close();
+    _notificationController.close();
+    _escalationController.close();
+    _draftProgressController.close();
+    _lazadaRecalledController.close();
   }
 }
 

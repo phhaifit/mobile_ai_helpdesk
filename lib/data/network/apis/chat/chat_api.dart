@@ -187,5 +187,72 @@ class ChatApi {
     );
     return (res.data as Map).cast<String, dynamic>();
   }
+
+  Future<Map<String, dynamic>> countSearchResultsInChatRoom({
+    required String chatRoomId,
+    required String keyword,
+  }) async {
+    final res = await _dioClient.dio.get(
+      Endpoints.countSearchResult(chatRoomId),
+      queryParameters: {
+        'keyword': keyword,
+      },
+    );
+    return (res.data as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> searchMessagesGroupedByChatRoom({
+    required String keyword,
+  }) async {
+    final res = await _dioClient.dio.get(
+      Endpoints.searchGroupedByChatRoomMessage(),
+      queryParameters: {
+        'keyword': keyword,
+      },
+    );
+    return (res.data as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> flatSearchMessageList({
+    required String keyword,
+    String? chatRoomId,
+  }) async {
+    final res = await _dioClient.dio.get(
+      Endpoints.flatSearchMessageList(),
+      queryParameters: {
+        'keyword': keyword,
+        if (chatRoomId != null) 'chatRoomId': chatRoomId,
+      },
+    );
+    return (res.data as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> analyzeTicketInChatRoomAi({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    final res = await _dioClient.dio.post(
+      Endpoints.chatRoomAnalyzeTicket(),
+      data: {
+        'chatRoomId': chatRoomId,
+        if (ticketId != null) 'ticketId': ticketId,
+      },
+    );
+    return (res.data as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> generateAiDraftResponse({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    final res = await _dioClient.dio.post(
+      Endpoints.draftResponse(),
+      data: {
+        'chatRoomId': chatRoomId,
+        if (ticketId != null) 'ticketId': ticketId,
+      },
+    );
+    return (res.data as Map).cast<String, dynamic>();
+  }
 }
 

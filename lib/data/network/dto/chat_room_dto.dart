@@ -4,10 +4,10 @@ import 'message_dto.dart';
 import 'seen_info_dto.dart';
 
 class ChatRoomDto {
-  final String chatRoomID;
-  final String customerID;
-  final String? groupID;
-  final String? lastMessageID;
+  final String chatRoomId;
+  final String customerId;
+  final String? groupId;
+  final String? lastMessageId;
   final int totalMessage;
   final int followupCount;
   final DateTime createdAt;
@@ -21,10 +21,10 @@ class ChatRoomDto {
   final int seenMessageOrder;
 
   ChatRoomDto({
-    required this.chatRoomID,
-    required this.customerID,
-    required this.groupID,
-    required this.lastMessageID,
+    required this.chatRoomId,
+    required this.customerId,
+    required this.groupId,
+    required this.lastMessageId,
     required this.totalMessage,
     required this.followupCount,
     required this.createdAt,
@@ -40,10 +40,10 @@ class ChatRoomDto {
 
   factory ChatRoomDto.fromJson(Map<String, dynamic> json) {
     return ChatRoomDto(
-      chatRoomID: (json['chatRoomID'] ?? '').toString(),
-      customerID: (json['customerID'] ?? '').toString(),
-      groupID: json['groupID']?.toString(),
-      lastMessageID: json['lastMessageID']?.toString(),
+      chatRoomId: (json['chatRoomID'] ?? '').toString(),
+      customerId: (json['customerID'] ?? '').toString(),
+      groupId: json['groupID']?.toString(),
+      lastMessageId: json['lastMessageID']?.toString(),
       totalMessage: (json['totalMessage'] is num)
           ? (json['totalMessage'] as num).toInt()
           : 0,

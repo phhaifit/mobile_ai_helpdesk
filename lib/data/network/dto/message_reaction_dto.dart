@@ -1,10 +1,10 @@
 class MessageReactionDto {
-  final String messageReactionID;
-  final String messageID;
+  final String messageReactionId;
+  final String messageId;
   final String emoji;
   final int amount;
-  final String? customerID;
-  final String? customerSupportID;
+  final String? customerId;
+  final String? customerSupportId;
   final String? customerName;
   final String? customerSupportName;
   final String? customerSupportAvatar;
@@ -12,12 +12,12 @@ class MessageReactionDto {
   final String? customerMessengerAvatar;
 
   MessageReactionDto({
-    required this.messageReactionID,
-    required this.messageID,
+    required this.messageReactionId,
+    required this.messageId,
     required this.emoji,
     required this.amount,
-    required this.customerID,
-    required this.customerSupportID,
+    required this.customerId,
+    required this.customerSupportId,
     required this.customerName,
     required this.customerSupportName,
     required this.customerSupportAvatar,
@@ -27,12 +27,12 @@ class MessageReactionDto {
 
   factory MessageReactionDto.fromJson(Map<String, dynamic> json) {
     return MessageReactionDto(
-      messageReactionID: (json['messageReactionID'] ?? '').toString(),
-      messageID: (json['messageID'] ?? '').toString(),
+      messageReactionId: (json['messageReactionID'] ?? '').toString(),
+      messageId: (json['messageID'] ?? '').toString(),
       emoji: (json['emoji'] ?? '').toString(),
       amount: (json['amount'] is num) ? (json['amount'] as num).toInt() : 0,
-      customerID: json['customerID']?.toString(),
-      customerSupportID: json['customerSupportID']?.toString(),
+      customerId: json['customerID']?.toString(),
+      customerSupportId: json['customerSupportID']?.toString(),
       customerName: json['customerName']?.toString(),
       customerSupportName: json['customerSupportName']?.toString(),
       customerSupportAvatar: json['customerSupportAvatar']?.toString() ?? '',
