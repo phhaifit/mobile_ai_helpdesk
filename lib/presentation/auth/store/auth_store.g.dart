@@ -18,355 +18,79 @@ mixin _$AuthStore on _AuthStoreBase, Store {
             name: '_AuthStoreBase.isAuthenticated',
           ))
           .value;
-  Computed<bool>? _$isLoginLoadingComputed;
 
-  @override
-  bool get isLoginLoading =>
-      (_$isLoginLoadingComputed ??= Computed<bool>(
-            () => super.isLoginLoading,
-            name: '_AuthStoreBase.isLoginLoading',
-          ))
-          .value;
-  Computed<bool>? _$isRegisterLoadingComputed;
-
-  @override
-  bool get isRegisterLoading =>
-      (_$isRegisterLoadingComputed ??= Computed<bool>(
-            () => super.isRegisterLoading,
-            name: '_AuthStoreBase.isRegisterLoading',
-          ))
-          .value;
-  Computed<bool>? _$isLogoutLoadingComputed;
-
-  @override
-  bool get isLogoutLoading =>
-      (_$isLogoutLoadingComputed ??= Computed<bool>(
-            () => super.isLogoutLoading,
-            name: '_AuthStoreBase.isLogoutLoading',
-          ))
-          .value;
-  Computed<bool>? _$isGetCurrentUserLoadingComputed;
-
-  @override
-  bool get isGetCurrentUserLoading =>
-      (_$isGetCurrentUserLoadingComputed ??= Computed<bool>(
-            () => super.isGetCurrentUserLoading,
-            name: '_AuthStoreBase.isGetCurrentUserLoading',
-          ))
-          .value;
-  Computed<bool>? _$isChangePasswordLoadingComputed;
-
-  @override
-  bool get isChangePasswordLoading =>
-      (_$isChangePasswordLoadingComputed ??= Computed<bool>(
-            () => super.isChangePasswordLoading,
-            name: '_AuthStoreBase.isChangePasswordLoading',
-          ))
-          .value;
-  Computed<bool>? _$isResetPasswordLoadingComputed;
-
-  @override
-  bool get isResetPasswordLoading =>
-      (_$isResetPasswordLoadingComputed ??= Computed<bool>(
-            () => super.isResetPasswordLoading,
-            name: '_AuthStoreBase.isResetPasswordLoading',
-          ))
-          .value;
-  Computed<bool>? _$isLoadingComputed;
-
-  @override
-  bool get isLoading =>
-      (_$isLoadingComputed ??= Computed<bool>(
-            () => super.isLoading,
-            name: '_AuthStoreBase.isLoading',
-          ))
-          .value;
-
-  late final _$currentUserAtom = Atom(
-    name: '_AuthStoreBase.currentUser',
+  late final _$sessionAtom = Atom(
+    name: '_AuthStoreBase.session',
     context: context,
   );
 
   @override
-  User? get currentUser {
-    _$currentUserAtom.reportRead();
-    return super.currentUser;
+  AuthSession? get session {
+    _$sessionAtom.reportRead();
+    return super.session;
   }
 
   @override
-  set currentUser(User? value) {
-    _$currentUserAtom.reportWrite(value, super.currentUser, () {
-      super.currentUser = value;
+  set session(AuthSession? value) {
+    _$sessionAtom.reportWrite(value, super.session, () {
+      super.session = value;
     });
   }
 
-  late final _$authResponseAtom = Atom(
-    name: '_AuthStoreBase.authResponse',
+  late final _$accountAtom = Atom(
+    name: '_AuthStoreBase.account',
     context: context,
   );
 
   @override
-  AuthResponse? get authResponse {
-    _$authResponseAtom.reportRead();
-    return super.authResponse;
+  Account? get account {
+    _$accountAtom.reportRead();
+    return super.account;
   }
 
   @override
-  set authResponse(AuthResponse? value) {
-    _$authResponseAtom.reportWrite(value, super.authResponse, () {
-      super.authResponse = value;
+  set account(Account? value) {
+    _$accountAtom.reportWrite(value, super.account, () {
+      super.account = value;
     });
   }
 
-  late final _$errorMessageAtom = Atom(
-    name: '_AuthStoreBase.errorMessage',
+  late final _$isSigningOutAtom = Atom(
+    name: '_AuthStoreBase.isSigningOut',
     context: context,
   );
 
   @override
-  String? get errorMessage {
-    _$errorMessageAtom.reportRead();
-    return super.errorMessage;
+  bool get isSigningOut {
+    _$isSigningOutAtom.reportRead();
+    return super.isSigningOut;
   }
 
   @override
-  set errorMessage(String? value) {
-    _$errorMessageAtom.reportWrite(value, super.errorMessage, () {
-      super.errorMessage = value;
+  set isSigningOut(bool value) {
+    _$isSigningOutAtom.reportWrite(value, super.isSigningOut, () {
+      super.isSigningOut = value;
     });
   }
 
-  late final _$successMessageAtom = Atom(
-    name: '_AuthStoreBase.successMessage',
+  late final _$signOutAsyncAction = AsyncAction(
+    '_AuthStoreBase.signOut',
     context: context,
   );
 
   @override
-  String? get successMessage {
-    _$successMessageAtom.reportRead();
-    return super.successMessage;
+  Future<void> signOut() {
+    return _$signOutAsyncAction.run(() => super.signOut());
   }
 
-  @override
-  set successMessage(String? value) {
-    _$successMessageAtom.reportWrite(value, super.successMessage, () {
-      super.successMessage = value;
-    });
-  }
-
-  late final _$loginFutureAtom = Atom(
-    name: '_AuthStoreBase.loginFuture',
+  late final _$refreshAccountAsyncAction = AsyncAction(
+    '_AuthStoreBase.refreshAccount',
     context: context,
   );
 
   @override
-  ObservableFuture<void> get loginFuture {
-    _$loginFutureAtom.reportRead();
-    return super.loginFuture;
-  }
-
-  @override
-  set loginFuture(ObservableFuture<void> value) {
-    _$loginFutureAtom.reportWrite(value, super.loginFuture, () {
-      super.loginFuture = value;
-    });
-  }
-
-  late final _$registerFutureAtom = Atom(
-    name: '_AuthStoreBase.registerFuture',
-    context: context,
-  );
-
-  @override
-  ObservableFuture<void> get registerFuture {
-    _$registerFutureAtom.reportRead();
-    return super.registerFuture;
-  }
-
-  @override
-  set registerFuture(ObservableFuture<void> value) {
-    _$registerFutureAtom.reportWrite(value, super.registerFuture, () {
-      super.registerFuture = value;
-    });
-  }
-
-  late final _$logoutFutureAtom = Atom(
-    name: '_AuthStoreBase.logoutFuture',
-    context: context,
-  );
-
-  @override
-  ObservableFuture<void> get logoutFuture {
-    _$logoutFutureAtom.reportRead();
-    return super.logoutFuture;
-  }
-
-  @override
-  set logoutFuture(ObservableFuture<void> value) {
-    _$logoutFutureAtom.reportWrite(value, super.logoutFuture, () {
-      super.logoutFuture = value;
-    });
-  }
-
-  late final _$getCurrentUserFutureAtom = Atom(
-    name: '_AuthStoreBase.getCurrentUserFuture',
-    context: context,
-  );
-
-  @override
-  ObservableFuture<void> get getCurrentUserFuture {
-    _$getCurrentUserFutureAtom.reportRead();
-    return super.getCurrentUserFuture;
-  }
-
-  @override
-  set getCurrentUserFuture(ObservableFuture<void> value) {
-    _$getCurrentUserFutureAtom.reportWrite(
-      value,
-      super.getCurrentUserFuture,
-      () {
-        super.getCurrentUserFuture = value;
-      },
-    );
-  }
-
-  late final _$changePasswordFutureAtom = Atom(
-    name: '_AuthStoreBase.changePasswordFuture',
-    context: context,
-  );
-
-  @override
-  ObservableFuture<void> get changePasswordFuture {
-    _$changePasswordFutureAtom.reportRead();
-    return super.changePasswordFuture;
-  }
-
-  @override
-  set changePasswordFuture(ObservableFuture<void> value) {
-    _$changePasswordFutureAtom.reportWrite(
-      value,
-      super.changePasswordFuture,
-      () {
-        super.changePasswordFuture = value;
-      },
-    );
-  }
-
-  late final _$resetPasswordFutureAtom = Atom(
-    name: '_AuthStoreBase.resetPasswordFuture',
-    context: context,
-  );
-
-  @override
-  ObservableFuture<void> get resetPasswordFuture {
-    _$resetPasswordFutureAtom.reportRead();
-    return super.resetPasswordFuture;
-  }
-
-  @override
-  set resetPasswordFuture(ObservableFuture<void> value) {
-    _$resetPasswordFutureAtom.reportWrite(value, super.resetPasswordFuture, () {
-      super.resetPasswordFuture = value;
-    });
-  }
-
-  late final _$loginAsyncAction = AsyncAction(
-    '_AuthStoreBase.login',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> login({
-    required String email,
-    required String password,
-  }) {
-    return _$loginAsyncAction.run(
-      () => super.login(email: email, password: password),
-    );
-  }
-
-  late final _$registerAsyncAction = AsyncAction(
-    '_AuthStoreBase.register',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> register({
-    required String email,
-    required String username,
-    required String password,
-    required String confirmPassword,
-  }) {
-    return _$registerAsyncAction.run(
-      () => super.register(
-        email: email,
-        username: username,
-        password: password,
-        confirmPassword: confirmPassword,
-      ),
-    );
-  }
-
-  late final _$getCurrentUserAsyncAction = AsyncAction(
-    '_AuthStoreBase.getCurrentUser',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> getCurrentUser() {
-    return _$getCurrentUserAsyncAction.run(() => super.getCurrentUser());
-  }
-
-  late final _$logoutAsyncAction = AsyncAction(
-    '_AuthStoreBase.logout',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> logout() {
-    return _$logoutAsyncAction.run(() => super.logout());
-  }
-
-  late final _$changePasswordAsyncAction = AsyncAction(
-    '_AuthStoreBase.changePassword',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> changePassword({
-    required String currentPassword,
-    required String newPassword,
-    required String confirmPassword,
-  }) {
-    return _$changePasswordAsyncAction.run(
-      () => super.changePassword(
-        currentPassword: currentPassword,
-        newPassword: newPassword,
-        confirmPassword: confirmPassword,
-      ),
-    );
-  }
-
-  late final _$resetPasswordAsyncAction = AsyncAction(
-    '_AuthStoreBase.resetPassword',
-    context: context,
-  );
-
-  @override
-  Future<Either<Failure, void>> resetPassword({
-    required String email,
-    required String token,
-    required String newPassword,
-    required String confirmPassword,
-  }) {
-    return _$resetPasswordAsyncAction.run(
-      () => super.resetPassword(
-        email: email,
-        token: token,
-        newPassword: newPassword,
-        confirmPassword: confirmPassword,
-      ),
-    );
+  Future<bool> refreshAccount() {
+    return _$refreshAccountAsyncAction.run(() => super.refreshAccount());
   }
 
   late final _$_AuthStoreBaseActionController = ActionController(
@@ -375,36 +99,56 @@ mixin _$AuthStore on _AuthStoreBase, Store {
   );
 
   @override
-  void clearErrorMessage() {
+  void hydrate({required AuthSession session, required Account account}) {
     final _$actionInfo = _$_AuthStoreBaseActionController.startAction(
-      name: '_AuthStoreBase.clearErrorMessage',
+      name: '_AuthStoreBase.hydrate',
     );
     try {
-      return super.clearErrorMessage();
+      return super.hydrate(session: session, account: account);
     } finally {
       _$_AuthStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void clearSuccessMessage() {
+  void onSignedIn({
+    required AuthSession session,
+    required Account account,
+    bool isNewUser = false,
+  }) {
     final _$actionInfo = _$_AuthStoreBaseActionController.startAction(
-      name: '_AuthStoreBase.clearSuccessMessage',
+      name: '_AuthStoreBase.onSignedIn',
     );
     try {
-      return super.clearSuccessMessage();
+      return super.onSignedIn(
+        session: session,
+        account: account,
+        isNewUser: isNewUser,
+      );
     } finally {
       _$_AuthStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void clearAllMessages() {
+  void onAccessTokenRefreshed(String newAccessToken) {
     final _$actionInfo = _$_AuthStoreBaseActionController.startAction(
-      name: '_AuthStoreBase.clearAllMessages',
+      name: '_AuthStoreBase.onAccessTokenRefreshed',
     );
     try {
-      return super.clearAllMessages();
+      return super.onAccessTokenRefreshed(newAccessToken);
+    } finally {
+      _$_AuthStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void onSignedOut({String reason = 'unknown'}) {
+    final _$actionInfo = _$_AuthStoreBaseActionController.startAction(
+      name: '_AuthStoreBase.onSignedOut',
+    );
+    try {
+      return super.onSignedOut(reason: reason);
     } finally {
       _$_AuthStoreBaseActionController.endAction(_$actionInfo);
     }
@@ -413,24 +157,10 @@ mixin _$AuthStore on _AuthStoreBase, Store {
   @override
   String toString() {
     return '''
-currentUser: ${currentUser},
-authResponse: ${authResponse},
-errorMessage: ${errorMessage},
-successMessage: ${successMessage},
-loginFuture: ${loginFuture},
-registerFuture: ${registerFuture},
-logoutFuture: ${logoutFuture},
-getCurrentUserFuture: ${getCurrentUserFuture},
-changePasswordFuture: ${changePasswordFuture},
-resetPasswordFuture: ${resetPasswordFuture},
-isAuthenticated: ${isAuthenticated},
-isLoginLoading: ${isLoginLoading},
-isRegisterLoading: ${isRegisterLoading},
-isLogoutLoading: ${isLogoutLoading},
-isGetCurrentUserLoading: ${isGetCurrentUserLoading},
-isChangePasswordLoading: ${isChangePasswordLoading},
-isResetPasswordLoading: ${isResetPasswordLoading},
-isLoading: ${isLoading}
+session: ${session},
+account: ${account},
+isSigningOut: ${isSigningOut},
+isAuthenticated: ${isAuthenticated}
     ''';
   }
 }

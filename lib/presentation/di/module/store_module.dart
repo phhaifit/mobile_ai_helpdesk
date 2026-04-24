@@ -3,20 +3,21 @@ import 'dart:async';
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
+import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
+import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
-import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
-import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
+import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -38,15 +39,20 @@ import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart'
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_from_qr_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
+import 'package:ai_helpdesk/presentation/auth/edit_profile/store/edit_profile_store.dart';
+import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
@@ -55,13 +61,13 @@ import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
-import 'package:get_it/get_it.dart';
+import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -76,6 +82,8 @@ import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
+import 'package:event_bus/event_bus.dart';
+import 'package:get_it/get_it.dart';
 import '../../ai_agent/store/ai_agent_store.dart';
 // import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
@@ -90,7 +98,6 @@ import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
-import 'package:ai_helpdesk/presentation/login/store/login_store.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -99,22 +106,47 @@ class StoreModule {
     // factories:---------------------------------------------------------------
     getIt.registerFactory(() => ErrorStore());
 
-    // --- Login Store ---
-    getIt.registerFactory<LoginStore>(
-      () => LoginStore(analyticsService: getIt<AnalyticsService>()),
+    // --- Auth (session-scoped singleton so splash + profile share state) ---
+    getIt.registerSingleton<AuthStore>(
+      AuthStore(
+        authRepository: getIt<AuthRepository>(),
+        accountRepository: getIt<AccountRepository>(),
+        signOutUseCase: getIt<SignOutUseCase>(),
+        eventBus: getIt<EventBus>(),
+        analyticsService: getIt<AnalyticsService>(),
+        sentryService: getIt<SentryService>(),
+      ),
     );
 
-    // --- Auth Store ---
-    getIt.registerFactory<AuthStore>(
-      () => AuthStore(
-        getIt<LoginUseCase>(),
-        getIt<RegisterUseCase>(),
-        getIt<LogoutUseCase>(),
-        getIt<GetCurrentUserUseCase>(),
-        getIt<ChangePasswordUseCase>(),
-        getIt<ResetPasswordUseCase>(),
-        getIt<AnalyticsService>(),
-        getIt<SentryService>(),
+    getIt.registerFactory<SplashStore>(
+      () => SplashStore(
+        authRepository: getIt<AuthRepository>(),
+        accountRepository: getIt<AccountRepository>(),
+        authStore: getIt<AuthStore>(),
+      ),
+    );
+
+    getIt.registerFactory<SignInEmailStore>(
+      () => SignInEmailStore(
+        sendOtpUseCase: getIt<SendOtpUseCase>(),
+        analyticsService: getIt<AnalyticsService>(),
+      ),
+    );
+
+    getIt.registerFactory<VerifyOtpStore>(
+      () => VerifyOtpStore(
+        verifyOtpUseCase: getIt<VerifyOtpUseCase>(),
+        sendOtpUseCase: getIt<SendOtpUseCase>(),
+        getCurrentAccountUseCase: getIt<GetCurrentAccountUseCase>(),
+        authStore: getIt<AuthStore>(),
+        analyticsService: getIt<AnalyticsService>(),
+      ),
+    );
+
+    getIt.registerFactory<EditProfileStore>(
+      () => EditProfileStore(
+        updateAccountUseCase: getIt<UpdateAccountUseCase>(),
+        authStore: getIt<AuthStore>(),
       ),
     );
 
@@ -184,10 +216,12 @@ class StoreModule {
         getIt<DisconnectMessengerUseCase>(),
         getIt<SyncMessengerDataUseCase>(),
         getIt<UpdateMessengerSettingsUseCase>(),
-        getIt<ConnectZaloFromQrUseCase>(),
         getIt<DisconnectZaloUseCase>(),
         getIt<RetryZaloSyncUseCase>(),
         getIt<UpdateZaloAssignmentsUseCase>(),
+        getIt<GenerateZaloQrUseCase>(),
+        getIt<GetZaloQrStatusUseCase>(),
+        getIt<ConnectZaloUseCase>(),
       ),
     );
     // --- Monetization Store ---
@@ -212,7 +246,7 @@ class StoreModule {
         getIt<ErrorStore>(),
       ),
     );
-    
+
     getIt.registerFactory<MarketingStore>(
       () => MarketingStore(
         getIt<GetMarketingOverviewUseCase>(),

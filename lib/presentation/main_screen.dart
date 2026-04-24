@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 
@@ -131,17 +132,6 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       MenuCategory(
-        title: 'Kênh tích hợp',
-        icon: Icons.hub_outlined,
-        items: [
-          MenuItem(
-            id: 'omnichannel',
-            title: 'Omnichannel',
-            onTap: () => _selectCategory('omnichannel'),
-          ),
-        ],
-      ),
-      MenuCategory(
         title: 'Marketing',
         icon: Icons.campaign_outlined,
         items: [
@@ -172,9 +162,9 @@ class _MainScreenState extends State<MainScreen> {
             onTap: () => _selectCategory('employee_list'),
           ),
           MenuItem(
-            id: 'omnichannel_hub',
-            title: 'Tích hợp ứng dụng',
-            onTap: () => _selectCategory('omnichannel_hub'),
+            id: 'omnichannel',
+            title: AppLocalizations.of(context).translate('omnichannel_menu_title'),
+            onTap: () => _selectCategory('omnichannel'),
           ),
           MenuItem(
             id: 'channel_permission',
@@ -257,7 +247,7 @@ class _MainScreenState extends State<MainScreen> {
       _showSidebarMobile = !_showSidebarMobile;
     });
   }
-  
+
   /// Opens the invitation response flow using a pending invite from the team store
   /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
   /// TODO: remove this after testing
