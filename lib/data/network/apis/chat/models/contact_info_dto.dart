@@ -24,4 +24,18 @@ class ContactInfoDto {
       zohoAccountId: json['zohoAccountID']?.toString(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'contactID': contactId,
+      'customerID': customerId,
+      'name': name,
+      'isSpam': isSpam,
+      'zaloAccountID': zaloAccountId,
+      'email': email,
+      'phone': phone,
+      'messengerAccountID': messengerAccountId,
+      'zohoAccountID': zohoAccountId,
+    };
+  }
 }

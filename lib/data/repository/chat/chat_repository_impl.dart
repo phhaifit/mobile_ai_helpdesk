@@ -1,19 +1,32 @@
-import '../../../domain/entity/chat/message.dart';
-import '../../../domain/repository/chat/chat_repository.dart';
-import '../../local/datasources/chat/chat_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/models/message_dto.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/models/message_list_dto.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/params/send_cs_message_to_customer_params.dart';
+import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart';
+import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
-  final ChatDataSource _chatDataSource;
+  final ChatApi _chatApi;
+  final SharedPreferenceHelper _prefs;
 
-  ChatRepositoryImpl(this._chatDataSource);
+  ChatRepositoryImpl(this._chatApi, this._prefs);
 
   @override
   Future<List<Message>> getMessages({
-    required String chatRoomId,
+    String? chatRoomId,
+    String? customerId,
     String? lastMessageId,
     int limit = 20,
-  }) {
-    return _chatDataSource.getMockMessages(chatRoomId: chatRoomId);
+  }) async {
+    final dto = await _chatApi.getMessageList(
+      chatRoomId: chatRoomId,
+      customerId: customerId,
+      lastMessageId: lastMessageId,
+      limit: limit,
+    );
+    return _toDomainMessages(dto);
   }
 
   @override
@@ -21,8 +34,13 @@ class ChatRepositoryImpl implements ChatRepository {
     required String chatRoomId,
     String? lastMessageId,
     int limit = 20,
-  }) {
-    return _chatDataSource.getMockMessages(chatRoomId: chatRoomId);
+  }) async {
+    final dto = await _chatApi.getNewerMessages(
+      chatRoomId: chatRoomId,
+      lastMessageId: lastMessageId,
+      limit: limit,
+    );
+    return _toDomainMessages(dto);
   }
 
   @override
@@ -34,15 +52,36 @@ class ChatRepositoryImpl implements ChatRepository {
     String? replyMessageId,
     String? socketId,
   }) async {
-    // Mock: just return a local message until REST implementation is wired.
+    final dto = await _chatApi.sendMessageFromAgentToCustomer(
+      params: SendCsMessageToCustomerParams(
+        chatRoomId: chatRoomId,
+        channelId: channelId,
+        contactId: contactId,
+        content: content,
+        replyMessageId: replyMessageId,
+        socketId: socketId,
+      ),
+    );
+    return _toDomainMessage(dto);
+  }
+
+
+  // TODO: Refactor Domain Entity and Mapper to avoid duplication
+  Message _toDomainMessage(MessageDto dto) {
     return Message(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      content: content,
-      timestamp: DateTime.now(),
-      isMe: true,
-      senderName: 'You',
+      id: dto.messageId,
+      chatRoomId: dto.chatRoomId,
+      content: dto.contentInfo['content'] as String? ?? '',
+      timestamp: dto.createdAt ?? DateTime.now(),
+      isMe: dto.sender == _prefs.tenantId,
+      senderName: dto.sender == _prefs.tenantId ? 'You' : 'Customer',
       isPending: false,
-      readStatus: MessageReadStatus.sent,
+      readStatus: MessageReadStatus.delivered,
     );
   }
+
+  List<Message> _toDomainMessages(MessageListDto dto) {
+    return dto.messages.map(_toDomainMessage).toList();
+  }
 }
+

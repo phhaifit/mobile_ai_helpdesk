@@ -1,45 +1,41 @@
+import 'package:ai_helpdesk/data/network/apis/chat/models/message_list_dto.dart';
+
 import '/core/data/network/dio/dio_client.dart';
 import '/data/network/constants/endpoints.dart';
+import 'models/chat_room_counter_dto.dart';
+import 'models/chat_room_dto.dart';
+import 'models/message_dto.dart';
+import 'models/message_group_dto.dart';
+import 'models/message_reaction_dto.dart';
+import 'models/seen_info_dto.dart';
+import 'params/fetch_chat_rooms_params.dart';
+import 'params/react_message_params.dart';
+import 'params/send_cs_message_to_customer_params.dart';
 
 class ChatApi {
   final DioClient _dioClient;
 
   ChatApi(this._dioClient);
 
-  Future<Map<String, dynamic>> getChatRoomList({
-    String? customerName,
-    int limit = 20,
-    String? lastMessageId,
-    String? lastChatRoomId,
-    String? lastChatRoomUpdatedAt,
-    String? status,
-    List<String>? statuses,
-    List<String>? channels,
-    List<String>? channelIds,
-    bool getCounter = false,
-    bool getAll = false,
+  /// Returns ticket-status-based counters for chat rooms.
+  /// 
+  /// Keys are dynamic status strings (open, pending, solved, closed), values are counts.
+  Future<List<ChatRoomDto>> getChatRoomList({
+    required FetchChatRoomsParams params,
   }) async {
     final res = await _dioClient.dio.get(
       Endpoints.chatRoom(),
-      queryParameters: {
-        if (customerName != null) 'customerName': customerName,
-        'limit': limit,
-        if (lastMessageId != null) 'lastMessageID': lastMessageId,
-        if (lastChatRoomId != null) 'lastChatRoomID': lastChatRoomId,
-        if (lastChatRoomUpdatedAt != null)
-          'lastChatRoomUpdatedAt': lastChatRoomUpdatedAt,
-        if (status != null) 'status': status,
-        if (statuses != null && statuses.isNotEmpty) 'statuses': statuses,
-        if (channels != null && channels.isNotEmpty) 'channel': channels,
-        if (channelIds != null && channelIds.isNotEmpty) 'channelIDs': channelIds,
-        'getCounter': getCounter,
-        'getAll': getAll,
-      },
+      queryParameters: params.toJson(),
     );
-    return (res.data as Map).cast<String, dynamic>();
+
+    return (res.data as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<Map<String, dynamic>> getChatRoomCounters({
+  
+  /// Returns ticket-status-based counters for chat rooms.
+  /// 
+  /// Keys are dynamic status strings (open, pending, solved, closed), values are counts.
+  Future<ChatRoomCounterDto> getChatRoomCounters({
     String? customerName,
     bool getAll = false,
   }) async {
@@ -50,10 +46,10 @@ class ChatApi {
         'getAll': getAll,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return ChatRoomCounterDto.fromJson((res.data as List)[0] as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> getChatRoomDetail({
+  Future<List<ChatRoomDto>> getChatRoomDetail({
     String? chatRoomId,
     String? customerId,
   }) async {
@@ -64,11 +60,17 @@ class ChatApi {
         if (customerId != null) 'customerID': customerId,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return (res.data as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<Map<String, dynamic>> getMessageList({
-    required String chatRoomId,
+  /// Returns messages for a chat room with cursor-based pagination.
+  /// 
+  /// Messages are sorted by messageOrder DESC (newest first).
+  /// 
+  /// The response uses entity normalization: shared objects (channels, senders, tickets) are extracted into entities to avoid duplication.
+  Future<MessageListDto> getMessageList({
+    String? chatRoomId,
+    String? customerId,
     String? lastMessageId,
     int limit = 20,
   }) async {
@@ -76,14 +78,18 @@ class ChatApi {
       Endpoints.message(),
       queryParameters: {
         'chatRoomID': chatRoomId,
+        if (customerId != null) 'customerID': customerId,
         if (lastMessageId != null) 'lastMessageID': lastMessageId,
         'limit': limit,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> getNewerMessages({
+  /// Fetches messages newer than lastMessageID (ascending order).
+  ///
+  /// Used for real-time catch-up when the app reconnects or scrolls down.
+  Future<MessageListDto> getNewerMessages({
     required String chatRoomId,
     String? lastMessageId,
     int limit = 20,
@@ -96,33 +102,29 @@ class ChatApi {
         'limit': limit,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> sendMessageFromAgentToCustomer({
-    required String chatRoomId,
-    required String channelId,
-    required String contactId,
-    required String content,
-    String? replyMessageId,
-    String? socketId,
+  /// Sends a message from a customer support agent to a customer.
+  /// 
+  /// Supports text, file attachments, reply threading, and auto-reply flag.
+  /// 
+  /// After sending, the message is broadcast via the appropriate Socket.io
+  /// channel event (e.g., SOCKET_MESSENGER_MESSAGE, SOCKET_ZALO_MESSAGE).
+  Future<MessageDto> sendMessageFromAgentToCustomer({
+    required SendCsMessageToCustomerParams params,
   }) async {
     final res = await _dioClient.dio.post(
       Endpoints.csToCustomer(),
-      data: {
-        'chatRoomID': chatRoomId,
-        'channelID': channelId,
-        'contactID': contactId,
-        'content': content,
-        if (replyMessageId != null) 'replyMessageID': replyMessageId,
-        if (socketId != null) 'socketID': socketId,
-        'files': [],
-      },
+      data: params.toJson(),
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return MessageDto.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> markChatRoomAsSeen({
+  /// Marks a chat room as read up to a specific message.
+  /// 
+  /// Broadcasts `SOCKET_SEEN_CHAT_ROOM` to other connected agents.
+  Future<SeenInfoDto> markChatRoomAsSeen({
     required String chatRoomId,
     required String messageId,
     required int messageOrder,
@@ -137,58 +139,39 @@ class ChatApi {
         if (socketId != null) 'socketID': socketId,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return SeenInfoDto.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> reactToMessage({
-    required String messageId,
-    required String zaloMessageId,
-    required String reactIcon,
-    required String zaloAccountId,
-    required String chatRoomId,
-    String? socketId,
-    String? channelId,
+  /// Adds an emoji reaction to a message.
+  /// 
+  /// Broadcasts `SOCKET_REACT_MESSAGE` to other connected agents.
+  Future<MessageReactionDto> reactToMessage({
+    required ReactMessageParams params,
   }) async {
     final res = await _dioClient.dio.post(
       Endpoints.reactToMessage(),
-      data: {
-        'messageID': messageId,
-        'zaloMessageID': zaloMessageId,
-        'reactIcon': reactIcon,
-        'zaloAccountID': zaloAccountId,
-        'chatRoomID': chatRoomId,
-        if (socketId != null) 'socketID': socketId,
-        if (channelId != null) 'channelID': channelId,
-      },
+      data: params.toJson(),
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return MessageReactionDto.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> unreactMessage({
-    required String messageId,
-    required String zaloMessageId,
-    required String reactIcon,
-    required String zaloAccountId,
-    required String chatRoomId,
-    String? socketId,
-    String? channelId,
+  /// Removes an emoji reaction.
+  /// 
+  /// Broadcasts `SOCKET_REACT_MESSAGE` update.
+  Future<bool> unreactMessage({
+    required ReactMessageParams params,
   }) async {
     final res = await _dioClient.dio.post(
       Endpoints.unreactToMessage(),
-      data: {
-        'messageID': messageId,
-        'zaloMessageID': zaloMessageId,
-        'reactIcon': reactIcon,
-        'zaloAccountID': zaloAccountId,
-        'chatRoomID': chatRoomId,
-        if (socketId != null) 'socketID': socketId,
-        if (channelId != null) 'channelID': channelId,
-      },
+      data: params.toJson(),
     );
-    return (res.data as Map).cast<String, dynamic>();
-  }
+    return res.data['success'] as bool? ?? false;
+  } 
 
-  Future<Map<String, dynamic>> countSearchResultsInChatRoom({
+  /// Counts the number of search results in a chat room.
+  /// 
+  /// Returns 0 if no results are found.
+  Future<int> countSearchResultsInChatRoom({
     required String chatRoomId,
     required String keyword,
   }) async {
@@ -198,10 +181,11 @@ class ChatApi {
         'keyword': keyword,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return res.data as int? ?? 0;
   }
 
-  Future<Map<String, dynamic>> searchMessagesGroupedByChatRoom({
+  /// Returns search results grouped by chat room, useful for global search UI.
+  Future<List<MessageGroupDto>> searchMessagesGroupedByChatRoom({
     required String keyword,
   }) async {
     final res = await _dioClient.dio.get(
@@ -210,10 +194,11 @@ class ChatApi {
         'keyword': keyword,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return (res.data as List).map((e) => MessageGroupDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<Map<String, dynamic>> flatSearchMessageList({
+  /// Returns a flat list of messages matching the keyword, optionally scoped to a chat room.
+  Future<MessageListDto> flatSearchMessageList({
     required String keyword,
     String? chatRoomId,
   }) async {
@@ -224,9 +209,10 @@ class ChatApi {
         if (chatRoomId != null) 'chatRoomId': chatRoomId,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
   }
 
+  /// BE proxy to AI-Services.
   Future<Map<String, dynamic>> analyzeTicketInChatRoomAi({
     required String chatRoomId,
     String? ticketId,
@@ -241,6 +227,9 @@ class ChatApi {
     return (res.data as Map).cast<String, dynamic>();
   }
 
+  /// BE proxy to AI-Services.
+  /// 
+  /// Returns a taskId for async processing.
   Future<Map<String, dynamic>> generateAiDraftResponse({
     required String chatRoomId,
     String? ticketId,

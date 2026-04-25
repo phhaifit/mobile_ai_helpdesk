@@ -40,4 +40,19 @@ class MessageReactionDto {
       customerMessengerAvatar: json['customerMessengerAvatar']?.toString() ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'messageReactionID': messageReactionId,
+      'messageID': messageId,
+      'emoji': emoji,
+      'amount': amount,
+      'customerID': customerId,
+      'customerSupportID': customerSupportId,
+      'customerSupportName': customerSupportName,
+      'customerSupportAvatar': customerSupportAvatar,
+      'customerZaloAvatar': customerZaloAvatar,
+      'customerMessengerAvatar': customerMessengerAvatar,
+    };
+  }
 }

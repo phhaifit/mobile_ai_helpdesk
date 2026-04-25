@@ -45,8 +45,8 @@ import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../repository/chat/chat_repository_network_impl.dart';
-import '../../repository/chat/chat_room_repository_network_impl.dart';
+import '../../repository/chat/chat_repository_impl.dart';
+import '../../repository/chat/chat_room_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -93,14 +93,14 @@ class RepositoryModule {
 
     // --- Chat Repositories ---
     getIt.registerSingleton<ChatApi>(ChatApi(getIt<DioClient>()));
-    getIt.registerSingleton<ChatRepositoryNetworkImpl>(
-      ChatRepositoryNetworkImpl(getIt<ChatApi>(), getIt<SharedPreferenceHelper>()),
+    getIt.registerSingleton<ChatRepositoryImpl>(
+      ChatRepositoryImpl(getIt<ChatApi>(), getIt<SharedPreferenceHelper>()),
     );
-    getIt.registerSingleton<ChatRoomRepositoryNetworkImpl>(
-      ChatRoomRepositoryNetworkImpl(getIt<ChatApi>()),
+    getIt.registerSingleton<ChatRoomRepositoryImpl>(
+      ChatRoomRepositoryImpl(getIt<ChatApi>()),
     );
 
-    getIt.registerSingleton<ChatRepository>(getIt<ChatRepositoryNetworkImpl>());
+    getIt.registerSingleton<ChatRepository>(getIt<ChatRepositoryImpl>());
 
     // --- Customer Repositories ---
     getIt.registerSingleton<CustomerRepository>(
@@ -120,7 +120,7 @@ class RepositoryModule {
     }
 
     getIt.registerSingleton<ChatRoomRepository>(
-      getIt<ChatRoomRepositoryNetworkImpl>(),
+      getIt<ChatRoomRepositoryImpl>(),
     );
 
     // --- Setting Repository ---

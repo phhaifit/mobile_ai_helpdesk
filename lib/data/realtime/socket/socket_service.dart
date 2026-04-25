@@ -244,14 +244,13 @@ class SocketService {
   }
 
   Future<Message> _mapSocketMessagePayload(SocketMessagePayload p) async {
-    final tokenUser = await _prefs.getUser();
-    final myId = tokenUser?.id;
-    final isMe = myId != null && p.sender != null && p.sender == myId;
+    final tenantId = await _prefs.tenantId;
+    final isMe = p.sender != null && p.sender == tenantId;
 
     return Message(
       id: p.messageId,
       chatRoomId: p.chatRoomId,
-      content: p.displayContent,
+      content: p.displayContent, 
       timestamp: p.createdAt ?? DateTime.now(),
       isMe: isMe,
       senderName: isMe ? 'You' : (p.sender == null ? 'Customer' : 'Agent'),

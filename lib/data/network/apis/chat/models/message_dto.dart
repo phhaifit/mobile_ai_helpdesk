@@ -94,4 +94,30 @@ class MessageDto {
           : const <String, dynamic>{},
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'messageID': messageId,
+      'chatRoomID': chatRoomId,
+      'contactID': contactId,
+      'ticketID': ticketId,
+      'sender': sender,
+      'replyMessageID': replyMessageId,
+      'messageOrder': messageOrder,
+      'messageType': messageType,
+      'channelID': channelId,
+      'zaloCliMsgID': zaloCliMsgId,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
+      'contactInfo': contactInfo.toJson(),
+      'contentInfo': contentInfo,
+      'ticketInfo': ticketInfo,
+      'files': files.map((e) => e.toJson()).toList(),
+      'reaction': reaction.map((e) => e.toJson()).toList(),
+      'replyMessage': replyMessage,
+      'slackMessage': slackMessage,
+      'zohoDeskMessage': zohoDeskMessage,
+    };
+  }
 }

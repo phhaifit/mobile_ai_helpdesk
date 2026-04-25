@@ -12,4 +12,12 @@ class FileAttachmentDto {
       name: json['name']?.toString() ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'type': type,
+      'name': name,
+    };
+  }
 }
