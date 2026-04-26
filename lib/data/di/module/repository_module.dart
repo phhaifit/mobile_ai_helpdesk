@@ -63,6 +63,7 @@ import '../../local/datasources/playground/playground_datasource.dart';
 import '../../network/apis/ai_agent/ai_agent_api.dart';
 import '../../network/apis/playground/playground_api.dart';
 import '../../repository/ai_agent/ai_agent_repository_impl.dart';
+import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 import '../../repository/team/mock_team_repository_impl.dart';
@@ -82,6 +83,9 @@ class RepositoryModule {
       AiAgentRepositoryImpl(
         getIt<AiAgentApi>(),
         getIt<SharedPreferenceHelper>(),
+        fallbackRepository: MockAiAgentRepositoryImpl(
+          getIt<AiAgentDataSource>(),
+        ),
       ),
     );
 

@@ -9,8 +9,13 @@ import '/domain/repository/ai_agent/ai_agent_repository.dart';
 class AiAgentRepositoryImpl implements AiAgentRepository {
   final AiAgentApi _api;
   final SharedPreferenceHelper _prefs;
+  final AiAgentRepository _fallbackRepository;
 
-  AiAgentRepositoryImpl(this._api, this._prefs);
+  AiAgentRepositoryImpl(
+    this._api,
+    this._prefs, {
+    required AiAgentRepository fallbackRepository,
+  }) : _fallbackRepository = fallbackRepository;
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -58,10 +63,10 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
     enableTemplate: agent.enableTemplate,
   );
 
-  Future<String> _requireTenantId() async {
-    final id = await _prefs.tenantId;
+  Future<String?> _resolveTenantId() async {
+    final id = (await _prefs.tenantId)?.trim();
     if (id == null || id.isEmpty) {
-      throw Exception('tenantId not found — user must be logged in');
+      return null;
     }
     return id;
   }
@@ -72,8 +77,12 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
   @override
   Future<List<AiAgent>> getAgents() async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      return _fallbackRepository.getAgents();
+    }
+
     try {
-      final tenantId = await _requireTenantId();
       final json = await _api.getAgentByTenant(tenantId);
       if (json.isEmpty) return [];
       return [_fromJson(json)];
@@ -84,6 +93,11 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
   @override
   Future<AiAgent?> getAgentById(String id) async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      return _fallbackRepository.getAgentById(id);
+    }
+
     final agents = await getAgents();
     try {
       return agents.firstWhere((a) => a.id == id);
@@ -94,8 +108,12 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
   @override
   Future<AiAgent> createAgent(AiAgent agent) async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      return _fallbackRepository.createAgent(agent);
+    }
+
     try {
-      final tenantId = await _requireTenantId();
       // 1. Create with config fields
       final created = await _api.createAgent(tenantId, _toConfigRequest(agent));
       final agentId = (created['_id'] ?? created['id'] ?? '').toString();
@@ -118,6 +136,11 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
   @override
   Future<AiAgent> updateAgent(AiAgent agent) async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      return _fallbackRepository.updateAgent(agent);
+    }
+
     try {
       // 1. Update config
       await _api.updateAgentById(agent.id, _toConfigRequest(agent));
@@ -136,6 +159,11 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
   @override
   Future<void> deleteAgent(String id) async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      return _fallbackRepository.deleteAgent(id);
+    }
+
     try {
       await _api.deleteAgent(id);
     } on DioException catch (e) {
