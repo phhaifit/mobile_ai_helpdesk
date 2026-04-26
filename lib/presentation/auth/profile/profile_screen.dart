@@ -185,8 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  account.fullname.isNotEmpty
-                                      ? account.fullname
+                                  (account.fullname?.isNotEmpty ?? false)
+                                      ? account.fullname!
                                       : account.username,
                                   style: theme.textTheme.titleLarge,
                                 ),

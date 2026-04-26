@@ -35,18 +35,26 @@ class _MainScreenState extends State<MainScreen> {
   late String _selectedCategory;
   bool _showSidebarMobile = false;
 
-  late List<MenuCategory> _categories;
+  List<MenuCategory> _categories = const [];
+  bool _categoriesInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_categoriesInitialized) return;
+    _categoriesInitialized = true;
     _initializeCategories();
 
     // If initialCategory is a category title (e.g. 'Hỗ trợ khách hàng'),
     // default to the first menu item inside that category. Otherwise use
     // the provided initialCategory (which may already be a menu item).
-    String initial = widget.initialCategory;
+    final String initial = widget.initialCategory;
     final matchingCategory = _categories.firstWhere(
       (c) => c.title == initial,
       orElse:
