@@ -25,6 +25,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -62,6 +63,7 @@ import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
+import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
@@ -182,6 +184,7 @@ class StoreModule {
         getIt<GetTicketHistoryUseCase>(),
         getIt<SessionStore>(),
         getIt<AnalyticsService>(),
+        getIt<TicketWebSocketService>(),
       ),
     );
     getIt.registerFactory(
@@ -304,6 +307,7 @@ class StoreModule {
         getIt<ReindexSourceUseCase>(),
         getIt<TestDbConnectionUseCase>(),
         getIt<UpdateSourceCrawlIntervalUseCase>(),
+        getIt<WatchSourceStatusesUseCase>(),
       ),
     );
   }

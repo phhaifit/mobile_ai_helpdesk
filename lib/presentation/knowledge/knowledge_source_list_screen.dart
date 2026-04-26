@@ -29,6 +29,12 @@ class _KnowledgeSourceListScreenState
   }
 
   @override
+  void dispose() {
+    _store.stopStatusSse();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final body = SafeArea(
       child: Column(

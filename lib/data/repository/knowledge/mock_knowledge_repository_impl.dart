@@ -38,7 +38,7 @@ class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
       type: KnowledgeSourceType.googleDrive,
       status: KnowledgeSourceStatus.error,
       lastSyncAt: DateTime(2026, 3, 20, 14, 0),
-      crawlInterval: CrawlInterval.hourly,
+      crawlInterval: CrawlInterval.daily,
       config: {'folderId': '1abc_drive_folder_id', 'folderName': 'Helpdesk Docs'},
     ),
     KnowledgeSource(
@@ -114,5 +114,11 @@ class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
     // Mock: returns success if host is non-empty
     final host = connectionConfig['host'] as String? ?? '';
     return host.isNotEmpty;
+  }
+
+  @override
+  Stream<Map<String, KnowledgeSourceStatus>> watchSourceStatuses() {
+    // Mock does not push real-time updates.
+    return const Stream.empty();
   }
 }

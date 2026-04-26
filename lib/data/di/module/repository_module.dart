@@ -14,7 +14,9 @@ import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasou
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
+import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
@@ -22,7 +24,8 @@ import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/knowledge/knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
@@ -98,8 +101,19 @@ class RepositoryModule {
       MockTicketLocalDataSource(),
     );
 
-    getIt.registerSingleton<TicketRepository>(
+    getIt.registerSingleton<MockTicketRepositoryImpl>(
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
+    );
+
+    getIt.registerSingleton<TicketApi>(
+      TicketApi(getIt<DioClient>()),
+    );
+
+    getIt.registerSingleton<TicketRepository>(
+      TicketRepositoryImpl(
+        getIt<TicketApi>(),
+        getIt<MockTicketRepositoryImpl>(),
+      ),
     );
 
     // --- Chat Repositories ---
@@ -158,6 +172,13 @@ class RepositoryModule {
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
 
-    getIt.registerSingleton<KnowledgeRepository>(MockKnowledgeRepositoryImpl());
+    // --- Knowledge API & Repository ---
+    getIt.registerSingleton<KnowledgeApi>(
+      KnowledgeApi(getIt<DioClient>()),
+    );
+
+    getIt.registerSingleton<KnowledgeRepository>(
+      KnowledgeRepositoryImpl(getIt<KnowledgeApi>()),
+    );
   }
 }
