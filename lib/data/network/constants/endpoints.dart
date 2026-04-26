@@ -59,4 +59,38 @@ class Endpoints {
   static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
   static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // Ticket endpoints
+  static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
+  static String ticketComments(String ticketId) =>
+      '/api/ticket/comment/get-comment/$ticketId';
+  static const String ticketAddComment = '/api/ticket/comment/add-comment';
+  static String ticketDeleteComment(String commentId) =>
+      '/api/ticket/comment/$commentId';
+
+  // Knowledge Base endpoints
+  static String knowledgeSources(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/sources';
+  static String knowledgeSourcesByType(String tenantId, String type) =>
+      '/api/v1/knowledges/$tenantId/sources/$type';
+  static String knowledgeSource(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId';
+  static String knowledgeReindex(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId/reindex';
+  static String knowledgeInterval(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId/interval';
+  static String knowledgeImportWeb(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/web';
+  static String knowledgeStatusSse(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/status-sse';
+  static const String knowledgePollStatus =
+      '/api/v1/knowledges/sources/poll-status';
+
+  // WebSocket
+  static String ticketWebSocket(String ticketId) {
+    final wsBase = baseUrl
+        .replaceFirst('https://', 'wss://')
+        .replaceFirst('http://', 'ws://');
+    return '$wsBase/ws/ticket/$ticketId';
+  }
 }
