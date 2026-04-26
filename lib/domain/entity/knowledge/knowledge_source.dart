@@ -13,7 +13,106 @@ enum KnowledgeSourceType {
 
 enum KnowledgeSourceStatus { active, indexing, error }
 
-enum CrawlInterval { manual, hourly, daily, weekly, monthly }
+/// Backend supports: ONCE | DAILY | WEEKLY | MONTHLY (no HOURLY).
+enum CrawlInterval { manual, daily, weekly, monthly }
+
+// ---------------------------------------------------------------------------
+// API ↔ Domain mapping extensions
+// ---------------------------------------------------------------------------
+
+extension KnowledgeSourceTypeApiX on KnowledgeSourceType {
+  /// Converts domain type to API `type` string used in import endpoints.
+  String toApiImportType() {
+    switch (this) {
+      case KnowledgeSourceType.webSingle:
+        return 'single_url';
+      case KnowledgeSourceType.webFull:
+        return 'whole_site';
+      case KnowledgeSourceType.localFile:
+        return 'local_file';
+      case KnowledgeSourceType.googleDrive:
+        return 'google_drive';
+      case KnowledgeSourceType.postgresql:
+      case KnowledgeSourceType.sqlServer:
+        return 'database_query';
+    }
+  }
+}
+
+extension KnowledgeSourceTypeFromApi on String {
+  /// Parses API `type` field from GET /sources response.
+  KnowledgeSourceType toKnowledgeSourceType() {
+    switch (this) {
+      case 'web':
+        return KnowledgeSourceType.webSingle;
+      case 'whole_site':
+        return KnowledgeSourceType.webFull;
+      case 'local_file':
+        return KnowledgeSourceType.localFile;
+      case 'google_drive':
+        return KnowledgeSourceType.googleDrive;
+      case 'database_query':
+        return KnowledgeSourceType.postgresql;
+      default:
+        return KnowledgeSourceType.webSingle;
+    }
+  }
+}
+
+extension KnowledgeSourceStatusFromApi on String {
+  /// Maps API status (pending/processing/completed/failed) → domain status.
+  KnowledgeSourceStatus toKnowledgeSourceStatus() {
+    switch (this) {
+      case 'completed':
+        return KnowledgeSourceStatus.active;
+      case 'pending':
+      case 'processing':
+        return KnowledgeSourceStatus.indexing;
+      case 'failed':
+        return KnowledgeSourceStatus.error;
+      default:
+        return KnowledgeSourceStatus.indexing;
+    }
+  }
+}
+
+extension CrawlIntervalApiX on CrawlInterval {
+  /// Converts domain interval → API interval string (ONCE/DAILY/WEEKLY/MONTHLY).
+  String toApiInterval() {
+    switch (this) {
+      case CrawlInterval.manual:
+        return 'ONCE';
+      case CrawlInterval.daily:
+        return 'DAILY';
+      case CrawlInterval.weekly:
+        return 'WEEKLY';
+      case CrawlInterval.monthly:
+        return 'MONTHLY';
+    }
+  }
+}
+
+extension CrawlIntervalFromApi on String {
+  /// Parses API interval string → domain CrawlInterval.
+  CrawlInterval toCrawlInterval() {
+    switch (this) {
+      case 'ONCE':
+        return CrawlInterval.manual;
+      case 'DAILY':
+        return CrawlInterval.daily;
+      case 'WEEKLY':
+        return CrawlInterval.weekly;
+      case 'MONTHLY':
+        return CrawlInterval.monthly;
+      default:
+        return CrawlInterval.manual;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Entity
+// ---------------------------------------------------------------------------
 
 @JsonSerializable()
 class KnowledgeSource {

@@ -29,12 +29,6 @@ class _CrawlIntervalConfigScreenState
       Icons.touch_app,
     ),
     (
-      CrawlInterval.hourly,
-      'Mỗi giờ',
-      'Tự động đồng bộ mỗi 60 phút',
-      Icons.timer,
-    ),
-    (
       CrawlInterval.daily,
       'Mỗi ngày',
       'Tự động đồng bộ lúc 00:00 hàng ngày',
@@ -45,6 +39,12 @@ class _CrawlIntervalConfigScreenState
       'Mỗi tuần',
       'Tự động đồng bộ vào 00:00 Thứ Hai hàng tuần',
       Icons.date_range,
+    ),
+    (
+      CrawlInterval.monthly,
+      'Hàng tháng',
+      'Tự động đồng bộ vào 00:00 ngày 1 hàng tháng',
+      Icons.calendar_month,
     ),
   ];
 

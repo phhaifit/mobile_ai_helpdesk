@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
@@ -5,6 +7,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'knowledge_store.g.dart';
@@ -18,6 +21,7 @@ abstract class _KnowledgeStore with Store {
   final ReindexSourceUseCase _reindexSource;
   final TestDbConnectionUseCase _testDbConnection;
   final UpdateSourceCrawlIntervalUseCase _updateSourceCrawlInterval;
+  final WatchSourceStatusesUseCase _watchSourceStatuses;
 
   _KnowledgeStore(
     this._getSources,
@@ -26,6 +30,7 @@ abstract class _KnowledgeStore with Store {
     this._reindexSource,
     this._testDbConnection,
     this._updateSourceCrawlInterval,
+    this._watchSourceStatuses,
   );
 
   // ---------------------------------------------------------------------------
@@ -35,7 +40,6 @@ abstract class _KnowledgeStore with Store {
   @observable
   ObservableList<KnowledgeSource> sources = ObservableList();
 
-  // null = Tất cả, 'file', 'web', 'drive', 'db'
   @observable
   String? selectedCategory;
 
@@ -50,6 +54,12 @@ abstract class _KnowledgeStore with Store {
 
   @observable
   String? errorMessage;
+
+  // ---------------------------------------------------------------------------
+  // SSE subscription
+  // ---------------------------------------------------------------------------
+
+  StreamSubscription<Map<String, KnowledgeSourceStatus>>? _sseSub;
 
   // ---------------------------------------------------------------------------
   // Computed
@@ -87,6 +97,8 @@ abstract class _KnowledgeStore with Store {
     try {
       final result = await _getSources.call(params: null);
       sources = ObservableList.of(result);
+      // Start SSE after the initial load so we have source IDs available.
+      startStatusSse();
     } catch (e) {
       errorMessage = e.toString();
     } finally {
@@ -153,9 +165,7 @@ abstract class _KnowledgeStore with Store {
         ),
       );
       final index = sources.indexWhere((s) => s.id == id);
-      if (index != -1) {
-        sources[index] = updated;
-      }
+      if (index != -1) sources[index] = updated;
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -180,5 +190,41 @@ abstract class _KnowledgeStore with Store {
     connectionTestSuccess = null;
   }
 
-  void dispose() {}
+  // ---------------------------------------------------------------------------
+  // SSE lifecycle
+  // ---------------------------------------------------------------------------
+
+  /// Opens an SSE connection and patches individual source statuses as they
+  /// arrive from the backend.  Safe to call multiple times — cancels any
+  /// existing subscription first.
+  void startStatusSse() {
+    _sseSub?.cancel();
+    _sseSub = _watchSourceStatuses.call().listen(
+      (statusMap) {
+        runInAction(() {
+          for (final entry in statusMap.entries) {
+            final idx = sources.indexWhere((s) => s.id == entry.key);
+            if (idx != -1 && sources[idx].status != entry.value) {
+              sources[idx] = sources[idx].copyWith(status: entry.value);
+            }
+          }
+        });
+      },
+      onError: (Object e) {
+        // SSE error — surface as a non-blocking message; list stays intact.
+        runInAction(() => errorMessage = 'SSE disconnected: $e');
+      },
+      cancelOnError: true,
+    );
+  }
+
+  /// Cancels the SSE subscription.  Call this from the screen's [dispose].
+  void stopStatusSse() {
+    _sseSub?.cancel();
+    _sseSub = null;
+  }
+
+  void dispose() {
+    stopStatusSse();
+  }
 }

@@ -45,7 +45,6 @@ const _$KnowledgeSourceStatusEnumMap = {
 
 const _$CrawlIntervalEnumMap = {
   CrawlInterval.manual: 'manual',
-  CrawlInterval.hourly: 'hourly',
   CrawlInterval.daily: 'daily',
   CrawlInterval.weekly: 'weekly',
   CrawlInterval.monthly: 'monthly',

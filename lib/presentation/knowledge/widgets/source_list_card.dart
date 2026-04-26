@@ -124,14 +124,12 @@ class SourceListCard extends StatelessWidget {
     switch (interval) {
       case CrawlInterval.manual:
         return 'Thủ công';
-      case CrawlInterval.hourly:
-        return 'Mỗi giờ';
       case CrawlInterval.daily:
         return 'Mỗi ngày';
-      case CrawlInterval.monthly:
-        return 'Hàng tháng';
       case CrawlInterval.weekly:
         return 'Mỗi tuần';
+      case CrawlInterval.monthly:
+        return 'Hàng tháng';
     }
   }
 }
