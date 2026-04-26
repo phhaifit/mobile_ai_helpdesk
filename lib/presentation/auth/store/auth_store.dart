@@ -71,7 +71,7 @@ abstract class _AuthStoreBase with Store {
     _sentryService.setUserContext(
       userId: account.accountId,
       email: account.email,
-      tenantId: account.tenantId,
+      tenantId: account.tenantId ?? SentryService.defaultTenantId,
     );
   }
 
@@ -97,13 +97,13 @@ abstract class _AuthStoreBase with Store {
       account.accountId,
       userProperties: {
         'user_role': account.role,
-        'tenant_id': account.tenantId,
+        'tenant_id': account.tenantId ?? '',
       },
     );
     _sentryService.setUserContext(
       userId: account.accountId,
       email: account.email,
-      tenantId: account.tenantId,
+      tenantId: account.tenantId ?? SentryService.defaultTenantId,
     );
   }
 

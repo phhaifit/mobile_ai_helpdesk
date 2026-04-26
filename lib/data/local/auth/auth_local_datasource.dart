@@ -47,7 +47,12 @@ class AuthLocalDatasource {
   Future<void> saveAccount(Account account) async {
     final json = jsonEncode(account.toJson());
     await _prefs.saveAccountJson(json);
-    await _prefs.saveTenantId(account.tenantId);
+    final tenantId = account.tenantId;
+    if (tenantId != null && tenantId.isNotEmpty) {
+      await _prefs.saveTenantId(tenantId);
+    } else {
+      await _prefs.removeTenantId();
+    }
   }
 
   Future<Account?> loadAccount() async {

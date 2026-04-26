@@ -11,10 +11,10 @@ class Account {
   @JsonKey(name: 'accountID')
   final String accountId;
   @JsonKey(name: 'tenantID')
-  final String tenantId;
+  final String? tenantId;
   final String email;
   final String username;
-  final String fullname;
+  final String? fullname;
   final String role;
   final String? phoneNumber;
   final String? profilePicture;
@@ -54,7 +54,8 @@ class Account {
   Map<String, dynamic> toJson() => _$AccountToJson(this);
 
   String get initial {
-    if (fullname.trim().isNotEmpty) return fullname.trim()[0].toUpperCase();
+    final trimmed = fullname?.trim() ?? '';
+    if (trimmed.isNotEmpty) return trimmed[0].toUpperCase();
     if (username.isNotEmpty) return username[0].toUpperCase();
     if (email.isNotEmpty) return email[0].toUpperCase();
     return 'U';

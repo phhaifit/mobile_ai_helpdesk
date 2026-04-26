@@ -125,8 +125,8 @@ class AccountMenuSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        account.fullname.isNotEmpty
-                            ? account.fullname
+                        (account.fullname?.isNotEmpty ?? false)
+                            ? account.fullname!
                             : account.username,
                         style: theme.textTheme.titleMedium,
                         overflow: TextOverflow.ellipsis,
