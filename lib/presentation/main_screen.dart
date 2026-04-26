@@ -1,4 +1,3 @@
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 
@@ -50,7 +49,12 @@ class _MainScreenState extends State<MainScreen> {
     String initial = widget.initialCategory;
     final matchingCategory = _categories.firstWhere(
       (c) => c.title == initial,
-      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+      orElse:
+          () => MenuCategory(
+            title: '',
+            icon: Icons.help_outline_rounded,
+            items: [],
+          ),
     );
 
     if (matchingCategory.items.isNotEmpty) {
@@ -163,7 +167,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           MenuItem(
             id: 'omnichannel',
-            title: AppLocalizations.of(context).translate('omnichannel_menu_title'),
+            title: 'Kênh tích hợp',
             onTap: () => _selectCategory('omnichannel'),
           ),
           MenuItem(
@@ -181,8 +185,16 @@ class _MainScreenState extends State<MainScreen> {
             title: 'Mock invitation response',
             onTap: _openMockInvitationResponse,
           ),
-          MenuItem(id: 'template', title: 'Template', onTap: () => _selectCategory('template')),
-          MenuItem(id: 'facebook_admin', title: 'Facebook Admin', onTap: () => _selectCategory('facebook_admin')),
+          MenuItem(
+            id: 'template',
+            title: 'Template',
+            onTap: () => _selectCategory('template'),
+          ),
+          MenuItem(
+            id: 'facebook_admin',
+            title: 'Facebook Admin',
+            onTap: () => _selectCategory('facebook_admin'),
+          ),
         ],
       ),
       MenuCategory(

@@ -23,9 +23,10 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
     final autoResponse = json['autoResponse'] as bool? ?? false;
     DateTime createdAt;
     try {
-      createdAt = json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'].toString())
-          : DateTime.now();
+      createdAt =
+          json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'].toString())
+              : DateTime.now();
     } catch (_) {
       createdAt = DateTime.now();
     }
@@ -33,8 +34,7 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
       id: id,
       name: (json['name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      avatarUrl:
-          json['avatar']?.toString() ?? json['avatarUrl']?.toString(),
+      avatarUrl: json['avatar']?.toString() ?? json['avatarUrl']?.toString(),
       mode: autoResponse ? AgentMode.auto : AgentMode.semiAuto,
       platforms: const [],
       workflows: const [],
@@ -49,15 +49,14 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
     );
   }
 
-  UpdateAiAgentRequest _toConfigRequest(AiAgent agent) =>
-      UpdateAiAgentRequest(
-        toneOfAI: agent.toneOfAI,
-        language: agent.language,
-        includeReference: agent.includeReference,
-        autoResponse: agent.autoResponse ?? (agent.mode == AgentMode.auto),
-        autoDraftResponse: agent.autoDraftResponse,
-        enableTemplate: agent.enableTemplate,
-      );
+  UpdateAiAgentRequest _toConfigRequest(AiAgent agent) => UpdateAiAgentRequest(
+    toneOfAI: agent.toneOfAI,
+    language: agent.language,
+    includeReference: agent.includeReference,
+    autoResponse: agent.autoResponse ?? (agent.mode == AgentMode.auto),
+    autoDraftResponse: agent.autoDraftResponse,
+    enableTemplate: agent.enableTemplate,
+  );
 
   Future<String> _requireTenantId() async {
     final id = await _prefs.tenantId;
@@ -98,10 +97,7 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
     try {
       final tenantId = await _requireTenantId();
       // 1. Create with config fields
-      final created = await _api.createAgent(
-        tenantId,
-        _toConfigRequest(agent),
-      );
+      final created = await _api.createAgent(tenantId, _toConfigRequest(agent));
       final agentId = (created['_id'] ?? created['id'] ?? '').toString();
       // 2. Update profile (name / description / avatar)
       await _api.updateAgentInfo(
@@ -110,7 +106,11 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
         description: agent.description,
         avatar: agent.avatarUrl,
       );
-      return _fromJson({...created, 'name': agent.name, 'description': agent.description});
+      return _fromJson({
+        ...created,
+        'name': agent.name,
+        'description': agent.description,
+      });
     } on DioException catch (e) {
       throw Exception('Failed to create agent: ${e.message}');
     }
