@@ -21,7 +21,13 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
   void initState() {
     super.initState();
     _store = getIt<OmnichannelStore>();
-    _store.fetchOverview();
+    _store.fetchOverview().then((_) {
+      final zalo = _store.overview?.zalo;
+      if (zalo != null &&
+          zalo.connectionStatus != IntegrationConnectionStatus.connected) {
+        _store.startZaloQrFlow();
+      }
+    });
   }
 
   @override
@@ -32,9 +38,11 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
       body: Observer(
         builder: (_) {
           final zalo = _store.overview?.zalo;
+          final qr = _store.zaloQr;
+          final qrStatus = _store.zaloQrStatus;
           _showActionMessageIfNeeded(context);
 
-          if (zalo == null && _store.isLoading) {
+          if (zalo == null && _store.isLoading && qr == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -62,15 +70,58 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.black12),
                         ),
-                        child: const Center(
-                          child: Icon(Icons.qr_code_2, size: 120),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child:
+                              qr != null
+                                  ? Image.network(
+                                    qr.url,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                          if (loadingProgress == null)
+                                            return child;
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Center(
+                                              child: Icon(
+                                                Icons.qr_code_2,
+                                                size: 120,
+                                              ),
+                                            ),
+                                  )
+                                  : const Center(
+                                    child: Icon(Icons.qr_code_2, size: 120),
+                                  ),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        l.translate('omnichannel_zalo_qr_hint'),
-                        textAlign: TextAlign.center,
-                      ),
+                      if (qrStatus == ZaloQrStatus.scanned)
+                        Text(
+                          l.translate('omnichannel_zalo_qr_scanned'),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      else if (qrStatus == ZaloQrStatus.expired)
+                        Text(
+                          l.translate('omnichannel_zalo_qr_expired'),
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      else
+                        Text(
+                          l.translate('omnichannel_zalo_qr_hint'),
+                          textAlign: TextAlign.center,
+                        ),
                     ],
                   ),
                 ),
@@ -86,15 +137,16 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _store.isLoading
-                    ? null
-                    : () {
-                        if (isConnected) {
-                          _store.disconnectZalo();
-                        } else {
-                          _store.connectZaloFromQr();
-                        }
-                      },
+                onPressed:
+                    _store.isLoading
+                        ? null
+                        : () {
+                          if (isConnected) {
+                            _store.disconnectZalo();
+                          } else {
+                            _store.startZaloQrFlow();
+                          }
+                        },
                 icon: Icon(isConnected ? Icons.link_off : Icons.qr_code),
                 label: Text(
                   l.translate(

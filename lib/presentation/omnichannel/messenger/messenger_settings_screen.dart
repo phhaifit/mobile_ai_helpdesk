@@ -31,7 +31,10 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
 
       setState(() {
         _autoReply = messenger.autoReply;
-        _language = messenger.language;
+        _language =
+            _isSupportedLanguage(messenger.language)
+                ? messenger.language
+                : 'vi';
         _businessHourController.text = messenger.businessHours;
       });
     });
@@ -64,6 +67,9 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
             );
           }
 
+          final String dropdownValue =
+              _isSupportedLanguage(_language) ? _language : 'vi';
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -71,15 +77,17 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(l.translate('omnichannel_messenger_auto_reply')),
                 value: _autoReply,
-                onChanged: (value) => setState(() {
-                  _autoReply = value;
-                }),
+                onChanged:
+                    (value) => setState(() {
+                      _autoReply = value;
+                    }),
               ),
               const SizedBox(height: 8),
               Text(l.translate('omnichannel_messenger_language')),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
-                value: _language,
+                key: ValueKey<String>(dropdownValue),
+                value: dropdownValue,
                 items: const [
                   DropdownMenuItem(value: 'vi', child: Text('Vietnamese')),
                   DropdownMenuItem(value: 'en', child: Text('English')),
@@ -107,15 +115,16 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _store.isLoading
-                    ? null
-                    : () {
-                        _store.updateMessengerSettings(
-                          autoReply: _autoReply,
-                          language: _language,
-                          businessHours: _businessHourController.text.trim(),
-                        );
-                      },
+                onPressed:
+                    _store.isLoading
+                        ? null
+                        : () {
+                          _store.updateMessengerSettings(
+                            autoReply: _autoReply,
+                            language: _language,
+                            businessHours: _businessHourController.text.trim(),
+                          );
+                        },
                 icon: const Icon(Icons.save),
                 label: Text(l.translate('omnichannel_save_button')),
               ),
@@ -146,5 +155,9 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
       );
       _store.clearActionMessage();
     });
+  }
+
+  bool _isSupportedLanguage(String language) {
+    return language == 'vi' || language == 'en';
   }
 }

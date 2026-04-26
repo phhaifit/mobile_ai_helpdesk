@@ -52,7 +52,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> connectMessenger() async {
+  Future<ActionFeedback> connectMessenger({String? authCode}) async {
     await Future.delayed(const Duration(milliseconds: 700));
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
@@ -68,7 +68,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> disconnectMessenger() async {
+  Future<ActionFeedback> disconnectMessenger({String? channelId}) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
@@ -140,7 +140,32 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> connectZaloFromQr() async {
+  Future<ZaloQr> generateZaloQr() async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    return ZaloQr(
+      code: 'code_${_random.nextInt(10000)}',
+      url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=MockZaloAuth',
+    );
+  }
+
+  @override
+  Future<ZaloQrStatusUpdate> getZaloQrStatus(String code) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    final double r = _random.nextDouble();
+    if (r < 0.3) {
+      return const ZaloQrStatusUpdate(status: ZaloQrStatus.pending);
+    } else if (r < 0.6) {
+      return const ZaloQrStatusUpdate(status: ZaloQrStatus.scanned);
+    } else {
+      return const ZaloQrStatusUpdate(
+        status: ZaloQrStatus.confirmed,
+        authCode: 'mock_auth_code_123',
+      );
+    }
+  }
+
+  @override
+  Future<ActionFeedback> connectZalo(String authCode) async {
     await Future.delayed(const Duration(milliseconds: 900));
     _state = _state.copyWith(
       zalo: _state.zalo.copyWith(
@@ -193,9 +218,10 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
 
     return ActionFeedback(
       isSuccess: true,
-      messageKey: healthy
-          ? 'omnichannel_zalo_sync_healthy'
-          : 'omnichannel_zalo_sync_degraded',
+      messageKey:
+          healthy
+              ? 'omnichannel_zalo_sync_healthy'
+              : 'omnichannel_zalo_sync_degraded',
     );
   }
 

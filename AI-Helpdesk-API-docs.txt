@@ -1,0 +1,91 @@
+# Jarvis Helpdesk - Mobile App API
+
+## API Docs
+- Root > 8. AI Agent [Get active AI agent by tenant](https://033thw3m9z.apidog.io/get-active-ai-agent-by-tenant-32922649e0.md): 
+- Root > 8. AI Agent [Create AI agent for tenant](https://033thw3m9z.apidog.io/create-ai-agent-for-tenant-32922650e0.md): 
+- Root > 8. AI Agent [Update AI agent configuration](https://033thw3m9z.apidog.io/update-ai-agent-configuration-32922651e0.md): 
+- Root > 8. AI Agent [Update AI agent configuration (by agent ID)](https://033thw3m9z.apidog.io/update-ai-agent-configuration-by-agent-id-32922652e0.md): 
+- Root > 8. AI Agent [Delete AI agent](https://033thw3m9z.apidog.io/delete-ai-agent-32922653e0.md): 
+- Root > 8. AI Agent [Update AI agent profile/information](https://033thw3m9z.apidog.io/update-ai-agent-profileinformation-32922654e0.md): 
+- Root > 8. AI Agent [Ask a question to the AI agent (playground/chat)](https://033thw3m9z.apidog.io/ask-a-question-to-the-ai-agent-playgroundchat-32922655e0.md): Used for playground chat testing and file-based Q&A (Section 8.1 & 13)
+- Root > 8. AI Agent [Chat completion using AI agent](https://033thw3m9z.apidog.io/chat-completion-using-ai-agent-32922656e0.md): 
+- Root > 8. AI Agent [Complete a prompt using AI agent](https://033thw3m9z.apidog.io/complete-a-prompt-using-ai-agent-32922657e0.md): 
+- Root > 8. AI Agent [Query AI agent knowledge base directly](https://033thw3m9z.apidog.io/query-ai-agent-knowledge-base-directly-32922658e0.md): 
+- Root > 8. AI Agent [Analyze website — suggest AI agent name + description](https://033thw3m9z.apidog.io/analyze-website-suggest-ai-agent-name-description-32922659e0.md): 
+- Root > 8. AI Agent [Generate rules and FAQ from website](https://033thw3m9z.apidog.io/generate-rules-and-faq-from-website-32922660e0.md): 
+- Root > 8. AI Agent [Generate FAQ questions from agent configuration](https://033thw3m9z.apidog.io/generate-faq-questions-from-agent-configuration-32922661e0.md): 
+- Root > 8. AI Agent [Generate personalized agent from industry template](https://033thw3m9z.apidog.io/generate-personalized-agent-from-industry-template-32922662e0.md): 
+- Root > 8. AI Agent Actions [Draft response using AI Agent](https://033thw3m9z.apidog.io/draft-response-using-ai-agent-32922663e0.md): 
+- Root > 8. AI Agent Actions [Stream draft response (SSE)](https://033thw3m9z.apidog.io/stream-draft-response-sse-32922664e0.md): 
+- Root > 8. AI Agent Actions [Auto response with minimal input](https://033thw3m9z.apidog.io/auto-response-with-minimal-input-32922665e0.md): 
+- Root > 8. AI Agent Actions [Analyze ticket using AI Agent](https://033thw3m9z.apidog.io/analyze-ticket-using-ai-agent-32922666e0.md): 
+- Root > 8. AI Agent Actions [Correct spelling](https://033thw3m9z.apidog.io/correct-spelling-32922667e0.md): 
+- Root > 8. AI Agent Actions [Shorten response](https://033thw3m9z.apidog.io/shorten-response-32922668e0.md): 
+- Root > 8. AI Agent Actions [Lengthen response](https://033thw3m9z.apidog.io/lengthen-response-32922669e0.md): 
+- Root > 8. AI Agent Actions [Make response more professional](https://033thw3m9z.apidog.io/make-response-more-professional-32922670e0.md): 
+- Root > 8. AI Agent Actions [Make response more casual](https://033thw3m9z.apidog.io/make-response-more-casual-32922671e0.md): 
+- Root > 8. AI Agent Actions [Simplify words](https://033thw3m9z.apidog.io/simplify-words-32922672e0.md): 
+
+## Schemas
+- Root [OAuthTokenRequest](https://033thw3m9z.apidog.io/oauthtokenrequest-14125305d0.md): 
+- Root [OAuthTokenResponse](https://033thw3m9z.apidog.io/oauthtokenresponse-14125306d0.md): 
+- Root [AuthTokenResponse](https://033thw3m9z.apidog.io/authtokenresponse-14125307d0.md): 
+- Root [OtpSendCodeRequest](https://033thw3m9z.apidog.io/otpsendcoderequest-14125308d0.md): 
+- Root [OtpSignInRequest](https://033thw3m9z.apidog.io/otpsigninrequest-14125309d0.md): 
+- Root [SsoValidateResponse](https://033thw3m9z.apidog.io/ssovalidateresponse-14125310d0.md): 
+- Root [User](https://033thw3m9z.apidog.io/user-14125311d0.md): 
+- Root [Tenant](https://033thw3m9z.apidog.io/tenant-14125312d0.md): 
+- Root [CreateTenantRequest](https://033thw3m9z.apidog.io/createtenantrequest-14125313d0.md): 
+- Root [UpdateTenantRequest](https://033thw3m9z.apidog.io/updatetenantrequest-14125314d0.md): 
+- Root [InviteTenantRequest](https://033thw3m9z.apidog.io/invitetenantrequest-14125315d0.md): 
+- Root [Invitation](https://033thw3m9z.apidog.io/invitation-14125316d0.md): 
+- Root [AutoResolutionSettings](https://033thw3m9z.apidog.io/autoresolutionsettings-14125317d0.md): 
+- Root [Ticket](https://033thw3m9z.apidog.io/ticket-14125318d0.md): 
+- Root [CreateTicketRequest](https://033thw3m9z.apidog.io/createticketrequest-14125319d0.md): 
+- Root [UpdateTicketStatusRequest](https://033thw3m9z.apidog.io/updateticketstatusrequest-14125320d0.md): 
+- Root [TicketComment](https://033thw3m9z.apidog.io/ticketcomment-14125321d0.md): 
+- Root [AddCommentRequest](https://033thw3m9z.apidog.io/addcommentrequest-14125322d0.md): 
+- Root [Customer](https://033thw3m9z.apidog.io/customer-14125323d0.md): 
+- Root [Tag](https://033thw3m9z.apidog.io/tag-14125324d0.md): 
+- Root [MergeCustomerRequest](https://033thw3m9z.apidog.io/mergecustomerrequest-14125325d0.md): 
+- Root [CustomerSupport](https://033thw3m9z.apidog.io/customersupport-14125326d0.md): 
+- Root [ChatRoom](https://033thw3m9z.apidog.io/chatroom-14125327d0.md): 
+- Root [ChatRoomCounter](https://033thw3m9z.apidog.io/chatroomcounter-14125328d0.md): 
+- Root [Message](https://033thw3m9z.apidog.io/message-14125329d0.md): 
+- Root [SendMessageRequest](https://033thw3m9z.apidog.io/sendmessagerequest-14125330d0.md): 
+- Root [MessengerPage](https://033thw3m9z.apidog.io/messengerpage-14125331d0.md): 
+- Root [ConnectPageRequest](https://033thw3m9z.apidog.io/connectpagerequest-14125332d0.md): 
+- Root [MarketingTemplate](https://033thw3m9z.apidog.io/marketingtemplate-14125333d0.md): 
+- Root [Broadcast](https://033thw3m9z.apidog.io/broadcast-14125334d0.md): 
+- Root [AdAccount](https://033thw3m9z.apidog.io/adaccount-14125335d0.md): 
+- Root [AskQuestionDto](https://033thw3m9z.apidog.io/askquestiondto-14125336d0.md): 
+- Root [ChatCompletionDto](https://033thw3m9z.apidog.io/chatcompletiondto-14125337d0.md): 
+- Root [CompletionDto](https://033thw3m9z.apidog.io/completiondto-14125338d0.md): 
+- Root [DirectQueryDto](https://033thw3m9z.apidog.io/directquerydto-14125339d0.md): 
+- Root [UpdateAiAgentDto](https://033thw3m9z.apidog.io/updateaiagentdto-14125340d0.md): 
+- Root [DraftResponseDto](https://033thw3m9z.apidog.io/draftresponsedto-14125341d0.md): 
+- Root [FormalizeResponseDto](https://033thw3m9z.apidog.io/formalizeresponsedto-14125342d0.md): 
+- Root [TicketAnalyzeDto](https://033thw3m9z.apidog.io/ticketanalyzedto-14125343d0.md): 
+- Root [AutoResponseDto](https://033thw3m9z.apidog.io/autoresponsedto-14125344d0.md): 
+- Root [JarvisAgentMessageDto](https://033thw3m9z.apidog.io/jarvisagentmessagedto-14125345d0.md): 
+- Root [JarvisAgentConfirmDto](https://033thw3m9z.apidog.io/jarvisagentconfirmdto-14125346d0.md): 
+- Root [AnalyzeWebDto](https://033thw3m9z.apidog.io/analyzewebdto-14125347d0.md): 
+- Root [ConfigureFromWebsiteDto](https://033thw3m9z.apidog.io/configurefromwebsitedto-14125348d0.md): 
+- Root [GenerateFaqDto](https://033thw3m9z.apidog.io/generatefaqdto-14125349d0.md): 
+- Root [KnowledgeSource](https://033thw3m9z.apidog.io/knowledgesource-14125350d0.md): 
+- Root [ImportWebReqDto](https://033thw3m9z.apidog.io/importwebreqdto-14125351d0.md): 
+- Root [ImportGoogleDriveReqDto](https://033thw3m9z.apidog.io/importgoogledrivereqdto-14125352d0.md): 
+- Root [ImportDatabaseQueryDto](https://033thw3m9z.apidog.io/importdatabasequerydto-14125353d0.md): 
+- Root [UpdateDatabaseQueryDto](https://033thw3m9z.apidog.io/updatedatabasequerydto-14125354d0.md): 
+- Root [TestDatabaseQueryDto](https://033thw3m9z.apidog.io/testdatabasequerydto-14125355d0.md): 
+- Root [UpdateSourceStatusReqDto](https://033thw3m9z.apidog.io/updatesourcestatusreqdto-14125356d0.md): 
+- Root [UpdateSourceIntervalReqDto](https://033thw3m9z.apidog.io/updatesourceintervalreqdto-14125357d0.md): 
+- Root [SourceStatusPollingReqDto](https://033thw3m9z.apidog.io/sourcestatuspollingreqdto-14125358d0.md): 
+- Root [ResponseTemplate](https://033thw3m9z.apidog.io/responsetemplate-14125359d0.md): 
+- Root [CreateResponseTemplateDto](https://033thw3m9z.apidog.io/createresponsetemplatedto-14125360d0.md): 
+- Root [UpdateResponseTemplateDto](https://033thw3m9z.apidog.io/updateresponsetemplatedto-14125361d0.md): 
+- Root [SubscriptionStatus](https://033thw3m9z.apidog.io/subscriptionstatus-14125362d0.md): 
+- Root [Plan](https://033thw3m9z.apidog.io/plan-14125363d0.md): 
+- Root [Notification](https://033thw3m9z.apidog.io/notification-14125364d0.md): 
+- Root [PaginatedResponse](https://033thw3m9z.apidog.io/paginatedresponse-14125365d0.md): 
+- Root [ErrorResponse](https://033thw3m9z.apidog.io/errorresponse-14125366d0.md): 
