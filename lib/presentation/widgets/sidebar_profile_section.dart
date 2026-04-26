@@ -27,8 +27,8 @@ class SidebarProfileSection extends StatelessWidget {
       child: Observer(
         builder: (_) {
           final account = authStore.account;
-          final displayName = (account?.fullname.isNotEmpty ?? false)
-              ? account!.fullname
+          final displayName = (account?.fullname?.isNotEmpty ?? false)
+              ? account!.fullname!
               : account?.username ?? l.translate('profile_tv_signed_out');
           final displayRole =
               account?.role ?? l.translate('profile_tv_no_account');

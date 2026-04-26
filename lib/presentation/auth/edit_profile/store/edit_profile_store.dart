@@ -46,7 +46,7 @@ abstract class _EditProfileStoreBase with Store {
   bool get isDirty {
     final account = _authStore.account;
     if (account == null) return false;
-    return fullname.trim() != account.fullname ||
+    return fullname.trim() != (account.fullname ?? '') ||
         username.trim() != account.username ||
         phoneNumber.trim() != (account.phoneNumber ?? '');
   }
@@ -60,7 +60,7 @@ abstract class _EditProfileStoreBase with Store {
 
   @action
   void seedFrom(Account account) {
-    fullname = account.fullname;
+    fullname = account.fullname ?? '';
     username = account.username;
     phoneNumber = account.phoneNumber ?? '';
     errorKey = null;
