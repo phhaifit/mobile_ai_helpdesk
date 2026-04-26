@@ -10,6 +10,7 @@ import '/core/data/network/dio/interceptors/stack_headers_interceptor.dart';
 import '/core/data/network/dio/interceptors/tenant_header_interceptor.dart';
 import '/core/events/auth_events.dart';
 import '/core/monitoring/sentry/sentry_service.dart';
+import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
@@ -117,6 +118,13 @@ class NetworkModule {
     );
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
+    );
+
+    // websocket:---------------------------------------------------------------
+    getIt.registerSingleton<TicketWebSocketService>(
+      TicketWebSocketService(
+        getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+      ),
     );
   }
 }
