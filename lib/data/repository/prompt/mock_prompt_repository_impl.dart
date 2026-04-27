@@ -5,125 +5,140 @@ import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 
 class MockPromptRepositoryImpl implements PromptRepository {
   MockPromptRepositoryImpl() {
-    _prompts.addAll(_seedPublic);
+    _templates.addAll(_seedData);
   }
 
-  final List<Prompt> _prompts = [];
+  final List<ResponseTemplate> _templates = [];
 
-  static const List<Prompt> _seedPublic = [
-    Prompt(
-      id: 'pub_greet',
-      title: 'Customer greeting',
-      body: 'Hello! Thank you for contacting us. How can I help you today?',
-      categoryId: 'support',
-      isFavorite: false,
-      usageCount: 14,
-      isPrivate: false,
+  static const List<ResponseTemplate> _seedData = [
+    ResponseTemplate(
+      id: 'tpl_1',
+      name: 'Customer greeting',
+      description: 'Standard greeting template for customer support',
+      template: 'Hello! Thank you for contacting us. How can I help you today?',
+      isActive: true,
+      assistantId: 'ast_support_01',
     ),
-    Prompt(
-      id: 'pub_ticket_close',
-      title: 'Ticket resolution summary',
-      body:
+    ResponseTemplate(
+      id: 'tpl_2',
+      name: 'Ticket resolution summary',
+      description: 'Summary template after resolving a support ticket',
+      template:
           'Here is a summary of the steps we took to resolve your ticket. Please let us know if anything else comes up.',
-      categoryId: 'support',
-      isFavorite: true,
-      usageCount: 9,
-      isPrivate: false,
+      isActive: true,
+      assistantId: 'ast_support_01',
     ),
-    Prompt(
-      id: 'pub_sales_intro',
-      title: 'Product introduction',
-      body:
+    ResponseTemplate(
+      id: 'tpl_3',
+      name: 'Product introduction',
+      description: 'Template for introducing product features to prospects',
+      template:
           'I would love to walk you through our plan options and find the best fit for your team.',
-      categoryId: 'sales',
-      isFavorite: false,
-      usageCount: 6,
-      isPrivate: false,
+      isActive: true,
+      assistantId: 'ast_sales_01',
     ),
-    Prompt(
-      id: 'pub_sales_followup',
-      title: 'Follow-up after demo',
-      body:
+    ResponseTemplate(
+      id: 'tpl_4',
+      name: 'Follow-up after demo',
+      description: 'Post-demo follow-up message template',
+      template:
           'Thanks for your time today. I am sharing the recap and next steps we discussed.',
-      categoryId: 'sales',
-      isFavorite: false,
-      usageCount: 3,
-      isPrivate: false,
+      isActive: false,
+      assistantId: 'ast_sales_01',
     ),
-    Prompt(
-      id: 'pub_tech_debug',
-      title: 'API troubleshooting',
-      body:
+    ResponseTemplate(
+      id: 'tpl_5',
+      name: 'API troubleshooting',
+      description: 'Template for requesting debug info from customers',
+      template:
           'Could you share the request ID, timestamp, and endpoint so we can trace the error in our logs?',
-      categoryId: 'technical',
-      isFavorite: false,
-      usageCount: 21,
-      isPrivate: false,
+      isActive: true,
+      assistantId: 'ast_tech_01',
     ),
-    Prompt(
-      id: 'pub_general_thanks',
-      title: 'Thank you note',
-      body: 'We appreciate your patience and your business. Have a great day!',
-      categoryId: 'general',
-      isFavorite: false,
-      usageCount: 11,
-      isPrivate: false,
+    ResponseTemplate(
+      id: 'tpl_6',
+      name: 'Thank you note',
+      description: 'Generic thank-you message for any channel',
+      template:
+          'We appreciate your patience and your business. Have a great day!',
+      isActive: true,
+      assistantId: 'ast_general_01',
     ),
   ];
 
   @override
-  List<PromptCategory> get categories => const [
-        PromptCategory(id: 'all', nameKey: 'prompt_cat_all'),
-        PromptCategory(id: 'support', nameKey: 'prompt_cat_support'),
-        PromptCategory(id: 'sales', nameKey: 'prompt_cat_sales'),
-        PromptCategory(id: 'technical', nameKey: 'prompt_cat_technical'),
-        PromptCategory(id: 'general', nameKey: 'prompt_cat_general'),
-      ];
-
-  @override
-  Future<List<Prompt>> loadPrompts({bool useNetworkDelay = true}) async {
-    if (useNetworkDelay) {
-      await Future.delayed(const Duration(milliseconds: 320));
-    }
-    return List<Prompt>.unmodifiable(_prompts);
-  }
-
-  @override
-  Future<void> toggleFavorite(String promptId) async {
-    await Future.delayed(const Duration(milliseconds: 80));
-    final i = _prompts.indexWhere((p) => p.id == promptId);
-    if (i < 0) {
-      return;
-    }
-    final p = _prompts[i];
-    _prompts[i] = p.copyWith(isFavorite: !p.isFavorite);
-  }
-
-  @override
-  Future<void> upsertPrivatePrompt(Prompt prompt) async {
-    await Future.delayed(const Duration(milliseconds: 120));
-    if (prompt.id.isEmpty) {
-      final id = 'priv_${DateTime.now().millisecondsSinceEpoch}';
-      _prompts.add(
-        prompt.copyWith(id: id, isPrivate: true),
+  Future<List<ResponseTemplate>> getTemplates({String? assistantId}) async {
+    await Future.delayed(const Duration(milliseconds: 320));
+    if (assistantId != null && assistantId.isNotEmpty) {
+      return List<ResponseTemplate>.unmodifiable(
+        _templates.where((t) => t.assistantId == assistantId),
       );
-      return;
     }
-    final i = _prompts.indexWhere((p) => p.id == prompt.id);
-    if (i >= 0) {
-      _prompts[i] = prompt;
-    } else {
-      _prompts.add(prompt);
-    }
+    return List<ResponseTemplate>.unmodifiable(_templates);
   }
 
   @override
-  Future<void> incrementUsage(String promptId) async {
-    final i = _prompts.indexWhere((p) => p.id == promptId);
+  Future<ResponseTemplate> getTemplateDetail(String templateId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    return _templates.firstWhere(
+      (t) => t.id == templateId,
+      orElse: () => throw Exception('Template not found: $templateId'),
+    );
+  }
+
+  @override
+  Future<ResponseTemplate> createTemplate(
+    CreateResponseTemplateDto dto,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final template = ResponseTemplate(
+      id: 'tpl_${DateTime.now().millisecondsSinceEpoch}',
+      name: dto.name,
+      description: dto.description,
+      template: dto.template,
+      isActive: dto.isActive,
+      assistantId: dto.assistantId,
+    );
+    _templates.add(template);
+    return template;
+  }
+
+  @override
+  Future<ResponseTemplate> updateTemplate(
+    String templateId,
+    UpdateResponseTemplateDto dto,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final i = _templates.indexWhere((t) => t.id == templateId);
+    if (i < 0) {
+      throw Exception('Template not found: $templateId');
+    }
+    final existing = _templates[i];
+    final updated = existing.copyWith(
+      name: dto.name,
+      description: dto.description,
+      template: dto.template,
+      isActive: dto.isActive,
+      assistantId: dto.assistantId,
+    );
+    _templates[i] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteTemplate(String templateId) async {
+    await Future.delayed(const Duration(milliseconds: 150));
+    _templates.removeWhere((t) => t.id == templateId);
+  }
+
+  @override
+  Future<void> toggleActive(String templateId) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    final i = _templates.indexWhere((t) => t.id == templateId);
     if (i < 0) {
       return;
     }
-    final p = _prompts[i];
-    _prompts[i] = p.copyWith(usageCount: p.usageCount + 1);
+    final t = _templates[i];
+    _templates[i] = t.copyWith(isActive: !t.isActive);
   }
 }

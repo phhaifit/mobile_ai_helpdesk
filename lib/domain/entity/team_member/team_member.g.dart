@@ -11,9 +11,10 @@ TeamMember _$TeamMemberFromJson(Map<String, dynamic> json) => TeamMember(
   tenantId: json['tenantId'] as String,
   email: json['email'] as String,
   role: $enumDecode(_$TeamRoleEnumMap, json['role']),
-  permissions: (json['permissions'] as List<dynamic>)
-      .map((e) => Permission.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  permissions:
+      (json['permissions'] as List<dynamic>)
+          .map((e) => Permission.fromJson(e as Map<String, dynamic>))
+          .toList(),
   isActive: json['isActive'] as bool,
   createdAt: DateTime.parse(json['createdAt'] as String),
   displayName: json['displayName'] as String?,
