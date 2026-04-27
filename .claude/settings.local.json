@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(grep -n \"PromptLibraryScreen\\\\|home_tab_prompts\" /d/4-HK2/Mobile/mobile_ai_helpdesk/mobile_ai_helpdesk/lib/presentation/home/*.dart)",
+      "Bash(dart run:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(dart analyze:*)"
+    ]
+  }
+}
