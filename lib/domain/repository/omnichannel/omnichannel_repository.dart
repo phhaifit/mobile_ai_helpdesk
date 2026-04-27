@@ -27,9 +27,9 @@ class ZaloAssignmentUpdate {
 abstract class OmnichannelRepository {
   Future<OmnichannelOverview> getOverview();
 
-  Future<ActionFeedback> connectMessenger();
+  Future<ActionFeedback> connectMessenger({String? authCode});
 
-  Future<ActionFeedback> disconnectMessenger();
+  Future<ActionFeedback> disconnectMessenger({String? channelId});
 
   Future<ActionFeedback> syncMessengerData();
 
@@ -37,7 +37,11 @@ abstract class OmnichannelRepository {
     MessengerSettingsUpdate update,
   );
 
-  Future<ActionFeedback> connectZaloFromQr();
+  Future<ZaloQr> generateZaloQr();
+
+  Future<ZaloQrStatusUpdate> getZaloQrStatus(String code);
+
+  Future<ActionFeedback> connectZalo(String authCode);
 
   Future<ActionFeedback> disconnectZalo();
 
