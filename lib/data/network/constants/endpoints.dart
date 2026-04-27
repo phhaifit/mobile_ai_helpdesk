@@ -59,4 +59,10 @@ class Endpoints {
   static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
   static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // ---- Prompt / Response Templates ----------------------------------------
+  static String responseTemplates() => '/api/v1/response-templates';
+  static String responseTemplate(String id) => '/api/v1/response-templates/$id';
+  static String activateResponseTemplate(String id) =>
+      '/api/v1/response-templates/$id/activate';
 }

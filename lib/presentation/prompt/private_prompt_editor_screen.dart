@@ -1,8 +1,11 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/entity/ai_agent/ai_agent.dart';
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
+import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PrivatePromptEditorScreen extends StatefulWidget {
   const PrivatePromptEditorScreen({super.key});
@@ -15,10 +18,11 @@ class PrivatePromptEditorScreen extends StatefulWidget {
 class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
   final _formKey = GlobalKey<FormState>();
   late final PromptStore _store;
+  late final AiAgentStore _agentStore;
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _templateController;
-  late final TextEditingController _assistantIdController;
+  String? _selectedAssistantId;
   late bool _isActive;
   ResponseTemplate? _existing;
   bool _controllersReady = false;
@@ -45,6 +49,10 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
   void initState() {
     super.initState();
     _store = getIt<PromptStore>();
+    _agentStore = getIt<AiAgentStore>();
+    if (_agentStore.agents.isEmpty && !_agentStore.isLoading) {
+      _agentStore.fetchAgents();
+    }
   }
 
   @override
@@ -62,14 +70,14 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
       _descriptionController =
           TextEditingController(text: existing.description);
       _templateController = TextEditingController(text: existing.template);
-      _assistantIdController =
-          TextEditingController(text: existing.assistantId);
+      _selectedAssistantId =
+          existing.assistantId.isNotEmpty ? existing.assistantId : null;
       _isActive = existing.isActive;
     } else {
       _nameController = TextEditingController();
       _descriptionController = TextEditingController();
       _templateController = TextEditingController();
-      _assistantIdController = TextEditingController();
+      _selectedAssistantId = null;
       _isActive = true;
     }
   }
@@ -80,7 +88,6 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
       _nameController.dispose();
       _descriptionController.dispose();
       _templateController.dispose();
-      _assistantIdController.dispose();
     }
     super.dispose();
   }
@@ -90,6 +97,7 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
       return;
     }
     final existing = _existing;
+    final String assistantId = _selectedAssistantId?.trim() ?? '';
     if (existing != null) {
       await _store.updateTemplate(
         existing.id,
@@ -98,7 +106,7 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
           description: _descriptionController.text.trim(),
           template: _templateController.text.trim(),
           isActive: _isActive,
-          assistantId: _assistantIdController.text.trim(),
+          assistantId: assistantId,
         ),
       );
     } else {
@@ -108,7 +116,7 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
           description: _descriptionController.text.trim(),
           template: _templateController.text.trim(),
           isActive: _isActive,
-          assistantId: _assistantIdController.text.trim(),
+          assistantId: assistantId,
         ),
       );
     }
@@ -213,20 +221,67 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextFormField(
-                      controller: _assistantIdController,
-                      decoration: _fieldDecoration(
-                        context,
-                        label: l.translate('prompt_tv_field_assistant'),
-                      ),
-                      textInputAction: TextInputAction.done,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return l.translate('prompt_tv_validation_assistant');
-                        }
-                        return null;
+                    Observer(
+                      builder: (_) {
+                        final List<AiAgent> agents =
+                            _agentStore.agents.toList(growable: false);
+                        final bool currentInList =
+                            _selectedAssistantId == null ||
+                                agents.any(
+                                  (a) => a.id == _selectedAssistantId,
+                                );
+
+                        final List<DropdownMenuItem<String>> items = <
+                            DropdownMenuItem<String>>[
+                          ...agents.map(
+                            (AiAgent a) => DropdownMenuItem<String>(
+                              value: a.id,
+                              child: Text(
+                                a.name.isNotEmpty ? a.name : a.id,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          if (!currentInList && _selectedAssistantId != null)
+                            DropdownMenuItem<String>(
+                              value: _selectedAssistantId,
+                              child: Text(
+                                '${_selectedAssistantId!} (unknown)',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                        ];
+
+                        return DropdownButtonFormField<String>(
+                          initialValue: _selectedAssistantId,
+                          isExpanded: true,
+                          decoration: _fieldDecoration(
+                            context,
+                            label: l.translate('prompt_tv_field_assistant'),
+                          ),
+                          items: items,
+                          onChanged: (String? value) {
+                            setState(() => _selectedAssistantId = value);
+                          },
+                          validator: (String? value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return l.translate(
+                                'prompt_tv_validation_assistant',
+                              );
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
+                    if (_agentStore.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: LinearProgressIndicator(minHeight: 2),
+                      ),
                     const SizedBox(height: 16),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
