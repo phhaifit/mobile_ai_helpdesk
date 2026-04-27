@@ -16,7 +16,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
   late final OmnichannelStore _store;
 
   bool _autoReply = false;
-  String _language = 'vi';
   final TextEditingController _businessHourController = TextEditingController();
 
   @override
@@ -31,10 +30,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
 
       setState(() {
         _autoReply = messenger.autoReply;
-        _language =
-            _isSupportedLanguage(messenger.language)
-                ? messenger.language
-                : 'vi';
         _businessHourController.text = messenger.businessHours;
       });
     });
@@ -67,9 +62,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
             );
           }
 
-          final String dropdownValue =
-              _isSupportedLanguage(_language) ? _language : 'vi';
-
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -81,25 +73,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
                     (value) => setState(() {
                       _autoReply = value;
                     }),
-              ),
-              const SizedBox(height: 8),
-              Text(l.translate('omnichannel_messenger_language')),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                key: ValueKey<String>(dropdownValue),
-                value: dropdownValue,
-                items: const [
-                  DropdownMenuItem(value: 'vi', child: Text('Vietnamese')),
-                  DropdownMenuItem(value: 'en', child: Text('English')),
-                ],
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _language = value;
-                  });
-                },
               ),
               const SizedBox(height: 16),
               Text(l.translate('omnichannel_messenger_business_hours')),
@@ -121,7 +94,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
                         : () {
                           _store.updateMessengerSettings(
                             autoReply: _autoReply,
-                            language: _language,
                             businessHours: _businessHourController.text.trim(),
                           );
                         },
@@ -155,9 +127,5 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
       );
       _store.clearActionMessage();
     });
-  }
-
-  bool _isSupportedLanguage(String language) {
-    return language == 'vi' || language == 'en';
   }
 }

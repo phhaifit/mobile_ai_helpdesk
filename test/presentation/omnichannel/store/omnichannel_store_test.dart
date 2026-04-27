@@ -115,7 +115,6 @@ void main() {
           pageName: 'Mock Page',
           lastSyncAt: DateTime.now(),
           autoReply: false,
-          language: 'vi',
           businessHours: '',
         ),
         zalo: ZaloIntegrationState(

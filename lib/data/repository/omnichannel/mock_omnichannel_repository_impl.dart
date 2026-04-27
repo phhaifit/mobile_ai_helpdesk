@@ -14,7 +14,6 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
       pageName: 'Jarvis Helpdesk Fanpage',
       lastSyncAt: null,
       autoReply: false,
-      language: 'vi',
       businessHours: '08:00 - 18:00',
     ),
     zalo: ZaloIntegrationState(
@@ -121,7 +120,6 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
         autoReply: update.autoReply,
-        language: update.language,
         businessHours: update.businessHours,
       ),
     );

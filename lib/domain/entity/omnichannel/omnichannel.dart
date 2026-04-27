@@ -46,7 +46,6 @@ class MessengerIntegrationState {
   final String pageName;
   final DateTime? lastSyncAt;
   final bool autoReply;
-  final String language;
   final String businessHours;
 
   const MessengerIntegrationState({
@@ -55,7 +54,6 @@ class MessengerIntegrationState {
     required this.pageName,
     required this.lastSyncAt,
     required this.autoReply,
-    required this.language,
     required this.businessHours,
   });
 
@@ -65,7 +63,6 @@ class MessengerIntegrationState {
     String? pageName,
     DateTime? lastSyncAt,
     bool? autoReply,
-    String? language,
     String? businessHours,
   }) {
     return MessengerIntegrationState(
@@ -74,7 +71,6 @@ class MessengerIntegrationState {
       pageName: pageName ?? this.pageName,
       lastSyncAt: lastSyncAt ?? this.lastSyncAt,
       autoReply: autoReply ?? this.autoReply,
-      language: language ?? this.language,
       businessHours: businessHours ?? this.businessHours,
     );
   }

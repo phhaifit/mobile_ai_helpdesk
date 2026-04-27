@@ -32,7 +32,6 @@ MessengerIntegrationState _$MessengerIntegrationStateFromJson(
           ? null
           : DateTime.parse(json['lastSyncAt'] as String),
   autoReply: json['autoReply'] as bool,
-  language: json['language'] as String,
   businessHours: json['businessHours'] as String,
 );
 
@@ -45,7 +44,6 @@ Map<String, dynamic> _$MessengerIntegrationStateToJson(
   'pageName': instance.pageName,
   'lastSyncAt': instance.lastSyncAt?.toIso8601String(),
   'autoReply': instance.autoReply,
-  'language': instance.language,
   'businessHours': instance.businessHours,
 };
 

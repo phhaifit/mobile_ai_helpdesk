@@ -48,7 +48,6 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
               ? connectedPage.name
               : fallback.messenger.pageName,
       autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
-      language: connectedPage.language ?? fallback.messenger.language,
       businessHours:
           connectedPage.businessHours ?? fallback.messenger.businessHours,
       lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
