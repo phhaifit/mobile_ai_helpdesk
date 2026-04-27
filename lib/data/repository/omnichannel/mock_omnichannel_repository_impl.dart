@@ -13,8 +13,6 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
       oauthState: OAuthState.unverified,
       pageName: 'Jarvis Helpdesk Fanpage',
       lastSyncAt: null,
-      syncedCustomers: 0,
-      failedCustomers: 0,
       autoReply: false,
       language: 'vi',
       businessHours: '08:00 - 18:00',
@@ -94,14 +92,9 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
       );
     }
 
-    final int synced = 20 + _random.nextInt(80);
-    final int failed = _random.nextInt(6);
-
     _state = _state.copyWith(
       messenger: _state.messenger.copyWith(
         lastSyncAt: DateTime.now(),
-        syncedCustomers: synced,
-        failedCustomers: failed,
       ),
     );
 
