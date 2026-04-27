@@ -113,25 +113,7 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
     }
 
     try {
-      final dynamic verifyResponse = await _api.verifyMessengerAuthCode(
-        normalizedCode,
-      );
-      final _MessengerConnectPayload? payload = _resolveConnectPayload(
-        verifyResponse,
-      );
-
-      if (payload == null) {
-        return const ActionFeedback(
-          isSuccess: false,
-          messageKey: 'omnichannel_messenger_no_page_available',
-        );
-      }
-
-      await _api.connectMessengerPage(
-        pageId: payload.pageId,
-        accessToken: payload.accessToken,
-      );
-
+      await _api.verifyMessengerAuthCode(normalizedCode);
       return const ActionFeedback(
         isSuccess: true,
         messageKey: 'omnichannel_messenger_connect_success',
@@ -399,16 +381,6 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 }
 
-class _MessengerConnectPayload {
-  final String pageId;
-  final String accessToken;
-
-  const _MessengerConnectPayload({
-    required this.pageId,
-    required this.accessToken,
-  });
-}
-
 class _MessengerCustomersSummary {
   final int syncedCustomers;
   final int failedCustomers;
@@ -419,23 +391,6 @@ class _MessengerCustomersSummary {
     required this.failedCustomers,
     this.lastSyncAt,
   });
-}
-
-_MessengerConnectPayload? _resolveConnectPayload(dynamic verifyResponse) {
-  final dynamic root = _unwrapResponseData(verifyResponse);
-  final List<Map<String, dynamic>> candidates = <Map<String, dynamic>>[
-    ..._extractCandidateMaps(root),
-  ];
-
-  for (final Map<String, dynamic> candidate in candidates) {
-    final _MessengerConnectPayload? payload =
-        _payloadFromSingleMap(candidate) ?? _payloadFromMapWithPages(candidate);
-    if (payload != null) {
-      return payload;
-    }
-  }
-
-  return null;
 }
 
 dynamic _unwrapResponseData(dynamic response) {
@@ -449,132 +404,6 @@ dynamic _unwrapResponseData(dynamic response) {
 
   final Map<String, dynamic> map = Map<String, dynamic>.from(response);
   return map['data'] ?? map['result'] ?? map['payload'] ?? map;
-}
-
-List<Map<String, dynamic>> _extractCandidateMaps(dynamic value) {
-  if (value is Map) {
-    final Map<String, dynamic> map = Map<String, dynamic>.from(value);
-    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[map];
-
-    for (final String key in const <String>[
-      'data',
-      'result',
-      'payload',
-      'integration',
-      'page',
-    ]) {
-      final dynamic nested = map[key];
-      if (nested is Map) {
-        result.add(Map<String, dynamic>.from(nested));
-      }
-    }
-
-    for (final String key in const <String>[
-      'pages',
-      'items',
-      'results',
-      'channels',
-      'fanpages',
-    ]) {
-      final dynamic nested = map[key];
-      if (nested is List) {
-        for (final dynamic item in nested) {
-          if (item is Map) {
-            result.add(Map<String, dynamic>.from(item));
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  if (value is List) {
-    return value
-        .whereType<Map<Object?, Object?>>()
-        .map((Map<Object?, Object?> item) => Map<String, dynamic>.from(item))
-        .toList(growable: false);
-  }
-
-  return const <Map<String, dynamic>>[];
-}
-
-_MessengerConnectPayload? _payloadFromSingleMap(Map<String, dynamic> map) {
-  final String pageId = _readString(map, const <String>[
-    'pageId',
-    'page_id',
-    'id',
-  ]);
-  final String accessToken = _readString(map, const <String>[
-    'accessToken',
-    'access_token',
-    'token',
-    'pageAccessToken',
-    'page_access_token',
-  ]);
-
-  if (pageId.isEmpty || accessToken.isEmpty) {
-    return null;
-  }
-
-  return _MessengerConnectPayload(pageId: pageId, accessToken: accessToken);
-}
-
-_MessengerConnectPayload? _payloadFromMapWithPages(Map<String, dynamic> map) {
-  final String globalToken = _readString(map, const <String>[
-    'accessToken',
-    'access_token',
-    'token',
-    'pageAccessToken',
-    'page_access_token',
-  ]);
-  if (globalToken.isEmpty) {
-    return null;
-  }
-
-  final dynamic pages =
-      map['pages'] ??
-      map['items'] ??
-      map['results'] ??
-      map['channels'] ??
-      map['fanpages'];
-  if (pages is! List) {
-    return null;
-  }
-
-  for (final dynamic page in pages) {
-    if (page is! Map) {
-      continue;
-    }
-
-    final Map<String, dynamic> pageMap = Map<String, dynamic>.from(page);
-    final String pageId = _readString(pageMap, const <String>[
-      'pageId',
-      'page_id',
-      'id',
-    ]);
-    if (pageId.isNotEmpty) {
-      return _MessengerConnectPayload(pageId: pageId, accessToken: globalToken);
-    }
-  }
-
-  return null;
-}
-
-String _readString(Map<String, dynamic> map, List<String> keys) {
-  for (final String key in keys) {
-    final dynamic value = map[key];
-    if (value == null) {
-      continue;
-    }
-
-    final String normalized = value.toString().trim();
-    if (normalized.isNotEmpty) {
-      return normalized;
-    }
-  }
-
-  return '';
 }
 
 List<Map<String, dynamic>> _extractCustomers(dynamic payload) {

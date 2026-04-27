@@ -153,16 +153,6 @@ class OmnichannelApi {
     );
   }
 
-  Future<dynamic> connectMessengerPage({
-    required String pageId,
-    required String accessToken,
-  }) {
-    return _dioClient.dio.post(
-      Endpoints.connectMessengerPage(),
-      data: <String, dynamic>{'pageId': pageId, 'accessToken': accessToken},
-    );
-  }
-
   Future<dynamic> deleteMessengerPage(String channelId) {
     return _dioClient.dio.delete(Endpoints.deleteMessengerPage(channelId));
   }
