@@ -9,10 +9,6 @@ import 'package:dio/dio.dart';
 class OmnichannelRepositoryImpl implements OmnichannelRepository {
   final OmnichannelApi _api;
   final MockOmnichannelRepositoryImpl _fallbackRepository;
-  DateTime? _lastOverviewApiFailureAt;
-  MessengerSettingsUpdate? _lastSavedMessengerSettings;
-
-  static const Duration _overviewApiFailureCooldown = Duration(seconds: 8);
 
   OmnichannelRepositoryImpl(
     this._api, {
@@ -25,81 +21,53 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
     final OmnichannelOverview fallback =
         await _fallbackRepository.getOverview();
 
-    if (_shouldSkipOverviewApiCall()) {
-      return fallback;
+    final List<MessengerPageDto> pages = await _api.getMessengerPages();
+    MessengerPageDto? connectedPage;
+    for (final MessengerPageDto page in pages) {
+      if (page.connected) {
+        connectedPage = page;
+        break;
+      }
     }
+
+    if (connectedPage == null) {
+      return fallback.copyWith(
+        messenger: fallback.messenger.copyWith(
+          connectionStatus: IntegrationConnectionStatus.disconnected,
+          oauthState: OAuthState.unverified,
+        ),
+      );
+    }
+
+    MessengerIntegrationState messengerState = fallback.messenger.copyWith(
+      connectionStatus: IntegrationConnectionStatus.connected,
+      oauthState: OAuthState.verified,
+      pageName:
+          connectedPage.name.isNotEmpty
+              ? connectedPage.name
+              : fallback.messenger.pageName,
+      autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
+      language: connectedPage.language ?? fallback.messenger.language,
+      businessHours:
+          connectedPage.businessHours ?? fallback.messenger.businessHours,
+      lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
+    );
 
     try {
-      final List<MessengerPageDto> pages = await _api.getMessengerPages();
-      _lastOverviewApiFailureAt = null;
-      MessengerPageDto? connectedPage;
-      for (final MessengerPageDto page in pages) {
-        if (page.connected) {
-          connectedPage = page;
-          break;
-        }
-      }
-
-      if (connectedPage == null) {
-        return fallback.copyWith(
-          messenger: fallback.messenger.copyWith(
-            connectionStatus: IntegrationConnectionStatus.disconnected,
-            oauthState: OAuthState.unverified,
-          ),
+      final _MessengerCustomersSummary? summary =
+          await _fetchMessengerCustomersSummary();
+      if (summary != null) {
+        messengerState = messengerState.copyWith(
+          syncedCustomers: summary.syncedCustomers,
+          failedCustomers: summary.failedCustomers,
+          lastSyncAt: summary.lastSyncAt ?? messengerState.lastSyncAt,
         );
       }
-
-      MessengerIntegrationState messengerState = fallback.messenger.copyWith(
-        connectionStatus: IntegrationConnectionStatus.connected,
-        oauthState: OAuthState.verified,
-        pageName:
-            connectedPage.name.isNotEmpty
-                ? connectedPage.name
-                : fallback.messenger.pageName,
-        autoReply:
-            connectedPage.autoReply ??
-            _lastSavedMessengerSettings?.autoReply ??
-            fallback.messenger.autoReply,
-        language:
-            connectedPage.language ??
-            _lastSavedMessengerSettings?.language ??
-            fallback.messenger.language,
-        businessHours:
-            connectedPage.businessHours ??
-            _lastSavedMessengerSettings?.businessHours ??
-            fallback.messenger.businessHours,
-        lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
-      );
-
-      try {
-        final _MessengerCustomersSummary? summary =
-            await _fetchMessengerCustomersSummary();
-        if (summary != null) {
-          messengerState = messengerState.copyWith(
-            syncedCustomers: summary.syncedCustomers,
-            failedCustomers: summary.failedCustomers,
-            lastSyncAt: summary.lastSyncAt ?? messengerState.lastSyncAt,
-          );
-        }
-      } on DioException {
-        // Keep connection information even when customer paging API is down.
-      }
-
-      return fallback.copyWith(messenger: messengerState);
     } on DioException {
-      _lastOverviewApiFailureAt = DateTime.now();
-      // Phase 1 keeps UX stable by falling back to mock data when API is not ready.
-      return fallback;
-    }
-  }
-
-  bool _shouldSkipOverviewApiCall() {
-    final DateTime? lastFailure = _lastOverviewApiFailureAt;
-    if (lastFailure == null) {
-      return false;
+      // Keep connection information even when customer paging API is down.
     }
 
-    return DateTime.now().difference(lastFailure) < _overviewApiFailureCooldown;
+    return fallback.copyWith(messenger: messengerState);
   }
 
   @override
@@ -144,13 +112,12 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
 
       if (resolvedChannelId.isEmpty) {
         return const ActionFeedback(
-          isSuccess: true,
-          messageKey: 'omnichannel_messenger_disconnect_success',
+          isSuccess: false,
+          messageKey: 'omnichannel_action_requires_connection',
         );
       }
 
       await _api.deleteMessengerPage(resolvedChannelId);
-      _lastSavedMessengerSettings = null;
 
       return const ActionFeedback(
         isSuccess: true,
@@ -206,7 +173,6 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
         autoReply: update.autoReply,
         greeting: update.businessHours,
       );
-      _lastSavedMessengerSettings = update;
 
       return const ActionFeedback(
         isSuccess: true,
