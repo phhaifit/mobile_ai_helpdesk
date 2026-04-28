@@ -1,31 +1,17 @@
-class ChatRoomCounterDto {
-  final int open;
-  final int pending;
-  final int solved;
-  final int closed;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  ChatRoomCounterDto({
-    required this.open,
-    required this.pending,
-    required this.solved,
-    required this.closed,
-  });
+part 'chat_room_counter_dto.freezed.dart';
+part 'chat_room_counter_dto.g.dart';
 
-  factory ChatRoomCounterDto.fromJson(Map<String, dynamic> json) {
-    return ChatRoomCounterDto(
-      open: (json['open'] is num) ? (json['open'] as num).toInt() : 0,
-      pending: (json['pending'] is num) ? (json['pending'] as num).toInt() : 0,
-      solved: (json['solved'] is num) ? (json['solved'] as num).toInt() : 0,
-      closed: (json['closed'] is num) ? (json['closed'] as num).toInt() : 0,
-    );
-  }
+@freezed
+class ChatRoomCounterDto with _$ChatRoomCounterDto {
+  const factory ChatRoomCounterDto({
+    @Default(0) int open,
+    @Default(0) int pending,
+    @Default(0) int solved,
+    @Default(0) int closed,
+  }) = _ChatRoomCounterDto;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'open': open,
-      'pending': pending,
-      'solved': solved,
-      'closed': closed,
-    };
-  }
+  factory ChatRoomCounterDto.fromJson(Map<String, dynamic> json) => 
+      _$ChatRoomCounterDtoFromJson(json);
 }

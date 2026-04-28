@@ -1,58 +1,24 @@
-class MessageReactionDto {
-  final String messageReactionId;
-  final String messageId;
-  final String emoji;
-  final int amount;
-  final String? customerId;
-  final String? customerSupportId;
-  final String? customerName;
-  final String? customerSupportName;
-  final String? customerSupportAvatar;
-  final String? customerZaloAvatar;
-  final String? customerMessengerAvatar;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  MessageReactionDto({
-    required this.messageReactionId,
-    required this.messageId,
-    required this.emoji,
-    required this.amount,
-    required this.customerId,
-    required this.customerSupportId,
-    required this.customerName,
-    required this.customerSupportName,
-    required this.customerSupportAvatar,
-    required this.customerZaloAvatar,
-    required this.customerMessengerAvatar,
-  });
+part 'message_reaction_dto.freezed.dart';
+part 'message_reaction_dto.g.dart';
 
-  factory MessageReactionDto.fromJson(Map<String, dynamic> json) {
-    return MessageReactionDto(
-      messageReactionId: (json['messageReactionID'] ?? '').toString(),
-      messageId: (json['messageID'] ?? '').toString(),
-      emoji: (json['emoji'] ?? '').toString(),
-      amount: (json['amount'] is num) ? (json['amount'] as num).toInt() : 0,
-      customerId: json['customerID']?.toString(),
-      customerSupportId: json['customerSupportID']?.toString(),
-      customerName: json['customerName']?.toString(),
-      customerSupportName: json['customerSupportName']?.toString(),
-      customerSupportAvatar: json['customerSupportAvatar']?.toString() ?? '',
-      customerZaloAvatar: json['customerZaloAvatar']?.toString() ?? '',
-      customerMessengerAvatar: json['customerMessengerAvatar']?.toString() ?? '',
-    );
-  }
+@freezed
+class MessageReactionDto with _$MessageReactionDto {
+  const factory MessageReactionDto({
+    @JsonKey(name: 'messageReactionID') @Default('') String messageReactionId,
+    @JsonKey(name: 'messageID') @Default('') String messageId,
+    @Default('') String emoji,
+    @Default(0) int amount,
+    @JsonKey(name: 'customerID') String? customerId,
+    @JsonKey(name: 'customerSupportID') String? customerSupportId,
+    String? customerName,
+    String? customerSupportName,
+    @Default('') String customerSupportAvatar,
+    @Default('') String customerZaloAvatar,
+    @Default('') String customerMessengerAvatar,
+  }) = _MessageReactionDto;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'messageReactionID': messageReactionId,
-      'messageID': messageId,
-      'emoji': emoji,
-      'amount': amount,
-      'customerID': customerId,
-      'customerSupportID': customerSupportId,
-      'customerSupportName': customerSupportName,
-      'customerSupportAvatar': customerSupportAvatar,
-      'customerZaloAvatar': customerZaloAvatar,
-      'customerMessengerAvatar': customerMessengerAvatar,
-    };
-  }
+  factory MessageReactionDto.fromJson(Map<String, dynamic> json) => 
+      _$MessageReactionDtoFromJson(json);
 }

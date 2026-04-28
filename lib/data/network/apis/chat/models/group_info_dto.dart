@@ -1,29 +1,27 @@
-class GroupInfoDto {
-  final String groupId;
-  final int memberCount;
-  final List<MemberInfoDto> members;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  GroupInfoDto({required this.groupId, required this.memberCount, required this.members});
+part 'group_info_dto.freezed.dart';
+part 'group_info_dto.g.dart';
 
-  factory GroupInfoDto.fromJson(Map<String, dynamic> json) {
-    return GroupInfoDto(
-      groupId: (json['groupID'] ?? '').toString(),
-      memberCount: (json['memberCount'] is num) ? (json['memberCount'] as num).toInt() : 0,
-      members: (json['members'] is List) ? (json['members'] as List).whereType<Map<String, dynamic>>().map((m) => MemberInfoDto.fromJson(m)).toList() : [],
-    );
-  }
+@freezed
+class GroupInfoDto with _$GroupInfoDto {
+  const factory GroupInfoDto({
+    @JsonKey(name: 'groupID') @Default('') String groupId,
+    @Default(0) int memberCount,
+    @Default([]) List<MemberInfoDto> members,
+  }) = _GroupInfoDto;
+
+  factory GroupInfoDto.fromJson(Map<String, dynamic> json) => 
+      _$GroupInfoDtoFromJson(json);
 }
 
-class MemberInfoDto {
-    final String customerID;
-    final String name;
-    
-    MemberInfoDto({required this.customerID, required this.name});
+@freezed
+class MemberInfoDto with _$MemberInfoDto {
+  const factory MemberInfoDto({
+    @JsonKey(name: 'customerID') @Default('') String customerId,
+    @Default('') String name,
+  }) = _MemberInfoDto;
 
-    factory MemberInfoDto.fromJson(Map<String, dynamic> json) {
-      return MemberInfoDto(
-        customerID: (json['customerID'] ?? '').toString(),
-        name: (json['name'] ?? '').toString(),
-      );
-    }
-  }
+  factory MemberInfoDto.fromJson(Map<String, dynamic> json) => 
+      _$MemberInfoDtoFromJson(json);
+}

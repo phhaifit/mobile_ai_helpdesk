@@ -1,20 +1,16 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'message_dto.dart';
 
-class MessageGroupDto {
-  final DateTime date;
-  final List<MessageDto> messages;
+part 'message_group_dto.freezed.dart';
+part 'message_group_dto.g.dart';
 
-  MessageGroupDto({
-    required this.date,
-    required this.messages,
-  });
+@freezed
+class MessageGroupDto with _$MessageGroupDto {
+  const factory MessageGroupDto({
+    required DateTime date,
+    @Default([]) List<MessageDto> messages,
+  }) = _MessageGroupDto;
 
-  factory MessageGroupDto.fromJson(Map<String, dynamic> json) {
-    return MessageGroupDto(
-      date: json['date'] is String
-          ? DateTime.tryParse(json['date'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      messages: (json['messages'] as List).whereType<Map<String, dynamic>>().map((e) => MessageDto.fromJson(e)).toList(),
-    );
-  }
+  factory MessageGroupDto.fromJson(Map<String, dynamic> json) => 
+      _$MessageGroupDtoFromJson(json);
 }

@@ -1,14 +1,16 @@
 class Reaction {
+  final String userId;
   final String emoji;
-  final List<String> userNames; // Users who reacted with this emoji
+  final int amount;
 
-  const Reaction({required this.emoji, required this.userNames});
+  const Reaction({required this.userId, required this.emoji, required this.amount});
 
   /// Create a copy with optional fields
-  Reaction copyWith({String? emoji, List<String>? userNames}) {
+  Reaction copyWith({required String emoji, required int amount}) {
     return Reaction(
-      emoji: emoji ?? this.emoji,
-      userNames: userNames ?? this.userNames,
+      userId: userId,
+      emoji: emoji,
+      amount: amount,
     );
   }
 }

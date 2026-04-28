@@ -1,13 +1,15 @@
-class CustomerInfoDto {
-  final String customerId;
-  final String name;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  CustomerInfoDto({required this.customerId, required this.name});
+part 'customer_info_dto.freezed.dart';
+part 'customer_info_dto.g.dart';
 
-  factory CustomerInfoDto.fromJson(Map<String, dynamic> json) {
-    return CustomerInfoDto(
-      customerId: (json['customerID'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-    );
-  }
+@freezed
+class CustomerInfoDto with _$CustomerInfoDto {
+  const factory CustomerInfoDto({
+    @JsonKey(name: 'customerID') @Default('') String customerId,
+    @Default('') String name,
+  }) = _CustomerInfoDto;
+
+  factory CustomerInfoDto.fromJson(Map<String, dynamic> json) => 
+      _$CustomerInfoDtoFromJson(json);
 }

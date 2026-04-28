@@ -1,123 +1,38 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'contact_info_dto.dart';
 import 'file_attachment_dto.dart';
 import 'message_reaction_dto.dart';
 
-class MessageDto {
-  final String messageId;
-  final String chatRoomId;
-  final String contactId;
-  final String? ticketId;
-  final String? sender;
-  final String? replyMessageId;
-  final int messageOrder;
-  final String messageType;
-  final String? channelId;
-  final String? zaloCliMsgId;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-  final ContactInfoDto contactInfo;
-  final Map<String, dynamic> contentInfo;
-  final Map<String, dynamic>? ticketInfo;
-  final List<FileAttachmentDto> files;
-  final List<MessageReactionDto> reaction;
-  final Map<String, dynamic>? replyMessage;
-  final Map<String, dynamic>? slackMessage;
-  final Map<String, dynamic>? zohoDeskMessage;
+part 'message_dto.freezed.dart';
+part 'message_dto.g.dart';
 
-  MessageDto({
-    required this.messageId,
-    required this.chatRoomId,
-    required this.contactId,
-    required this.ticketId,
-    required this.sender,
-    required this.replyMessageId,
-    required this.messageOrder,
-    required this.messageType,
-    required this.channelId,
-    required this.zaloCliMsgId,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-    required this.contactInfo,
-    required this.contentInfo,
-    required this.ticketInfo,
-    required this.files,
-    required this.reaction,
-    required this.replyMessage,
-    required this.slackMessage,
-    required this.zohoDeskMessage,
-  });
+@freezed
+class MessageDto with _$MessageDto {
+  const factory MessageDto({
+    @JsonKey(name: 'messageID') @Default('') String messageId,
+    @JsonKey(name: 'chatRoomID') @Default('') String chatRoomId,
+    @JsonKey(name: 'contactID') @Default('') String contactId,
+    @JsonKey(name: 'ticketID') String? ticketId,
+    String? sender,
+    @JsonKey(name: 'replyMessageID') String? replyMessageId,
+    @Default(0) int messageOrder,
+    @Default('') String messageType,
+    @JsonKey(name: 'channelID') String? channelId,
+    @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+    required ContactInfoDto contactInfo,
+    @Default({}) Map<String, dynamic> contentInfo,
+    @Default({}) Map<String, dynamic> ticketInfo,
+    @Default([]) List<FileAttachmentDto> files,
+    @Default([]) List<MessageReactionDto> reaction,
+    @Default({}) Map<String, dynamic> replyMessage,
+    @Default({}) Map<String, dynamic> slackMessage,
+    @Default({}) Map<String, dynamic> zohoDeskMessage,
+  }) = _MessageDto;
 
-  factory MessageDto.fromJson(Map<String, dynamic> json) {
-    return MessageDto(
-      messageId: json['messageID']?.toString() ?? '',
-      chatRoomId: json['chatRoomID']?.toString() ?? '',
-      contactId: json['contactID']?.toString() ?? '',
-      ticketId: json['ticketID']?.toString(),
-      sender: json['sender']?.toString(),
-      replyMessageId: json['replyMessageID']?.toString(),
-      messageOrder: json['messageOrder'] is num ? (json['messageOrder'] as num).toInt() : 0,
-      messageType: json['messageType']?.toString() ?? '',
-      channelId: json['channelID']?.toString(),
-      zaloCliMsgId: json['zaloCliMsgID']?.toString(),
-      createdAt: json['createdAt'] is String
-          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] is String
-          ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      deletedAt: json['deletedAt'] is String
-          ? DateTime.tryParse(json['deletedAt'] as String) ?? DateTime.now()
-          : null,
-      contactInfo: ContactInfoDto.fromJson(json['contactInfo'] as Map<String, dynamic>),
-      contentInfo: json['contentInfo'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['contentInfo'] as Map)
-          : <String, dynamic>{},
-      ticketInfo: json['ticketInfo'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['ticketInfo'] as Map)
-          : <String, dynamic>{},
-      files: json['files'] is List
-          ? (json['files'] as List).whereType<Map<String, dynamic>>().map((f) => FileAttachmentDto.fromJson(f)).toList()
-          : const <FileAttachmentDto>[],
-      reaction: json['reaction'] is List
-          ? (json['reaction'] as List).whereType<Map<String, dynamic>>().map((r) => MessageReactionDto.fromJson(r)).toList()
-          : const <MessageReactionDto>[],
-      replyMessage: json['replyMessage'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['replyMessage'] as Map)
-          : const <String, dynamic>{},
-      slackMessage: json['slackMessage'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['slackMessage'] as Map)
-          : const <String, dynamic>{},
-      zohoDeskMessage: json['zohoDeskMessage'] is Map<String, dynamic>
-          ? Map<String, dynamic>.from(json['zohoDeskMessage'] as Map)
-          : const <String, dynamic>{},
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'messageID': messageId,
-      'chatRoomID': chatRoomId,
-      'contactID': contactId,
-      'ticketID': ticketId,
-      'sender': sender,
-      'replyMessageID': replyMessageId,
-      'messageOrder': messageOrder,
-      'messageType': messageType,
-      'channelID': channelId,
-      'zaloCliMsgID': zaloCliMsgId,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'deletedAt': deletedAt?.toIso8601String(),
-      'contactInfo': contactInfo.toJson(),
-      'contentInfo': contentInfo,
-      'ticketInfo': ticketInfo,
-      'files': files.map((e) => e.toJson()).toList(),
-      'reaction': reaction.map((e) => e.toJson()).toList(),
-      'replyMessage': replyMessage,
-      'slackMessage': slackMessage,
-      'zohoDeskMessage': zohoDeskMessage,
-    };
-  }
+  factory MessageDto.fromJson(Map<String, dynamic> json) => 
+      _$MessageDtoFromJson(json);
 }

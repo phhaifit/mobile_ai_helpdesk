@@ -73,6 +73,42 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
+  late final _$draftResponsesAtom = Atom(
+    name: '_ChatStore.draftResponses',
+    context: context,
+  );
+
+  @override
+  ObservableList<String> get draftResponses {
+    _$draftResponsesAtom.reportRead();
+    return super.draftResponses;
+  }
+
+  @override
+  set draftResponses(ObservableList<String> value) {
+    _$draftResponsesAtom.reportWrite(value, super.draftResponses, () {
+      super.draftResponses = value;
+    });
+  }
+
+  late final _$isDraftLoadingAtom = Atom(
+    name: '_ChatStore.isDraftLoading',
+    context: context,
+  );
+
+  @override
+  bool get isDraftLoading {
+    _$isDraftLoadingAtom.reportRead();
+    return super.isDraftLoading;
+  }
+
+  @override
+  set isDraftLoading(bool value) {
+    _$isDraftLoadingAtom.reportWrite(value, super.isDraftLoading, () {
+      super.isDraftLoading = value;
+    });
+  }
+
   late final _$searchQueryAtom = Atom(
     name: '_ChatStore.searchQuery',
     context: context,
@@ -99,6 +135,18 @@ mixin _$ChatStore on _ChatStore, Store {
   @override
   Future<void> getMessages(String chatRoomId) {
     return _$getMessagesAsyncAction.run(() => super.getMessages(chatRoomId));
+  }
+
+  late final _$generateDraftResponsesAsyncAction = AsyncAction(
+    '_ChatStore.generateDraftResponses',
+    context: context,
+  );
+
+  @override
+  Future<void> generateDraftResponses({required String chatRoomId}) {
+    return _$generateDraftResponsesAsyncAction.run(
+      () => super.generateDraftResponses(chatRoomId: chatRoomId),
+    );
   }
 
   late final _$_ChatStoreActionController = ActionController(
@@ -143,7 +191,31 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void _updateMessageReadStatus(String messageId, MessageReadStatus newStatus) {
+  void onSocketMessage(Message message) {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.onSocketMessage',
+    );
+    try {
+      return super.onSocketMessage(message);
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void onSocketTyping({required bool typing}) {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.onSocketTyping',
+    );
+    try {
+      return super.onSocketTyping(typing: typing);
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _updateMessageReadStatus(String messageId, InvalidType newStatus) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore._updateMessageReadStatus',
     );
@@ -160,6 +232,8 @@ mixin _$ChatStore on _ChatStore, Store {
 messageList: ${messageList},
 isLoading: ${isLoading},
 isTyping: ${isTyping},
+draftResponses: ${draftResponses},
+isDraftLoading: ${isDraftLoading},
 searchQuery: ${searchQuery},
 filteredMessages: ${filteredMessages}
     ''';

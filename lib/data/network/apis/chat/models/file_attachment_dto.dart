@@ -1,23 +1,16 @@
-class FileAttachmentDto {
-  final String url;
-  final String type; // MIME type (image/png, application/pdf, etc.)
-  final String name;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  FileAttachmentDto({required this.url, required this.type, required this.name});
+part 'file_attachment_dto.freezed.dart';
+part 'file_attachment_dto.g.dart';
 
-  factory FileAttachmentDto.fromJson(Map<String, dynamic> json) {
-    return FileAttachmentDto(
-      url: json['url']?.toString() ?? '',
-      type: json['type']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
-    );
-  }
+@freezed
+class FileAttachmentDto with _$FileAttachmentDto {
+  const factory FileAttachmentDto({
+    @Default('') String url,
+    @Default('') String type,
+    @Default('') String name,
+  }) = _FileAttachmentDto;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'type': type,
-      'name': name,
-    };
-  }
+  factory FileAttachmentDto.fromJson(Map<String, dynamic> json) => 
+      _$FileAttachmentDtoFromJson(json);
 }

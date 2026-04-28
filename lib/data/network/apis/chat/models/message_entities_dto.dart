@@ -1,33 +1,16 @@
-class MessageEntitiesDto {
-  final Map<String, dynamic> channels;
-  final Map<String, dynamic> senders;
-  final Map<String, dynamic> tickets;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  MessageEntitiesDto({
-    required this.channels,
-    required this.senders,
-    required this.tickets,
-  });
+part 'message_entities_dto.freezed.dart';
+part 'message_entities_dto.g.dart';
 
-  factory MessageEntitiesDto.fromJson(Map<String, dynamic> json) {
-    return MessageEntitiesDto(
-      channels: json['channels'] is Map<String, dynamic>
-          ? (json['channels'] as Map<String, dynamic>).cast<String, dynamic>()
-          : {},
-      senders: json['senders'] is Map<String, dynamic>
-          ? (json['senders'] as Map<String, dynamic>).cast<String, dynamic>()
-          : {},
-      tickets: json['tickets'] is Map<String, dynamic>
-          ? (json['tickets'] as Map<String, dynamic>).cast<String, dynamic>()
-          : {},
-    );
-  }
+@freezed
+class MessageEntitiesDto with _$MessageEntitiesDto {
+  const factory MessageEntitiesDto({
+    @Default({}) Map<String, dynamic> channels,
+    @Default({}) Map<String, dynamic> senders,
+    @Default({}) Map<String, dynamic> tickets,
+  }) = _MessageEntitiesDto;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'channels': channels,
-      'senders': senders,
-      'tickets': tickets,
-    };
-  }
+  factory MessageEntitiesDto.fromJson(Map<String, dynamic> json) => 
+      _$MessageEntitiesDtoFromJson(json);
 }
