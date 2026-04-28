@@ -11,6 +11,9 @@ import '/core/data/network/dio/interceptors/tenant_header_interceptor.dart';
 import '/core/events/auth_events.dart';
 import '/core/monitoring/sentry/sentry_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
+
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
@@ -115,6 +118,9 @@ class NetworkModule {
     getIt.registerSingleton<StackAuthApi>(
       StackAuthApi(getIt<DioClient>(instanceName: authDioName)),
     );
+    getIt.registerSingleton<OmnichannelApi>(
+        OmnichannelApi(getIt<DioClient>()));
+    getIt.registerSingleton<CustomerApi>(CustomerApi(getIt<DioClient>()));
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );

@@ -5,7 +5,7 @@ import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import '../widgets/customer_filter_sheet.dart';
 
-class CustomerListScreen extends StatelessWidget {
+class CustomerListScreen extends StatefulWidget {
   final CustomerStore store;
   final VoidCallback onMenuTap;
   final Function(Customer) onSelectCustomer;
@@ -19,12 +19,38 @@ class CustomerListScreen extends StatelessWidget {
     required this.onAddCustomer,
   });
 
+  @override
+  State<CustomerListScreen> createState() => _CustomerListScreenState();
+}
+
+class _CustomerListScreenState extends State<CustomerListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    widget.store.loadCustomers();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      widget.store.loadCustomers(isLoadMore: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _showFilter(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CustomerFilterSheet(store: store),
+      builder: (_) => CustomerFilterSheet(store: widget.store),
     );
   }
 
@@ -47,13 +73,13 @@ class CustomerListScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: onMenuTap,
+          onPressed: widget.onMenuTap,
         ),
         title: const Text('Khách hàng', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_alt_1, color: AppColors.primaryBlue),
-            onPressed: onAddCustomer,
+            onPressed: widget.onAddCustomer,
           ),
         ],
       ),
@@ -79,7 +105,7 @@ class CustomerListScreen extends StatelessWidget {
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(vertical: 14),
                       ),
-                      onChanged: (val) => store.setSearchQuery(val),
+                      onChanged: (val) => widget.store.setSearchQuery(val),
                     ),
                   ),
                 ),
@@ -100,10 +126,10 @@ class CustomerListScreen extends StatelessWidget {
           Expanded(
             child: Observer(
               builder: (_) {
-                if (store.isLoading) {
+                if (widget.store.isLoading && widget.store.customers.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (store.customers.isEmpty) {
+                if (widget.store.customers.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -116,10 +142,17 @@ class CustomerListScreen extends StatelessWidget {
                   );
                 }
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(12),
-                  itemCount: store.customers.length,
+                  itemCount: widget.store.customers.length + (widget.store.isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    final customer = store.customers[index];
+                    if (index >= widget.store.customers.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    final customer = widget.store.customers[index];
                     return Card(
                       elevation: 0,
                       color: Colors.white,
@@ -130,7 +163,7 @@ class CustomerListScreen extends StatelessWidget {
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
-                        onTap: () => onSelectCustomer(customer),
+                        onTap: () => widget.onSelectCustomer(customer),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
@@ -139,10 +172,15 @@ class CustomerListScreen extends StatelessWidget {
                               CircleAvatar(
                                 radius: 24,
                                 backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
-                                child: Text(
-                                  _getInitials(customer.fullName),
-                                  style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
+                                backgroundImage: customer.avatarUrl != null && customer.avatarUrl!.isNotEmpty 
+                                  ? NetworkImage(customer.avatarUrl!) 
+                                  : null,
+                                child: (customer.avatarUrl == null || customer.avatarUrl!.isEmpty)
+                                  ? Text(
+                                      _getInitials(customer.fullName),
+                                      style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
+                                    )
+                                  : null,
                               ),
                               const SizedBox(width: 16),
                               Expanded(

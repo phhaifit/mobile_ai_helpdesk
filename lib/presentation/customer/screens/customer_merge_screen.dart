@@ -122,20 +122,22 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: DropdownButton<Customer>(
-        value: selected,
-        isExpanded: true,
-        underline: const SizedBox(),
-        items: widget.store.customers.map((c) {
-          return DropdownMenuItem<Customer>(
-            value: c,
-            child: Text(c.fullName, overflow: TextOverflow.ellipsis),
-          );
-        }).toList(),
-        onChanged: onChanged,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<Customer>(
+          value: selected,
+          isExpanded: true,
+          hint: const Text('Chọn khách hàng'),
+          items: widget.store.customers.map((c) {
+            return DropdownMenuItem<Customer>(
+              value: c,
+              child: Text(c.fullName, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
       ),
     );
   }
@@ -176,12 +178,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
       ),
     );
   }
-
   Widget _buildCustomerColumn(Customer? customer, int customerIndex) {
-    if (customer == null) {
-      return const Center(child: Text('Vui lòng chọn khách hàng'));
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,10 +192,13 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
           customerIndex == 1 ? _onCustomer1Changed : _onCustomer2Changed,
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Tên khách hàng',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        ),
+        if (customer == null) ...[
+          const Expanded(child: Center(child: Text('Vui lòng chọn khách hàng'))),
+        ] else ...[
+          const Text(
+            'Tên khách hàng',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -227,6 +227,7 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
         if (customer.phones.isNotEmpty) ...customer.phones.map((p) => _buildCheckbox(Icons.phone, p, _selectedPhones)),
         if (customer.zalos.isNotEmpty) ...customer.zalos.map((z) => _buildCheckbox(Icons.chat_bubble, z, _selectedZalos)),
         if (customer.messengers.isNotEmpty) ...customer.messengers.map((m) => _buildCheckbox(Icons.message, m, _selectedMessengers)),
+        ],
       ],
     );
   }
@@ -257,13 +258,17 @@ class _CustomerMergeScreenState extends State<CustomerMergeScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildCustomerColumn(_customer1, 1)),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildCustomerColumn(_customer2, 2)),
-                  ],
+                Observer(
+                  builder: (_) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _buildCustomerColumn(_customer1, 1)),
+                        const SizedBox(width: 16),
+                        Expanded(child: _buildCustomerColumn(_customer2, 2)),
+                      ],
+                    );
+                  }
                 ),
                 const SizedBox(height: 32),
                 Row(

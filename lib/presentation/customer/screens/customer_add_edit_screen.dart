@@ -76,8 +76,9 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
       );
 
       final success = await widget.store.saveCustomer(newCustomer);
+      if (!context.mounted) return;
+      
       if (success) {
-        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -94,6 +95,16 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           ),
         );
         widget.onBack();
+      } else if (widget.store.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.store.errorMessage!),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
       }
     }
   }
