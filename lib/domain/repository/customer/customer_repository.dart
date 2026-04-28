@@ -5,6 +5,8 @@ abstract class CustomerRepository {
   Future<List<Customer>> getCustomers({
     String? query,
     List<String>? tagIds,
+    int limit = 20,
+    int offset = 0,
   });
 
   Future<Customer?> getCustomerById(String id);
@@ -12,6 +14,8 @@ abstract class CustomerRepository {
   Future<Customer> createCustomer(Customer customer);
 
   Future<Customer> updateCustomer(Customer customer);
+
+  Future<bool> checkValidEmail(String email);
 
   Future<void> deleteCustomer(String id);
 
@@ -32,4 +36,6 @@ abstract class CustomerRepository {
   
   // Deletes specific contact fields by removing them from the list
   Future<Customer> deleteCustomerContact(String customerId, {String? email, String? phone, String? zalo, String? messenger});
+
+  Future<String?> getTenantName(String id);
 }

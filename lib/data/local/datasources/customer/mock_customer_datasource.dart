@@ -59,6 +59,8 @@ class MockCustomerDataSource {
   Future<List<Customer>> getCustomers({
     String? query,
     List<String>? tagIds,
+    int? limit,
+    int? offset,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     var result = _customers.toList();
