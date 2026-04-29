@@ -135,6 +135,42 @@ mixin _$CustomerStore on _CustomerStore, Store {
     });
   }
 
+  late final _$isLoadingMoreAtom = Atom(
+    name: '_CustomerStore.isLoadingMore',
+    context: context,
+  );
+
+  @override
+  bool get isLoadingMore {
+    _$isLoadingMoreAtom.reportRead();
+    return super.isLoadingMore;
+  }
+
+  @override
+  set isLoadingMore(bool value) {
+    _$isLoadingMoreAtom.reportWrite(value, super.isLoadingMore, () {
+      super.isLoadingMore = value;
+    });
+  }
+
+  late final _$hasReachedMaxAtom = Atom(
+    name: '_CustomerStore.hasReachedMax',
+    context: context,
+  );
+
+  @override
+  bool get hasReachedMax {
+    _$hasReachedMaxAtom.reportRead();
+    return super.hasReachedMax;
+  }
+
+  @override
+  set hasReachedMax(bool value) {
+    _$hasReachedMaxAtom.reportWrite(value, super.hasReachedMax, () {
+      super.hasReachedMax = value;
+    });
+  }
+
   late final _$_initAsyncAction = AsyncAction(
     '_CustomerStore._init',
     context: context,
@@ -151,8 +187,20 @@ mixin _$CustomerStore on _CustomerStore, Store {
   );
 
   @override
-  Future<void> loadCustomers() {
-    return _$loadCustomersAsyncAction.run(() => super.loadCustomers());
+  Future<void> loadCustomers({bool isLoadMore = false}) {
+    return _$loadCustomersAsyncAction.run(
+      () => super.loadCustomers(isLoadMore: isLoadMore),
+    );
+  }
+
+  late final _$loadCustomerByIdAsyncAction = AsyncAction(
+    '_CustomerStore.loadCustomerById',
+    context: context,
+  );
+
+  @override
+  Future<Customer?> loadCustomerById(String id) {
+    return _$loadCustomerByIdAsyncAction.run(() => super.loadCustomerById(id));
   }
 
   late final _$saveCustomerAsyncAction = AsyncAction(
@@ -182,11 +230,12 @@ mixin _$CustomerStore on _CustomerStore, Store {
 
   @override
   Future<bool> mergeCustomers({
-    required String targetId,
-    required String sourceId,
+    required String primaryId,
+    required String secondaryId,
   }) {
     return _$mergeCustomersAsyncAction.run(
-      () => super.mergeCustomers(targetId: targetId, sourceId: sourceId),
+      () =>
+          super.mergeCustomers(primaryId: primaryId, secondaryId: secondaryId),
     );
   }
 
@@ -334,7 +383,9 @@ errorMessage: ${errorMessage},
 customers: ${customers},
 availableTags: ${availableTags},
 searchQuery: ${searchQuery},
-selectedTagIds: ${selectedTagIds}
+selectedTagIds: ${selectedTagIds},
+isLoadingMore: ${isLoadingMore},
+hasReachedMax: ${hasReachedMax}
     ''';
   }
 }

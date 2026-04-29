@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/customer/tag.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
+import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
 
 part 'customer_store.g.dart';
@@ -9,9 +10,22 @@ class CustomerStore = _CustomerStore with _$CustomerStore;
 
 abstract class _CustomerStore with Store {
   final CustomerRepository _repository;
+  ReactionDisposer? _searchReaction;
 
   _CustomerStore(this._repository) {
     _init();
+    _setupReactions();
+  }
+
+  void _setupReactions() {
+    // Debounce search query changes by 500ms
+    _searchReaction = reaction(
+      (_) => searchQuery,
+      (String query) {
+        loadCustomers();
+      },
+      delay: 500,
+    );
   }
 
   @observable
@@ -35,6 +49,15 @@ abstract class _CustomerStore with Store {
   @observable
   ObservableList<String> selectedTagIds = ObservableList<String>();
 
+  @observable
+  bool isLoadingMore = false;
+
+  @observable
+  bool hasReachedMax = false;
+
+  int _currentPage = 0;
+  final int _limit = 20;
+
   @action
   Future<void> _init() async {
     isLoading = true;
@@ -52,27 +75,68 @@ abstract class _CustomerStore with Store {
   }
 
   @action
-  Future<void> loadCustomers() async {
-    isLoading = true;
+  Future<void> loadCustomers({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (isLoadingMore || hasReachedMax) return;
+      isLoadingMore = true;
+    } else {
+      isLoading = true;
+      _currentPage = 0;
+      hasReachedMax = false;
+      customers.clear();
+    }
+    
     errorMessage = null;
     try {
       final result = await _repository.getCustomers(
         query: searchQuery,
         tagIds: selectedTagIds.isEmpty ? null : selectedTagIds.toList(),
+        offset: _currentPage * _limit,
+        limit: _limit,
       );
-      customers.clear();
-      customers.addAll(result);
+      
+      if (result.isEmpty) {
+        hasReachedMax = true;
+      } else {
+        if (result.length < _limit) {
+          hasReachedMax = true;
+        }
+        customers.addAll(result);
+        _currentPage++;
+      }
     } catch (e) {
       errorMessage = 'Failed to load customers: $e';
     } finally {
-      isLoading = false;
+      if (isLoadMore) {
+        isLoadingMore = false;
+      } else {
+        isLoading = false;
+      }
+    }
+  }
+
+  @action
+  Future<Customer?> loadCustomerById(String id) async {
+    try {
+      final customer = await _repository.getCustomerById(id);
+      if (customer != null && customer.tenantId != null) {
+        final tenantName = await _repository.getTenantName(customer.tenantId!);
+        return customer.copyWith(tenantName: tenantName);
+      }
+      return customer;
+    } catch (e) {
+      errorMessage = 'Failed to load customer details: $e';
+      return null;
     }
   }
 
   @action
   void setSearchQuery(String query) {
     searchQuery = query;
-    loadCustomers();
+  }
+
+  void dispose() {
+    _searchReaction?.call();
   }
 
   @action
@@ -103,10 +167,25 @@ abstract class _CustomerStore with Store {
       if (customers.any((c) => c.id == customer.id)) {
         await _repository.updateCustomer(customer);
       } else {
+        if (customer.emails.isNotEmpty) {
+          final isEmailValid = await _repository.checkValidEmail(customer.emails.first);
+          if (!isEmailValid) {
+            errorMessage = 'Email address is already in use or completely invalid.';
+            isSaving = false;
+            return false;
+          }
+        }
         await _repository.createCustomer(customer);
       }
       await loadCustomers();
       return true;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        errorMessage = 'Subscription required. Please upgrade your plan to manage customers.';
+      } else {
+        errorMessage = e.response?.data?['message']?.toString() ?? e.message ?? 'Failed to save customer';
+      }
+      return false;
     } catch (e) {
       errorMessage = 'Failed to save customer: $e';
       return false;
@@ -131,12 +210,12 @@ abstract class _CustomerStore with Store {
   }
 
   @action
-  Future<bool> mergeCustomers({required String targetId, required String sourceId}) async {
+  Future<bool> mergeCustomers({required String primaryId, required String secondaryId}) async {
     isSaving = true;
     try {
       await _repository.mergeCustomers(
-        targetCustomerId: targetId,
-        sourceCustomerId: sourceId,
+        primaryCustomerId: primaryId,
+        secondaryCustomerId: secondaryId,
       );
       await loadCustomers();
       return true;
