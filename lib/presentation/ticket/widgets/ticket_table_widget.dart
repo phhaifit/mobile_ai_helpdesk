@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import '../store/ticket_column_visibility_store.dart';
+import 'ticket_card_widget.dart';
 import 'ticket_column_selector_dialog.dart';
 import 'ticket_table_list_widget.dart';
 
@@ -27,7 +28,7 @@ class TicketTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     if (tickets.isEmpty) {
       return Center(
@@ -36,11 +37,7 @@ class TicketTableWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.inbox_outlined,
-                size: 80,
-                color: AppColors.dividerColor,
-              ),
+              Icon(Icons.inbox_outlined, size: 64, color: AppColors.dividerColor),
               const SizedBox(height: 16),
               const Text(
                 'Không có phiếu nào',
@@ -52,11 +49,8 @@ class TicketTableWidget extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Nhấn nút "Thêm phiếu" phía trên để tạo phiếu mới',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                'Nhấn "Thêm phiếu" để tạo phiếu mới',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -64,6 +58,21 @@ class TicketTableWidget extends StatelessWidget {
       );
     }
 
+    if (isMobile) {
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: tickets.length,
+        itemBuilder: (context, index) {
+          final ticket = tickets[index];
+          return TicketCardWidget(
+            ticket: ticket,
+            onTap: () => onViewDetails?.call(ticket),
+          );
+        },
+      );
+    }
+
+    final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
     return Observer(
       builder: (_) {
         return TicketTableListWidget(

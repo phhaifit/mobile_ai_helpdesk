@@ -26,6 +26,7 @@ class Ticket {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? resolvedAt;
+  final String? chatRoomId;
   final String? notes;
   final List<String> attachments;
   final int unreadCount;
@@ -52,6 +53,7 @@ class Ticket {
     required this.createdAt,
     required this.updatedAt,
     this.resolvedAt,
+    this.chatRoomId,
     this.notes,
     this.attachments = const [],
     this.unreadCount = 0,
@@ -79,6 +81,7 @@ class Ticket {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? resolvedAt,
+    String? chatRoomId,
     String? notes,
     List<String>? attachments,
     int? unreadCount,
@@ -109,6 +112,7 @@ class Ticket {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
+      chatRoomId: chatRoomId ?? this.chatRoomId,
       notes: notes ?? this.notes,
       attachments: attachments ?? this.attachments,
       unreadCount: unreadCount ?? this.unreadCount,

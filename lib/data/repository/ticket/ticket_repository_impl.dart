@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/data/models/ticket/comment_api_model.dart';
 import 'package:ai_helpdesk/data/models/ticket/ticket_api_model.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
@@ -9,25 +10,18 @@ import 'package:ai_helpdesk/domain/entity/ticket/ticket_query_params.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
-/// Real [TicketRepository] implementation.
-///
-/// **My scope** (customer history + comments) calls the real REST API via
-/// [TicketApi].
-///
-/// **Friend's scope** (ticket list, CRUD, assignment, status) is delegated to
-/// [MockTicketRepositoryImpl] until that PR lands.  Swap each delegation for a
-/// real API call as the friend's implementation is merged.
 class TicketRepositoryImpl implements TicketRepository {
-  final TicketApi _api;
+  final TicketApi _ticketApi;
+  final ChatRoomApi _chatRoomApi;
   final MockTicketRepositoryImpl _mock;
 
-  TicketRepositoryImpl(this._api, this._mock);
+  TicketRepositoryImpl(this._ticketApi, this._chatRoomApi, this._mock);
 
-  // ── My scope: Customer ticket history ──────────────────────────────────────
+  // ── Customer ticket history ────────────────────────────────────────────────
 
   @override
   Future<List<Ticket>> getCustomerHistory(String customerId) async {
-    final raw = await _api.getCustomerTickets(customerId);
+    final raw = await _ticketApi.getCustomerHistory(customerId);
     return raw
         .whereType<Map<String, dynamic>>()
         .map(TicketApiModel.fromJson)
@@ -35,16 +29,24 @@ class TicketRepositoryImpl implements TicketRepository {
         .toList();
   }
 
-  // ── My scope: Comments ─────────────────────────────────────────────────────
+  // ── Chat-room messages (surfaced as "comments") ────────────────────────────
 
   @override
   Future<List<Comment>> getComments(String ticketId) async {
-    final raw = await _api.getComments(ticketId);
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(CommentApiModel.fromJson)
-        .map((m) => m.toDomain())
-        .toList();
+    try {
+      final ticketData = await _ticketApi.getTicketDetail(ticketId);
+      final chatRoomId = ticketData['chatRoomId'] as String?;
+      if (chatRoomId == null || chatRoomId.isEmpty) return const [];
+
+      final raw = await _chatRoomApi.getMessages(chatRoomId);
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map(CommentApiModel.fromJson)
+          .map((m) => m.toDomain())
+          .toList();
+    } catch (_) {
+      return const [];
+    }
   }
 
   @override
@@ -52,24 +54,42 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     required Comment comment,
   }) async {
-    final data = await _api.addComment(ticketId, comment.content);
+    try {
+      final ticketData = await _ticketApi.getTicketDetail(ticketId);
+      final chatRoomId = ticketData['chatRoomId'] as String?;
+      if (chatRoomId == null || chatRoomId.isEmpty) {
+        return _optimisticComment(comment);
+      }
 
-    // If the server returned a populated object, use the server-assigned id and
-    // timestamp; otherwise fall back to the optimistic comment from the store.
-    if (data.isNotEmpty && (data['id'] as String?)?.isNotEmpty == true) {
-      final apiModel = CommentApiModel.fromJson(data);
-      return comment.copyWith(
-        id: apiModel.id,
-        createdAt: apiModel.createdAt,
+      final detail = await _chatRoomApi.getChatRoomDetail(chatRoomId);
+      final lastMessage = detail['lastMessage'] as Map?;
+      final channelId = lastMessage?['channelID'] as String? ?? '';
+      final contactId = lastMessage?['contactID'] as String?;
+
+      if (channelId.isEmpty) return _optimisticComment(comment);
+
+      final data = await _chatRoomApi.sendMessage(
+        chatRoomId: chatRoomId,
+        channelId: channelId,
+        content: comment.content,
+        contactId: contactId,
       );
+
+      if (data.isNotEmpty) {
+        final model = CommentApiModel.fromJson(data);
+        return comment.copyWith(id: model.id, createdAt: model.createdAt);
+      }
+      return _optimisticComment(comment);
+    } catch (_) {
+      return _optimisticComment(comment);
     }
-    // Assign a temporary id so the UI can display the comment immediately.
-    return comment.copyWith(
-      id: comment.id.isNotEmpty
-          ? comment.id
-          : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
-    );
   }
+
+  Comment _optimisticComment(Comment comment) => comment.copyWith(
+        id: comment.id.isNotEmpty
+            ? comment.id
+            : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
+      );
 
   // ── Friend's scope — delegated to mock ────────────────────────────────────
 

@@ -1,56 +1,57 @@
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 
-/// Maps the API Comment JSON response to the domain [Comment] entity.
+/// Maps the chat-room Message JSON response to the domain [Comment] entity.
 ///
-/// The API schema for comments is not fully specified, so fields are parsed
-/// defensively with safe defaults.  Fields not returned by the server (e.g.
-/// [type], [attachments]) keep their Phase-1 defaults.
+/// Used for both REST responses (GET /api/chat-room/message) and
+/// Socket.io SOCKET_MESSAGE event payloads.
 class CommentApiModel {
   final String id;
-  final String ticketId;
+  final String chatRoomId;
   final String content;
   final String authorId;
   final String authorName;
   final String? authorAvatar;
   final DateTime createdAt;
-  final DateTime? updatedAt;
 
   const CommentApiModel({
     required this.id,
-    required this.ticketId,
+    required this.chatRoomId,
     required this.content,
     required this.authorId,
     required this.authorName,
     this.authorAvatar,
     required this.createdAt,
-    this.updatedAt,
   });
 
   factory CommentApiModel.fromJson(Map<String, dynamic> json) {
+    final sender = json['sender'] as Map<String, dynamic>?;
+    final contentInfo = json['contentInfo'] as Map<String, dynamic>?;
+    final content = contentInfo?['content'] as String? ??
+        json['content'] as String? ??
+        '';
+
     return CommentApiModel(
-      id: json['id'] as String? ?? '',
-      ticketId: json['ticketId'] as String? ?? '',
-      content: json['content'] as String? ?? '',
-      authorId: json['authorId'] as String? ?? '',
-      authorName: json['authorName'] as String? ?? 'Unknown',
-      authorAvatar: json['authorAvatar'] as String?,
+      id: json['messageID'] as String? ?? json['id'] as String? ?? '',
+      chatRoomId: json['chatRoomID'] as String? ?? '',
+      content: content,
+      authorId: sender?['id'] as String? ?? '',
+      authorName: sender?['name'] as String? ?? 'Unknown',
+      authorAvatar: sender?['avatar'] as String?,
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
-      updatedAt: _parseDateTime(json['updatedAt']),
     );
   }
 
   Comment toDomain() {
     return Comment(
       id: id,
-      ticketId: ticketId,
+      ticketId: chatRoomId,
       authorId: authorId,
       authorName: authorName,
       authorAvatar: authorAvatar,
       content: content,
       type: CommentType.public,
       createdAt: createdAt,
-      updatedAt: updatedAt,
     );
   }
 

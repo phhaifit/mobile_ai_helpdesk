@@ -124,6 +124,8 @@ class NetworkModule {
     getIt.registerSingleton<TicketWebSocketService>(
       TicketWebSocketService(
         getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+        getTenantId: () async =>
+            await getIt<SharedPreferenceHelper>().tenantId,
       ),
     );
   }

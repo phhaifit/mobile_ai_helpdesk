@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/constants/dimens.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/status_badge_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/priority_badge_widget.dart';
@@ -17,117 +16,114 @@ class TicketCardWidget extends StatelessWidget {
     this.onDelete,
   });
 
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Dimens.horizontalPadding,
-        vertical: Dimens.verticalPadding,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(color: AppColors.dividerColor, width: 1),
       ),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(Dimens.horizontalPadding),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header: ID and Status badge
+              // Row 1: ID + badges
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
-                      ticket.id,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                      '#${ticket.id}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   StatusBadgeWidget(status: ticket.status),
+                  const SizedBox(width: 6),
+                  PriorityBadgeWidget(priority: ticket.priority),
                 ],
               ),
-              const SizedBox(height: 8.0),
-
-              // Title
+              const SizedBox(height: 6),
+              // Row 2: Title
               Text(
                 ticket.title,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8.0),
-
-              // Customer and Priority row
+              const SizedBox(height: 8),
+              // Row 3: Customer + date
               Row(
                 children: [
+                  const Icon(Icons.person_outline, size: 13, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Customer:',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          ticket.customerName,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textPrimary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                    child: Text(
+                      ticket.customerName,
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  PriorityBadgeWidget(priority: ticket.priority),
-                ],
-              ),
-              const SizedBox(height: 8.0),
-
-              // Agent assignment
-              if (ticket.assignedAgentId != null)
-                Text(
-                  'Assigned to: ${ticket.assignedAgentName ?? "Unknown"}',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                )
-              else
-                Text(
-                  'Unassigned',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.errorRed,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              const SizedBox(height: 8.0),
-
-              // Footer: Created date
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                  const Icon(Icons.access_time, size: 12, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
                   Text(
-                    'Created: ${ticket.createdAt.toString().split('.')[0]}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textTertiary,
-                    ),
+                    _formatDate(ticket.createdAt),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
-                  if (onDelete != null)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: onDelete,
-                      color: AppColors.errorRed,
-                      iconSize: 18,
-                    ),
                 ],
               ),
+              // Row 4: Agent (if assigned)
+              if (ticket.assignedAgentId != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.support_agent, size: 13, color: AppColors.primaryBlue),
+                    const SizedBox(width: 4),
+                    Text(
+                      ticket.assignedAgentName ?? 'Agent',
+                      style: const TextStyle(fontSize: 12, color: AppColors.primaryBlue),
+                    ),
+                  ],
+                ),
+              ],
+              // Tap hint
+              if (onTap != null) ...[
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Xem chi tiết',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.primaryBlue.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(Icons.chevron_right, size: 14, color: AppColors.primaryBlue.withValues(alpha: 0.8)),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

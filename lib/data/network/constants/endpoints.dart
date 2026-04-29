@@ -61,12 +61,20 @@ class Endpoints {
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
 
   // Ticket endpoints
-  static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
-  static String ticketComments(String ticketId) =>
-      '/api/ticket/comment/get-comment/$ticketId';
-  static const String ticketAddComment = '/api/ticket/comment/add-comment';
-  static String ticketDeleteComment(String commentId) =>
-      '/api/ticket/comment/$commentId';
+  static String ticketHistoryCustomer(String customerId) =>
+      '/api/ticket/ticket-history-customer/$customerId';
+  static String ticketDetail(String ticketId) => '/api/ticket/$ticketId';
+
+  // Chat-room message endpoints
+  static const String chatRoomMessages = '/api/chat-room/message';
+  static const String chatRoomSendMessage =
+      '/api/chat-room/message/cs-to-customer';
+  static const String chatRoomDetail = '/api/chat-room/detail';
+
+  // Socket.io
+  static String get socketUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+  static const String socketPath = '/api/socket';
+  static String socketNamespace(String tenantId) => '/tenant-$tenantId';
 
   // Knowledge Base endpoints
   static String knowledgeSources(String tenantId) =>
@@ -86,11 +94,4 @@ class Endpoints {
   static const String knowledgePollStatus =
       '/api/v1/knowledges/sources/poll-status';
 
-  // WebSocket
-  static String ticketWebSocket(String ticketId) {
-    final wsBase = baseUrl
-        .replaceFirst('https://', 'wss://')
-        .replaceFirst('http://', 'ws://');
-    return '$wsBase/ws/ticket/$ticketId';
-  }
 }

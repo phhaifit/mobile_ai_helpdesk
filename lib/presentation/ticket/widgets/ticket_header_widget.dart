@@ -17,13 +17,45 @@ class TicketHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    if (isMobile) {
+      return Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                'Tổng số: $ticketCount phiếu',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: onAddTicketPressed,
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Thêm phiếu', style: TextStyle(fontSize: 13)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left side: Title and count
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,10 +79,8 @@ class TicketHeaderWidget extends StatelessWidget {
               ],
             ),
           ),
-          // Right side: Action buttons
           Row(
             children: [
-              // Export button
               OutlinedButton.icon(
                 onPressed: onExportPressed,
                 icon: const Icon(Icons.cloud_download_outlined),
@@ -61,7 +91,6 @@ class TicketHeaderWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Add button
               ElevatedButton.icon(
                 onPressed: onAddTicketPressed,
                 icon: const Icon(Icons.add),

@@ -109,7 +109,10 @@ abstract class _TicketDetailStoreBase with Store {
             'priority': ticket!.priority.name,
           },
         );
-        _connectWebSocket(ticketId);
+        final chatRoomId = ticket!.chatRoomId;
+        if (chatRoomId != null && chatRoomId.isNotEmpty) {
+          _connectWebSocket(chatRoomId);
+        }
       }
     } catch (e) {
       errorMessage = e.toString();
@@ -118,12 +121,10 @@ abstract class _TicketDetailStoreBase with Store {
     }
   }
 
-  void _connectWebSocket(String ticketId) {
+  void _connectWebSocket(String chatRoomId) {
     _wsSubscription?.cancel();
-    _wsService.connect(ticketId).then((_) {
-      _wsSubscription = _wsService.commentStream
-          .where((c) => c.ticketId == ticketId)
-          .listen(_onIncomingComment);
+    _wsService.connect(chatRoomId).then((_) {
+      _wsSubscription = _wsService.commentStream.listen(_onIncomingComment);
     });
   }
 

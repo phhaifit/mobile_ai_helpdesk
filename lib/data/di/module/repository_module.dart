@@ -9,7 +9,7 @@ import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasou
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
-import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
@@ -19,7 +19,7 @@ import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/knowledge/knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
@@ -98,9 +98,14 @@ class RepositoryModule {
       TicketApi(getIt<DioClient>()),
     );
 
+    getIt.registerSingleton<ChatRoomApi>(
+      ChatRoomApi(getIt<DioClient>()),
+    );
+
     getIt.registerSingleton<TicketRepository>(
       TicketRepositoryImpl(
         getIt<TicketApi>(),
+        getIt<ChatRoomApi>(),
         getIt<MockTicketRepositoryImpl>(),
       ),
     );
@@ -156,13 +161,9 @@ class RepositoryModule {
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
 
-    // --- Knowledge API & Repository ---
-    getIt.registerSingleton<KnowledgeApi>(
-      KnowledgeApi(getIt<DioClient>()),
-    );
-
+    // --- Knowledge Repository (mock on this branch) ---
     getIt.registerSingleton<KnowledgeRepository>(
-      KnowledgeRepositoryImpl(getIt<KnowledgeApi>()),
+      MockKnowledgeRepositoryImpl(),
     );
   }
 }

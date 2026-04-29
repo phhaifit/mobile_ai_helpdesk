@@ -64,6 +64,7 @@ class TicketApiModel {
       createdByID: '',
       createdByName: '',
       assignedAgentId: assigneeId,
+      chatRoomId: chatRoomId,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

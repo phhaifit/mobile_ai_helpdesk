@@ -1,6 +1,5 @@
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 import '../constants/colors.dart';
 import 'chat/support_inbox_screen.dart';
@@ -276,12 +275,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _selectCategory(String category) {
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-    if (category == 'pending_tickets' && currentRoute != Routes.ticketList) {
-      Navigator.pushReplacementNamed(context, Routes.ticketList);
-      return;
-    }
-
     setState(() {
       _selectedCategory = category;
       // Close sidebar on mobile after selection
@@ -314,7 +307,11 @@ class _MainScreenState extends State<MainScreen> {
           showMenuButton: isMobile,
         );
       case 'pending_tickets':
-        contentWidget = const TicketListScreen();
+        contentWidget = _wrapWithMenuBar(
+          title: 'Phiếu chưa xử lý',
+          child: const TicketListScreen(),
+          showMenuButton: isMobile,
+        );
       case 'support_inbox':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
       case 'knowledge':

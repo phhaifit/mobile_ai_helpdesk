@@ -64,7 +64,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
 
           // Show list view
           return Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(isMobile ? 8.0 : 20.0),
             child: Column(
               children: [
                 // Tab bar - Only show on desktop
@@ -142,14 +142,13 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 // Search and filter + Table with tickets (grouped)
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AppColors.dividerColor,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                    ),
+                    decoration: isMobile
+                        ? null
+                        : BoxDecoration(
+                            border: Border.all(color: AppColors.dividerColor, width: 1),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white,
+                          ),
                     child: Column(
                       children: [
                         // Search and filter

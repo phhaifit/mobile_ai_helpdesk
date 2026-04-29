@@ -24,7 +24,6 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -69,6 +68,7 @@ import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_column_visibility_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
@@ -150,6 +150,14 @@ class StoreModule {
         updateAccountUseCase: getIt<UpdateAccountUseCase>(),
         authStore: getIt<AuthStore>(),
       ),
+    );
+
+    // --- Session Store ---
+    getIt.registerLazySingleton<SessionStore>(() => SessionStore());
+
+    // --- Ticket Column Visibility Store ---
+    getIt.registerLazySingleton<TicketColumnVisibilityStore>(
+      () => TicketColumnVisibilityStore(),
     );
 
     // --- Ticket Stores ---
@@ -303,7 +311,6 @@ class StoreModule {
         getIt<ReindexSourceUseCase>(),
         getIt<TestDbConnectionUseCase>(),
         getIt<UpdateSourceCrawlIntervalUseCase>(),
-        getIt<WatchSourceStatusesUseCase>(),
       ),
     );
   }

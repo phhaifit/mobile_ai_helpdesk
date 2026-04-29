@@ -1,119 +1,123 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:socket_io_client/socket_io_client.dart' as sio;
 
 import 'package:ai_helpdesk/data/models/ticket/comment_api_model.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
 
-/// Manages a single WebSocket connection for real-time ticket comment updates.
+/// Manages a Socket.io connection for real-time chat-room message updates.
+///
+/// Connects to the /tenant-{tenantId} namespace at the helpdesk socket
+/// endpoint. After connecting, emits SOCKET_AUTHENTICATE within 2 seconds.
+/// Listens for SOCKET_MESSAGE events and filters to the subscribed chatRoomId.
 ///
 /// Usage:
 /// ```dart
-/// await wsService.connect(ticketId);
+/// await wsService.connect(chatRoomId);
 /// wsService.commentStream.listen((comment) { ... });
-/// // ...
 /// await wsService.disconnect();
-/// ```
-///
-/// The service is a singleton; calling [connect] with a different [ticketId]
-/// automatically closes the previous connection first.
-///
-/// Expected server event format:
-/// ```json
-/// { "event": "new_comment", "data": { ...CommentApiModel fields... } }
 /// ```
 class TicketWebSocketService {
   final AsyncValueGetter<String?> _getToken;
+  final AsyncValueGetter<String?> _getTenantId;
 
-  WebSocketChannel? _channel;
-  StreamSubscription? _streamSub;
-  String? _connectedTicketId;
+  sio.Socket? _socket;
+  String? _connectedChatRoomId;
 
-  final _commentController = StreamController<Comment>.broadcast();
+  final _messageController = StreamController<Comment>.broadcast();
 
-  TicketWebSocketService({required AsyncValueGetter<String?> getToken})
-      : _getToken = getToken;
+  TicketWebSocketService({
+    required AsyncValueGetter<String?> getToken,
+    required AsyncValueGetter<String?> getTenantId,
+  })  : _getToken = getToken,
+        _getTenantId = getTenantId;
 
-  /// Broadcasts [Comment] objects received from the server in real time.
-  Stream<Comment> get commentStream => _commentController.stream;
+  /// Broadcasts [Comment] objects received in real time for the connected room.
+  Stream<Comment> get commentStream => _messageController.stream;
 
-  String? get connectedTicketId => _connectedTicketId;
+  String? get connectedChatRoomId => _connectedChatRoomId;
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
-  Future<void> connect(String ticketId) async {
-    if (_connectedTicketId == ticketId && _channel != null) return;
+  Future<void> connect(String chatRoomId) async {
+    if (_connectedChatRoomId == chatRoomId && (_socket?.connected ?? false)) return;
     await disconnect();
 
-    _connectedTicketId = ticketId;
-    final token = await _getToken() ?? '';
-    final uri = _buildUri(ticketId, token);
-
-    try {
-      _channel = WebSocketChannel.connect(uri);
-      _streamSub = _channel!.stream.listen(
-        _onMessage,
-        onError: _onError,
-        onDone: _onDone,
-        cancelOnError: false,
-      );
-      debugPrint('[TicketWS] connected to ticket $ticketId');
-    } catch (e) {
-      debugPrint('[TicketWS] connect error: $e');
-      _connectedTicketId = null;
+    final tenantId = await _getTenantId() ?? '';
+    if (tenantId.isEmpty) {
+      debugPrint('[TicketWS] no tenantId — skipping socket connection');
+      return;
     }
+
+    _connectedChatRoomId = chatRoomId;
+    final namespace = Endpoints.socketNamespace(tenantId);
+    final url = '${Endpoints.socketUrl}$namespace';
+
+    _socket = sio.io(
+      url,
+      sio.OptionBuilder()
+          .setTransports(['websocket'])
+          .disableAutoConnect()
+          .setPath(Endpoints.socketPath)
+          .build(),
+    );
+
+    _socket!.onConnect((_) async {
+      debugPrint('[TicketWS] connected — namespace $namespace');
+      final token = await _getToken() ?? '';
+      _socket!.emit('SOCKET_AUTHENTICATE', {'token': token});
+    });
+
+    _socket!.on('SOCKET_AUTHENTICATE', (data) {
+      debugPrint('[TicketWS] authenticated: $data');
+    });
+
+    _socket!.on('SOCKET_MESSAGE', _onSocketMessage);
+
+    _socket!.onDisconnect((_) {
+      debugPrint('[TicketWS] disconnected from $namespace');
+    });
+
+    _socket!.onError((error) {
+      debugPrint('[TicketWS] error: $error');
+    });
+
+    _socket!.connect();
   }
 
   Future<void> disconnect() async {
-    await _streamSub?.cancel();
-    await _channel?.sink.close();
-    _streamSub = null;
-    _channel = null;
-    if (_connectedTicketId != null) {
-      debugPrint('[TicketWS] disconnected from ticket $_connectedTicketId');
-      _connectedTicketId = null;
+    _socket?.off('SOCKET_MESSAGE');
+    _socket?.disconnect();
+    _socket?.dispose();
+    _socket = null;
+    if (_connectedChatRoomId != null) {
+      debugPrint('[TicketWS] disconnected from room $_connectedChatRoomId');
+      _connectedChatRoomId = null;
     }
   }
 
   void dispose() {
     disconnect();
-    _commentController.close();
+    _messageController.close();
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
 
-  void _onMessage(dynamic raw) {
+  void _onSocketMessage(dynamic raw) {
     try {
-      final json = jsonDecode(raw as String) as Map<String, dynamic>;
-      final event = json['event'] as String?;
-      if (event == 'new_comment') {
-        final data = json['data'] as Map<String, dynamic>;
-        final comment = CommentApiModel.fromJson(data).toDomain();
-        _commentController.add(comment);
-      }
+      final json = raw is Map ? Map<String, dynamic>.from(raw) : null;
+      if (json == null) return;
+
+      // Only emit messages for the currently connected chat room.
+      final chatRoomId = json['chatRoomID'] as String?;
+      if (chatRoomId != _connectedChatRoomId) return;
+
+      final comment = CommentApiModel.fromJson(json).toDomain();
+      _messageController.add(comment);
     } catch (e) {
       debugPrint('[TicketWS] message parse error: $e');
     }
-  }
-
-  void _onError(Object error) {
-    debugPrint('[TicketWS] stream error: $error');
-  }
-
-  void _onDone() {
-    debugPrint('[TicketWS] connection closed for ticket $_connectedTicketId');
-  }
-
-  /// Builds the WebSocket URI, appending the auth token as a query parameter
-  /// because the WebSocket protocol does not support custom headers on all
-  /// platforms.
-  Uri _buildUri(String ticketId, String token) {
-    final url = Endpoints.ticketWebSocket(ticketId);
-    final uri = Uri.parse(url);
-    if (token.isEmpty) return uri;
-    return uri.replace(queryParameters: {'token': token});
   }
 }
