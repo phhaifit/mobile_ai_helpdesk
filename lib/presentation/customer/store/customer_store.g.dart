@@ -249,6 +249,26 @@ mixin _$CustomerStore on _CustomerStore, Store {
     return _$createNewTagAsyncAction.run(() => super.createNewTag(name));
   }
 
+  late final _$updateTagAsyncAction = AsyncAction(
+    '_CustomerStore.updateTag',
+    context: context,
+  );
+
+  @override
+  Future<bool> updateTag(String tagId, String name) {
+    return _$updateTagAsyncAction.run(() => super.updateTag(tagId, name));
+  }
+
+  late final _$deleteTagAsyncAction = AsyncAction(
+    '_CustomerStore.deleteTag',
+    context: context,
+  );
+
+  @override
+  Future<bool> deleteTag(String tagId) {
+    return _$deleteTagAsyncAction.run(() => super.deleteTag(tagId));
+  }
+
   late final _$addTagToCustomerAsyncAction = AsyncAction(
     '_CustomerStore.addTagToCustomer',
     context: context,

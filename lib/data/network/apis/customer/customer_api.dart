@@ -20,7 +20,7 @@ class CustomerApi {
         'limit': limit,
         'offset': offset,
         if (search != null && search.isNotEmpty) 'search': search,
-        if (tagIds != null && tagIds.isNotEmpty) 'tagIds': tagIds,
+        if (tagIds != null && tagIds.isNotEmpty) 'tagIDs': tagIds,
       },
     );
 

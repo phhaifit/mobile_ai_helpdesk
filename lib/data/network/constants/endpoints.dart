@@ -59,6 +59,10 @@ class Endpoints {
   static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
   static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
 
+  // Tag Management
+  static String get tags => '/api/v1/tags';
+  static String tag(String id) => '/api/v1/tags/$id';
+
   // ---- Tenants -------------------------------------------------------------
   static String tenant(String id) => '/api/v1/tenants/$id';
 

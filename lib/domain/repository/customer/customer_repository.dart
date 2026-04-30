@@ -26,6 +26,8 @@ abstract class CustomerRepository {
 
   Future<List<Tag>> getAvailableTags();
   Future<Tag> createTag({required String name});
+  Future<Tag> updateTag({required String id, required String name});
+  Future<void> deleteTag({required String id});
 
   // New methods based on requirements
   Future<Customer> addTagToCustomer(String customerId, String tagId);

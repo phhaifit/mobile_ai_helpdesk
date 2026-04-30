@@ -131,6 +131,7 @@ abstract class _CustomerStore with Store {
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void setSearchQuery(String query) {
     searchQuery = query;
   }
@@ -141,6 +142,7 @@ abstract class _CustomerStore with Store {
 
   @action
   void toggleTagFilter(String tagId) {
+    if (tagId.isEmpty) return;
     if (selectedTagIds.contains(tagId)) {
       selectedTagIds.remove(tagId);
     } else {
@@ -237,6 +239,39 @@ abstract class _CustomerStore with Store {
     } catch (e) {
       errorMessage = 'Failed to create tag: $e';
       return null;
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  @action
+  Future<bool> updateTag(String tagId, String name) async {
+    isSaving = true;
+    try {
+      final updatedTag = await _repository.updateTag(id: tagId, name: name);
+      final index = availableTags.indexWhere((t) => t.id == tagId);
+      if (index != -1) {
+        availableTags[index] = updatedTag;
+      }
+      return true;
+    } catch (e) {
+      errorMessage = 'Failed to update tag: $e';
+      return false;
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  @action
+  Future<bool> deleteTag(String tagId) async {
+    isSaving = true;
+    try {
+      await _repository.deleteTag(id: tagId);
+      availableTags.removeWhere((t) => t.id == tagId);
+      return true;
+    } catch (e) {
+      errorMessage = 'Failed to delete tag: $e';
+      return false;
     } finally {
       isSaving = false;
     }

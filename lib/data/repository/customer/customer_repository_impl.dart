@@ -2,11 +2,13 @@ import '../../../domain/entity/customer/customer.dart';
 import '../../../domain/entity/customer/tag.dart';
 import '../../../domain/repository/customer/customer_repository.dart';
 import '../../network/apis/customer/customer_api.dart';
+import '../../network/apis/tag/tag_api.dart';
 
 class CustomerRepositoryImpl implements CustomerRepository {
   final CustomerApi _api;
+  final TagApi _tagApi;
 
-  CustomerRepositoryImpl(this._api);
+  CustomerRepositoryImpl(this._api, this._tagApi);
 
   @override
   Future<List<Customer>> getCustomers({
@@ -83,18 +85,25 @@ class CustomerRepositoryImpl implements CustomerRepository {
 
   @override
   Future<List<Tag>> getAvailableTags() async {
-    // Backend API for getting available tags not provided, return a mock list for UI testing
-    return [
-      const Tag(id: 'tag_vip', name: 'VIP'),
-      const Tag(id: 'tag_new', name: 'New'),
-      const Tag(id: 'tag_lead', name: 'Lead'),
-    ];
+    final dtos = await _tagApi.getTags();
+    return dtos.map((e) => e.toEntity()).toList();
   }
 
   @override
   Future<Tag> createTag({required String name}) async {
-    // Backend API for creating new tags not provided
-    return Tag(id: DateTime.now().millisecondsSinceEpoch.toString(), name: name);
+    final dto = await _tagApi.createTag(name);
+    return dto.toEntity();
+  }
+
+  @override
+  Future<Tag> updateTag({required String id, required String name}) async {
+    final dto = await _tagApi.updateTag(id, name);
+    return dto.toEntity();
+  }
+
+  @override
+  Future<void> deleteTag({required String id}) async {
+    await _tagApi.deleteTag(id);
   }
 
   @override

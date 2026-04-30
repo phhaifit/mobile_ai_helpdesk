@@ -13,6 +13,7 @@ import '/core/monitoring/sentry/sentry_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
@@ -119,6 +120,7 @@ class NetworkModule {
       StackAuthApi(getIt<DioClient>(instanceName: authDioName)),
     );
     getIt.registerSingleton<CustomerApi>(CustomerApi(getIt<DioClient>()));
+    getIt.registerSingleton<TagApi>(TagApi(getIt<DioClient>()));
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );
