@@ -4,12 +4,10 @@ import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 
 class MessengerSettingsUpdate {
   final bool autoReply;
-  final String language;
   final String businessHours;
 
   const MessengerSettingsUpdate({
     required this.autoReply,
-    required this.language,
     required this.businessHours,
   });
 }

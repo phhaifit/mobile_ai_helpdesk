@@ -114,10 +114,7 @@ void main() {
           oauthState: OAuthState.unverified,
           pageName: 'Mock Page',
           lastSyncAt: DateTime.now(),
-          syncedCustomers: 0,
-          failedCustomers: 0,
           autoReply: false,
-          language: 'vi',
           businessHours: '',
         ),
         zalo: ZaloIntegrationState(

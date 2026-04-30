@@ -14,9 +14,10 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   @override
   List<KnowledgeSource> get filteredSources =>
       (_$filteredSourcesComputed ??= Computed<List<KnowledgeSource>>(
-        () => super.filteredSources,
-        name: '_KnowledgeStore.filteredSources',
-      )).value;
+            () => super.filteredSources,
+            name: '_KnowledgeStore.filteredSources',
+          ))
+          .value;
 
   late final _$sourcesAtom = Atom(
     name: '_KnowledgeStore.sources',
