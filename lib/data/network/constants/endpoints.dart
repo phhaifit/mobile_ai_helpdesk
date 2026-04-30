@@ -57,5 +57,26 @@ class Endpoints {
   static String sendZaloMessage() => '/api/v1/zalo/messages/send';
   static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
   static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
+
+  // Tag Management
+  static String get tags => '/api/v1/tags';
+  static String tag(String id) => '/api/v1/tags/$id';
+
+  // ---- Tenants -------------------------------------------------------------
+  static String tenant(String id) => '/api/v1/tenants/$id';
+
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // Customer Management
+  static String customerList() => '/api/customer';
+  static String customerDetail(String id) => '/api/customer/$id';
+  static String checkValidEmail() => '/api/customer/check-valid-email';
+  static String createCustomer() => '/api/customer';
+  static String updateCustomer(String id) => '/api/customer/update-customer/$id';
+  static String addCustomerTag(String id) => '/api/customer/$id/tags';
+  static String removeCustomerTag(String customerId, String tagId) => '/api/customer/$customerId/tags/$tagId';
+  static String mergeCustomers() => '/api/customer/merge';
+  static String addCustomerContact(String id) => '/api/customer/add-customer-contact/$id';
+  static String deleteCustomerContact() => '/api/customer/delete-customer-contact';
+  static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 }

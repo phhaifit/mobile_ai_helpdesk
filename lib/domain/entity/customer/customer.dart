@@ -11,6 +11,11 @@ class Customer {
   final DateTime? lastContactedAt;
   final int totalTickets;
   final List<Tag> tags;
+  final String? avatarUrl;
+  final String? tenantId;
+  final String? tenantName;
+  final DateTime? updatedAt;
+  final List<String> groups;
 
   const Customer({
     required this.id,
@@ -23,6 +28,11 @@ class Customer {
     this.lastContactedAt,
     this.totalTickets = 0,
     this.tags = const [],
+    this.avatarUrl,
+    this.tenantId,
+    this.tenantName,
+    this.updatedAt,
+    this.groups = const [],
   });
 
   Customer copyWith({
@@ -36,6 +46,11 @@ class Customer {
     DateTime? lastContactedAt,
     int? totalTickets,
     List<Tag>? tags,
+    String? avatarUrl,
+    String? tenantId,
+    String? tenantName,
+    DateTime? updatedAt,
+    List<String>? groups,
   }) {
     return Customer(
       id: id ?? this.id,
@@ -48,6 +63,11 @@ class Customer {
       lastContactedAt: lastContactedAt ?? this.lastContactedAt,
       totalTickets: totalTickets ?? this.totalTickets,
       tags: tags ?? this.tags,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      tenantId: tenantId ?? this.tenantId,
+      tenantName: tenantName ?? this.tenantName,
+      updatedAt: updatedAt ?? this.updatedAt,
+      groups: groups ?? this.groups,
     );
   }
 }
