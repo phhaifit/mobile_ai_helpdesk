@@ -76,7 +76,7 @@ mixin _$PostStore on _PostStore, Store {
   );
 
   @override
-  Future<void> getPosts() {
+  Future<dynamic> getPosts() {
     return _$getPostsAsyncAction.run(() => super.getPosts());
   }
 

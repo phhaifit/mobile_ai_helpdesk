@@ -15,10 +15,9 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
   invitedByMemberId: json['invitedByMemberId'] as String,
   createdAt: DateTime.parse(json['createdAt'] as String),
   expiresAt: DateTime.parse(json['expiresAt'] as String),
-  acceptedAt:
-      json['acceptedAt'] == null
-          ? null
-          : DateTime.parse(json['acceptedAt'] as String),
+  acceptedAt: json['acceptedAt'] == null
+      ? null
+      : DateTime.parse(json['acceptedAt'] as String),
 );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>

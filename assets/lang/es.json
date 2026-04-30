@@ -87,5 +87,8 @@
   "playground_session_label": "Sesión",
   "common_try_again": "Intentar de nuevo",
   "common_error_loading": "Error al cargar datos.",
+  "omnichannel_messenger_dev_tools_title": "Herramientas de desarrollo",
+  "omnichannel_messenger_dev_tools_subtitle": "Pega el codigo auth copiado desde la URL callback de produccion.",
+  "omnichannel_messenger_dev_tools_submit_code_button": "Enviar codigo",
   "playground_ai_typing": "La IA está escribiendo..."
 }

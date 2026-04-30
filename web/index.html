@@ -32,6 +32,19 @@
 
   <title>ai_helpdesk</title>
   <link rel="manifest" href="manifest.json">
+
+  <script>
+    // Messenger OAuth callback bridge: Facebook redirects to /messenger-oauth?code=...
+    // Flutter web uses hash routing by default, so we forward the params to the
+    // hash-based route /#/messenger-oauth?code=... which the route handler can parse.
+    (function () {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      if (path === '/messenger-oauth' && search && search.indexOf('code=') !== -1) {
+        window.location.replace(window.location.origin + '/#/messenger-oauth' + search);
+      }
+    })();
+  </script>
 </head>
 
 <body>

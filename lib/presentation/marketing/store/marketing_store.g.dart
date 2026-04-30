@@ -12,48 +12,40 @@ mixin _$MarketingStore on _MarketingStore, Store {
   Computed<bool>? _$isLoadingOverviewComputed;
 
   @override
-  bool get isLoadingOverview =>
-      (_$isLoadingOverviewComputed ??= Computed<bool>(
-            () => super.isLoadingOverview,
-            name: '_MarketingStore.isLoadingOverview',
-          ))
-          .value;
+  bool get isLoadingOverview => (_$isLoadingOverviewComputed ??= Computed<bool>(
+    () => super.isLoadingOverview,
+    name: '_MarketingStore.isLoadingOverview',
+  )).value;
   Computed<bool>? _$isSubmittingComputed;
 
   @override
-  bool get isSubmitting =>
-      (_$isSubmittingComputed ??= Computed<bool>(
-            () => super.isSubmitting,
-            name: '_MarketingStore.isSubmitting',
-          ))
-          .value;
+  bool get isSubmitting => (_$isSubmittingComputed ??= Computed<bool>(
+    () => super.isSubmitting,
+    name: '_MarketingStore.isSubmitting',
+  )).value;
   Computed<List<MarketingTemplate>>? _$filteredTemplatesComputed;
 
   @override
   List<MarketingTemplate> get filteredTemplates =>
       (_$filteredTemplatesComputed ??= Computed<List<MarketingTemplate>>(
-            () => super.filteredTemplates,
-            name: '_MarketingStore.filteredTemplates',
-          ))
-          .value;
+        () => super.filteredTemplates,
+        name: '_MarketingStore.filteredTemplates',
+      )).value;
   Computed<int>? _$runningCampaignCountComputed;
 
   @override
   int get runningCampaignCount =>
       (_$runningCampaignCountComputed ??= Computed<int>(
-            () => super.runningCampaignCount,
-            name: '_MarketingStore.runningCampaignCount',
-          ))
-          .value;
+        () => super.runningCampaignCount,
+        name: '_MarketingStore.runningCampaignCount',
+      )).value;
   Computed<int>? _$totalSentCountComputed;
 
   @override
-  int get totalSentCount =>
-      (_$totalSentCountComputed ??= Computed<int>(
-            () => super.totalSentCount,
-            name: '_MarketingStore.totalSentCount',
-          ))
-          .value;
+  int get totalSentCount => (_$totalSentCountComputed ??= Computed<int>(
+    () => super.totalSentCount,
+    name: '_MarketingStore.totalSentCount',
+  )).value;
 
   late final _$fetchOverviewFutureAtom = Atom(
     name: '_MarketingStore.fetchOverviewFuture',

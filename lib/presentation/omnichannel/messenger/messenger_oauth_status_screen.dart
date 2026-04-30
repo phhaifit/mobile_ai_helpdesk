@@ -1,8 +1,12 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_config.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_launcher.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_ui_helpers.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -17,22 +21,18 @@ class MessengerOauthStatusScreen extends StatefulWidget {
 class _MessengerOauthStatusScreenState
     extends State<MessengerOauthStatusScreen> {
   late final OmnichannelStore _store;
-  late final TextEditingController _authCodeController;
-  int _currentStep = 0;
+  final TextEditingController _devAuthCodeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _store = getIt<OmnichannelStore>();
-    _authCodeController = TextEditingController();
-    _authCodeController.addListener(_handleAuthCodeChanged);
     _store.fetchOverview();
   }
 
   @override
   void dispose() {
-    _authCodeController.removeListener(_handleAuthCodeChanged);
-    _authCodeController.dispose();
+    _devAuthCodeController.dispose();
     super.dispose();
   }
 
@@ -61,9 +61,6 @@ class _MessengerOauthStatusScreenState
           final bool isConnected =
               messenger.connectionStatus ==
               IntegrationConnectionStatus.connected;
-          final bool hasAuthCode = _authCodeController.text.trim().isNotEmpty;
-          final int currentStep =
-              isConnected ? 2 : (_currentStep == 2 ? 1 : _currentStep);
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -92,20 +89,6 @@ class _MessengerOauthStatusScreenState
               ),
               const SizedBox(height: 12),
               if (!isConnected) ...[
-                TextField(
-                  controller: _authCodeController,
-                  enabled: !_store.isLoading,
-                  decoration: InputDecoration(
-                    labelText: l.translate(
-                      'omnichannel_messenger_auth_code_label',
-                    ),
-                    hintText: l.translate(
-                      'omnichannel_messenger_auth_code_hint',
-                    ),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 8),
                 Text(
                   l.translate('omnichannel_messenger_oauth_help'),
                   style: Theme.of(
@@ -116,7 +99,7 @@ class _MessengerOauthStatusScreenState
               ],
               Stepper(
                 physics: const NeverScrollableScrollPhysics(),
-                currentStep: currentStep,
+                currentStep: isConnected ? 2 : 0,
                 controlsBuilder: (_, _) => const SizedBox.shrink(),
                 steps: [
                   Step(
@@ -129,12 +112,12 @@ class _MessengerOauthStatusScreenState
                       l.translate('omnichannel_oauth_step_permission'),
                     ),
                     content: const SizedBox.shrink(),
-                    isActive: isConnected || _currentStep >= 1,
+                    isActive: isConnected,
                   ),
                   Step(
                     title: Text(l.translate('omnichannel_oauth_step_done')),
                     content: const SizedBox.shrink(),
-                    isActive: isConnected || _currentStep >= 2,
+                    isActive: isConnected,
                   ),
                 ],
               ),
@@ -143,10 +126,7 @@ class _MessengerOauthStatusScreenState
                 onPressed:
                     _store.isLoading
                         ? null
-                        : () => _handlePrimaryAction(
-                          isConnected: isConnected,
-                          hasAuthCode: hasAuthCode,
-                        ),
+                        : () => _handlePrimaryAction(isConnected: isConnected),
                 icon: Icon(isConnected ? Icons.link_off : Icons.verified_user),
                 label: Text(
                   l.translate(
@@ -156,6 +136,48 @@ class _MessengerOauthStatusScreenState
                   ),
                 ),
               ),
+              if (!EnvConfig.instance.isProd) ...[
+                const SizedBox(height: 12),
+                ExpansionTile(
+                  title: Text(
+                    l.translate('omnichannel_messenger_dev_tools_title'),
+                  ),
+                  subtitle: Text(
+                    l.translate('omnichannel_messenger_dev_tools_subtitle'),
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  children: [
+                    TextField(
+                      controller: _devAuthCodeController,
+                      maxLines: 2,
+                      minLines: 1,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: l.translate(
+                          'omnichannel_messenger_auth_code_label',
+                        ),
+                        hintText: l.translate(
+                          'omnichannel_messenger_auth_code_hint',
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed:
+                            _store.isLoading ? null : _handleDevAuthCodeSubmit,
+                        child: Text(
+                          l.translate(
+                            'omnichannel_messenger_dev_tools_submit_code_button',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           );
         },
@@ -185,54 +207,61 @@ class _MessengerOauthStatusScreenState
     });
   }
 
-  Future<void> _handlePrimaryAction({
-    required bool isConnected,
-    required bool hasAuthCode,
-  }) async {
+  Future<void> _handlePrimaryAction({required bool isConnected}) async {
     if (isConnected) {
       await _store.disconnectMessenger();
-      if (mounted) {
-        setState(() {
-          _currentStep = 0;
-        });
-      }
       return;
     }
 
-    if (!hasAuthCode) {
-      _store.pendingMessengerAuthCode = null;
-      await _store.connectMessenger();
+    if (!kIsWeb) {
+      final l = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.translate('omnichannel_messenger_connect_failed')),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
-    if (mounted) {
-      setState(() {
-        _currentStep = 1;
-      });
-    }
-
-    _store.pendingMessengerAuthCode = _authCodeController.text;
-    await _store.connectMessenger();
-
-    if (mounted && _store.actionWasSuccess) {
-      setState(() {
-        _currentStep = 2;
-      });
-    }
+    final String redirectUri = _resolveOauthRedirectUri();
+    launchMessengerOauth(
+      MessengerOauthConfig.buildAuthorizeUrl(redirectUri: redirectUri),
+    );
   }
 
-  void _handleAuthCodeChanged() {
+  String _resolveOauthRedirectUri() {
+    if (EnvConfig.instance.isDev) {
+      return MessengerOauthConfig.prodRedirectUri;
+    }
+
+    return '${currentOrigin()}${MessengerOauthConfig.redirectPath}';
+  }
+
+  Future<void> _handleDevAuthCodeSubmit() async {
+    final String authCode = _devAuthCodeController.text.trim();
+    if (authCode.isEmpty) {
+      final l = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l.translate('omnichannel_messenger_auth_code_required'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _store.pendingMessengerAuthCode = authCode;
+    await _store.connectMessenger();
+
     if (!mounted) {
       return;
     }
 
-    if (_currentStep > 0) {
-      setState(() {
-        _currentStep = 0;
-      });
-      return;
+    if (_store.actionWasSuccess) {
+      _devAuthCodeController.clear();
     }
-
-    setState(() {});
   }
 }

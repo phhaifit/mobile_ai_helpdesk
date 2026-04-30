@@ -44,6 +44,7 @@ class Endpoints {
   static String updateMessengerPageConfig() =>
       '/api/messenger/update-page-config';
   static String messengerPages() => '/api/messenger/pages';
+  static String connectMessengerPage() => '/api/messenger/connect-page';
   static String deleteMessengerPage(String channelId) =>
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';

@@ -87,5 +87,8 @@
   "playground_session_label": "Session",
   "common_try_again": "Prøv igen",
   "common_error_loading": "Kunne ikke indlæse data.",
+  "omnichannel_messenger_dev_tools_title": "Udviklerværktøjer",
+  "omnichannel_messenger_dev_tools_subtitle": "Indsæt auth-koden kopieret fra production callback-URL.",
+  "omnichannel_messenger_dev_tools_submit_code_button": "Send kode",
   "playground_ai_typing": "AI skriver..."
 }

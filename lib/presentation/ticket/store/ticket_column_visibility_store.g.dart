@@ -14,10 +14,9 @@ mixin _$TicketColumnVisibilityStore on _TicketColumnVisibilityStoreBase, Store {
   @override
   List<TicketColumn> get visibleColumns =>
       (_$visibleColumnsComputed ??= Computed<List<TicketColumn>>(
-            () => super.visibleColumns,
-            name: '_TicketColumnVisibilityStoreBase.visibleColumns',
-          ))
-          .value;
+        () => super.visibleColumns,
+        name: '_TicketColumnVisibilityStoreBase.visibleColumns',
+      )).value;
 
   late final _$showTitleAtom = Atom(
     name: '_TicketColumnVisibilityStoreBase.showTitle',

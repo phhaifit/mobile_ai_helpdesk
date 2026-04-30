@@ -14,10 +14,9 @@ mixin _$PromptStore on _PromptStore, Store {
   @override
   List<Prompt> get filteredPrompts =>
       (_$filteredPromptsComputed ??= Computed<List<Prompt>>(
-            () => super.filteredPrompts,
-            name: '_PromptStore.filteredPrompts',
-          ))
-          .value;
+        () => super.filteredPrompts,
+        name: '_PromptStore.filteredPrompts',
+      )).value;
 
   late final _$promptsAtom = Atom(
     name: '_PromptStore.prompts',

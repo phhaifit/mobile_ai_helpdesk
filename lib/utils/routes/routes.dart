@@ -26,6 +26,7 @@ import 'package:ai_helpdesk/presentation/monetization/upgrade_confirmation_scree
 import 'package:ai_helpdesk/presentation/monetization/upgrade_payment_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_customer_sync_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_dashboard_screen.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_callback_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_oauth_status_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/messenger/messenger_settings_screen.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_hub_screen.dart';
@@ -69,6 +70,7 @@ class Routes {
   static const String messengerDashboard = '/omnichannel/messenger/dashboard';
   static const String messengerOauthStatus =
       '/omnichannel/messenger/oauth-status';
+  static const String messengerOauthCallback = '/messenger-oauth';
   static const String messengerCustomerSync =
       '/omnichannel/messenger/customer-sync';
   static const String messengerSettings = '/omnichannel/messenger/settings';
@@ -196,6 +198,18 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const MessengerOauthStatusScreen(),
+        );
+      case messengerOauthCallback:
+        final Map<String, String> queryParams =
+            Uri.parse(routePath).queryParameters;
+        return MaterialPageRoute(
+          settings: settings,
+          builder:
+              (_) => MessengerOauthCallbackScreen(
+                code: queryParams['code'],
+                state: queryParams['state'],
+                error: queryParams['error'],
+              ),
         );
       case messengerCustomerSync:
         return MaterialPageRoute(
