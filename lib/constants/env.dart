@@ -19,7 +19,7 @@ enum EnvConfig {
     enableLogging: true,
     enableAnalytics: true,
     enableAnalyticsDebug: true,
-    enableRealOmnichannel: false,
+    enableRealOmnichannel: true,
   ),
   staging._(
     environment: Environment.staging,

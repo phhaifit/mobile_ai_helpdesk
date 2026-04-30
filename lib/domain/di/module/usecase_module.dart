@@ -20,6 +20,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -275,6 +276,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
       UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<UploadLocalFileUseCase>(
+      UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

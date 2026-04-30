@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
@@ -5,6 +7,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'knowledge_store.g.dart';
@@ -18,6 +21,7 @@ abstract class _KnowledgeStore with Store {
   final ReindexSourceUseCase _reindexSource;
   final TestDbConnectionUseCase _testDbConnection;
   final UpdateSourceCrawlIntervalUseCase _updateSourceCrawlInterval;
+  final UploadLocalFileUseCase _uploadLocalFile;
 
   _KnowledgeStore(
     this._getSources,
@@ -26,6 +30,7 @@ abstract class _KnowledgeStore with Store {
     this._reindexSource,
     this._testDbConnection,
     this._updateSourceCrawlInterval,
+    this._uploadLocalFile,
   );
 
   // ---------------------------------------------------------------------------
@@ -41,6 +46,15 @@ abstract class _KnowledgeStore with Store {
 
   @observable
   bool isLoading = false;
+
+  @observable
+  bool isUploading = false;
+
+  @observable
+  bool uploadSuccess = false;
+
+  @observable
+  String? uploadError;
 
   @observable
   bool isTesting = false;
@@ -173,6 +187,28 @@ abstract class _KnowledgeStore with Store {
     } finally {
       isTesting = false;
     }
+  }
+
+  @action
+  Future<void> uploadFile(File file) async {
+    isUploading = true;
+    uploadSuccess = false;
+    uploadError = null;
+    try {
+      final source = await _uploadLocalFile.call(params: file);
+      sources.insert(0, source);
+      uploadSuccess = true;
+    } catch (e) {
+      uploadError = e.toString();
+    } finally {
+      isUploading = false;
+    }
+  }
+
+  @action
+  void resetUpload() {
+    uploadSuccess = false;
+    uploadError = null;
   }
 
   @action

@@ -14,9 +14,10 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   @override
   List<KnowledgeSource> get filteredSources =>
       (_$filteredSourcesComputed ??= Computed<List<KnowledgeSource>>(
-        () => super.filteredSources,
-        name: '_KnowledgeStore.filteredSources',
-      )).value;
+            () => super.filteredSources,
+            name: '_KnowledgeStore.filteredSources',
+          ))
+          .value;
 
   late final _$sourcesAtom = Atom(
     name: '_KnowledgeStore.sources',
@@ -69,6 +70,60 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   set isLoading(bool value) {
     _$isLoadingAtom.reportWrite(value, super.isLoading, () {
       super.isLoading = value;
+    });
+  }
+
+  late final _$isUploadingAtom = Atom(
+    name: '_KnowledgeStore.isUploading',
+    context: context,
+  );
+
+  @override
+  bool get isUploading {
+    _$isUploadingAtom.reportRead();
+    return super.isUploading;
+  }
+
+  @override
+  set isUploading(bool value) {
+    _$isUploadingAtom.reportWrite(value, super.isUploading, () {
+      super.isUploading = value;
+    });
+  }
+
+  late final _$uploadSuccessAtom = Atom(
+    name: '_KnowledgeStore.uploadSuccess',
+    context: context,
+  );
+
+  @override
+  bool get uploadSuccess {
+    _$uploadSuccessAtom.reportRead();
+    return super.uploadSuccess;
+  }
+
+  @override
+  set uploadSuccess(bool value) {
+    _$uploadSuccessAtom.reportWrite(value, super.uploadSuccess, () {
+      super.uploadSuccess = value;
+    });
+  }
+
+  late final _$uploadErrorAtom = Atom(
+    name: '_KnowledgeStore.uploadError',
+    context: context,
+  );
+
+  @override
+  String? get uploadError {
+    _$uploadErrorAtom.reportRead();
+    return super.uploadError;
+  }
+
+  @override
+  set uploadError(String? value) {
+    _$uploadErrorAtom.reportWrite(value, super.uploadError, () {
+      super.uploadError = value;
     });
   }
 
@@ -195,6 +250,16 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return _$testConnectionAsyncAction.run(() => super.testConnection(config));
   }
 
+  late final _$uploadFileAsyncAction = AsyncAction(
+    '_KnowledgeStore.uploadFile',
+    context: context,
+  );
+
+  @override
+  Future<void> uploadFile(File file) {
+    return _$uploadFileAsyncAction.run(() => super.uploadFile(file));
+  }
+
   late final _$_KnowledgeStoreActionController = ActionController(
     name: '_KnowledgeStore',
     context: context,
@@ -207,6 +272,18 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     );
     try {
       return super.filterByCategory(category);
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void resetUpload() {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.resetUpload',
+    );
+    try {
+      return super.resetUpload();
     } finally {
       _$_KnowledgeStoreActionController.endAction(_$actionInfo);
     }
@@ -230,6 +307,9 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
 sources: ${sources},
 selectedCategory: ${selectedCategory},
 isLoading: ${isLoading},
+isUploading: ${isUploading},
+uploadSuccess: ${uploadSuccess},
+uploadError: ${uploadError},
 isTesting: ${isTesting},
 connectionTestSuccess: ${connectionTestSuccess},
 errorMessage: ${errorMessage},

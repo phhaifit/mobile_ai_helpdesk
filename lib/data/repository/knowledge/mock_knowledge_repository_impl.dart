@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:path/path.dart' as p;
 
 class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
   final List<KnowledgeSource> _sources = [
@@ -56,6 +58,22 @@ class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
       },
     ),
   ];
+
+  @override
+  Future<KnowledgeSource> uploadLocalFile(File file) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    final source = KnowledgeSource(
+      id: 'KS-${(_sources.length + 1).toString().padLeft(3, '0')}',
+      name: p.basename(file.path),
+      type: KnowledgeSourceType.localFile,
+      status: KnowledgeSourceStatus.active,
+      lastSyncAt: DateTime.now(),
+      crawlInterval: CrawlInterval.manual,
+      config: <String, dynamic>{'fileName': p.basename(file.path)},
+    );
+    _sources.add(source);
+    return source;
+  }
 
   @override
   Future<List<KnowledgeSource>> getSources() async {

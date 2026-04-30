@@ -77,21 +77,27 @@ class MessengerPageDto {
   }
 }
 
-@JsonSerializable()
 class ZaloQrDto {
   final String code;
-  final String qrUrl;
+  final String token;
+  final String? image;
 
   const ZaloQrDto({
     required this.code,
-    required this.qrUrl,
+    required this.token,
+    this.image,
   });
 
-  factory ZaloQrDto.fromJson(Map<String, dynamic> json) => _$ZaloQrDtoFromJson(json);
+  factory ZaloQrDto.fromJson(Map<String, dynamic> json) => ZaloQrDto(
+    code: json['code'] as String,
+    token: json['token'] as String,
+    image: json['image'] as String?,
+  );
 
   ZaloQr toEntity() => ZaloQr(
     code: code,
-    url: qrUrl,
+    url: token,
+    image: image,
   );
 }
 

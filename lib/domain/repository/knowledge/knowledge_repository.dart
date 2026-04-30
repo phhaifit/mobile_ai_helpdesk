@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 
 abstract class KnowledgeRepository {
   Future<List<KnowledgeSource>> getSources();
+
+  Future<KnowledgeSource> uploadLocalFile(File file);
 
   Future<KnowledgeSource> addSource(KnowledgeSource source);
 

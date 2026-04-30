@@ -49,7 +49,7 @@ class Endpoints {
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';
   // Omnichannel: Zalo endpoints
-  static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
+  static String zaloGenerateQr() => '/api/v1/zalo/qr';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
   static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
   static String zaloConnect() => '/api/v1/zalo/connect';
@@ -59,4 +59,18 @@ class Endpoints {
   static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
   static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // Knowledge Base endpoints
+  static String knowledgeImportLocalFile(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/local-file';
+  static String knowledgePollStatus() =>
+      '/api/v1/knowledges/sources/poll-status';
+
+  // AI Agent endpoints (real)
+  static String aiAgentByTenant(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId';
+  static String aiAgentById(String agentId) => '/api/v1/ai-agents/$agentId';
+
+  // Account
+  static String accountTenants() => '/api/account/tenants';
 }
