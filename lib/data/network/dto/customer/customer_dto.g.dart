@@ -22,7 +22,7 @@ CustomerDto _$CustomerDtoFromJson(Map<String, dynamic> json) => CustomerDto(
       json['deletedAt'] == null
           ? null
           : DateTime.parse(json['deletedAt'] as String),
-  tenantId: json['tenantID'] as String?,
+  tenantID: json['tenantID'] as String?,
   contacts:
       (json['contactInfo'] as List<dynamic>?)
           ?.map((e) => CustomerContactDto.fromJson(e as Map<String, dynamic>))
@@ -51,7 +51,7 @@ Map<String, dynamic> _$CustomerDtoToJson(CustomerDto instance) =>
       'contactInfo': instance.contacts,
       'tags': instance.tags,
       'CustomerGroups': instance.groups,
-      'tenantID': instance.tenantId,
+      'tenantID': instance.tenantID,
     };
 
 CustomerContactDto _$CustomerContactDtoFromJson(Map<String, dynamic> json) =>
@@ -82,15 +82,15 @@ Map<String, dynamic> _$CustomerContactDtoToJson(CustomerContactDto instance) =>
 
 CustomerTagDto _$CustomerTagDtoFromJson(Map<String, dynamic> json) =>
     CustomerTagDto(
-      id: json['tagID'] as String?,
-      name: json['tagName'] as String?,
+      tagID: json['tagID'] as String?,
+      tagName: json['tagName'] as String?,
       color: json['color'] as String?,
     );
 
 Map<String, dynamic> _$CustomerTagDtoToJson(CustomerTagDto instance) =>
     <String, dynamic>{
-      'tagID': instance.id,
-      'tagName': instance.name,
+      'tagID': instance.tagID,
+      'tagName': instance.tagName,
       'color': instance.color,
     };
 

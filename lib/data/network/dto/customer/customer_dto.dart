@@ -18,8 +18,7 @@ class CustomerDto {
   final List<CustomerTagDto> tags;
   @JsonKey(name: 'CustomerGroups', defaultValue: [])
   final List<CustomerGroupDto> groups;
-  @JsonKey(name: 'tenantID')
-  final String? tenantId;
+  final String? tenantID;
 
   const CustomerDto({
     this.customerID,
@@ -28,7 +27,7 @@ class CustomerDto {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    this.tenantId,
+    this.tenantID,
     this.contacts = const [],
     this.tags = const [],
     this.groups = const [],
@@ -73,9 +72,9 @@ class CustomerDto {
       zalos: z.toSet().toList(),
       messengers: m.toSet().toList(),
       createdAt: createdAt ?? DateTime.now(),
-      tags: tags.map((t) => Tag(id: t.id ?? '', name: t.name ?? '')).toList(),
+      tags: tags.map((t) => Tag(id: t.tagID ?? '', name: t.tagName ?? '')).toList(),
       avatarUrl: foundAvatar,
-      tenantId: tenantId,
+      tenantId: tenantID,
       updatedAt: updatedAt,
       groups: groups.map((g) => g.name ?? '').where((n) => n.isNotEmpty).toList(),
     );
@@ -116,13 +115,11 @@ class CustomerContactDto {
 
 @JsonSerializable()
 class CustomerTagDto {
-  @JsonKey(name: 'tagID')
-  final String? id;
-  @JsonKey(name: 'tagName')
-  final String? name;
+  final String? tagID;
+  final String? tagName;
   final String? color;
 
-  const CustomerTagDto({this.id, this.name, this.color});
+  const CustomerTagDto({this.tagID, this.tagName, this.color});
 
   factory CustomerTagDto.fromJson(Map<String, dynamic> json) =>
       _$CustomerTagDtoFromJson(json);
