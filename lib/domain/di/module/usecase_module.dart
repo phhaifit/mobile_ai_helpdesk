@@ -1,26 +1,23 @@
 import 'dart:async';
 
-import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/refresh_session_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/change_password_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/get_current_user_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/login_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/logout_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/register_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/reset_password_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -36,12 +33,10 @@ import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart'
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_from_qr_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
@@ -70,33 +65,45 @@ import '/domain/repository/playground/playground_repository.dart';
 import '/domain/usecase/playground/create_session_usecase.dart';
 import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
+// Media
+import '/domain/repository/media/media_repository.dart';
+import '/domain/usecase/media/upload_file_usecase.dart';
+// Jarvis Agent
+import '/domain/repository/jarvis/jarvis_repository.dart';
+import '/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import '/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+// Messenger
+import '/domain/repository/messenger/messenger_repository.dart';
+import '/domain/usecase/messenger/connect_messenger_page_usecase.dart';
+import '/domain/usecase/messenger/disconnect_messenger_page_usecase.dart';
+import '/domain/usecase/messenger/get_messenger_pages_usecase.dart';
 import '../../../di/service_locator.dart';
 
 class UseCaseModule {
   static Future<void> configureUseCaseModuleInjection() async {
-    // Auth Use Cases (Stack Auth OTP flow):------------------------------------
-    getIt.registerSingleton<SendOtpUseCase>(
-      SendOtpUseCase(getIt<AuthRepository>()),
-    );
-    getIt.registerSingleton<VerifyOtpUseCase>(
-      VerifyOtpUseCase(getIt<AuthRepository>()),
-    );
-    getIt.registerSingleton<RefreshSessionUseCase>(
-      RefreshSessionUseCase(getIt<AuthRepository>()),
-    );
-    getIt.registerSingleton<SignOutUseCase>(
-      SignOutUseCase(getIt<AuthRepository>()),
+    // Auth Use Cases:-----------------------------------------------------------
+    getIt.registerSingleton<LoginUseCase>(
+      LoginUseCase(getIt<AuthRepository>()),
     );
 
-    // Account Use Cases:-------------------------------------------------------
-    getIt.registerSingleton<GetCurrentAccountUseCase>(
-      GetCurrentAccountUseCase(getIt<AccountRepository>()),
+    getIt.registerSingleton<RegisterUseCase>(
+      RegisterUseCase(getIt<AuthRepository>()),
     );
-    getIt.registerSingleton<UpdateAccountUseCase>(
-      UpdateAccountUseCase(getIt<AccountRepository>()),
+
+    getIt.registerSingleton<LogoutUseCase>(
+      LogoutUseCase(getIt<AuthRepository>()),
     );
-    getIt.registerSingleton<UploadAvatarUseCase>(
-      UploadAvatarUseCase(getIt<AccountRepository>()),
+
+    getIt.registerSingleton<GetCurrentUserUseCase>(
+      GetCurrentUserUseCase(getIt<AuthRepository>()),
+    );
+
+    getIt.registerSingleton<ChangePasswordUseCase>(
+      ChangePasswordUseCase(getIt<AuthRepository>()),
+    );
+
+    getIt.registerSingleton<ResetPasswordUseCase>(
+      ResetPasswordUseCase(getIt<AuthRepository>()),
     );
 
     // Ticket Use Cases:--------------------------------------------------------
@@ -164,14 +171,8 @@ class UseCaseModule {
     getIt.registerSingleton<UpdateMessengerSettingsUseCase>(
       UpdateMessengerSettingsUseCase(getIt<OmnichannelRepository>()),
     );
-    getIt.registerSingleton<GenerateZaloQrUseCase>(
-      GenerateZaloQrUseCase(getIt<OmnichannelRepository>()),
-    );
-    getIt.registerSingleton<GetZaloQrStatusUseCase>(
-      GetZaloQrStatusUseCase(getIt<OmnichannelRepository>()),
-    );
-    getIt.registerSingleton<ConnectZaloUseCase>(
-      ConnectZaloUseCase(getIt<OmnichannelRepository>()),
+    getIt.registerSingleton<ConnectZaloFromQrUseCase>(
+      ConnectZaloFromQrUseCase(getIt<OmnichannelRepository>()),
     );
     getIt.registerSingleton<DisconnectZaloUseCase>(
       DisconnectZaloUseCase(getIt<OmnichannelRepository>()),
@@ -277,8 +278,29 @@ class UseCaseModule {
     getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
       UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
     );
-    getIt.registerSingleton<UploadLocalFileUseCase>(
-      UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
+
+    // --- Media Use Cases ---
+    getIt.registerSingleton<UploadFileUseCase>(
+      UploadFileUseCase(getIt<MediaRepository>()),
+    );
+
+    // --- Jarvis Agent Use Cases ---
+    getIt.registerSingleton<SendJarvisMessageUseCase>(
+      SendJarvisMessageUseCase(getIt<JarvisRepository>()),
+    );
+    getIt.registerSingleton<ConfirmHitlUseCase>(
+      ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
+    // --- Messenger Use Cases ---
+    getIt.registerSingleton<GetMessengerPagesUseCase>(
+      GetMessengerPagesUseCase(getIt<MessengerRepository>()),
+    );
+    getIt.registerSingleton<ConnectMessengerPageUseCase>(
+      ConnectMessengerPageUseCase(getIt<MessengerRepository>()),
+    );
+    getIt.registerSingleton<DisconnectMessengerPageUseCase>(
+      DisconnectMessengerPageUseCase(getIt<MessengerRepository>()),
     );
   }
 }

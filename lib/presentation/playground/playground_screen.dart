@@ -1,10 +1,14 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '/constants/dimens.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '/di/service_locator.dart';
 import '/domain/entity/ai_agent/ai_agent.dart';
 import '/domain/entity/playground/playground_session.dart';
+import '/domain/usecase/media/upload_file_usecase.dart';
+import '/presentation/jarvis/store/jarvis_store.dart';
 import '/presentation/playground/store/playground_store.dart';
 import '/presentation/playground/widgets/context_selector.dart';
 import '/presentation/playground/widgets/draft_response_panel.dart';
@@ -40,12 +44,14 @@ class PlaygroundScreen extends StatefulWidget {
 
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
   late final PlaygroundStore _store;
+  late final JarvisStore _jarvisStore;
+  late final SharedPreferenceHelper _prefs;
   final ScrollController _scrollCtrl = ScrollController();
   final TextEditingController _inputCtrl = TextEditingController();
   PlaygroundContextType _contextType = PlaygroundContextType.normal;
   bool _showDrafts = false;
   List<String> _drafts = [];
-  List<String> _pendingAttachments = [];
+  List<PlatformFile> _pendingAttachments = [];
 
   static const _suggestions = [
     'Tôi muốn đổi trả sản phẩm',
@@ -58,6 +64,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   void initState() {
     super.initState();
     _store = getIt<PlaygroundStore>();
+    _jarvisStore = getIt<JarvisStore>();
+    _prefs = getIt<SharedPreferenceHelper>();
     _store.fetchSessions().then((_) {
       if (_store.sessions.isNotEmpty && _store.activeSession == null) {
         _store.openSession(_store.sessions.first);
@@ -89,18 +97,52 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     _scrollToBottom();
   }
 
-  void _onSend(String text) {
-    _store.sendMessage(text, attachments: [..._pendingAttachments]);
+  Future<void> _onSend(String text) async {
+    final filesToUpload = List<PlatformFile>.from(_pendingAttachments);
+    setState(() => _pendingAttachments = []);
+
+    // Upload any attached files and collect their URLs.
+    final uploadedUrls = <String>[];
+    if (filesToUpload.isNotEmpty) {
+      final uploadUseCase = getIt<UploadFileUseCase>();
+      final user = await _prefs.getUser();
+      final tenantId = user?.id ?? 'default_tenant';
+      for (final file in filesToUpload) {
+        try {
+          final media = await uploadUseCase.call(
+            params: UploadFileParams(tenantId: tenantId, file: file),
+          );
+          uploadedUrls.add(media.url);
+        } catch (_) {
+          // Skip files that fail to upload — don't block the message.
+        }
+      }
+    }
+
+    // Add user message optimistically via PlaygroundStore (session management).
+    await _store.sendMessage(text, attachments: uploadedUrls);
     _scrollToBottom();
-    // Generate mock drafts after each message for demonstration.
-    setState(() {
-      _pendingAttachments = [];
-      _drafts = [
-        'Cảm ơn bạn đã liên hệ! Tôi sẽ xử lý ngay.',
-        'Vấn đề của bạn đã được ghi nhận và đội ngũ sẽ liên hệ trong 2 giờ.',
-      ];
-      _showDrafts = true;
-    });
+
+    // Call Jarvis Agent for the AI response.
+    final user = await _prefs.getUser();
+    final tenantId = user?.id ?? 'default_tenant';
+    final userId = user?.id ?? 'anonymous';
+    final response = await _jarvisStore.sendMessage(
+      tenantId: tenantId,
+      userId: userId,
+      userRole: 'agent',
+      message: text,
+      sessionId: _store.activeSession?.id,
+      imageUrls: uploadedUrls,
+    );
+
+    // Surface draft responses from Jarvis when HITL confirmation is needed.
+    if (response != null && response.requiresConfirmation) {
+      setState(() {
+        _drafts = [response.message];
+        _showDrafts = true;
+      });
+    }
   }
 
   void _applyDraft(String draft) {

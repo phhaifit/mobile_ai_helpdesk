@@ -1,6 +1,5 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_ui_helpers.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/messenger/store/messenger_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -15,13 +14,12 @@ class MessengerCustomerSyncScreen extends StatefulWidget {
 
 class _MessengerCustomerSyncScreenState
     extends State<MessengerCustomerSyncScreen> {
-  late final OmnichannelStore _store;
+  late final MessengerStore _store;
 
   @override
   void initState() {
     super.initState();
-    _store = getIt<OmnichannelStore>();
-    _store.fetchOverview();
+    _store = getIt<MessengerStore>();
   }
 
   @override
@@ -33,17 +31,11 @@ class _MessengerCustomerSyncScreenState
       ),
       body: Observer(
         builder: (_) {
-          final messenger = _store.overview?.messenger;
-          _showActionMessageIfNeeded(context);
+          _showSnackIfNeeded(context);
 
-          if (messenger == null && _store.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (messenger == null) {
-            return Center(
-              child: Text(l.translate('omnichannel_generic_error')),
-            );
+          final page = _store.selectedPage;
+          if (page == null) {
+            return Center(child: Text(l.translate('omnichannel_no_page_selected')));
           }
 
           return ListView(
@@ -56,24 +48,27 @@ class _MessengerCustomerSyncScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${l.translate('omnichannel_last_sync')}: ${formatDateTime(messenger.lastSyncAt)}',
+                        page.name,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '${l.translate('omnichannel_synced_customers')}: ${messenger.syncedCustomers}',
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${l.translate('omnichannel_failed_customers')}: ${messenger.failedCustomers}',
-                      ),
+                      Text('Page ID: ${page.pageId}'),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _store.isLoading ? null : _store.syncMessengerData,
-                icon: const Icon(Icons.sync),
+                onPressed: _store.isLoading
+                    ? null
+                    : () => _store.resyncPage(page.id),
+                icon: _store.isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync),
                 label: Text(l.translate('omnichannel_sync_now_button')),
               ),
             ],
@@ -83,25 +78,20 @@ class _MessengerCustomerSyncScreenState
     );
   }
 
-  void _showActionMessageIfNeeded(BuildContext context) {
-    final messageKey = _store.actionMessageKey;
-    if (messageKey == null) {
-      return;
-    }
-
+  void _showSnackIfNeeded(BuildContext context) {
+    if (!_store.actionSuccess && _store.errorMessage.isEmpty) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-
-      final l = AppLocalizations.of(context);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l.translate(messageKey)),
-          backgroundColor: _store.actionWasSuccess ? Colors.green : Colors.red,
+          content: Text(
+            _store.actionSuccess
+                ? AppLocalizations.of(context).translate('omnichannel_sync_success')
+                : _store.errorMessage,
+          ),
+          backgroundColor: _store.actionSuccess ? Colors.green : Colors.red,
         ),
       );
-      _store.clearActionMessage();
     });
   }
 }

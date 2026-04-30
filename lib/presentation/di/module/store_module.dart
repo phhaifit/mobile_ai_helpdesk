@@ -86,6 +86,8 @@ import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 import '../../ai_agent/store/ai_agent_store.dart';
+import '../../jarvis/store/jarvis_store.dart';
+import '../../messenger/store/messenger_store.dart';
 // import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
 
@@ -94,6 +96,12 @@ import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
 import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
+import '../../../domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import '../../../domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+import '../../../domain/repository/messenger/messenger_repository.dart';
+import '../../../domain/usecase/messenger/connect_messenger_page_usecase.dart';
+import '../../../domain/usecase/messenger/disconnect_messenger_page_usecase.dart';
+import '../../../domain/usecase/messenger/get_messenger_pages_usecase.dart';
 import '../../../domain/usecase/playground/create_session_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
@@ -302,6 +310,25 @@ class StoreModule {
         getIt<TestDbConnectionUseCase>(),
         getIt<UpdateSourceCrawlIntervalUseCase>(),
         getIt<UploadLocalFileUseCase>(),
+      ),
+    );
+
+    // --- Jarvis Store ---
+    getIt.registerLazySingleton<JarvisStore>(
+      () => JarvisStore(
+        getIt<SendJarvisMessageUseCase>(),
+        getIt<ConfirmHitlUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Messenger Store ---
+    getIt.registerLazySingleton<MessengerStore>(
+      () => MessengerStore(
+        getIt<GetMessengerPagesUseCase>(),
+        getIt<ConnectMessengerPageUseCase>(),
+        getIt<DisconnectMessengerPageUseCase>(),
+        getIt<MessengerRepository>(),
       ),
     );
   }
