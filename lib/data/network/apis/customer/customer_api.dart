@@ -29,7 +29,7 @@ class CustomerApi {
       return [];
     }
     
-    final List list = data['data'] as List;
+    final list = data['data'] as List;
     return list.map((e) => CustomerDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -40,7 +40,7 @@ class CustomerApi {
       return null;
     }
     
-    final List list = data['data'] as List;
+    final list = data['data'] as List;
     if (list.isEmpty) return null;
     return CustomerDto.fromJson(list.first as Map<String, dynamic>);
   }

@@ -58,7 +58,7 @@ class CustomerDto {
         if (contact.zalophone != null && contact.zalophone!.isNotEmpty) {
           p.add(contact.zalophone!);
         }
-        if (foundAvatar == null || foundAvatar!.isEmpty) {
+        if (foundAvatar == null || foundAvatar.isEmpty) {
           foundAvatar = contact.zaloAccountAvatar;
         }
       }
