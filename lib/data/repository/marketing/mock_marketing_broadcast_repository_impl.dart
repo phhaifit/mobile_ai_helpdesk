@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 
@@ -22,6 +23,11 @@ class _FakeCustomer {
 class MockMarketingBroadcastRepositoryImpl
     implements MarketingBroadcastRepository {
   static const Duration _delay = Duration(milliseconds: 400);
+
+  final MockBroadcastRealtimeSimulator? _simulator;
+
+  MockMarketingBroadcastRepositoryImpl({MockBroadcastRealtimeSimulator? simulator})
+      : _simulator = simulator;
 
   final List<BroadcastTemplate> _templates = <BroadcastTemplate>[
     BroadcastTemplate(
@@ -317,23 +323,62 @@ class MockMarketingBroadcastRepositoryImpl
   @override
   Future<BroadcastItem> executeBroadcast(String broadcastId) async {
     await Future<void>.delayed(_delay);
-    return _transitionBroadcast(
+    final item = _transitionBroadcast(
       broadcastId,
       status: BroadcastStatus.running,
       startedAt: DateTime.now(),
     );
+    _simulator?.start(
+      broadcastId,
+      item.recipientCount > 0 ? item.recipientCount : 30,
+      applyTick: applyTick,
+      sentCount: item.sentCount,
+      deliveredCount: item.deliveredCount,
+      failedCount: item.failedCount,
+    );
+    return item;
   }
 
   @override
   Future<BroadcastItem> stopBroadcast(String broadcastId) async {
     await Future<void>.delayed(_delay);
+    _simulator?.pause(broadcastId);
     return _transitionBroadcast(broadcastId, status: BroadcastStatus.paused);
   }
 
   @override
   Future<BroadcastItem> resumeBroadcast(String broadcastId) async {
     await Future<void>.delayed(_delay);
-    return _transitionBroadcast(broadcastId, status: BroadcastStatus.running);
+    final item = _transitionBroadcast(broadcastId, status: BroadcastStatus.running);
+    _simulator?.resume(broadcastId);
+    return item;
+  }
+
+  void applyTick(
+    String broadcastId,
+    int sentCount,
+    int deliveredCount,
+    int failedCount,
+    BroadcastStatus status,
+  ) {
+    final index = _broadcasts.indexWhere((b) => b.id == broadcastId);
+    if (index < 0) return;
+    final current = _broadcasts[index];
+    _broadcasts[index] = BroadcastItem(
+      id: current.id,
+      name: current.name,
+      templateId: current.templateId,
+      status: status,
+      recipientCount: current.recipientCount,
+      sentCount: sentCount,
+      deliveredCount: deliveredCount,
+      failedCount: failedCount,
+      scheduledAt: current.scheduledAt,
+      startedAt: current.startedAt,
+      completedAt:
+          status == BroadcastStatus.completed ? DateTime.now() : current.completedAt,
+      createdAt: current.createdAt,
+    );
   }
 
   // ---------- Recipients ----------

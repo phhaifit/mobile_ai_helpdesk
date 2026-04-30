@@ -5,6 +5,7 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
+import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/marketing_broadcast_repository_impl.dart';
@@ -29,6 +30,7 @@ import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
 // Import Interfaces (Domain)
@@ -138,8 +140,13 @@ class RepositoryModule {
     const bool kUseMarketingMock = true;
 
     if (kUseMarketingMock) {
+      getIt.registerSingleton<MockBroadcastRealtimeSimulator>(
+        MockBroadcastRealtimeSimulator(getIt<EventBus>()),
+      );
       getIt.registerSingleton<MarketingBroadcastRepository>(
-        MockMarketingBroadcastRepositoryImpl(),
+        MockMarketingBroadcastRepositoryImpl(
+          simulator: getIt<MockBroadcastRealtimeSimulator>(),
+        ),
       );
       getIt.registerSingleton<MarketingRepository>(
         MockMarketingRepositoryImpl(),

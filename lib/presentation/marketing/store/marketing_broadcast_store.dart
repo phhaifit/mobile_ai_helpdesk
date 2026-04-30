@@ -69,9 +69,17 @@ class MarketingBroadcastStore {
   final Observable<String?> _errorMessage = Observable<String?>(null);
   final Observable<String?> _actionMessageKey = Observable<String?>(null);
   final Observable<bool> _actionWasSuccess = Observable<bool>(true);
-  final Observable<String?> _selectedFacebookAccountId = Observable<String?>(
-    null,
-  );
+  final Observable<String?> _selectedFacebookAccountId = Observable<String?>(null);
+
+  // Scoped action spinner: non-null while a lifecycle call is in flight
+  final Observable<String?> _activeBroadcastActionId = Observable<String?>(null);
+
+  // Delivery receipts pagination state
+  final Observable<bool> _isLoadingReceipts = Observable<bool>(false);
+  final Observable<String?> _receiptsError = Observable<String?>(null);
+  final Observable<int> _receiptsTotal = Observable<int>(0);
+  int _receiptsOffset = 0;
+  static const int _receiptsPageSize = 20;
 
   MarketingBroadcastStore(
     this._getBroadcastTemplatesUseCase,
@@ -105,6 +113,10 @@ class MarketingBroadcastStore {
   String? get actionMessageKey => _actionMessageKey.value;
   bool get actionWasSuccess => _actionWasSuccess.value;
   String? get selectedFacebookAccountId => _selectedFacebookAccountId.value;
+  String? get activeBroadcastActionId => _activeBroadcastActionId.value;
+  bool get isLoadingReceipts => _isLoadingReceipts.value;
+  String? get receiptsError => _receiptsError.value;
+  bool get receiptsHasMore => receipts.length < _receiptsTotal.value;
 
   FacebookAdAccount? get selectedFacebookAccount {
     final selectedId = _selectedFacebookAccountId.value;
@@ -365,6 +377,7 @@ class MarketingBroadcastStore {
     required Future<BroadcastItem> Function() call,
   }) async {
     _setError(null);
+    runInAction(() => _activeBroadcastActionId.value = campaignId);
     final future = ObservableFuture(
       call().then((item) {
         _upsertCampaign(item);
@@ -373,6 +386,7 @@ class MarketingBroadcastStore {
     );
     actionFuture = future;
     await future.catchError((Object e) => _setError(e.toString()));
+    runInAction(() => _activeBroadcastActionId.value = null);
   }
 
   Future<void> fetchRecipients(
@@ -406,26 +420,37 @@ class MarketingBroadcastStore {
 
   Future<void> fetchDeliveryReceipts(
     String campaignId, {
-    int offset = 0,
-    int limit = 10,
+    bool loadMore = false,
   }) async {
-    _setError(null);
-    final future = ObservableFuture(
-      _getDeliveryReceiptsUseCase
-          .call(
-            params: GetDeliveryReceiptsParams(
-              broadcastId: campaignId,
-              query: PaginationQuery(offset: offset, limit: limit),
-            ),
-          )
-          .then((page) {
-            receipts
-              ..clear()
-              ..addAll(page.items);
-          }),
-    );
-    fetchFuture = future;
-    await future.catchError((Object e) => _setError(e.toString()));
+    if (_isLoadingReceipts.value) return;
+    runInAction(() {
+      _isLoadingReceipts.value = true;
+      _receiptsError.value = null;
+      if (!loadMore) {
+        _receiptsOffset = 0;
+        receipts.clear();
+      }
+    });
+    try {
+      final page = await _getDeliveryReceiptsUseCase.call(
+        params: GetDeliveryReceiptsParams(
+          broadcastId: campaignId,
+          query: PaginationQuery(
+            offset: _receiptsOffset,
+            limit: _receiptsPageSize,
+          ),
+        ),
+      );
+      runInAction(() {
+        receipts.addAll(page.items);
+        _receiptsTotal.value = page.total;
+        _receiptsOffset += page.items.length;
+      });
+    } catch (e) {
+      runInAction(() => _receiptsError.value = e.toString());
+    } finally {
+      runInAction(() => _isLoadingReceipts.value = false);
+    }
   }
 
   Future<void> fetchFacebookAdminAccounts() async {
