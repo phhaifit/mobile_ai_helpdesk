@@ -1,16 +1,14 @@
 import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
+import 'package:ai_helpdesk/data/network/dto/customer/customer_dto.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/customer/tag.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/data/network/dto/customer/customer_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class MockRepository implements CustomerRepository {
   List<Customer> _customers = [];
-  final List<Tag> _tags = [
-    const Tag(id: 'tag_1', name: 'VIP'),
-  ];
+  final List<Tag> _tags = [const Tag(id: 'tag_1', name: 'VIP')];
 
   set customersData(List<Customer> list) => _customers = list;
 
@@ -50,9 +48,14 @@ class MockRepository implements CustomerRepository {
   }
 
   @override
-  Future<Tag> createTag({
-    required String name,
-  }) async => _tags.first;
+  Future<Tag> createTag({required String name}) async => _tags.first;
+
+  @override
+  Future<Tag> updateTag({required String id, required String name}) async =>
+      _tags.first;
+
+  @override
+  Future<void> deleteTag({required String id}) async {}
   @override
   Future<Customer> addTagToCustomer(String customerId, String tagId) async =>
       _customers.first;
@@ -62,9 +65,21 @@ class MockRepository implements CustomerRepository {
     String tagId,
   ) async => _customers.first;
   @override
-  Future<Customer> addCustomerContact(String customerId, {String? email, String? phone, String? zalo, String? messenger}) async => _customers.first;
+  Future<Customer> addCustomerContact(
+    String customerId, {
+    String? email,
+    String? phone,
+    String? zalo,
+    String? messenger,
+  }) async => _customers.first;
   @override
-  Future<Customer> deleteCustomerContact(String customerId, {String? email, String? phone, String? zalo, String? messenger}) async => _customers.first;
+  Future<Customer> deleteCustomerContact(
+    String customerId, {
+    String? email,
+    String? phone,
+    String? zalo,
+    String? messenger,
+  }) async => _customers.first;
 
   @override
   Future<String?> getTenantName(String id) async => 'Test Tenant';
@@ -105,9 +120,12 @@ void main() {
       expect(result.fullName, 'Nguyễn Văn Anh'); // Target name
       expect(result.totalTickets, 6); // 5 + 1
       expect(result.tags.length, 2); // VIP + New
-      
+
       // Verify contacts union correctly
-      expect(result.emails, containsAll(['anh.nguyen@example.com', 'ha.tran@example.com']));
+      expect(
+        result.emails,
+        containsAll(['anh.nguyen@example.com', 'ha.tran@example.com']),
+      );
       expect(result.phones, containsAll(['0901234567', '0912345678']));
       expect(result.zalos, contains('0901234567'));
       expect(result.messengers, contains('m.me/anh.nguyen'));
@@ -115,12 +133,21 @@ void main() {
 
     test('Add and remove contact info works correctly', () async {
       // Add email
-      await dataSource.addCustomerContact('cust_3', email: 'extra.can@example.com');
+      await dataSource.addCustomerContact(
+        'cust_3',
+        email: 'extra.can@example.com',
+      );
       var updated = await dataSource.getCustomerById('cust_3');
-      expect(updated!.emails, containsAll(['can.le@example.com', 'extra.can@example.com']));
-      
+      expect(
+        updated!.emails,
+        containsAll(['can.le@example.com', 'extra.can@example.com']),
+      );
+
       // Remove email
-      await dataSource.deleteCustomerContact('cust_3', email: 'extra.can@example.com');
+      await dataSource.deleteCustomerContact(
+        'cust_3',
+        email: 'extra.can@example.com',
+      );
       updated = await dataSource.getCustomerById('cust_3');
       expect(updated!.emails, ['can.le@example.com']); // Restored state
     });
@@ -180,25 +207,19 @@ void main() {
         'tenantID': 'tenant_999',
         'updatedAt': '2026-04-28T10:00:00.000Z',
         'CustomerGroups': [
-          {'groupID': 'grp_1', 'name': 'VIP Group'}
+          {'groupID': 'grp_1', 'name': 'VIP Group'},
         ],
         'avatar': 'https://example.com/photo.jpg',
         'contactInfo': [
-          {
-            'name': 'EMAIL',
-            'email': 'dto@example.com'
-          },
-          {
-            'name': 'PHONE',
-            'phone': '0123456789'
-          },
+          {'name': 'EMAIL', 'email': 'dto@example.com'},
+          {'name': 'PHONE', 'phone': '0123456789'},
           {
             'name': 'ZALO_PERSONAL',
             'zaloAccountName': 'ZaloName',
             'zalophone': '0999888777',
-            'zaloAccountAvatar': 'https://zalo.com/ava.jpg'
-          }
-        ]
+            'zaloAccountAvatar': 'https://zalo.com/ava.jpg',
+          },
+        ],
       };
 
       final dto = CustomerDto.fromJson(json);
@@ -214,32 +235,35 @@ void main() {
       expect(entity.updatedAt, isNotNull);
     });
 
-    test('toEntity falls back to Zalo avatar if top-level avatar is missing', () {
-      final json = {
-        'customerID': 'cus_123',
-        'name': 'Test User',
-        'contactInfo': [
-          {
-            'name': 'ZALO_PERSONAL',
-            'zaloAccountName': 'ZaloName',
-            'zaloAccountAvatar': 'https://zalo.com/ava.jpg'
-          }
-        ]
-      };
+    test(
+      'toEntity falls back to Zalo avatar if top-level avatar is missing',
+      () {
+        final json = {
+          'customerID': 'cus_123',
+          'name': 'Test User',
+          'contactInfo': [
+            {
+              'name': 'ZALO_PERSONAL',
+              'zaloAccountName': 'ZaloName',
+              'zaloAccountAvatar': 'https://zalo.com/ava.jpg',
+            },
+          ],
+        };
 
-      final dto = CustomerDto.fromJson(json);
-      final entity = dto.toEntity();
+        final dto = CustomerDto.fromJson(json);
+        final entity = dto.toEntity();
 
-      expect(entity.avatarUrl, 'https://zalo.com/ava.jpg');
-    });
+        expect(entity.avatarUrl, 'https://zalo.com/ava.jpg');
+      },
+    );
 
     test('toEntity deduplicates phone numbers', () {
       final json = {
         'name': 'Test',
         'contactInfo': [
           {'name': 'PHONE', 'phone': '090'},
-          {'name': 'ZALO_PERSONAL', 'zaloAccountName': 'Z', 'zalophone': '090'}
-        ]
+          {'name': 'ZALO_PERSONAL', 'zaloAccountName': 'Z', 'zalophone': '090'},
+        ],
       };
 
       final dto = CustomerDto.fromJson(json);
