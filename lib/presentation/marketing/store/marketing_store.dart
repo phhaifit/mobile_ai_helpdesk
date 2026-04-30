@@ -5,10 +5,8 @@ import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/campaign_id_params.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
@@ -16,6 +14,9 @@ import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_recipients_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:mobx/mobx.dart';
 
@@ -29,11 +30,12 @@ abstract class _MarketingStore with Store {
   final SaveTemplateUseCase _saveTemplateUseCase;
   final DeleteTemplateUseCase _deleteTemplateUseCase;
   final GetCampaignsUseCase _getCampaignsUseCase;
-  final CreateCampaignUseCase _createCampaignUseCase;
   final StartCampaignUseCase _startCampaignUseCase;
   final StopCampaignUseCase _stopCampaignUseCase;
   final ResumeCampaignUseCase _resumeCampaignUseCase;
-  final EstimateAudienceUseCase _estimateAudienceUseCase;
+  final CreateBroadcastUseCase _createBroadcastUseCase;
+  final UpdateBroadcastUseCase _updateBroadcastUseCase;
+  final GetBroadcastRecipientsUseCase _getBroadcastRecipientsUseCase;
   final ConnectFacebookAdminUseCase _connectFacebookAdminUseCase;
   final DisconnectFacebookAdminUseCase _disconnectFacebookAdminUseCase;
   final MarketingBroadcastRealtimeService _realtimeService;
@@ -48,11 +50,12 @@ abstract class _MarketingStore with Store {
     this._saveTemplateUseCase,
     this._deleteTemplateUseCase,
     this._getCampaignsUseCase,
-    this._createCampaignUseCase,
     this._startCampaignUseCase,
     this._stopCampaignUseCase,
     this._resumeCampaignUseCase,
-    this._estimateAudienceUseCase,
+    this._createBroadcastUseCase,
+    this._updateBroadcastUseCase,
+    this._getBroadcastRecipientsUseCase,
     this._connectFacebookAdminUseCase,
     this._disconnectFacebookAdminUseCase,
     this._realtimeService,
@@ -111,7 +114,13 @@ abstract class _MarketingStore with Store {
   CampaignChannel? draftChannelFilter;
 
   @observable
-  int draftEstimatedCount = 0;
+  String draftBroadcastId = '';
+
+  @observable
+  int draftAudienceTotal = 0;
+
+  @observable
+  ObservableList<BroadcastRecipient> draftAudienceSample = ObservableList();
 
   // Draft state for template creation/editing
   @observable
@@ -303,35 +312,31 @@ abstract class _MarketingStore with Store {
   @action
   Future<void> createCampaign() async {
     errorMessage = null;
-    final targeting = CampaignRecipientTarget(
-      filterType: draftFilterType,
-      tagValues: List.from(draftTagValues),
-      segmentValue: draftSegmentValue.isEmpty ? null : draftSegmentValue,
-      channelFilter: draftChannelFilter,
-      estimatedCount: draftEstimatedCount,
-    );
-    final campaign = BroadcastCampaign(
-      id: '',
+    final upsertData = BroadcastUpsertData(
       name: draftCampaignName,
       templateId: draftTemplateId,
-      status: CampaignStatus.draft,
-      channel: draftChannel,
-      targeting: targeting,
       scheduledAt: draftScheduledAt,
-      sentCount: 0,
-      deliveredCount: 0,
-      failedCount: 0,
-      createdAt: DateTime.now(),
     );
-    final future = ObservableFuture(
-      _createCampaignUseCase.call(
-        params: CreateCampaignParams(campaign: campaign),
-      ),
-    );
+
+    final Future<BroadcastItem> apiCall;
+    if (draftBroadcastId.isNotEmpty) {
+      apiCall = _updateBroadcastUseCase.call(
+        params: UpdateBroadcastParams(
+          broadcastId: draftBroadcastId,
+          data: upsertData,
+        ),
+      );
+    } else {
+      apiCall = _createBroadcastUseCase.call(
+        params: CreateBroadcastParams(data: upsertData),
+      );
+    }
+
+    final future = ObservableFuture(apiCall);
     actionFuture = future;
     try {
       final result = await future;
-      campaigns.add(result);
+      _mergeBroadcastIntoCampaigns(result);
       actionMessageKey = 'marketing_success_campaign_created';
       actionWasSuccess = true;
       await _syncRealtimeSubscriptions();
@@ -339,6 +344,52 @@ abstract class _MarketingStore with Store {
     } catch (e) {
       errorMessage = e.toString();
       actionWasSuccess = false;
+    }
+  }
+
+  void _mergeBroadcastIntoCampaigns(BroadcastItem item) {
+    final mappedStatus = _mapBroadcastItemStatus(item.status);
+    final campaign = BroadcastCampaign(
+      id: item.id,
+      name: item.name,
+      templateId: item.templateId,
+      status: mappedStatus,
+      channel: draftChannel,
+      targeting: CampaignRecipientTarget(
+        filterType: draftFilterType,
+        tagValues: List.from(draftTagValues),
+        segmentValue: draftSegmentValue.isEmpty ? null : draftSegmentValue,
+        channelFilter: draftChannelFilter,
+        estimatedCount: draftAudienceTotal,
+      ),
+      scheduledAt: item.scheduledAt,
+      sentCount: item.sentCount,
+      deliveredCount: item.deliveredCount,
+      failedCount: item.failedCount,
+      createdAt: item.createdAt,
+    );
+    final index = campaigns.indexWhere((c) => c.id == campaign.id);
+    if (index >= 0) {
+      campaigns[index] = campaign;
+    } else {
+      campaigns.add(campaign);
+    }
+  }
+
+  CampaignStatus _mapBroadcastItemStatus(BroadcastStatus status) {
+    switch (status) {
+      case BroadcastStatus.draft:
+        return CampaignStatus.draft;
+      case BroadcastStatus.scheduled:
+        return CampaignStatus.scheduled;
+      case BroadcastStatus.running:
+        return CampaignStatus.running;
+      case BroadcastStatus.paused:
+        return CampaignStatus.paused;
+      case BroadcastStatus.completed:
+        return CampaignStatus.completed;
+      case BroadcastStatus.failed:
+        return CampaignStatus.failed;
     }
   }
 
@@ -486,27 +537,53 @@ abstract class _MarketingStore with Store {
 
   // --- Actions: audience estimation ---
   @action
-  Future<void> estimateAudience() async {
+  Future<void> previewAudience() async {
     errorMessage = null;
-    final target = CampaignRecipientTarget(
-      filterType: draftFilterType,
-      tagValues: List.from(draftTagValues),
-      segmentValue: draftSegmentValue.isEmpty ? null : draftSegmentValue,
-      channelFilter: draftChannelFilter,
-      estimatedCount: 0,
-    );
-    final future = ObservableFuture(
-      _estimateAudienceUseCase.call(
-        params: EstimateAudienceParams(target: target),
-      ),
-    );
-    actionFuture = future;
+    actionFuture = ObservableFuture(_previewAudienceFlow());
     try {
-      final result = await future;
-      draftEstimatedCount = result.estimatedCount;
+      await actionFuture!;
     } catch (e) {
       errorMessage = e.toString();
     }
+  }
+
+  Future<void> _previewAudienceFlow() async {
+    if (draftBroadcastId.isEmpty) {
+      final draftBroadcast = await _createBroadcastUseCase.call(
+        params: CreateBroadcastParams(
+          data: BroadcastUpsertData(
+            name: draftCampaignName.isEmpty
+                ? 'Bản nháp ${DateTime.now().millisecondsSinceEpoch}'
+                : draftCampaignName,
+            templateId: draftTemplateId,
+            scheduledAt: draftScheduledAt,
+          ),
+        ),
+      );
+      draftBroadcastId = draftBroadcast.id;
+    }
+
+    final filter = BroadcastRecipientsFilter(
+      tagValues: List.from(draftTagValues),
+      segmentValue: draftSegmentValue.isEmpty ? null : draftSegmentValue,
+      channel: draftChannelFilter?.name,
+    );
+
+    final page = await _getBroadcastRecipientsUseCase.call(
+      params: GetBroadcastRecipientsParams(
+        query: BroadcastRecipientsQuery(
+          broadcastId: draftBroadcastId,
+          filter: filter,
+          offset: 0,
+          limit: 20,
+        ),
+      ),
+    );
+
+    draftAudienceTotal = page.total;
+    draftAudienceSample
+      ..clear()
+      ..addAll(page.items);
   }
 
   // --- Actions: Facebook Admin ---
@@ -627,7 +704,9 @@ abstract class _MarketingStore with Store {
     draftTagValues.clear();
     draftSegmentValue = '';
     draftChannelFilter = null;
-    draftEstimatedCount = 0;
+    draftBroadcastId = '';
+    draftAudienceTotal = 0;
+    draftAudienceSample.clear();
     draftTemplateName = '';
     draftTemplateContent = '';
     draftTemplateCategory = TemplateCategory.promotional;

@@ -325,21 +325,57 @@ mixin _$MarketingStore on _MarketingStore, Store {
     });
   }
 
-  late final _$draftEstimatedCountAtom = Atom(
-    name: '_MarketingStore.draftEstimatedCount',
+  late final _$draftBroadcastIdAtom = Atom(
+    name: '_MarketingStore.draftBroadcastId',
     context: context,
   );
 
   @override
-  int get draftEstimatedCount {
-    _$draftEstimatedCountAtom.reportRead();
-    return super.draftEstimatedCount;
+  String get draftBroadcastId {
+    _$draftBroadcastIdAtom.reportRead();
+    return super.draftBroadcastId;
   }
 
   @override
-  set draftEstimatedCount(int value) {
-    _$draftEstimatedCountAtom.reportWrite(value, super.draftEstimatedCount, () {
-      super.draftEstimatedCount = value;
+  set draftBroadcastId(String value) {
+    _$draftBroadcastIdAtom.reportWrite(value, super.draftBroadcastId, () {
+      super.draftBroadcastId = value;
+    });
+  }
+
+  late final _$draftAudienceTotalAtom = Atom(
+    name: '_MarketingStore.draftAudienceTotal',
+    context: context,
+  );
+
+  @override
+  int get draftAudienceTotal {
+    _$draftAudienceTotalAtom.reportRead();
+    return super.draftAudienceTotal;
+  }
+
+  @override
+  set draftAudienceTotal(int value) {
+    _$draftAudienceTotalAtom.reportWrite(value, super.draftAudienceTotal, () {
+      super.draftAudienceTotal = value;
+    });
+  }
+
+  late final _$draftAudienceSampleAtom = Atom(
+    name: '_MarketingStore.draftAudienceSample',
+    context: context,
+  );
+
+  @override
+  ObservableList<BroadcastRecipient> get draftAudienceSample {
+    _$draftAudienceSampleAtom.reportRead();
+    return super.draftAudienceSample;
+  }
+
+  @override
+  set draftAudienceSample(ObservableList<BroadcastRecipient> value) {
+    _$draftAudienceSampleAtom.reportWrite(value, super.draftAudienceSample, () {
+      super.draftAudienceSample = value;
     });
   }
 
@@ -651,14 +687,14 @@ mixin _$MarketingStore on _MarketingStore, Store {
     return _$deleteTemplateAsyncAction.run(() => super.deleteTemplate(id));
   }
 
-  late final _$estimateAudienceAsyncAction = AsyncAction(
-    '_MarketingStore.estimateAudience',
+  late final _$previewAudienceAsyncAction = AsyncAction(
+    '_MarketingStore.previewAudience',
     context: context,
   );
 
   @override
-  Future<void> estimateAudience() {
-    return _$estimateAudienceAsyncAction.run(() => super.estimateAudience());
+  Future<void> previewAudience() {
+    return _$previewAudienceAsyncAction.run(() => super.previewAudience());
   }
 
   late final _$connectFacebookAdminAsyncAction = AsyncAction(
@@ -948,7 +984,9 @@ draftFilterType: ${draftFilterType},
 draftTagValues: ${draftTagValues},
 draftSegmentValue: ${draftSegmentValue},
 draftChannelFilter: ${draftChannelFilter},
-draftEstimatedCount: ${draftEstimatedCount},
+draftBroadcastId: ${draftBroadcastId},
+draftAudienceTotal: ${draftAudienceTotal},
+draftAudienceSample: ${draftAudienceSample},
 draftTemplateName: ${draftTemplateName},
 draftTemplateContent: ${draftTemplateContent},
 draftTemplateCategory: ${draftTemplateCategory},

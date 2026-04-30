@@ -425,7 +425,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed:
-                      _store.isSubmitting ? null : _store.estimateAudience,
+                      _store.isSubmitting ? null : _store.previewAudience,
                   icon:
                       _store.isSubmitting
                           ? const SizedBox(
@@ -434,34 +434,80 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                           : const Icon(Icons.people_outline),
-                  label: Text(l.translate('marketing_tv_estimate_audience')),
+                  label: const Text('Xem trước đối tượng'),
                 ),
               ),
-              if (_store.draftEstimatedCount > 0) ...[
+              if (_store.draftAudienceTotal > 0) ...[
                 const SizedBox(height: 12),
                 Card(
                   color: Colors.blue.shade50,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.people, color: Colors.blue.shade700),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${l.translate('marketing_tv_estimated_count')}: ',
-                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        Row(
+                          children: [
+                            Icon(Icons.people, color: Colors.blue.shade700),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${l.translate('marketing_tv_estimated_count')}: ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${_store.draftAudienceTotal}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '${_store.draftEstimatedCount}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
+                        if (_store.draftAudienceSample.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          const Divider(height: 1),
+                          const SizedBox(height: 6),
+                          ..._store.draftAudienceSample
+                              .take(5)
+                              .map(
+                                (r) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                  child: Text(
+                                    '• ${r.displayName ?? r.id}'
+                                    '${r.channelAddress != null ? ' (${r.channelAddress})' : ''}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                          if (_store.draftAudienceTotal >
+                              _store.draftAudienceSample.length)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                '… và ${_store.draftAudienceTotal - _store.draftAudienceSample.length} người khác',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                        ],
                       ],
                     ),
                   ),
+                ),
+              ] else if (_store.actionFuture != null &&
+                  !_store.isSubmitting &&
+                  _store.draftAudienceTotal == 0) ...[
+                const SizedBox(height: 12),
+                const Text(
+                  'Không có người nhận khớp bộ lọc',
+                  style: TextStyle(color: Colors.orange),
                 ),
               ],
             ],
@@ -547,11 +593,11 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                         'Đối tượng',
                         _filterLabel(_store.draftFilterType, l),
                       ),
-                      if (_store.draftEstimatedCount > 0) ...[
+                      if (_store.draftAudienceTotal > 0) ...[
                         const SizedBox(height: 6),
                         _summaryRow(
-                          'Ước tính',
-                          '${_store.draftEstimatedCount} người',
+                          'Đối tượng',
+                          '${_store.draftAudienceTotal} người',
                         ),
                       ],
                       const SizedBox(height: 6),

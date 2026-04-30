@@ -25,10 +25,8 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
@@ -241,11 +239,12 @@ class StoreModule {
         getIt<SaveTemplateUseCase>(),
         getIt<DeleteTemplateUseCase>(),
         getIt<GetCampaignsUseCase>(),
-        getIt<CreateCampaignUseCase>(),
         getIt<StartCampaignUseCase>(),
         getIt<StopCampaignUseCase>(),
         getIt<ResumeCampaignUseCase>(),
-        getIt<EstimateAudienceUseCase>(),
+        getIt<CreateBroadcastUseCase>(),
+        getIt<UpdateBroadcastUseCase>(),
+        getIt<GetBroadcastRecipientsUseCase>(),
         getIt<ConnectFacebookAdminUseCase>(),
         getIt<DisconnectFacebookAdminUseCase>(),
         getIt<MarketingBroadcastRealtimeService>(),

@@ -9,6 +9,8 @@ import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/marketing_broadcast_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/marketing_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_broadcast_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
@@ -130,22 +132,33 @@ class RepositoryModule {
       MockMonetizationRepositoryImpl(),
     );
 
-    // getIt.registerSingleton<MarketingRepository>(MockMarketingRepositoryImpl());
+    // Toggle to swap between in-memory mocks and real backend impls.
+    // Flip to false once backend ships /broadcasts/recipients filters,
+    // /broadcasts/{id}/receipts, and the realtime channel.
+    const bool kUseMarketingMock = true;
 
-    getIt.registerSingleton<MarketingBroadcastApi>(
-      MarketingBroadcastApi(getIt<DioClient>()),
-    );
-
-    getIt.registerSingleton<MarketingBroadcastRepository>(
-      MarketingBroadcastRepositoryImpl(getIt<MarketingBroadcastApi>()),
-    );
-
-    getIt.registerSingleton<MarketingRepository>(
-      MarketingRepositoryImpl(
-        getIt<MarketingBroadcastRepository>(),
-        getIt<DioClient>(),
-      ),
-    );
+    if (kUseMarketingMock) {
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MockMarketingBroadcastRepositoryImpl(),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MockMarketingRepositoryImpl(),
+      );
+    } else {
+      // ignore: dead_code
+      getIt.registerSingleton<MarketingBroadcastApi>(
+        MarketingBroadcastApi(getIt<DioClient>()),
+      );
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MarketingBroadcastRepositoryImpl(getIt<MarketingBroadcastApi>()),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MarketingRepositoryImpl(
+          getIt<MarketingBroadcastRepository>(),
+          getIt<DioClient>(),
+        ),
+      );
+    }
 
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());

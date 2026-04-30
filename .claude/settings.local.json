@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wmic logicaldisk *)",
+      "Bash(dir \"c:\\\\users\\\\admin\\\\downloads\\\\flutter\\\\bin\\\\cache\" /s /-c)",
+      "Bash(xargs grep *)",
+      "Bash(curl --location --request POST https://auth-api.jarvis.cx/api/v1/auth/password/sign-up --header 'X-Stack-Access-Type: client' --header 'X-Stack-Project-Id: 45a1e2fd-77ee-4872-9fb7-987b8c119633' --header 'X-Stack-Publishable-Client-Key: pck_7wjweasxxnfspvr20dvmyd9pjj0p9kp755bxxcm4ae1er' --header 'Content-Type: application/json' --data-raw '{ *)",
+      "Bash(curl --silent --location --request POST https://auth-api.jarvis.cx/api/v1/auth/password/sign-in --header 'X-Stack-Access-Type: client' --header 'X-Stack-Project-Id: 45a1e2fd-77ee-4872-9fb7-987b8c119633' --header 'X-Stack-Publishable-Client-Key: pck_7wjweasxxnfspvr20dvmyd9pjj0p9kp755bxxcm4ae1er' --header 'Content-Type: application/json' --data-raw '{ *)",
+      "Bash(curl --silent --location --request POST 'https://auth-api.jarvis.cx/api/v1/auth/password/sign-in' --header 'X-Stack-Access-Type: client' --header 'X-Stack-Project-Id: 45a1e2fd-77ee-4872-9fb7-987b8c119633' --header 'X-Stack-Publishable-Client-Key: pck_7wjweasxxnfspvr20dvmyd9pjj0p9kp755bxxcm4ae1er' --header 'Content-Type: application/json' --data-raw '{\"email\":\"nvxanh22@clc.fitus.edu.vn\",\"password\":\"Nvxanh75@gmail.com\"}')",
+      "Bash(flutter devices *)",
+      "Bash(flutter run *)",
+      "Bash(flutter doctor *)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 50442 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Name \"dart\",\"flutter\",\"flutter_tool\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process | Where-Object { $_.Name -match \"dart|flutter\" } | Select-Object Id, Name, CPU)",
+      "PowerShell(Get-Process | Where-Object { $_.Name -match \"dart|flutter|chrome|dwds\" } | Select-Object Id, Name)",
+      "PowerShell(Get-Process -Id 7676, 12976 -ErrorAction SilentlyContinue)",
+      "PowerShell(netstat -ano | Select-String \"50442\" | ForEach-Object { \\($_ -split '\\\\s+'\\)[5] } | Sort-Object -Unique | ForEach-Object { tasklist /FI \"PID eq $_\" 2>$null })",
+      "Bash(flutter clean *)",
+      "Bash(cmd.exe /c \"wmic logicaldisk get size,freespace,caption\")",
+      "Bash(flutter pub *)",
+      "Bash(flutter analyze *)"
+    ]
+  }
+}

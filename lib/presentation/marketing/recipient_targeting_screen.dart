@@ -92,7 +92,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
                         ),
                       ),
                       onPressed:
-                          _store.isSubmitting ? null : _store.estimateAudience,
+                          _store.isSubmitting ? null : _store.previewAudience,
                       icon:
                           _store.isSubmitting
                               ? const SizedBox(
@@ -103,12 +103,10 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
                                 ),
                               )
                               : const Icon(Icons.people_outline),
-                      label: Text(
-                        l.translate('marketing_tv_estimate_audience'),
-                      ),
+                      label: const Text('Xem trước đối tượng'),
                     ),
                   ),
-                  if (_store.draftEstimatedCount > 0) ...[
+                  if (_store.draftAudienceTotal > 0) ...[
                     SizedBox(height: isSmall ? 10 : 12),
                     Card(
                       color: Colors.blue.shade50,
@@ -133,7 +131,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${_store.draftEstimatedCount}',
+                                  '${_store.draftAudienceTotal}',
                                   style: TextStyle(
                                     fontSize: isSmall ? 22 : 28,
                                     fontWeight: FontWeight.bold,
@@ -165,7 +163,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
                                   ? null
                                   : _store.draftSegmentValue,
                           channelFilter: _store.draftChannelFilter,
-                          estimatedCount: _store.draftEstimatedCount,
+                          estimatedCount: _store.draftAudienceTotal,
                         );
                         Navigator.pop(context, result);
                       },
