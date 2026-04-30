@@ -184,7 +184,7 @@ class Endpoints {
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';
   // Omnichannel: Zalo endpoints
-  static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
+  static String zaloGenerateQr() => '/api/v1/zalo/qr';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
   static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
   static String zaloConnect() => '/api/v1/zalo/connect';
@@ -269,6 +269,14 @@ class Endpoints {
 
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
+
+  // AI Agent endpoints (real backend)
+  static String aiAgentByTenant(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId';
+  static String aiAgentById(String agentId) => '/api/v1/ai-agents/$agentId';
+
+  // Account
+  static String accountTenants() => '/api/account/tenants';
 
   // WebSocket
   static String ticketWebSocket(String ticketId) {

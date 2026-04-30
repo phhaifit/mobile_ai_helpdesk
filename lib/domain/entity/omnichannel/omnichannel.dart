@@ -12,10 +12,12 @@ enum ZaloQrStatus { pending, scanned, confirmed, expired }
 class ZaloQr {
   final String code;
   final String url;
+  final String? image;
 
   const ZaloQr({
     required this.code,
     required this.url,
+    this.image,
   });
 }
 
