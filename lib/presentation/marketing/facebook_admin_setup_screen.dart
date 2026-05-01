@@ -78,7 +78,7 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                   SizedBox(height: isSmall ? 10 : 12),
                   if (_store.facebookAccounts.isNotEmpty) ...[
                     DropdownButtonFormField<String>(
-                      initialValue: _store.selectedFacebookAccountId,
+                      value: _store.selectedFacebookAccountId,
                       decoration: const InputDecoration(
                         labelText: 'Facebook account',
                         border: OutlineInputBorder(),
@@ -267,7 +267,7 @@ class _FacebookAdminSetupScreenState extends State<FacebookAdminSetupScreen> {
                       _store.selectedFacebookAccount != null) ...[
                     SizedBox(height: isSmall ? 10 : 12),
                     DropdownButtonFormField<String>(
-                      initialValue: _store.selectedFacebookAccount?.pageId,
+                      value: _store.selectedFacebookAccount?.pageId,
                       decoration: InputDecoration(
                         labelText: l.translate('marketing_tv_facebook_page'),
                         border: const OutlineInputBorder(),
