@@ -21,6 +21,8 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/select_facebook_a
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
+import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:mobx/mobx.dart';
 
@@ -47,6 +49,7 @@ class MarketingBroadcastStore {
   final SelectFacebookAdminPageUseCase _selectFacebookAdminPageUseCase;
   final MarketingBroadcastRealtimeService _realtimeService;
   final EventBus _eventBus;
+  final AnalyticsService _analyticsService;
 
   StreamSubscription<BroadcastStatusRealtimeEvent>? _statusSub;
 
@@ -103,6 +106,7 @@ class MarketingBroadcastStore {
     this._selectFacebookAdminPageUseCase,
     this._realtimeService,
     this._eventBus,
+    this._analyticsService,
   ) {
     _statusSub = _eventBus.on<BroadcastStatusRealtimeEvent>().listen(
       _onRealtimeEvent,
@@ -238,6 +242,11 @@ class MarketingBroadcastStore {
             } else {
               templates.add(item);
             }
+            _analyticsService.trackEvent(
+              templateId == null || templateId.isEmpty
+                  ? AnalyticsEvents.marketingTemplateCreated
+                  : AnalyticsEvents.marketingTemplateUpdated,
+            );
             _setActionMessage('marketing_success_template_saved');
           }),
     );
@@ -253,6 +262,7 @@ class MarketingBroadcastStore {
           .then((isSuccess) {
             if (isSuccess) {
               templates.removeWhere((t) => t.id == templateId);
+              _analyticsService.trackEvent(AnalyticsEvents.marketingTemplateDeleted);
               _setActionMessage('marketing_success_template_deleted');
             }
           }),
@@ -311,6 +321,7 @@ class MarketingBroadcastStore {
             } else {
               campaigns.add(item);
             }
+            _analyticsService.trackEvent(AnalyticsEvents.marketingCampaignCreated);
             _setActionMessage('marketing_success_campaign_created');
           }),
     );
@@ -381,6 +392,14 @@ class MarketingBroadcastStore {
     final future = ObservableFuture(
       call().then((item) {
         _upsertCampaign(item);
+        final analyticsEvent = const {
+          'marketing_success_campaign_started': AnalyticsEvents.marketingCampaignStarted,
+          'marketing_success_campaign_stopped': AnalyticsEvents.marketingCampaignPaused,
+          'marketing_success_campaign_resumed': AnalyticsEvents.marketingCampaignResumed,
+        }[messageKey];
+        if (analyticsEvent != null) {
+          _analyticsService.trackEvent(analyticsEvent);
+        }
         _setActionMessage(messageKey);
       }),
     );
@@ -412,6 +431,10 @@ class MarketingBroadcastStore {
             recipients
               ..clear()
               ..addAll(page.items);
+            _analyticsService.trackEvent(
+              AnalyticsEvents.marketingAudienceFiltered,
+              parameters: {'recipient_count': '${page.items.length}'},
+            );
           }),
     );
     fetchFuture = future;
@@ -499,6 +522,7 @@ class MarketingBroadcastStore {
               facebookAccounts.add(created);
             }
             _selectedFacebookAccountId.value = created.id;
+            _analyticsService.trackEvent(AnalyticsEvents.marketingFacebookConnected);
             _setActionMessage('marketing_success_facebook_connected');
           }),
     );
@@ -528,6 +552,7 @@ class MarketingBroadcastStore {
               _selectedFacebookAccountId.value =
                   facebookAccounts.isEmpty ? null : facebookAccounts.first.id;
             }
+            _analyticsService.trackEvent(AnalyticsEvents.marketingFacebookDisconnected);
             _setActionMessage('marketing_success_facebook_disconnected');
           }),
     );
@@ -559,6 +584,7 @@ class MarketingBroadcastStore {
           )
           .then((account) {
             _upsertFacebookAccount(account);
+            _analyticsService.trackEvent(AnalyticsEvents.marketingFacebookConnected);
             _setActionMessage('marketing_success_facebook_connected');
           }),
     );
@@ -642,6 +668,23 @@ class MarketingBroadcastStore {
     );
 
     campaigns[index] = updated;
+
+    if (event.status == BroadcastStatus.completed) {
+      _analyticsService.trackEvent(
+        AnalyticsEvents.marketingCampaignCompleted,
+        parameters: {
+          'campaign_id': event.campaignId,
+          'sent_count': '${event.sentCount}',
+          'delivered_count': '${event.deliveredCount}',
+          'failed_count': '${event.failedCount}',
+        },
+      );
+    } else if (event.status == BroadcastStatus.failed) {
+      _analyticsService.trackEvent(
+        AnalyticsEvents.marketingCampaignFailed,
+        parameters: {'campaign_id': event.campaignId},
+      );
+    }
   }
 
   void _upsertCampaign(BroadcastItem item) {

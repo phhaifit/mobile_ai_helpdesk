@@ -627,36 +627,6 @@ mixin _$MarketingStore on _MarketingStore, Store {
     return _$fetchTemplatesAsyncAction.run(() => super.fetchTemplates());
   }
 
-  late final _$startCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.startCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> startCampaign(String id) {
-    return _$startCampaignAsyncAction.run(() => super.startCampaign(id));
-  }
-
-  late final _$stopCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.stopCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> stopCampaign(String id) {
-    return _$stopCampaignAsyncAction.run(() => super.stopCampaign(id));
-  }
-
-  late final _$resumeCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.resumeCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> resumeCampaign(String id) {
-    return _$resumeCampaignAsyncAction.run(() => super.resumeCampaign(id));
-  }
-
   late final _$createCampaignAsyncAction = AsyncAction(
     '_MarketingStore.createCampaign',
     context: context,

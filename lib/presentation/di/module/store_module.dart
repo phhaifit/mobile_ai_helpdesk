@@ -30,10 +30,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_u
 import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_facebook_admin_account_usecase.dart';
@@ -239,9 +236,6 @@ class StoreModule {
         getIt<SaveTemplateUseCase>(),
         getIt<DeleteTemplateUseCase>(),
         getIt<GetCampaignsUseCase>(),
-        getIt<StartCampaignUseCase>(),
-        getIt<StopCampaignUseCase>(),
-        getIt<ResumeCampaignUseCase>(),
         getIt<CreateBroadcastUseCase>(),
         getIt<UpdateBroadcastUseCase>(),
         getIt<GetBroadcastRecipientsUseCase>(),
@@ -275,6 +269,7 @@ class StoreModule {
         getIt<SelectFacebookAdminPageUseCase>(),
         getIt<MarketingBroadcastRealtimeService>(),
         getIt<EventBus>(),
+        getIt<AnalyticsService>(),
       ),
     );
 

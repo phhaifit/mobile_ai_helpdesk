@@ -35,10 +35,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing/estimate_audience_usecase.d
 import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_facebook_admin_account_usecase.dart';
@@ -219,15 +216,7 @@ class UseCaseModule {
     getIt.registerSingleton<CreateCampaignUseCase>(
       CreateCampaignUseCase(getIt<MarketingRepository>()),
     );
-    getIt.registerSingleton<StartCampaignUseCase>(
-      StartCampaignUseCase(getIt<MarketingRepository>()),
-    );
-    getIt.registerSingleton<StopCampaignUseCase>(
-      StopCampaignUseCase(getIt<MarketingRepository>()),
-    );
-    getIt.registerSingleton<ResumeCampaignUseCase>(
-      ResumeCampaignUseCase(getIt<MarketingRepository>()),
-    );
+
     getIt.registerSingleton<EstimateAudienceUseCase>(
       EstimateAudienceUseCase(getIt<MarketingRepository>()),
     );

@@ -19,7 +19,9 @@
       "Bash(flutter clean *)",
       "Bash(cmd.exe /c \"wmic logicaldisk get size,freespace,caption\")",
       "Bash(flutter pub *)",
-      "Bash(flutter analyze *)"
+      "Bash(flutter analyze *)",
+      "Bash(grep -E \"\\\\.\\(dart|arb|json\\)$\")",
+      "Bash(xargs ls *)"
     ]
   }
 }

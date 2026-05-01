@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
@@ -19,6 +20,7 @@ class CampaignListScreen extends StatefulWidget {
 
 class _CampaignListScreenState extends State<CampaignListScreen> {
   late final MarketingStore _store;
+  late final MarketingBroadcastStore _broadcastStore;
   int _rowsPerPage = 10;
   int _currentPage = 1;
 
@@ -26,6 +28,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
   void initState() {
     super.initState();
     _store = getIt<MarketingStore>();
+    _broadcastStore = getIt<MarketingBroadcastStore>();
     _store.fetchOverview();
   }
 
@@ -272,7 +275,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                                     message: 'Bắt đầu chiến dịch "${c.name}"?',
                                     color: Colors.green,
                                     icon: Icons.play_arrow_rounded,
-                                    onConfirm: () => _store.startCampaign(c.id),
+                                    onConfirm: () => _broadcastStore.executeCampaign(c.id).then((_) => _store.fetchCampaigns()),
                                   );
                                 } else if (status == CampaignStatus.running) {
                                   _confirmAction(
@@ -284,7 +287,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                                     message: 'Tạm dừng chiến dịch "${c.name}"?',
                                     color: Colors.orange,
                                     icon: Icons.pause_rounded,
-                                    onConfirm: () => _store.stopCampaign(c.id),
+                                    onConfirm: () => _broadcastStore.stopCampaign(c.id).then((_) => _store.fetchCampaigns()),
                                   );
                                 } else if (status == CampaignStatus.paused) {
                                   _confirmAction(
@@ -297,7 +300,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                                     color: Colors.green,
                                     icon: Icons.play_arrow_rounded,
                                     onConfirm:
-                                        () => _store.resumeCampaign(c.id),
+                                        () => _broadcastStore.resumeCampaign(c.id).then((_) => _store.fetchCampaigns()),
                                   );
                                 }
                               },
@@ -551,7 +554,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                 message: 'Bắt đầu chiến dịch "${c.name}"?',
                 color: Colors.green,
                 icon: Icons.play_arrow_rounded,
-                onConfirm: () => _store.startCampaign(c.id),
+                onConfirm: () => _broadcastStore.executeCampaign(c.id).then((_) => _store.fetchCampaigns()),
               ),
         );
       case CampaignStatus.running:
@@ -567,7 +570,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                 message: 'Tạm dừng chiến dịch "${c.name}"?',
                 color: Colors.orange,
                 icon: Icons.pause_rounded,
-                onConfirm: () => _store.stopCampaign(c.id),
+                onConfirm: () => _broadcastStore.stopCampaign(c.id).then((_) => _store.fetchCampaigns()),
               ),
         );
       case CampaignStatus.paused:
@@ -583,7 +586,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                 message: 'Tiếp tục chiến dịch "${c.name}"?',
                 color: Colors.green,
                 icon: Icons.play_arrow_rounded,
-                onConfirm: () => _store.resumeCampaign(c.id),
+                onConfirm: () => _broadcastStore.resumeCampaign(c.id).then((_) => _store.fetchCampaigns()),
               ),
         );
       case CampaignStatus.completed:

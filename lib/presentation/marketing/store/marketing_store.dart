@@ -3,17 +3,13 @@ import 'dart:async';
 import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/campaign_id_params.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_campaigns_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_marketing_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/get_templates_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/resume_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/save_template_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/start_campaign_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/marketing/stop_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/get_broadcast_recipients_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
@@ -30,9 +26,6 @@ abstract class _MarketingStore with Store {
   final SaveTemplateUseCase _saveTemplateUseCase;
   final DeleteTemplateUseCase _deleteTemplateUseCase;
   final GetCampaignsUseCase _getCampaignsUseCase;
-  final StartCampaignUseCase _startCampaignUseCase;
-  final StopCampaignUseCase _stopCampaignUseCase;
-  final ResumeCampaignUseCase _resumeCampaignUseCase;
   final CreateBroadcastUseCase _createBroadcastUseCase;
   final UpdateBroadcastUseCase _updateBroadcastUseCase;
   final GetBroadcastRecipientsUseCase _getBroadcastRecipientsUseCase;
@@ -50,9 +43,6 @@ abstract class _MarketingStore with Store {
     this._saveTemplateUseCase,
     this._deleteTemplateUseCase,
     this._getCampaignsUseCase,
-    this._startCampaignUseCase,
-    this._stopCampaignUseCase,
-    this._resumeCampaignUseCase,
     this._createBroadcastUseCase,
     this._updateBroadcastUseCase,
     this._getBroadcastRecipientsUseCase,
@@ -239,72 +229,6 @@ abstract class _MarketingStore with Store {
         ..addAll(result);
     } catch (e) {
       errorMessage = e.toString();
-    }
-  }
-
-  // --- Actions: campaign controls ---
-  @action
-  Future<void> startCampaign(String id) async {
-    errorMessage = null;
-    final future = ObservableFuture(
-      _startCampaignUseCase.call(params: CampaignIdParams(id: id)),
-    );
-    actionFuture = future;
-    try {
-      final result = await future;
-      _updateCampaignStatus(result.campaignId, result.newStatus);
-      actionMessageKey = result.messageKey;
-      actionWasSuccess = result.isSuccess;
-    } catch (e) {
-      errorMessage = e.toString();
-      actionWasSuccess = false;
-    }
-  }
-
-  @action
-  Future<void> stopCampaign(String id) async {
-    errorMessage = null;
-    final future = ObservableFuture(
-      _stopCampaignUseCase.call(params: CampaignIdParams(id: id)),
-    );
-    actionFuture = future;
-    try {
-      final result = await future;
-      _updateCampaignStatus(result.campaignId, result.newStatus);
-      actionMessageKey = result.messageKey;
-      actionWasSuccess = result.isSuccess;
-    } catch (e) {
-      errorMessage = e.toString();
-      actionWasSuccess = false;
-    }
-  }
-
-  @action
-  Future<void> resumeCampaign(String id) async {
-    errorMessage = null;
-    final future = ObservableFuture(
-      _resumeCampaignUseCase.call(params: CampaignIdParams(id: id)),
-    );
-    actionFuture = future;
-    try {
-      final result = await future;
-      _updateCampaignStatus(result.campaignId, result.newStatus);
-      actionMessageKey = result.messageKey;
-      actionWasSuccess = result.isSuccess;
-    } catch (e) {
-      errorMessage = e.toString();
-      actionWasSuccess = false;
-    }
-  }
-
-  void _updateCampaignStatus(String id, CampaignStatus status) {
-    final index = campaigns.indexWhere((c) => c.id == id);
-    if (index >= 0) {
-      campaigns[index] = campaigns[index].copyWith(status: status);
-      if (selectedCampaign?.id == id) {
-        selectedCampaign = campaigns[index];
-      }
-      unawaited(_syncRealtimeSubscriptions());
     }
   }
 
