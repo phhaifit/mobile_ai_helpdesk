@@ -21,7 +21,11 @@
       "Bash(flutter pub *)",
       "Bash(flutter analyze *)",
       "Bash(grep -E \"\\\\.\\(dart|arb|json\\)$\")",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git rm *)",
+      "Bash(git add *)"
     ]
   }
 }
