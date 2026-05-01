@@ -33,6 +33,60 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
   }
 
   // ---------------------------------------------------------------------------
+  // getSourcesByCategory — maps UI category → one or more API type strings
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<List<KnowledgeSource>> getSourcesByCategory(String category) async {
+    switch (category) {
+      case 'web':
+        // Web covers both single_url ('web') and whole_site.
+        final results = await Future.wait([
+          _api.getSourcesByType(_tenantId, 'web'),
+          _api.getSourcesByType(_tenantId, 'whole_site'),
+        ]);
+        return [...results[0], ...results[1]].map(_mapSourceFromApi).toList();
+      case 'file':
+        final raw = await _api.getSourcesByType(_tenantId, 'local_file');
+        return raw.map(_mapSourceFromApi).toList();
+      case 'drive':
+        final raw = await _api.getSourcesByType(_tenantId, 'google_drive');
+        return raw.map(_mapSourceFromApi).toList();
+      case 'db':
+        final raw = await _api.getSourcesByType(_tenantId, 'database_query');
+        return raw.map(_mapSourceFromApi).toList();
+      default:
+        return getSources();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // updateSourceStatus
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<KnowledgeSource> updateSourceStatus(
+    String id,
+    KnowledgeSourceStatus status,
+  ) async {
+    await _api.updateSourceStatus(_tenantId, id, status.toApiStatus());
+    // API returns no body — refresh from list to get the updated entity.
+    final sources = await getSources();
+    return sources.firstWhere(
+      (s) => s.id == id,
+      orElse: () => KnowledgeSource(
+        id: id,
+        name: '',
+        type: KnowledgeSourceType.webSingle,
+        status: status,
+        lastSyncAt: DateTime.now(),
+        crawlInterval: CrawlInterval.manual,
+        config: const {},
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // addSource — Sub-task A handles web types only
   // ---------------------------------------------------------------------------
 

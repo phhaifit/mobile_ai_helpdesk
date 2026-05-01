@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:mobx/mobx.dart';
 
@@ -22,6 +24,8 @@ abstract class _KnowledgeStore with Store {
   final TestDbConnectionUseCase _testDbConnection;
   final UpdateSourceCrawlIntervalUseCase _updateSourceCrawlInterval;
   final WatchSourceStatusesUseCase _watchSourceStatuses;
+  final GetKnowledgeSourcesByTypeUseCase _getSourcesByType;
+  final UpdateSourceStatusUseCase _updateSourceStatus;
 
   _KnowledgeStore(
     this._getSources,
@@ -31,6 +35,8 @@ abstract class _KnowledgeStore with Store {
     this._testDbConnection,
     this._updateSourceCrawlInterval,
     this._watchSourceStatuses,
+    this._getSourcesByType,
+    this._updateSourceStatus,
   );
 
   // ---------------------------------------------------------------------------
@@ -39,6 +45,11 @@ abstract class _KnowledgeStore with Store {
 
   @observable
   ObservableList<KnowledgeSource> sources = ObservableList();
+
+  /// Holds results from the "filter by type" API call.
+  /// Null means no active API filter (show all from [sources]).
+  @observable
+  ObservableList<KnowledgeSource>? apiFilteredSources;
 
   @observable
   String? selectedCategory;
@@ -67,23 +78,10 @@ abstract class _KnowledgeStore with Store {
 
   @computed
   List<KnowledgeSource> get filteredSources {
-    if (selectedCategory == null) return sources.toList();
-    return sources.where((s) {
-      switch (selectedCategory) {
-        case 'file':
-          return s.type == KnowledgeSourceType.localFile;
-        case 'web':
-          return s.type == KnowledgeSourceType.webSingle ||
-              s.type == KnowledgeSourceType.webFull;
-        case 'drive':
-          return s.type == KnowledgeSourceType.googleDrive;
-        case 'db':
-          return s.type == KnowledgeSourceType.postgresql ||
-              s.type == KnowledgeSourceType.sqlServer;
-        default:
-          return true;
-      }
-    }).toList();
+    if (selectedCategory == null || apiFilteredSources == null) {
+      return sources.toList();
+    }
+    return apiFilteredSources!.toList();
   }
 
   // ---------------------------------------------------------------------------
@@ -107,8 +105,45 @@ abstract class _KnowledgeStore with Store {
   }
 
   @action
-  void filterByCategory(String? category) {
+  Future<void> filterByCategory(String? category) async {
     selectedCategory = category;
+    if (category == null) {
+      apiFilteredSources = null;
+      return;
+    }
+    isLoading = true;
+    errorMessage = null;
+    try {
+      final result = await _getSourcesByType.call(params: category);
+      apiFilteredSources = ObservableList.of(result);
+    } catch (e) {
+      errorMessage = e.toString();
+      apiFilteredSources = null;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  @action
+  Future<void> updateSourceStatus(
+    String id,
+    KnowledgeSourceStatus status,
+  ) async {
+    errorMessage = null;
+    try {
+      final updated = await _updateSourceStatus.call(
+        params: UpdateSourceStatusParams(id: id, status: status),
+      );
+      // Update in both lists.
+      final idx = sources.indexWhere((s) => s.id == id);
+      if (idx != -1) sources[idx] = updated;
+      final filteredIdx = apiFilteredSources?.indexWhere((s) => s.id == id);
+      if (filteredIdx != null && filteredIdx != -1) {
+        apiFilteredSources![filteredIdx] = updated;
+      }
+    } catch (e) {
+      errorMessage = e.toString();
+    }
   }
 
   @action

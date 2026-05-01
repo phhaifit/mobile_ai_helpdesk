@@ -83,6 +83,8 @@ class Endpoints {
       '/api/v1/knowledges/$tenantId/web';
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
+  static String knowledgeSourceStatus(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId/status';
   static const String knowledgePollStatus =
       '/api/v1/knowledges/sources/poll-status';
 

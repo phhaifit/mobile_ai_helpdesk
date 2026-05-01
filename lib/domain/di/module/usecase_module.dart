@@ -16,10 +16,12 @@ import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
@@ -279,6 +281,12 @@ class UseCaseModule {
     );
     getIt.registerSingleton<WatchSourceStatusesUseCase>(
       WatchSourceStatusesUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<GetKnowledgeSourcesByTypeUseCase>(
+      GetKnowledgeSourcesByTypeUseCase(getIt<KnowledgeRepository>()),
+    );
+    getIt.registerSingleton<UpdateSourceStatusUseCase>(
+      UpdateSourceStatusUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

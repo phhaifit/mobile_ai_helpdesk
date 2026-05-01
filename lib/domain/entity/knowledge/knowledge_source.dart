@@ -76,6 +76,20 @@ extension KnowledgeSourceStatusFromApi on String {
   }
 }
 
+extension KnowledgeSourceStatusApiX on KnowledgeSourceStatus {
+  /// Maps domain status → API status string for PATCH requests.
+  String toApiStatus() {
+    switch (this) {
+      case KnowledgeSourceStatus.active:
+        return 'completed';
+      case KnowledgeSourceStatus.indexing:
+        return 'processing';
+      case KnowledgeSourceStatus.error:
+        return 'failed';
+    }
+  }
+}
+
 extension CrawlIntervalApiX on CrawlInterval {
   /// Converts domain interval → API interval string (ONCE/DAILY/WEEKLY/MONTHLY).
   String toApiInterval() {
