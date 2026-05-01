@@ -4,13 +4,20 @@ import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
 import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 
-class ConnectMessengerUseCase extends UseCase<ActionFeedback, void> {
+class ConnectMessengerParams {
+  final String? authCode;
+
+  const ConnectMessengerParams({this.authCode});
+}
+
+class ConnectMessengerUseCase
+    extends UseCase<ActionFeedback, ConnectMessengerParams?> {
   final OmnichannelRepository _repository;
 
   ConnectMessengerUseCase(this._repository);
 
   @override
-  Future<ActionFeedback> call({required void params}) {
-    return _repository.connectMessenger();
+  Future<ActionFeedback> call({required ConnectMessengerParams? params}) {
+    return _repository.connectMessenger(authCode: params?.authCode);
   }
 }

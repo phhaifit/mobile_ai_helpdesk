@@ -1,9 +1,10 @@
+import 'package:uuid/uuid.dart';
+
 import '../../domain/entity/agent/agent.dart';
 import '../../domain/entity/comment/comment.dart';
 import '../../domain/entity/enums.dart';
 import '../../domain/entity/ticket/ticket.dart';
 import '../../domain/entity/ticket_history/ticket_history.dart';
-import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
 
@@ -182,10 +183,10 @@ class MockDataGenerator {
     const customerCount = 15;
 
     for (int i = 0; i < ticketCount; i++) {
-      final statusValues = TicketStatus.values;
-      final priorityValues = TicketPriority.values;
-      final categoryValues = TicketCategory.values;
-      final sourceValues = TicketSource.values;
+      const statusValues = TicketStatus.values;
+      const priorityValues = TicketPriority.values;
+      const categoryValues = TicketCategory.values;
+      const sourceValues = TicketSource.values;
       final customerIndex = i % customerCount;
       final customerFirstName =
           vietnameseFirstNames[customerIndex % vietnameseFirstNames.length];
@@ -206,32 +207,36 @@ class MockDataGenerator {
       );
       final updatedDate = createdDate.add(Duration(hours: i % 20));
       final isResolved = i % 3 == 0;
-      final resolvedDate = isResolved
-          ? updatedDate.add(Duration(hours: 2 + (i % 8)))
-          : null;
+      final resolvedDate =
+          isResolved ? updatedDate.add(Duration(hours: 2 + (i % 8))) : null;
 
-      tickets.add(Ticket(
-        id: 'TKT-${String.fromCharCodes(List.generate(6, (ind) => 48 + ((i + ind) % 10)))}',
-        title: ticketTitles[i % ticketTitles.length],
-        description: descriptionTemplates[i % descriptionTemplates.length],
-        status: statusValues[i % statusValues.length],
-        priority: priorityValues[i % priorityValues.length],
-        category: categoryValues[i % categoryValues.length],
-        source: sourceValues[i % sourceValues.length],
-        createdByID: agents[i % agents.length].id,
-        createdByName: agents[i % agents.length].name,
-        customerId: customerId,
-        customerName: customerName,
-        customerEmail: customerEmail,
-        assignedAgentId: assignedAgent?.id,
-        assignedAgentName: assignedAgent?.name,
-        createdAt: createdDate,
-        updatedAt: updatedDate,
-        resolvedAt: resolvedDate,
-        notes: i % 5 == 0 ? 'Ghi chú nội bộ: Khách hàng VIP cần ưu tiên' : null,
-        attachments: i % 4 == 0 ? ['file_${i}_1.pdf', 'screenshot_${i}.png'] : [],
-        unreadCount: (i % 7) > 0 ? i % 7 : 0,
-      ));
+      tickets.add(
+        Ticket(
+          id:
+              'TKT-${String.fromCharCodes(List.generate(6, (ind) => 48 + ((i + ind) % 10)))}',
+          title: ticketTitles[i % ticketTitles.length],
+          description: descriptionTemplates[i % descriptionTemplates.length],
+          status: statusValues[i % statusValues.length],
+          priority: priorityValues[i % priorityValues.length],
+          category: categoryValues[i % categoryValues.length],
+          source: sourceValues[i % sourceValues.length],
+          createdByID: agents[i % agents.length].id,
+          createdByName: agents[i % agents.length].name,
+          customerId: customerId,
+          customerName: customerName,
+          customerEmail: customerEmail,
+          assignedAgentId: assignedAgent?.id,
+          assignedAgentName: assignedAgent?.name,
+          createdAt: createdDate,
+          updatedAt: updatedDate,
+          resolvedAt: resolvedDate,
+          notes:
+              i % 5 == 0 ? 'Ghi chú nội bộ: Khách hàng VIP cần ưu tiên' : null,
+          attachments:
+              i % 4 == 0 ? ['file_${i}_1.pdf', 'screenshot_$i.png'] : [],
+          unreadCount: (i % 7) > 0 ? i % 7 : 0,
+        ),
+      );
     }
 
     return tickets;
@@ -247,7 +252,7 @@ class MockDataGenerator {
 
     for (int i = 0; i < commentCount; i++) {
       final agent = agents[i % agents.length];
-      final isPublic = i % 2 == 0;
+      final isPublic = i.isEven;
 
       comments.add(
         Comment(

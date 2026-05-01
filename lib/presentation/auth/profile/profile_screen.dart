@@ -1,27 +1,13 @@
+import 'dart:io';
+
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-/// PROFILE SCREEN WIDGET TREE:
-/// Scaffold
-///   ├─ AppBar
-///   └─ SafeArea
-///       └─ SingleChildScrollView
-///           └─ Column
-///               ├─ Card (user info)
-///               │   └─ Row
-///               │       ├─ CircleAvatar
-///               │       └─ Column (user details)
-///               ├─ SizedBox
-///               ├─ Card (email)
-///               ├─ Card (username)
-///               ├─ SizedBox
-///               ├─ ListTile (change password)
-///               ├─ Divider
-///               └─ ListTile (logout)
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -32,39 +18,68 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final AuthStore _authStore;
+  late final UploadAvatarUseCase _uploadAvatarUseCase;
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
     super.initState();
     _authStore = getIt<AuthStore>();
+    _uploadAvatarUseCase = getIt<UploadAvatarUseCase>();
   }
 
-  void _handleLogout() {
+  Future<void> _handleLogout() async {
     final l = AppLocalizations.of(context);
-
-    showDialog(
+    final navigator = Navigator.of(context);
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l.translate('logout_confirm_title')),
         content: Text(l.translate('logout_confirm_message')),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(l.translate('logout_confirm_no')),
           ),
           FilledButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _authStore.logout();
-
-              if (mounted) {
-                Navigator.pushReplacementNamed(context, Routes.login);
-              }
-            },
+            onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(l.translate('logout_confirm_yes')),
           ),
         ],
       ),
+    );
+    if (confirmed != true) return;
+    await _authStore.signOut();
+    if (!mounted) return;
+    await navigator.pushNamedAndRemoveUntil(Routes.signInEmail, (_) => false);
+  }
+
+  Future<void> _handleChangeAvatar() async {
+    if (_uploadingAvatar) return;
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final pick = await FilePicker.platform.pickFiles(type: FileType.image);
+    final path = pick?.files.single.path;
+    if (path == null) return;
+
+    setState(() => _uploadingAvatar = true);
+    final result = await _uploadAvatarUseCase.call(params: File(path));
+    if (!mounted) return;
+    setState(() => _uploadingAvatar = false);
+
+    await result.fold<Future<void>>(
+      (failure) async {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l.translate('profile_avatar_upload_failed'))),
+        );
+      },
+      (_) async {
+        await _authStore.refreshAccount();
+        if (!mounted) return;
+        messenger.showSnackBar(
+          SnackBar(content: Text(l.translate('profile_avatar_upload_success'))),
+        );
+      },
     );
   }
 
@@ -74,58 +89,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.translate('profile_tv_title'))),
+      appBar: AppBar(
+        title: Text(l.translate('profile_tv_title')),
+        actions: [
+          Observer(
+            builder: (_) => _authStore.account == null
+                ? const SizedBox.shrink()
+                : IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    tooltip: l.translate('profile_menu_edit'),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(Routes.editProfile),
+                  ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            final user = _authStore.currentUser;
-
-            if (user == null) {
+            final account = _authStore.account;
+            if (account == null) {
               return Center(
                 child: Text(l.translate('auth_error_session_expired')),
               );
             }
 
+            final hasAvatar = account.profilePicture != null &&
+                account.profilePicture!.isNotEmpty;
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // User info card
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          // Avatar
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: theme.colorScheme.primary,
-                            child: Text(
-                              user.username.isNotEmpty
-                                  ? user.username[0].toUpperCase()
-                                  : 'U',
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundColor: theme.colorScheme.primary,
+                                backgroundImage: hasAvatar
+                                    ? NetworkImage(account.profilePicture!)
+                                    : null,
+                                child: hasAvatar
+                                    ? null
+                                    : Text(
+                                        account.initial,
+                                        style: const TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
-                            ),
+                              Positioned(
+                                bottom: -4,
+                                right: -4,
+                                child: Material(
+                                  color: theme.colorScheme.primary,
+                                  shape: const CircleBorder(),
+                                  elevation: 2,
+                                  child: InkWell(
+                                    customBorder: const CircleBorder(),
+                                    onTap: _uploadingAvatar
+                                        ? null
+                                        : _handleChangeAvatar,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(6),
+                                      child: _uploadingAvatar
+                                          ? const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.camera_alt,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(width: 16),
-
-                          // User details
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  user.fullName ?? user.username,
+                                  (account.fullname?.isNotEmpty ?? false)
+                                      ? account.fullname!
+                                      : account.username,
                                   style: theme.textTheme.titleLarge,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  user.email,
+                                  account.email,
                                   style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Chip(
+                                  label: Text(account.role),
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
                                 ),
                               ],
                             ),
@@ -135,8 +209,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Email card
                   Card(
                     child: ListTile(
                       leading: Icon(
@@ -144,12 +216,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: theme.colorScheme.primary,
                       ),
                       title: Text(l.translate('profile_tv_email')),
-                      subtitle: Text(user.email),
+                      subtitle: Text(account.email),
                     ),
                   ),
                   const SizedBox(height: 8),
-
-                  // Username card
                   Card(
                     child: ListTile(
                       leading: Icon(
@@ -157,13 +227,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: theme.colorScheme.primary,
                       ),
                       title: Text(l.translate('profile_tv_username')),
-                      subtitle: Text(user.username),
+                      subtitle: Text(account.username),
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  // Phone card (if available)
-                  if (user.phone != null && user.phone!.isNotEmpty)
+                  if (account.phoneNumber != null &&
+                      account.phoneNumber!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
                     Card(
                       child: ListTile(
                         leading: Icon(
@@ -171,30 +240,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: theme.colorScheme.primary,
                         ),
                         title: Text(l.translate('profile_tv_phone')),
-                        subtitle: Text(user.phone!),
+                        subtitle: Text(account.phoneNumber!),
                       ),
                     ),
+                  ],
                   const SizedBox(height: 24),
-
-                  // Change password button
-                  ListTile(
-                    leading: const Icon(Icons.lock_outlined),
-                    title: Text(l.translate('profile_btn_change_password')),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      Navigator.pushNamed(context, Routes.changePassword);
-                    },
-                  ),
                   const Divider(),
-
-                  // Logout button
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: Text(
-                      l.translate('profile_btn_logout'),
-                      style: const TextStyle(color: Colors.red),
+                  Observer(
+                    builder: (_) => ListTile(
+                      leading: const Icon(Icons.logout, color: Colors.red),
+                      title: Text(
+                        l.translate('profile_btn_logout'),
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                      trailing: _authStore.isSigningOut
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : null,
+                      onTap: _authStore.isSigningOut ? null : _handleLogout,
                     ),
-                    onTap: _handleLogout,
                   ),
                 ],
               ),

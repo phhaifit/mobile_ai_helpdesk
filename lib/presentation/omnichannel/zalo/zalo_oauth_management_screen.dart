@@ -3,6 +3,7 @@ import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_ui_helpers.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -81,7 +82,7 @@ class _ZaloOauthManagementScreenState extends State<ZaloOauthManagementScreen> {
                           if (isConnected) {
                             _store.disconnectZalo();
                           } else {
-                            _store.connectZaloFromQr();
+                            Navigator.pushNamed(context, Routes.zaloConnectQr);
                           }
                         },
                   icon: Icon(isConnected ? Icons.link_off : Icons.link),

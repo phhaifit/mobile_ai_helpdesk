@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
+import 'sidebar_profile_section.dart';
 import 'tenant_switcher.dart';
 
 class MenuCategory {
@@ -117,7 +118,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
           ),
         ),
         // Bottom Profile Section
-        _buildProfileSection(),
+        const SidebarProfileSection(),
       ],
     );
   }
@@ -180,7 +181,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
         item.onTap();
       },
       child: Container(
-        color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : null,
+        color: isSelected ? AppColors.primaryBlue.withValues(alpha: 0.1) : null,
         padding: const EdgeInsets.fromLTRB(36, 10, 12, 10),
         child: Row(
           children: [
@@ -212,61 +213,6 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
     );
   }
 
-  Widget _buildProfileSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF7C3AED),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Text(
-                'T',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Tân Nguyễn Huy',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  'Quản lý',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.notifications_active_outlined,
-            size: 18,
-            color: Colors.grey.shade600,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // Legacy SidebarMenuPanel for mobile animations (optional, can keep for later use)
@@ -386,7 +332,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 12,
               offset: const Offset(4, 0),
             ),
@@ -460,7 +406,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
               ),
             ),
             // Bottom Profile Section
-            _buildProfileSection(),
+            const SidebarProfileSection(),
           ],
         ),
       ),
@@ -487,7 +433,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                 Expanded(
                   child: Text(
                     category.title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
@@ -528,7 +474,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
         widget.onClose(); // Close sidebar after selection
       },
       child: Container(
-        color: isSelected ? AppColors.primaryBlue.withOpacity(0.1) : null,
+        color: isSelected ? AppColors.primaryBlue.withValues(alpha: 0.1) : null,
         padding: const EdgeInsets.fromLTRB(36, 10, 12, 10),
         child: Row(
           children: [
@@ -560,59 +506,4 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
     );
   }
 
-  Widget _buildProfileSection() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF7C3AED),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Text(
-                'T',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Tân Nguyễn Huy',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  'Quản lý',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.notifications_active_outlined,
-            size: 18,
-            color: Colors.grey.shade600,
-          ),
-        ],
-      ),
-    );
-  }
 }

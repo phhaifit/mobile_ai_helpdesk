@@ -7,7 +7,6 @@ import 'package:ai_helpdesk/data/analytics/first_launch_manager.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:ai_helpdesk/firebase_options.dart';
 import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -91,8 +90,6 @@ Future<void> _configureSentryContext() async {
     final getIt = GetIt.instance;
     final env = EnvConfig.instance;
     final sentryService = getIt<SentryService>();
-    final sharedPrefHelper = getIt<SharedPreferenceHelper>();
-    final User? user = await sharedPrefHelper.getUser();
 
     await sentryService.setEnvironmentContext(env.sentryEnvironment);
     await sentryService.addBreadcrumb(
@@ -101,10 +98,6 @@ Future<void> _configureSentryContext() async {
       data: {'environment': env.sentryEnvironment},
       type: 'navigation',
     );
-
-    if (user != null) {
-      await sentryService.setUserContext(userId: user.id, email: user.email);
-    }
   } catch (e) {
     debugPrint('[Main] Sentry context setup failed: $e');
   }

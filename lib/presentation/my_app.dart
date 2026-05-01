@@ -14,7 +14,6 @@ import '../di/service_locator.dart';
 class MyApp extends StatelessWidget {
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
-
   MyApp({super.key});
 
   @override
@@ -41,7 +40,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           navigatorObservers: [SentryNavigatorObserver()],
-          initialRoute: Routes.home,
+          initialRoute: Routes.splash,
         );
       },
     );

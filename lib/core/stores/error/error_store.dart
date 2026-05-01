@@ -2,6 +2,7 @@ import 'package:mobx/mobx.dart';
 
 part 'error_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class ErrorStore = _ErrorStore with _$ErrorStore;
 
 abstract class _ErrorStore with Store {
@@ -15,6 +16,7 @@ abstract class _ErrorStore with Store {
   String errorMessage = '';
 
   @action
+  // ignore: use_setters_to_change_properties
   void setErrorMessage(String message) {
     errorMessage = message;
   }
