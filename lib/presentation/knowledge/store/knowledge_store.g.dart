@@ -9,13 +9,31 @@ part of 'knowledge_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$KnowledgeStore on _KnowledgeStore, Store {
-  Computed<List<KnowledgeSource>>? _$filteredSourcesComputed;
+  Computed<bool>? _$isLoadingComputed;
 
   @override
-  List<KnowledgeSource> get filteredSources =>
-      (_$filteredSourcesComputed ??= Computed<List<KnowledgeSource>>(
-            () => super.filteredSources,
-            name: '_KnowledgeStore.filteredSources',
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_KnowledgeStore.isLoading',
+          ))
+          .value;
+  Computed<List<KnowledgeSource>>? _$visibleSourcesComputed;
+
+  @override
+  List<KnowledgeSource> get visibleSources =>
+      (_$visibleSourcesComputed ??= Computed<List<KnowledgeSource>>(
+            () => super.visibleSources,
+            name: '_KnowledgeStore.visibleSources',
+          ))
+          .value;
+  Computed<bool>? _$hasInFlightSourcesComputed;
+
+  @override
+  bool get hasInFlightSources =>
+      (_$hasInFlightSourcesComputed ??= Computed<bool>(
+            () => super.hasInFlightSources,
+            name: '_KnowledgeStore.hasInFlightSources',
           ))
           .value;
 
@@ -37,98 +55,40 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     });
   }
 
-  late final _$apiFilteredSourcesAtom = Atom(
-    name: '_KnowledgeStore.apiFilteredSources',
+  late final _$typeFilterAtom = Atom(
+    name: '_KnowledgeStore.typeFilter',
     context: context,
   );
 
   @override
-  ObservableList<KnowledgeSource>? get apiFilteredSources {
-    _$apiFilteredSourcesAtom.reportRead();
-    return super.apiFilteredSources;
+  KnowledgeSourceType? get typeFilter {
+    _$typeFilterAtom.reportRead();
+    return super.typeFilter;
   }
 
   @override
-  set apiFilteredSources(ObservableList<KnowledgeSource>? value) {
-    _$apiFilteredSourcesAtom.reportWrite(value, super.apiFilteredSources, () {
-      super.apiFilteredSources = value;
+  set typeFilter(KnowledgeSourceType? value) {
+    _$typeFilterAtom.reportWrite(value, super.typeFilter, () {
+      super.typeFilter = value;
     });
   }
 
-  late final _$selectedCategoryAtom = Atom(
-    name: '_KnowledgeStore.selectedCategory',
+  late final _$loadFutureAtom = Atom(
+    name: '_KnowledgeStore.loadFuture',
     context: context,
   );
 
   @override
-  String? get selectedCategory {
-    _$selectedCategoryAtom.reportRead();
-    return super.selectedCategory;
+  ObservableFuture<void>? get loadFuture {
+    _$loadFutureAtom.reportRead();
+    return super.loadFuture;
   }
 
   @override
-  set selectedCategory(String? value) {
-    _$selectedCategoryAtom.reportWrite(value, super.selectedCategory, () {
-      super.selectedCategory = value;
+  set loadFuture(ObservableFuture<void>? value) {
+    _$loadFutureAtom.reportWrite(value, super.loadFuture, () {
+      super.loadFuture = value;
     });
-  }
-
-  late final _$isLoadingAtom = Atom(
-    name: '_KnowledgeStore.isLoading',
-    context: context,
-  );
-
-  @override
-  bool get isLoading {
-    _$isLoadingAtom.reportRead();
-    return super.isLoading;
-  }
-
-  @override
-  set isLoading(bool value) {
-    _$isLoadingAtom.reportWrite(value, super.isLoading, () {
-      super.isLoading = value;
-    });
-  }
-
-  late final _$isTestingAtom = Atom(
-    name: '_KnowledgeStore.isTesting',
-    context: context,
-  );
-
-  @override
-  bool get isTesting {
-    _$isTestingAtom.reportRead();
-    return super.isTesting;
-  }
-
-  @override
-  set isTesting(bool value) {
-    _$isTestingAtom.reportWrite(value, super.isTesting, () {
-      super.isTesting = value;
-    });
-  }
-
-  late final _$connectionTestSuccessAtom = Atom(
-    name: '_KnowledgeStore.connectionTestSuccess',
-    context: context,
-  );
-
-  @override
-  bool? get connectionTestSuccess {
-    _$connectionTestSuccessAtom.reportRead();
-    return super.connectionTestSuccess;
-  }
-
-  @override
-  set connectionTestSuccess(bool? value) {
-    _$connectionTestSuccessAtom.reportWrite(
-      value,
-      super.connectionTestSuccess,
-      () {
-        super.connectionTestSuccess = value;
-      },
-    );
   }
 
   late final _$errorMessageAtom = Atom(
@@ -149,48 +109,173 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     });
   }
 
+  late final _$tenantMissingAtom = Atom(
+    name: '_KnowledgeStore.tenantMissing',
+    context: context,
+  );
+
+  @override
+  bool get tenantMissing {
+    _$tenantMissingAtom.reportRead();
+    return super.tenantMissing;
+  }
+
+  @override
+  set tenantMissing(bool value) {
+    _$tenantMissingAtom.reportWrite(value, super.tenantMissing, () {
+      super.tenantMissing = value;
+    });
+  }
+
+  late final _$busySourceIdsAtom = Atom(
+    name: '_KnowledgeStore.busySourceIds',
+    context: context,
+  );
+
+  @override
+  ObservableSet<String> get busySourceIds {
+    _$busySourceIdsAtom.reportRead();
+    return super.busySourceIds;
+  }
+
+  @override
+  set busySourceIds(ObservableSet<String> value) {
+    _$busySourceIdsAtom.reportWrite(value, super.busySourceIds, () {
+      super.busySourceIds = value;
+    });
+  }
+
+  late final _$isTestingDbAtom = Atom(
+    name: '_KnowledgeStore.isTestingDb',
+    context: context,
+  );
+
+  @override
+  bool get isTestingDb {
+    _$isTestingDbAtom.reportRead();
+    return super.isTestingDb;
+  }
+
+  @override
+  set isTestingDb(bool value) {
+    _$isTestingDbAtom.reportWrite(value, super.isTestingDb, () {
+      super.isTestingDb = value;
+    });
+  }
+
+  late final _$lastDbPreviewAtom = Atom(
+    name: '_KnowledgeStore.lastDbPreview',
+    context: context,
+  );
+
+  @override
+  DatabaseQueryPreview? get lastDbPreview {
+    _$lastDbPreviewAtom.reportRead();
+    return super.lastDbPreview;
+  }
+
+  @override
+  set lastDbPreview(DatabaseQueryPreview? value) {
+    _$lastDbPreviewAtom.reportWrite(value, super.lastDbPreview, () {
+      super.lastDbPreview = value;
+    });
+  }
+
+  late final _$dbTestErrorAtom = Atom(
+    name: '_KnowledgeStore.dbTestError',
+    context: context,
+  );
+
+  @override
+  String? get dbTestError {
+    _$dbTestErrorAtom.reportRead();
+    return super.dbTestError;
+  }
+
+  @override
+  set dbTestError(String? value) {
+    _$dbTestErrorAtom.reportWrite(value, super.dbTestError, () {
+      super.dbTestError = value;
+    });
+  }
+
+  late final _$uploadProgressAtom = Atom(
+    name: '_KnowledgeStore.uploadProgress',
+    context: context,
+  );
+
+  @override
+  double? get uploadProgress {
+    _$uploadProgressAtom.reportRead();
+    return super.uploadProgress;
+  }
+
+  @override
+  set uploadProgress(double? value) {
+    _$uploadProgressAtom.reportWrite(value, super.uploadProgress, () {
+      super.uploadProgress = value;
+    });
+  }
+
+  late final _$liveStatusModeAtom = Atom(
+    name: '_KnowledgeStore.liveStatusMode',
+    context: context,
+  );
+
+  @override
+  LiveStatusMode get liveStatusMode {
+    _$liveStatusModeAtom.reportRead();
+    return super.liveStatusMode;
+  }
+
+  @override
+  set liveStatusMode(LiveStatusMode value) {
+    _$liveStatusModeAtom.reportWrite(value, super.liveStatusMode, () {
+      super.liveStatusMode = value;
+    });
+  }
+
   late final _$loadSourcesAsyncAction = AsyncAction(
     '_KnowledgeStore.loadSources',
     context: context,
   );
 
   @override
-  Future<void> loadSources() {
-    return _$loadSourcesAsyncAction.run(() => super.loadSources());
+  Future<void> loadSources({String? query}) {
+    return _$loadSourcesAsyncAction.run(() => super.loadSources(query: query));
   }
 
-  late final _$filterByCategoryAsyncAction = AsyncAction(
-    '_KnowledgeStore.filterByCategory',
+  late final _$refreshTenantFromAccountAsyncAction = AsyncAction(
+    '_KnowledgeStore.refreshTenantFromAccount',
     context: context,
   );
 
   @override
-  Future<void> filterByCategory(String? category) {
-    return _$filterByCategoryAsyncAction.run(
-      () => super.filterByCategory(category),
+  Future<void> refreshTenantFromAccount() {
+    return _$refreshTenantFromAccountAsyncAction
+        .run(() => super.refreshTenantFromAccount());
+  }
+
+  @override
+  void setTypeFilter(KnowledgeSourceType? type) {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.setTypeFilter',
     );
+    try {
+      return super.setTypeFilter(type);
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
   }
 
-  late final _$updateSourceStatusAsyncAction = AsyncAction(
-    '_KnowledgeStore.updateSourceStatus',
+  late final _$reindexAsyncAction = AsyncAction(
+    '_KnowledgeStore.reindex',
     context: context,
   );
 
   @override
-  Future<void> updateSourceStatus(String id, KnowledgeSourceStatus status) {
-    return _$updateSourceStatusAsyncAction.run(
-      () => super.updateSourceStatus(id, status),
-    );
-  }
-
-  late final _$addSourceAsyncAction = AsyncAction(
-    '_KnowledgeStore.addSource',
-    context: context,
-  );
-
-  @override
-  Future<void> addSource(KnowledgeSource source) {
-    return _$addSourceAsyncAction.run(() => super.addSource(source));
+  Future<void> reindex(String id) {
+    return _$reindexAsyncAction.run(() => super.reindex(id));
   }
 
   late final _$deleteSourceAsyncAction = AsyncAction(
@@ -203,39 +288,133 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return _$deleteSourceAsyncAction.run(() => super.deleteSource(id));
   }
 
-  late final _$reindexSourceAsyncAction = AsyncAction(
-    '_KnowledgeStore.reindexSource',
+  late final _$updateIntervalAsyncAction = AsyncAction(
+    '_KnowledgeStore.updateInterval',
     context: context,
   );
 
   @override
-  Future<void> reindexSource(String id) {
-    return _$reindexSourceAsyncAction.run(() => super.reindexSource(id));
-  }
-
-  late final _$updateSourceCrawlIntervalAsyncAction = AsyncAction(
-    '_KnowledgeStore.updateSourceCrawlInterval',
-    context: context,
-  );
-
-  @override
-  Future<void> updateSourceCrawlInterval(
-    String id,
-    CrawlInterval crawlInterval,
-  ) {
-    return _$updateSourceCrawlIntervalAsyncAction.run(
-      () => super.updateSourceCrawlInterval(id, crawlInterval),
+  Future<void> updateInterval(String id, CrawlInterval interval) {
+    return _$updateIntervalAsyncAction.run(
+      () => super.updateInterval(id, interval),
     );
   }
 
-  late final _$testConnectionAsyncAction = AsyncAction(
-    '_KnowledgeStore.testConnection',
+  late final _$updateStatusAsyncAction = AsyncAction(
+    '_KnowledgeStore.updateStatus',
     context: context,
   );
 
   @override
-  Future<void> testConnection(Map<String, dynamic> config) {
-    return _$testConnectionAsyncAction.run(() => super.testConnection(config));
+  Future<void> updateStatus(String id, KnowledgeSourceStatus status) {
+    return _$updateStatusAsyncAction.run(() => super.updateStatus(id, status));
+  }
+
+  late final _$updateDatabaseQueryAsyncAction = AsyncAction(
+    '_KnowledgeStore.updateDatabaseQuery',
+    context: context,
+  );
+
+  @override
+  Future<void> updateDatabaseQuery({
+    required String id,
+    required String query,
+    required String uri,
+  }) {
+    return _$updateDatabaseQueryAsyncAction.run(
+      () => super.updateDatabaseQuery(id: id, query: query, uri: uri),
+    );
+  }
+
+  late final _$importWebAsyncAction = AsyncAction(
+    '_KnowledgeStore.importWeb',
+    context: context,
+  );
+
+  @override
+  Future<KnowledgeSource?> importWeb({
+    required String url,
+    required KnowledgeSourceType type,
+    required CrawlInterval interval,
+  }) {
+    return _$importWebAsyncAction.run(
+      () => super.importWeb(url: url, type: type, interval: interval),
+    );
+  }
+
+  late final _$importLocalFileAsyncAction = AsyncAction(
+    '_KnowledgeStore.importLocalFile',
+    context: context,
+  );
+
+  @override
+  Future<KnowledgeSource?> importLocalFile({
+    required File file,
+    required String fileName,
+  }) {
+    return _$importLocalFileAsyncAction.run(
+      () => super.importLocalFile(file: file, fileName: fileName),
+    );
+  }
+
+  late final _$importGoogleDriveAsyncAction = AsyncAction(
+    '_KnowledgeStore.importGoogleDrive',
+    context: context,
+  );
+
+  @override
+  Future<KnowledgeSource?> importGoogleDrive({
+    required String name,
+    required List<String> includePaths,
+    required String customerSupportId,
+    required GoogleDriveCredentials credentials,
+    required CrawlInterval interval,
+  }) {
+    return _$importGoogleDriveAsyncAction.run(
+      () => super.importGoogleDrive(
+        name: name,
+        includePaths: includePaths,
+        customerSupportId: customerSupportId,
+        credentials: credentials,
+        interval: interval,
+      ),
+    );
+  }
+
+  late final _$importDatabaseQueryAsyncAction = AsyncAction(
+    '_KnowledgeStore.importDatabaseQuery',
+    context: context,
+  );
+
+  @override
+  Future<KnowledgeSource?> importDatabaseQuery({
+    required String name,
+    required String query,
+    required String uri,
+    required CrawlInterval interval,
+    DatabaseDialect dialect = DatabaseDialect.postgresql,
+  }) {
+    return _$importDatabaseQueryAsyncAction.run(
+      () => super.importDatabaseQuery(
+        name: name,
+        query: query,
+        uri: uri,
+        interval: interval,
+        dialect: dialect,
+      ),
+    );
+  }
+
+  late final _$testDatabaseQueryAsyncAction = AsyncAction(
+    '_KnowledgeStore.testDatabaseQuery',
+    context: context,
+  );
+
+  @override
+  Future<void> testDatabaseQuery({required String query, required String uri}) {
+    return _$testDatabaseQueryAsyncAction.run(
+      () => super.testDatabaseQuery(query: query, uri: uri),
+    );
   }
 
   late final _$_KnowledgeStoreActionController = ActionController(
@@ -244,12 +423,36 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   );
 
   @override
-  void resetConnectionTest() {
+  void resetDbTest() {
     final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
-      name: '_KnowledgeStore.resetConnectionTest',
+      name: '_KnowledgeStore.resetDbTest',
     );
     try {
-      return super.resetConnectionTest();
+      return super.resetDbTest();
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void startLiveStatus() {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.startLiveStatus',
+    );
+    try {
+      return super.startLiveStatus();
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void stopLiveStatus() {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.stopLiveStatus',
+    );
+    try {
+      return super.stopLiveStatus();
     } finally {
       _$_KnowledgeStoreActionController.endAction(_$actionInfo);
     }
@@ -259,13 +462,19 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   String toString() {
     return '''
 sources: ${sources},
-apiFilteredSources: ${apiFilteredSources},
-selectedCategory: ${selectedCategory},
-isLoading: ${isLoading},
-isTesting: ${isTesting},
-connectionTestSuccess: ${connectionTestSuccess},
+tenantMissing: ${tenantMissing},
+typeFilter: ${typeFilter},
+loadFuture: ${loadFuture},
 errorMessage: ${errorMessage},
-filteredSources: ${filteredSources}
+busySourceIds: ${busySourceIds},
+isTestingDb: ${isTestingDb},
+lastDbPreview: ${lastDbPreview},
+dbTestError: ${dbTestError},
+uploadProgress: ${uploadProgress},
+liveStatusMode: ${liveStatusMode},
+isLoading: ${isLoading},
+visibleSources: ${visibleSources},
+hasInFlightSources: ${hasInFlightSources}
     ''';
   }
 }

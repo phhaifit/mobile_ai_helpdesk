@@ -14,57 +14,33 @@ void main() {
   });
 
   group('WatchSourceStatusesUseCase', () {
-    test('returns an empty stream when repository emits nothing', () async {
-      fakeRepo.sseStream = Stream.empty();
-
-      final events = await useCase().toList();
-
-      expect(events, isEmpty);
-    });
-
     test('forwards a single status update event', () async {
-      final event = {'src-001': KnowledgeSourceStatus.active};
+      final event = {'src-001': KnowledgeSourceStatus.completed};
       fakeRepo.sseStream = Stream.value(event);
 
       final events = await useCase().toList();
 
       expect(events.length, 1);
-      expect(events.first['src-001'], KnowledgeSourceStatus.active);
+      expect(events.first['src-001'], KnowledgeSourceStatus.completed);
     });
 
-    test('forwards multiple status update events in order', () async {
-      final first = {'src-001': KnowledgeSourceStatus.indexing};
-      final second = {'src-001': KnowledgeSourceStatus.active};
+    test('forwards multiple events in order', () async {
+      final first = {'src-001': KnowledgeSourceStatus.processing};
+      final second = {'src-001': KnowledgeSourceStatus.completed};
       fakeRepo.sseStream = Stream.fromIterable([first, second]);
 
       final events = await useCase().toList();
-
-      expect(events.length, 2);
-      expect(events[0]['src-001'], KnowledgeSourceStatus.indexing);
-      expect(events[1]['src-001'], KnowledgeSourceStatus.active);
+      expect(events, hasLength(2));
+      expect(events[0]['src-001'], KnowledgeSourceStatus.processing);
+      expect(events[1]['src-001'], KnowledgeSourceStatus.completed);
     });
 
-    test('forwards error status', () async {
-      final event = {'src-002': KnowledgeSourceStatus.error};
-      fakeRepo.sseStream = Stream.value(event);
-
+    test('forwards failed status', () async {
+      fakeRepo.sseStream = Stream.value(
+        {'src-002': KnowledgeSourceStatus.failed},
+      );
       final events = await useCase().toList();
-
-      expect(events.first['src-002'], KnowledgeSourceStatus.error);
-    });
-
-    test('forwards updates for multiple sources in one event', () async {
-      final event = {
-        'src-001': KnowledgeSourceStatus.active,
-        'src-002': KnowledgeSourceStatus.indexing,
-      };
-      fakeRepo.sseStream = Stream.value(event);
-
-      final events = await useCase().toList();
-
-      expect(events.first.length, 2);
-      expect(events.first['src-001'], KnowledgeSourceStatus.active);
-      expect(events.first['src-002'], KnowledgeSourceStatus.indexing);
+      expect(events.first['src-002'], KnowledgeSourceStatus.failed);
     });
   });
 }

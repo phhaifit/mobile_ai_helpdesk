@@ -2,99 +2,105 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'knowledge_source.g.dart';
 
-enum KnowledgeSourceType {
-  webSingle,
-  webFull,
-  localFile,
-  googleDrive,
-  postgresql,
-  sqlServer,
-}
+/// Source type — mirrors the backend `type` enum 1:1.
+///
+/// Backend values:
+///   `web` (single URL) | `whole_site` | `local_file` | `google_drive` | `database_query`
+enum KnowledgeSourceType { web, wholeSite, localFile, googleDrive, databaseQuery }
 
-enum KnowledgeSourceStatus { active, indexing, error }
+/// Processing status — mirrors the backend `status` enum 1:1.
+enum KnowledgeSourceStatus { pending, processing, completed, failed }
 
-/// Backend supports: ONCE | DAILY | WEEKLY | MONTHLY (no HOURLY).
-enum CrawlInterval { manual, daily, weekly, monthly }
+/// Sync interval — mirrors the backend `interval` enum 1:1.
+enum CrawlInterval { once, daily, weekly, monthly }
+
+/// Database dialect for `databaseQuery` sources.  Stored in [KnowledgeSource.config]
+/// under the key `dialect`.  Used purely client-side to render the connection
+/// form correctly — backend distinguishes by URI scheme (`postgresql://` vs `sqlserver://`).
+enum DatabaseDialect { postgresql, sqlServer }
 
 // ---------------------------------------------------------------------------
-// API ↔ Domain mapping extensions
+// API ↔ Domain mapping
 // ---------------------------------------------------------------------------
 
 extension KnowledgeSourceTypeApiX on KnowledgeSourceType {
-  /// Converts domain type to API `type` string used in import endpoints.
-  String toApiImportType() {
+  String toApiType() {
     switch (this) {
-      case KnowledgeSourceType.webSingle:
-        return 'single_url';
-      case KnowledgeSourceType.webFull:
+      case KnowledgeSourceType.web:
+        return 'web';
+      case KnowledgeSourceType.wholeSite:
         return 'whole_site';
       case KnowledgeSourceType.localFile:
         return 'local_file';
       case KnowledgeSourceType.googleDrive:
         return 'google_drive';
-      case KnowledgeSourceType.postgresql:
-      case KnowledgeSourceType.sqlServer:
+      case KnowledgeSourceType.databaseQuery:
         return 'database_query';
     }
   }
-}
 
-extension KnowledgeSourceTypeFromApi on String {
-  /// Parses API `type` field from GET /sources response.
-  KnowledgeSourceType toKnowledgeSourceType() {
-    switch (this) {
-      case 'web':
-        return KnowledgeSourceType.webSingle;
-      case 'whole_site':
-        return KnowledgeSourceType.webFull;
-      case 'local_file':
-        return KnowledgeSourceType.localFile;
-      case 'google_drive':
-        return KnowledgeSourceType.googleDrive;
-      case 'database_query':
-        return KnowledgeSourceType.postgresql;
-      default:
-        return KnowledgeSourceType.webSingle;
-    }
+  /// Used for the body field `type` of `POST /web` (single_url|whole_site).
+  String toWebImportType() {
+    if (this == KnowledgeSourceType.wholeSite) return 'whole_site';
+    return 'single_url';
   }
 }
 
-extension KnowledgeSourceStatusFromApi on String {
-  /// Maps API status (pending/processing/completed/failed) → domain status.
-  KnowledgeSourceStatus toKnowledgeSourceStatus() {
-    switch (this) {
-      case 'completed':
-        return KnowledgeSourceStatus.active;
-      case 'pending':
-      case 'processing':
-        return KnowledgeSourceStatus.indexing;
-      case 'failed':
-        return KnowledgeSourceStatus.error;
-      default:
-        return KnowledgeSourceStatus.indexing;
-    }
+KnowledgeSourceType knowledgeSourceTypeFromApi(String? raw) {
+  switch (raw) {
+    case 'web':
+      return KnowledgeSourceType.web;
+    case 'whole_site':
+      return KnowledgeSourceType.wholeSite;
+    case 'local_file':
+      return KnowledgeSourceType.localFile;
+    case 'google_drive':
+      return KnowledgeSourceType.googleDrive;
+    case 'database_query':
+      return KnowledgeSourceType.databaseQuery;
+    default:
+      return KnowledgeSourceType.web;
   }
 }
 
 extension KnowledgeSourceStatusApiX on KnowledgeSourceStatus {
-  /// Maps domain status → API status string for PATCH requests.
   String toApiStatus() {
     switch (this) {
-      case KnowledgeSourceStatus.active:
-        return 'completed';
-      case KnowledgeSourceStatus.indexing:
+      case KnowledgeSourceStatus.pending:
+        return 'pending';
+      case KnowledgeSourceStatus.processing:
         return 'processing';
-      case KnowledgeSourceStatus.error:
+      case KnowledgeSourceStatus.completed:
+        return 'completed';
+      case KnowledgeSourceStatus.failed:
         return 'failed';
     }
+  }
+
+  bool get isInFlight =>
+      this == KnowledgeSourceStatus.pending ||
+      this == KnowledgeSourceStatus.processing;
+}
+
+KnowledgeSourceStatus knowledgeSourceStatusFromApi(String? raw) {
+  switch (raw) {
+    case 'pending':
+      return KnowledgeSourceStatus.pending;
+    case 'processing':
+      return KnowledgeSourceStatus.processing;
+    case 'completed':
+      return KnowledgeSourceStatus.completed;
+    case 'failed':
+      return KnowledgeSourceStatus.failed;
+    default:
+      return KnowledgeSourceStatus.pending;
   }
 }
 
 extension CrawlIntervalApiX on CrawlInterval {
-  /// Converts domain interval → API interval string (ONCE/DAILY/WEEKLY/MONTHLY).
   String toApiInterval() {
     switch (this) {
-      case CrawlInterval.manual:
+      case CrawlInterval.once:
         return 'ONCE';
       case CrawlInterval.daily:
         return 'DAILY';
@@ -106,21 +112,18 @@ extension CrawlIntervalApiX on CrawlInterval {
   }
 }
 
-extension CrawlIntervalFromApi on String {
-  /// Parses API interval string → domain CrawlInterval.
-  CrawlInterval toCrawlInterval() {
-    switch (this) {
-      case 'ONCE':
-        return CrawlInterval.manual;
-      case 'DAILY':
-        return CrawlInterval.daily;
-      case 'WEEKLY':
-        return CrawlInterval.weekly;
-      case 'MONTHLY':
-        return CrawlInterval.monthly;
-      default:
-        return CrawlInterval.manual;
-    }
+CrawlInterval crawlIntervalFromApi(String? raw) {
+  switch (raw) {
+    case 'ONCE':
+      return CrawlInterval.once;
+    case 'DAILY':
+      return CrawlInterval.daily;
+    case 'WEEKLY':
+      return CrawlInterval.weekly;
+    case 'MONTHLY':
+      return CrawlInterval.monthly;
+    default:
+      return CrawlInterval.once;
   }
 }
 
@@ -134,8 +137,19 @@ class KnowledgeSource {
   final String name;
   final KnowledgeSourceType type;
   final KnowledgeSourceStatus status;
-  final DateTime lastSyncAt;
-  final CrawlInterval crawlInterval;
+  final CrawlInterval interval;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Optional indexing progress in [0, 1].  Only populated when the backend
+  /// reports it (e.g. via SSE during a crawl).
+  final double? progress;
+
+  /// Optional human-readable error message, populated when [status] is `failed`.
+  final String? errorMessage;
+
+  /// Type-specific config (URL, fileName, dialect, includePaths, …) — used by
+  /// the UI to render details.  The backend list endpoint does not return this.
   final Map<String, dynamic> config;
 
   const KnowledgeSource({
@@ -143,9 +157,12 @@ class KnowledgeSource {
     required this.name,
     required this.type,
     required this.status,
-    required this.lastSyncAt,
-    required this.crawlInterval,
-    required this.config,
+    required this.interval,
+    required this.createdAt,
+    required this.updatedAt,
+    this.progress,
+    this.errorMessage,
+    this.config = const {},
   });
 
   factory KnowledgeSource.fromJson(Map<String, dynamic> json) =>
@@ -158,8 +175,13 @@ class KnowledgeSource {
     String? name,
     KnowledgeSourceType? type,
     KnowledgeSourceStatus? status,
-    DateTime? lastSyncAt,
-    CrawlInterval? crawlInterval,
+    CrawlInterval? interval,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    double? progress,
+    bool clearProgress = false,
+    String? errorMessage,
+    bool clearErrorMessage = false,
     Map<String, dynamic>? config,
   }) {
     return KnowledgeSource(
@@ -167,8 +189,12 @@ class KnowledgeSource {
       name: name ?? this.name,
       type: type ?? this.type,
       status: status ?? this.status,
-      lastSyncAt: lastSyncAt ?? this.lastSyncAt,
-      crawlInterval: crawlInterval ?? this.crawlInterval,
+      interval: interval ?? this.interval,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      progress: clearProgress ? null : (progress ?? this.progress),
+      errorMessage:
+          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
       config: config ?? this.config,
     );
   }

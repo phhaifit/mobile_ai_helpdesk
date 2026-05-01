@@ -2,196 +2,78 @@ import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  // ---------------------------------------------------------------------------
-  // KnowledgeSourceTypeApiX.toApiImportType()
-  // ---------------------------------------------------------------------------
+  group('KnowledgeSourceType.toApiType', () {
+    const cases = {
+      KnowledgeSourceType.web: 'web',
+      KnowledgeSourceType.wholeSite: 'whole_site',
+      KnowledgeSourceType.localFile: 'local_file',
+      KnowledgeSourceType.googleDrive: 'google_drive',
+      KnowledgeSourceType.databaseQuery: 'database_query',
+    };
 
-  group('KnowledgeSourceType.toApiImportType', () {
-    test('webSingle → single_url', () {
-      expect(
-        KnowledgeSourceType.webSingle.toApiImportType(),
-        'single_url',
-      );
+    cases.forEach((type, api) {
+      test('$type → $api', () {
+        expect(type.toApiType(), api);
+      });
     });
+  });
 
-    test('webFull → whole_site', () {
-      expect(
-        KnowledgeSourceType.webFull.toApiImportType(),
-        'whole_site',
-      );
+  group('KnowledgeSourceType.toWebImportType', () {
+    test('web (single URL) → single_url', () {
+      expect(KnowledgeSourceType.web.toWebImportType(), 'single_url');
     });
-
-    test('localFile → local_file', () {
-      expect(
-        KnowledgeSourceType.localFile.toApiImportType(),
-        'local_file',
-      );
+    test('wholeSite → whole_site', () {
+      expect(KnowledgeSourceType.wholeSite.toWebImportType(), 'whole_site');
     });
+  });
 
-    test('googleDrive → google_drive', () {
-      expect(
-        KnowledgeSourceType.googleDrive.toApiImportType(),
-        'google_drive',
-      );
+  group('knowledgeSourceTypeFromApi', () {
+    const cases = {
+      'web': KnowledgeSourceType.web,
+      'whole_site': KnowledgeSourceType.wholeSite,
+      'local_file': KnowledgeSourceType.localFile,
+      'google_drive': KnowledgeSourceType.googleDrive,
+      'database_query': KnowledgeSourceType.databaseQuery,
+    };
+    cases.forEach((raw, expected) {
+      test('"$raw" → $expected', () {
+        expect(knowledgeSourceTypeFromApi(raw), expected);
+      });
     });
-
-    test('postgresql → database_query', () {
+    test('unknown raw falls back to web', () {
       expect(
-        KnowledgeSourceType.postgresql.toApiImportType(),
-        'database_query',
-      );
-    });
-
-    test('sqlServer → database_query', () {
-      expect(
-        KnowledgeSourceType.sqlServer.toApiImportType(),
-        'database_query',
+        knowledgeSourceTypeFromApi('???'),
+        KnowledgeSourceType.web,
       );
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // String.toKnowledgeSourceType()
-  // ---------------------------------------------------------------------------
-
-  group('String.toKnowledgeSourceType', () {
-    test('"web" → webSingle', () {
-      expect('web'.toKnowledgeSourceType(), KnowledgeSourceType.webSingle);
-    });
-
-    test('"whole_site" → webFull', () {
-      expect('whole_site'.toKnowledgeSourceType(), KnowledgeSourceType.webFull);
-    });
-
-    test('"local_file" → localFile', () {
-      expect(
-        'local_file'.toKnowledgeSourceType(),
-        KnowledgeSourceType.localFile,
-      );
-    });
-
-    test('"google_drive" → googleDrive', () {
-      expect(
-        'google_drive'.toKnowledgeSourceType(),
-        KnowledgeSourceType.googleDrive,
-      );
-    });
-
-    test('"database_query" → postgresql', () {
-      expect(
-        'database_query'.toKnowledgeSourceType(),
-        KnowledgeSourceType.postgresql,
-      );
-    });
-
-    test('unknown string falls back to webSingle', () {
-      expect(
-        'totally_unknown'.toKnowledgeSourceType(),
-        KnowledgeSourceType.webSingle,
-      );
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // String.toKnowledgeSourceStatus()
-  // ---------------------------------------------------------------------------
-
-  group('String.toKnowledgeSourceStatus', () {
-    test('"completed" → active', () {
-      expect(
-        'completed'.toKnowledgeSourceStatus(),
-        KnowledgeSourceStatus.active,
-      );
-    });
-
-    test('"pending" → indexing', () {
-      expect(
-        'pending'.toKnowledgeSourceStatus(),
-        KnowledgeSourceStatus.indexing,
-      );
-    });
-
-    test('"processing" → indexing', () {
-      expect(
-        'processing'.toKnowledgeSourceStatus(),
-        KnowledgeSourceStatus.indexing,
-      );
-    });
-
-    test('"failed" → error', () {
-      expect(
-        'failed'.toKnowledgeSourceStatus(),
-        KnowledgeSourceStatus.error,
-      );
-    });
-
-    test('unknown string falls back to indexing', () {
-      expect(
-        'some_unknown_status'.toKnowledgeSourceStatus(),
-        KnowledgeSourceStatus.indexing,
-      );
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // CrawlIntervalApiX.toApiInterval()
-  // ---------------------------------------------------------------------------
-
-  group('CrawlInterval.toApiInterval', () {
-    test('manual → ONCE', () {
-      expect(CrawlInterval.manual.toApiInterval(), 'ONCE');
-    });
-
-    test('daily → DAILY', () {
-      expect(CrawlInterval.daily.toApiInterval(), 'DAILY');
-    });
-
-    test('weekly → WEEKLY', () {
-      expect(CrawlInterval.weekly.toApiInterval(), 'WEEKLY');
-    });
-
-    test('monthly → MONTHLY', () {
-      expect(CrawlInterval.monthly.toApiInterval(), 'MONTHLY');
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // String.toCrawlInterval()
-  // ---------------------------------------------------------------------------
-
-  group('String.toCrawlInterval', () {
-    test('"ONCE" → manual', () {
-      expect('ONCE'.toCrawlInterval(), CrawlInterval.manual);
-    });
-
-    test('"DAILY" → daily', () {
-      expect('DAILY'.toCrawlInterval(), CrawlInterval.daily);
-    });
-
-    test('"WEEKLY" → weekly', () {
-      expect('WEEKLY'.toCrawlInterval(), CrawlInterval.weekly);
-    });
-
-    test('"MONTHLY" → monthly', () {
-      expect('MONTHLY'.toCrawlInterval(), CrawlInterval.monthly);
-    });
-
-    test('unknown string falls back to manual', () {
-      expect('HOURLY'.toCrawlInterval(), CrawlInterval.manual);
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // Round-trip consistency
-  // ---------------------------------------------------------------------------
-
-  group('Round-trip: domain → API → domain', () {
-    test('CrawlInterval round-trip', () {
-      for (final interval in CrawlInterval.values) {
-        final apiStr = interval.toApiInterval();
-        final restored = apiStr.toCrawlInterval();
-        expect(restored, interval, reason: '$interval did not round-trip via $apiStr');
+  group('Status round-trip', () {
+    test('every status round-trips through API', () {
+      for (final s in KnowledgeSourceStatus.values) {
+        final restored = knowledgeSourceStatusFromApi(s.toApiStatus());
+        expect(restored, s);
       }
+    });
+
+    test('isInFlight covers pending and processing only', () {
+      expect(KnowledgeSourceStatus.pending.isInFlight, isTrue);
+      expect(KnowledgeSourceStatus.processing.isInFlight, isTrue);
+      expect(KnowledgeSourceStatus.completed.isInFlight, isFalse);
+      expect(KnowledgeSourceStatus.failed.isInFlight, isFalse);
+    });
+  });
+
+  group('CrawlInterval round-trip', () {
+    test('every interval round-trips through API', () {
+      for (final i in CrawlInterval.values) {
+        final restored = crawlIntervalFromApi(i.toApiInterval());
+        expect(restored, i);
+      }
+    });
+
+    test('unknown raw falls back to once', () {
+      expect(crawlIntervalFromApi('HOURLY'), CrawlInterval.once);
     });
   });
 }

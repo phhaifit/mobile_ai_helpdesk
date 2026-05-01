@@ -10,6 +10,11 @@ class Endpoints {
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
 
+  // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
+  // media. Separate from BE Helpdesk.
+  static String get aiServiceBaseUrl =>
+      EnvConfig.instance.aiServiceApiBaseUrl;
+
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
 
@@ -95,25 +100,39 @@ class Endpoints {
   static String ticketDeleteComment(String commentId) =>
       '/api/ticket/comment/$commentId';
 
-  // Knowledge Base endpoints
+  // ---- Knowledge Base ------------------------------------------------------
   static String knowledgeSources(String tenantId) =>
       '/api/v1/knowledges/$tenantId/sources';
-  static String knowledgeSourcesByType(String tenantId, String type) =>
-      '/api/v1/knowledges/$tenantId/sources/$type';
+  static String knowledgeSourcesByType(String tenantId, String apiType) =>
+      '/api/v1/knowledges/$tenantId/sources/$apiType';
+
+  /// PATCH (status) and DELETE both use this path; method disambiguates.
   static String knowledgeSource(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId';
+
   static String knowledgeReindex(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId/reindex';
   static String knowledgeInterval(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId/interval';
+
   static String knowledgeImportWeb(String tenantId) =>
       '/api/v1/knowledges/$tenantId/web';
-  static String knowledgeStatusSse(String tenantId) =>
-      '/api/v1/knowledges/$tenantId/status-sse';
-  static String knowledgeSourceStatus(String tenantId, String sourceId) =>
-      '/api/v1/knowledges/$tenantId/sources/$sourceId/status';
+  static String knowledgeImportLocalFile(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/local-file';
+  static String knowledgeImportGoogleDrive(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/google-drive';
+  static String knowledgeImportDatabaseQuery(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/database-query';
+  static String knowledgeUpdateDatabaseQuery(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/database-query/$sourceId';
+
+  static const String knowledgeTestDatabaseQuery =
+      '/api/v1/knowledges/test-database-query';
   static const String knowledgePollStatus =
       '/api/v1/knowledges/sources/poll-status';
+
+  static String knowledgeStatusSse(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/status-sse';
 
   // WebSocket
   static String ticketWebSocket(String ticketId) {

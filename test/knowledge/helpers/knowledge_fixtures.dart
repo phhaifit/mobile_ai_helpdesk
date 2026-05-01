@@ -4,25 +4,27 @@ const kTestTenantId = 'tenant-test-123';
 
 final kTestDate = DateTime(2024, 1, 15, 12, 0);
 
-/// Web (single URL) source — status active, interval daily
+/// Web (single URL) — completed / daily
 final kWebSource = KnowledgeSource(
   id: 'src-001',
   name: 'Test Website',
-  type: KnowledgeSourceType.webSingle,
-  status: KnowledgeSourceStatus.active,
-  lastSyncAt: kTestDate,
-  crawlInterval: CrawlInterval.daily,
+  type: KnowledgeSourceType.web,
+  status: KnowledgeSourceStatus.completed,
+  interval: CrawlInterval.daily,
+  createdAt: kTestDate,
+  updatedAt: kTestDate,
   config: const {'url': 'https://example.com'},
 );
 
-/// Web (whole site) source — status indexing, interval weekly
+/// Whole-site — processing / weekly
 final kWebFullSource = KnowledgeSource(
   id: 'src-002',
   name: 'Full Website',
-  type: KnowledgeSourceType.webFull,
-  status: KnowledgeSourceStatus.indexing,
-  lastSyncAt: kTestDate,
-  crawlInterval: CrawlInterval.weekly,
+  type: KnowledgeSourceType.wholeSite,
+  status: KnowledgeSourceStatus.processing,
+  interval: CrawlInterval.weekly,
+  createdAt: kTestDate,
+  updatedAt: kTestDate,
   config: const {'url': 'https://example.org'},
 );
 
@@ -32,16 +34,18 @@ final kApiSourceJson = <String, dynamic>{
   'name': 'Test Website',
   'type': 'web',
   'status': 'completed',
+  'createdAt': '2024-01-15T12:00:00.000Z',
   'updatedAt': '2024-01-15T12:00:00.000Z',
   'interval': 'DAILY',
 };
 
-/// Raw JSON returned by POST /web (import web response)
+/// Raw JSON returned by POST /web
 final kApiImportWebResponse = <String, dynamic>{
   'id': 'src-new-001',
   'name': 'New Site',
   'type': 'web',
   'status': 'pending',
+  'createdAt': '2024-01-15T12:00:00.000Z',
   'updatedAt': '2024-01-15T12:00:00.000Z',
   'interval': 'ONCE',
 };

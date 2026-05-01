@@ -6,17 +6,17 @@ class UpdateSourceStatusParams {
   final String id;
   final KnowledgeSourceStatus status;
 
-  UpdateSourceStatusParams({required this.id, required this.status});
+  const UpdateSourceStatusParams({required this.id, required this.status});
 }
 
 class UpdateSourceStatusUseCase
-    extends UseCase<KnowledgeSource, UpdateSourceStatusParams> {
+    extends UseCase<void, UpdateSourceStatusParams> {
   final KnowledgeRepository _repository;
 
   UpdateSourceStatusUseCase(this._repository);
 
   @override
-  Future<KnowledgeSource> call({required UpdateSourceStatusParams params}) {
+  Future<void> call({required UpdateSourceStatusParams params}) {
     return _repository.updateSourceStatus(params.id, params.status);
   }
 }

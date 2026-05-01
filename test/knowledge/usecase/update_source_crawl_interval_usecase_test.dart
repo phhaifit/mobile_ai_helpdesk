@@ -15,13 +15,11 @@ void main() {
   });
 
   group('UpdateSourceCrawlIntervalUseCase', () {
-    test('passes the correct id and interval to the repository', () async {
-      fakeRepo.updateIntervalResult = kWebSource;
-
+    test('forwards id and interval to repository', () async {
       await useCase(
         params: UpdateSourceCrawlIntervalParams(
           id: kWebSource.id,
-          crawlInterval: CrawlInterval.weekly,
+          interval: CrawlInterval.weekly,
         ),
       );
 
@@ -29,57 +27,16 @@ void main() {
       expect(fakeRepo.capturedUpdateInterval, CrawlInterval.weekly);
     });
 
-    test('returns the updated source', () async {
-      fakeRepo.updateIntervalResult = kWebSource;
-
-      final result = await useCase(
-        params: UpdateSourceCrawlIntervalParams(
-          id: kWebSource.id,
-          crawlInterval: CrawlInterval.daily,
-        ),
-      );
-
-      expect(result.id, kWebSource.id);
-    });
-
-    test('can update to manual interval', () async {
-      fakeRepo.updateIntervalResult = kWebSource;
-
-      await useCase(
-        params: UpdateSourceCrawlIntervalParams(
-          id: kWebSource.id,
-          crawlInterval: CrawlInterval.manual,
-        ),
-      );
-
-      expect(fakeRepo.capturedUpdateInterval, CrawlInterval.manual);
-    });
-
-    test('can update to monthly interval', () async {
-      fakeRepo.updateIntervalResult = kWebSource;
-
-      await useCase(
-        params: UpdateSourceCrawlIntervalParams(
-          id: kWebSource.id,
-          crawlInterval: CrawlInterval.monthly,
-        ),
-      );
-
-      expect(fakeRepo.capturedUpdateInterval, CrawlInterval.monthly);
-    });
-
-    test('falls back to matching source in sourcesToReturn when updateIntervalResult is null', () async {
-      fakeRepo.updateIntervalResult = null;
-      fakeRepo.sourcesToReturn = [kWebSource];
-
-      final result = await useCase(
-        params: UpdateSourceCrawlIntervalParams(
-          id: kWebSource.id,
-          crawlInterval: CrawlInterval.weekly,
-        ),
-      );
-
-      expect(result.id, kWebSource.id);
+    test('supports every interval value', () async {
+      for (final interval in CrawlInterval.values) {
+        await useCase(
+          params: UpdateSourceCrawlIntervalParams(
+            id: kWebSource.id,
+            interval: interval,
+          ),
+        );
+        expect(fakeRepo.capturedUpdateInterval, interval);
+      }
     });
   });
 }

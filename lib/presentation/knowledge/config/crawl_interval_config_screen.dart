@@ -1,10 +1,12 @@
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:flutter/material.dart';
 
+/// Full-screen detail picker for an existing source's sync interval.
+/// Pops with the chosen [CrawlInterval] when the user taps "Lưu".
 class CrawlIntervalConfigScreen extends StatefulWidget {
   final CrawlInterval current;
 
-  const CrawlIntervalConfigScreen({super.key, required this.current});
+  const CrawlIntervalConfigScreen({required this.current, super.key});
 
   @override
   State<CrawlIntervalConfigScreen> createState() =>
@@ -13,6 +15,8 @@ class CrawlIntervalConfigScreen extends StatefulWidget {
 
 class _CrawlIntervalConfigScreenState
     extends State<CrawlIntervalConfigScreen> {
+  static const _accent = Color(0xFF1A73E8);
+
   late CrawlInterval _selected;
 
   @override
@@ -21,29 +25,29 @@ class _CrawlIntervalConfigScreenState
     _selected = widget.current;
   }
 
-  static const _options = [
-    (
-      CrawlInterval.manual,
+  static const _options = <_Option>[
+    _Option(
+      CrawlInterval.once,
       'Thủ công',
       'Chỉ đồng bộ khi bạn nhấn Reindex',
       Icons.touch_app,
     ),
-    (
+    _Option(
       CrawlInterval.daily,
-      'Mỗi ngày',
-      'Tự động đồng bộ lúc 00:00 hàng ngày',
+      'Hàng ngày',
+      'Tự động đồng bộ lúc 00:00 mỗi ngày',
       Icons.today,
     ),
-    (
+    _Option(
       CrawlInterval.weekly,
-      'Mỗi tuần',
-      'Tự động đồng bộ vào 00:00 Thứ Hai hàng tuần',
+      'Hàng tuần',
+      'Tự động đồng bộ vào 00:00 Thứ Hai',
       Icons.date_range,
     ),
-    (
+    _Option(
       CrawlInterval.monthly,
       'Hàng tháng',
-      'Tự động đồng bộ vào 00:00 ngày 1 hàng tháng',
+      'Tự động đồng bộ vào 00:00 ngày 1',
       Icons.calendar_month,
     ),
   ];
@@ -91,23 +95,21 @@ class _CrawlIntervalConfigScreenState
               itemCount: _options.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final (interval, title, desc, icon) = _options[index];
-                final isSelected = _selected == interval;
+                final o = _options[index];
+                final isSelected = _selected == o.interval;
                 return GestureDetector(
-                  onTap: () => setState(() => _selected = interval),
+                  onTap: () => setState(() => _selected = o.interval),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF1A73E8)
-                            : Colors.grey[200]!,
+                        color: isSelected ? _accent : Colors.grey[200]!,
                         width: isSelected ? 1.5 : 1,
                       ),
                       borderRadius: BorderRadius.circular(12),
                       color: isSelected
-                          ? const Color(0xFF1A73E8).withOpacity(0.05)
+                          ? _accent.withValues(alpha: 0.05)
                           : Colors.white,
                     ),
                     child: Row(
@@ -117,16 +119,14 @@ class _CrawlIntervalConfigScreenState
                           height: 42,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFF1A73E8).withOpacity(0.12)
+                                ? _accent.withValues(alpha: 0.12)
                                 : Colors.grey[100],
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
-                            icon,
+                            o.icon,
                             size: 22,
-                            color: isSelected
-                                ? const Color(0xFF1A73E8)
-                                : Colors.grey[500],
+                            color: isSelected ? _accent : Colors.grey[500],
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -135,18 +135,16 @@ class _CrawlIntervalConfigScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                title,
+                                o.title,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 15,
-                                  color: isSelected
-                                      ? const Color(0xFF1A73E8)
-                                      : Colors.black87,
+                                  color: isSelected ? _accent : Colors.black87,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                desc,
+                                o.desc,
                                 style: TextStyle(
                                     fontSize: 13, color: Colors.grey[600]),
                               ),
@@ -154,11 +152,11 @@ class _CrawlIntervalConfigScreenState
                           ),
                         ),
                         Radio<CrawlInterval>(
-                          value: interval,
+                          value: o.interval,
                           groupValue: _selected,
                           onChanged: (v) =>
                               setState(() => _selected = v!),
-                          activeColor: const Color(0xFF1A73E8),
+                          activeColor: _accent,
                         ),
                       ],
                     ),
@@ -174,7 +172,7 @@ class _CrawlIntervalConfigScreenState
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context, _selected),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A73E8),
+                  backgroundColor: _accent,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -190,4 +188,12 @@ class _CrawlIntervalConfigScreenState
       ),
     );
   }
+}
+
+class _Option {
+  final CrawlInterval interval;
+  final String title;
+  final String desc;
+  final IconData icon;
+  const _Option(this.interval, this.title, this.desc, this.icon);
 }

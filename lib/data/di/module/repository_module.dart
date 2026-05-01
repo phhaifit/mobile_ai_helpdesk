@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
+import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
@@ -172,9 +173,11 @@ class RepositoryModule {
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
 
-    // --- Knowledge API & Repository ---
+    // --- Knowledge API & Repository (AI-Services host) ---
     getIt.registerSingleton<KnowledgeApi>(
-      KnowledgeApi(getIt<DioClient>()),
+      KnowledgeApi(
+        getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName),
+      ),
     );
 
     getIt.registerSingleton<KnowledgeRepository>(

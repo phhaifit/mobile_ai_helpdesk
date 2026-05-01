@@ -12,9 +12,12 @@ KnowledgeSource _$KnowledgeSourceFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       type: $enumDecode(_$KnowledgeSourceTypeEnumMap, json['type']),
       status: $enumDecode(_$KnowledgeSourceStatusEnumMap, json['status']),
-      lastSyncAt: DateTime.parse(json['lastSyncAt'] as String),
-      crawlInterval: $enumDecode(_$CrawlIntervalEnumMap, json['crawlInterval']),
-      config: json['config'] as Map<String, dynamic>,
+      interval: $enumDecode(_$CrawlIntervalEnumMap, json['interval']),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      progress: (json['progress'] as num?)?.toDouble(),
+      errorMessage: json['errorMessage'] as String?,
+      config: json['config'] as Map<String, dynamic>? ?? const {},
     );
 
 Map<String, dynamic> _$KnowledgeSourceToJson(KnowledgeSource instance) =>
@@ -23,28 +26,31 @@ Map<String, dynamic> _$KnowledgeSourceToJson(KnowledgeSource instance) =>
       'name': instance.name,
       'type': _$KnowledgeSourceTypeEnumMap[instance.type]!,
       'status': _$KnowledgeSourceStatusEnumMap[instance.status]!,
-      'lastSyncAt': instance.lastSyncAt.toIso8601String(),
-      'crawlInterval': _$CrawlIntervalEnumMap[instance.crawlInterval]!,
+      'interval': _$CrawlIntervalEnumMap[instance.interval]!,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'progress': instance.progress,
+      'errorMessage': instance.errorMessage,
       'config': instance.config,
     };
 
 const _$KnowledgeSourceTypeEnumMap = {
-  KnowledgeSourceType.webSingle: 'webSingle',
-  KnowledgeSourceType.webFull: 'webFull',
+  KnowledgeSourceType.web: 'web',
+  KnowledgeSourceType.wholeSite: 'wholeSite',
   KnowledgeSourceType.localFile: 'localFile',
   KnowledgeSourceType.googleDrive: 'googleDrive',
-  KnowledgeSourceType.postgresql: 'postgresql',
-  KnowledgeSourceType.sqlServer: 'sqlServer',
+  KnowledgeSourceType.databaseQuery: 'databaseQuery',
 };
 
 const _$KnowledgeSourceStatusEnumMap = {
-  KnowledgeSourceStatus.active: 'active',
-  KnowledgeSourceStatus.indexing: 'indexing',
-  KnowledgeSourceStatus.error: 'error',
+  KnowledgeSourceStatus.pending: 'pending',
+  KnowledgeSourceStatus.processing: 'processing',
+  KnowledgeSourceStatus.completed: 'completed',
+  KnowledgeSourceStatus.failed: 'failed',
 };
 
 const _$CrawlIntervalEnumMap = {
-  CrawlInterval.manual: 'manual',
+  CrawlInterval.once: 'once',
   CrawlInterval.daily: 'daily',
   CrawlInterval.weekly: 'weekly',
   CrawlInterval.monthly: 'monthly',
