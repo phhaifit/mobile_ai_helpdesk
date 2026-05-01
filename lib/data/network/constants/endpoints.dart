@@ -67,6 +67,12 @@ class Endpoints {
 
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
 
+  // ---- Prompt / Response Templates ----------------------------------------
+  static String responseTemplates() => '/api/v1/response-templates';
+  static String responseTemplate(String id) => '/api/v1/response-templates/$id';
+  static String activateResponseTemplate(String id) =>
+      '/api/v1/response-templates/$id/activate';
+
   // Customer Management
   static String customerList() => '/api/customer';
   static String customerDetail(String id) => '/api/customer/$id';

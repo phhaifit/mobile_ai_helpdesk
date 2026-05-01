@@ -12,16 +12,13 @@ abstract class _PromptStore with Store {
   _PromptStore(this._repository);
 
   @observable
-  ObservableList<Prompt> prompts = ObservableList<Prompt>();
+  ObservableList<ResponseTemplate> templates = ObservableList<ResponseTemplate>();
 
   @observable
   String searchQuery = '';
 
   @observable
-  String selectedCategoryId = 'all';
-
-  @observable
-  bool favoritesOnly = false;
+  String? filterAssistantId;
 
   @observable
   bool isLoading = false;
@@ -29,35 +26,31 @@ abstract class _PromptStore with Store {
   @observable
   String? errorMessage;
 
-  List<PromptCategory> get categories => _repository.categories;
-
   @computed
-  List<Prompt> get filteredPrompts {
-    Iterable<Prompt> list = prompts;
-    if (favoritesOnly) {
-      list = list.where((p) => p.isFavorite);
-    }
-    if (selectedCategoryId != 'all') {
-      list = list.where((p) => p.categoryId == selectedCategoryId);
+  List<ResponseTemplate> get filteredTemplates {
+    Iterable<ResponseTemplate> list = templates;
+    if (filterAssistantId != null && filterAssistantId!.isNotEmpty) {
+      list = list.where((t) => t.assistantId == filterAssistantId);
     }
     final q = searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
       list = list.where(
-        (p) =>
-            p.title.toLowerCase().contains(q) ||
-            p.body.toLowerCase().contains(q),
+        (t) =>
+            t.name.toLowerCase().contains(q) ||
+            t.description.toLowerCase().contains(q) ||
+            t.template.toLowerCase().contains(q),
       );
     }
     return list.toList();
   }
 
   @action
-  Future<void> loadPrompts({bool useNetworkDelay = true}) async {
+  Future<void> loadTemplates({String? assistantId}) async {
     errorMessage = null;
     isLoading = true;
     try {
-      final list = await _repository.loadPrompts(useNetworkDelay: useNetworkDelay);
-      prompts = ObservableList.of(list);
+      final list = await _repository.getTemplates(assistantId: assistantId);
+      templates = ObservableList.of(list);
     } catch (e) {
       errorMessage = e.toString();
     } finally {
@@ -71,58 +64,70 @@ abstract class _PromptStore with Store {
   }
 
   @action
-  void setCategoryFilter(String categoryId) {
-    selectedCategoryId = categoryId;
+  void setFilterAssistantId(String? assistantId) {
+    filterAssistantId = assistantId;
   }
 
   @action
-  void setFavoritesOnly(bool value) {
-    favoritesOnly = value;
-  }
-
-  @action
-  Future<void> toggleFavorite(String promptId) async {
+  Future<void> createTemplate(CreateResponseTemplateDto dto) async {
     errorMessage = null;
     try {
-      await _repository.toggleFavorite(promptId);
-      await loadPrompts(useNetworkDelay: false);
+      await _repository.createTemplate(dto);
+      await loadTemplates();
     } catch (e) {
       errorMessage = e.toString();
     }
   }
 
   @action
-  Future<void> upsertPrivatePrompt(Prompt prompt) async {
+  Future<void> updateTemplate(
+    String templateId,
+    UpdateResponseTemplateDto dto,
+  ) async {
     errorMessage = null;
     try {
-      await _repository.upsertPrivatePrompt(prompt);
-      await loadPrompts(useNetworkDelay: false);
+      await _repository.updateTemplate(templateId, dto);
+      await loadTemplates();
     } catch (e) {
       errorMessage = e.toString();
     }
   }
 
   @action
-  Future<void> incrementUsage(String promptId) async {
+  Future<void> deleteTemplate(String templateId) async {
+    errorMessage = null;
     try {
-      await _repository.incrementUsage(promptId);
-      await loadPrompts(useNetworkDelay: false);
-    } catch (_) {
-      // Offline mock: ignore usage sync errors in UI
+      await _repository.deleteTemplate(templateId);
+      await loadTemplates();
+    } catch (e) {
+      errorMessage = e.toString();
     }
   }
 
-  /// Filters prompts for slash command picker (public + private, by title/body).
-  List<Prompt> slashFiltered(String queryAfterSlash) {
+  @action
+  Future<void> toggleActive(String templateId) async {
+    errorMessage = null;
+    try {
+      await _repository.toggleActive(templateId);
+      await loadTemplates();
+    } catch (e) {
+      errorMessage = e.toString();
+    }
+  }
+
+  /// Filters templates for slash command picker (by name/template content).
+  List<ResponseTemplate> slashFiltered(String queryAfterSlash) {
+    // Only show active templates in slash picker
+    final active = templates.where((t) => t.isActive);
     final q = queryAfterSlash.trim().toLowerCase();
     if (q.isEmpty) {
-      return List<Prompt>.from(prompts);
+      return active.toList();
     }
-    return prompts
+    return active
         .where(
-          (p) =>
-              p.title.toLowerCase().contains(q) ||
-              p.body.toLowerCase().contains(q),
+          (t) =>
+              t.name.toLowerCase().contains(q) ||
+              t.template.toLowerCase().contains(q),
         )
         .toList();
   }

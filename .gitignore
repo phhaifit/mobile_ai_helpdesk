@@ -157,6 +157,7 @@ ticket_widget_trees.md
 /monetization.md
 /omnichannel-integrations.md
 .cursor/
+.claude/settings.local.json
 
 pubspec.yaml
 testplan.md

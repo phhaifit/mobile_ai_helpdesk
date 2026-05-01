@@ -14,6 +14,7 @@ import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart'
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/prompt/prompt_template_api.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
@@ -28,6 +29,7 @@ import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_reposit
 import 'package:ai_helpdesk/data/repository/omnichannel/omnichannel_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/playground/playground_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/prompt/prompt_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/team/mock_team_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tenant/mock_tenant_repository_impl.dart';
@@ -149,7 +151,15 @@ class RepositoryModule {
     getIt.registerSingleton<MarketingRepository>(MockMarketingRepositoryImpl());
 
     // --- Prompt Repository ---
-    getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
+    getIt.registerSingleton<PromptTemplateApi>(
+      PromptTemplateApi(getIt<DioClient>()),
+    );
+    getIt.registerSingleton<PromptRepository>(
+      PromptRepositoryImpl(
+        getIt<PromptTemplateApi>(),
+        fallback: MockPromptRepositoryImpl(),
+      ),
+    );
 
     getIt.registerSingleton<KnowledgeRepository>(MockKnowledgeRepositoryImpl());
   }
