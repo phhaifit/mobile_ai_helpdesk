@@ -256,7 +256,8 @@ class _PrivatePromptEditorScreenState extends State<PrivatePromptEditorScreen> {
                         ];
 
                         return DropdownButtonFormField<String>(
-                          initialValue: _selectedAssistantId,
+                          // ignore: deprecated_member_use
+                          value: _selectedAssistantId,
                           isExpanded: true,
                           decoration: _fieldDecoration(
                             context,
