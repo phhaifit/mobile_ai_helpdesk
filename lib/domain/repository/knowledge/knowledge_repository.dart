@@ -3,6 +3,15 @@ import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 abstract class KnowledgeRepository {
   Future<List<KnowledgeSource>> getSources();
 
+  /// Fetches sources filtered by UI category ('web'|'file'|'drive'|'db').
+  /// Maps category to one or more API type strings internally.
+  Future<List<KnowledgeSource>> getSourcesByCategory(String category);
+
+  Future<KnowledgeSource> updateSourceStatus(
+    String id,
+    KnowledgeSourceStatus status,
+  );
+
   Future<KnowledgeSource> addSource(KnowledgeSource source);
 
   Future<KnowledgeSource> updateSourceCrawlInterval(

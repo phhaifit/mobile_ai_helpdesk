@@ -37,6 +37,24 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     });
   }
 
+  late final _$apiFilteredSourcesAtom = Atom(
+    name: '_KnowledgeStore.apiFilteredSources',
+    context: context,
+  );
+
+  @override
+  ObservableList<KnowledgeSource>? get apiFilteredSources {
+    _$apiFilteredSourcesAtom.reportRead();
+    return super.apiFilteredSources;
+  }
+
+  @override
+  set apiFilteredSources(ObservableList<KnowledgeSource>? value) {
+    _$apiFilteredSourcesAtom.reportWrite(value, super.apiFilteredSources, () {
+      super.apiFilteredSources = value;
+    });
+  }
+
   late final _$selectedCategoryAtom = Atom(
     name: '_KnowledgeStore.selectedCategory',
     context: context,
@@ -141,6 +159,30 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return _$loadSourcesAsyncAction.run(() => super.loadSources());
   }
 
+  late final _$filterByCategoryAsyncAction = AsyncAction(
+    '_KnowledgeStore.filterByCategory',
+    context: context,
+  );
+
+  @override
+  Future<void> filterByCategory(String? category) {
+    return _$filterByCategoryAsyncAction.run(
+      () => super.filterByCategory(category),
+    );
+  }
+
+  late final _$updateSourceStatusAsyncAction = AsyncAction(
+    '_KnowledgeStore.updateSourceStatus',
+    context: context,
+  );
+
+  @override
+  Future<void> updateSourceStatus(String id, KnowledgeSourceStatus status) {
+    return _$updateSourceStatusAsyncAction.run(
+      () => super.updateSourceStatus(id, status),
+    );
+  }
+
   late final _$addSourceAsyncAction = AsyncAction(
     '_KnowledgeStore.addSource',
     context: context,
@@ -202,18 +244,6 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   );
 
   @override
-  void filterByCategory(String? category) {
-    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
-      name: '_KnowledgeStore.filterByCategory',
-    );
-    try {
-      return super.filterByCategory(category);
-    } finally {
-      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void resetConnectionTest() {
     final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
       name: '_KnowledgeStore.resetConnectionTest',
@@ -229,6 +259,7 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   String toString() {
     return '''
 sources: ${sources},
+apiFilteredSources: ${apiFilteredSources},
 selectedCategory: ${selectedCategory},
 isLoading: ${isLoading},
 isTesting: ${isTesting},

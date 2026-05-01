@@ -117,6 +117,40 @@ class MockKnowledgeRepositoryImpl implements KnowledgeRepository {
   }
 
   @override
+  Future<List<KnowledgeSource>> getSourcesByCategory(String category) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    return _sources.where((s) {
+      switch (category) {
+        case 'web':
+          return s.type == KnowledgeSourceType.webSingle ||
+              s.type == KnowledgeSourceType.webFull;
+        case 'file':
+          return s.type == KnowledgeSourceType.localFile;
+        case 'drive':
+          return s.type == KnowledgeSourceType.googleDrive;
+        case 'db':
+          return s.type == KnowledgeSourceType.postgresql ||
+              s.type == KnowledgeSourceType.sqlServer;
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
+  @override
+  Future<KnowledgeSource> updateSourceStatus(
+    String id,
+    KnowledgeSourceStatus status,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 350));
+    final index = _sources.indexWhere((s) => s.id == id);
+    if (index == -1) throw Exception('Source not found');
+    final updated = _sources[index].copyWith(status: status);
+    _sources[index] = updated;
+    return updated;
+  }
+
+  @override
   Stream<Map<String, KnowledgeSourceStatus>> watchSourceStatuses() {
     // Mock does not push real-time updates.
     return const Stream.empty();

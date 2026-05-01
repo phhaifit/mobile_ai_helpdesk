@@ -59,5 +59,16 @@ class FakeKnowledgeRepository implements KnowledgeRepository {
   }
 
   @override
+  Future<List<KnowledgeSource>> getSourcesByCategory(String category) async =>
+      sourcesToReturn;
+
+  @override
+  Future<KnowledgeSource> updateSourceStatus(
+    String id,
+    KnowledgeSourceStatus status,
+  ) async =>
+      sourcesToReturn.firstWhere((s) => s.id == id);
+
+  @override
   Stream<Map<String, KnowledgeSourceStatus>> watchSourceStatuses() => sseStream;
 }

@@ -85,6 +85,36 @@ class KnowledgeApi {
   }
 
   // ---------------------------------------------------------------------------
+  // GET /api/v1/knowledges/{tenantId}/sources/{type}
+  // type: 'web' | 'whole_site' | 'local_file' | 'google_drive' | 'database_query'
+  // ---------------------------------------------------------------------------
+
+  Future<List<Map<String, dynamic>>> getSourcesByType(
+    String tenantId,
+    String apiType,
+  ) async {
+    final response =
+        await _dio.get(Endpoints.knowledgeSourcesByType(tenantId, apiType));
+    return _parseList(response.data);
+  }
+
+  // ---------------------------------------------------------------------------
+  // PATCH /api/v1/knowledges/{tenantId}/sources/{sourceId}/status
+  // Body: { status: 'completed' | 'processing' | 'pending' | 'failed' }
+  // ---------------------------------------------------------------------------
+
+  Future<void> updateSourceStatus(
+    String tenantId,
+    String sourceId,
+    String apiStatus,
+  ) async {
+    await _dio.patch(
+      Endpoints.knowledgeSourceStatus(tenantId, sourceId),
+      data: {'status': apiStatus},
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // GET /api/v1/knowledges/{tenantId}/status-sse  (Server-Sent Events)
   // Yields: Map<sourceId, newStatus> for each SSE event.
   // ---------------------------------------------------------------------------
