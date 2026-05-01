@@ -40,8 +40,9 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
     }
   }
 
-  Future<void> _continueWithGoogle() async {
-    final ok = await _store.signInWithGoogle();
+  Future<void> _continueWithGoogle({bool forceAccountChooser = false}) async {
+    final ok =
+        await _store.signInWithGoogle(forceAccountChooser: forceAccountChooser);
     if (!mounted) return;
     if (ok) {
       await Navigator.of(context).pushNamedAndRemoveUntil(
@@ -137,7 +138,7 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _store.canStartGoogleSignIn
-                          ? _continueWithGoogle
+                          ? () => _continueWithGoogle()
                           : null,
                       icon: _store.isGoogleSignInLoading
                           ? const SizedBox(
@@ -150,6 +151,18 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(l.translate('signin_btn_continue_google')),
                       ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Observer(
+                  builder: (_) => TextButton(
+                    onPressed: _store.canStartGoogleSignIn
+                        ? () => _continueWithGoogle(forceAccountChooser: true)
+                        : null,
+                    child: Text(
+                      l.translate('signin_btn_use_different_google'),
+                      style: theme.textTheme.bodySmall,
                     ),
                   ),
                 ),

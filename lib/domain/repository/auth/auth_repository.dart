@@ -18,7 +18,12 @@ abstract class AuthRepository {
   /// Stack Auth's `/oauth/authorize/google` endpoint, wait for the registered
   /// callback URL, then exchange `code + code_verifier` for an [AuthSession].
   /// On success the session is persisted locally just like the OTP flow.
-  Future<Either<Failure, AuthSession>> signInWithGoogle();
+  ///
+  /// Set [forceAccountChooser] true to clear cached cookies + force Google's
+  /// account chooser; default false preserves the auto-resume UX.
+  Future<Either<Failure, AuthSession>> signInWithGoogle({
+    bool forceAccountChooser = false,
+  });
 
   /// Rotate the access token using the stored refresh token. Returns the new
   /// access token on success. Called by the refresh interceptor and the

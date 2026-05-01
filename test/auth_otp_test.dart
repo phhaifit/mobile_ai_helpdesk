@@ -44,7 +44,9 @@ class _FakeAuthRepository implements AuthRepository {
       const Right('new_access');
 
   @override
-  Future<Either<Failure, AuthSession>> signInWithGoogle() async => signInResult;
+  Future<Either<Failure, AuthSession>> signInWithGoogle({
+    bool forceAccountChooser = false,
+  }) async => signInResult;
 
   @override
   Future<Either<Failure, void>> signOut() async => const Right(null);

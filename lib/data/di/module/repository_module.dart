@@ -72,7 +72,9 @@ class RepositoryModule {
       AuthLocalDatasource(getIt<SharedPreferenceHelper>()),
     );
     getIt.registerSingleton<OAuthBrowserClient>(
-      const FlutterWebAuthBrowserClient(),
+      WebViewBrowserClient(
+        callbackUrlPrefix: EnvConfig.instance.oauthRedirectUri,
+      ),
     );
     getIt.registerSingleton<AuthRepository>(
       AuthRepositoryImpl(

@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 class _FakeBrowser implements OAuthBrowserClient {
   String? capturedUrl;
   String? capturedScheme;
+  bool? capturedForceAccountChooser;
   String Function(String url)? respondWith;
   Object? throwsInstead;
 
@@ -16,9 +17,11 @@ class _FakeBrowser implements OAuthBrowserClient {
   Future<String> authenticate({
     required String url,
     required String callbackUrlScheme,
+    bool forceAccountChooser = false,
   }) async {
     capturedUrl = url;
     capturedScheme = callbackUrlScheme;
+    capturedForceAccountChooser = forceAccountChooser;
     if (throwsInstead != null) {
       throw throwsInstead!;
     }

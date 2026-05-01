@@ -111,19 +111,28 @@ abstract class _SignInEmailStoreBase with Store {
 
   /// Runs the Google OAuth flow end-to-end. Returns true on success so the
   /// screen can navigate to home.
+  ///
+  /// When [forceAccountChooser] is true, cached Google cookies are cleared
+  /// before the WebView loads so the user can pick a different account.
   @action
-  Future<bool> signInWithGoogle() async {
+  Future<bool> signInWithGoogle({bool forceAccountChooser = false}) async {
     if (!canStartGoogleSignIn) return false;
     errorKey = null;
     googleSignInSucceeded = false;
-    final future = ObservableFuture<void>(_performGoogleSignIn());
+    final future = ObservableFuture<void>(
+      _performGoogleSignIn(forceAccountChooser: forceAccountChooser),
+    );
     _googleFuture = future;
     await future;
     return googleSignInSucceeded;
   }
 
-  Future<void> _performGoogleSignIn() async {
-    final result = await _signInWithGoogleUseCase.call(params: null);
+  Future<void> _performGoogleSignIn({required bool forceAccountChooser}) async {
+    final result = await _signInWithGoogleUseCase.call(
+      params: SignInWithGoogleParams(
+        forceAccountChooser: forceAccountChooser,
+      ),
+    );
     await result.fold<Future<void>>(
       (failure) async {
         // Cancellations are silent — no error banner — but we do clear

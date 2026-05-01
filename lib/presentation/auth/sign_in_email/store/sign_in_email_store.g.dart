@@ -183,8 +183,10 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
   );
 
   @override
-  Future<bool> signInWithGoogle() {
-    return _$signInWithGoogleAsyncAction.run(() => super.signInWithGoogle());
+  Future<bool> signInWithGoogle({bool forceAccountChooser = false}) {
+    return _$signInWithGoogleAsyncAction.run(
+      () => super.signInWithGoogle(forceAccountChooser: forceAccountChooser),
+    );
   }
 
   late final _$_SignInEmailStoreBaseActionController = ActionController(

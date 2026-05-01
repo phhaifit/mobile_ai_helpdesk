@@ -64,7 +64,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AuthSession>> signInWithGoogle() async {
+  Future<Either<Failure, AuthSession>> signInWithGoogle({
+    bool forceAccountChooser = false,
+  }) async {
     final pair = _pkce.generatePair();
     final state = _pkce.generateState();
 
@@ -82,6 +84,7 @@ class AuthRepositoryImpl implements AuthRepository {
       callbackUrl = await _browser.authenticate(
         url: authorizeUrl,
         callbackUrlScheme: _env.oauthCallbackUrlScheme,
+        forceAccountChooser: forceAccountChooser,
       );
     } on OAuthCancelledException {
       return const Left(OAuthCancelledFailure());

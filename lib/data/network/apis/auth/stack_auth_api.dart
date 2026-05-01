@@ -81,6 +81,11 @@ class StackAuthApi {
     required String codeChallenge,
     required String errorRedirectUri,
   }) {
+    // NOTE: Stack Auth's authorize endpoint validates query params against a
+    // strict allow-list — passing standard Google OAuth params like
+    // `prompt=select_account` triggers a SCHEMA_ERROR. Account-switch UX is
+    // therefore implemented entirely on the client side by clearing the
+    // WebView's cookies/storage before the next authorize navigation.
     final base = Uri.parse(_dio.options.baseUrl);
     return base
         .replace(

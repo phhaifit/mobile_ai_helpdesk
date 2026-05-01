@@ -32,27 +32,11 @@
                 <data android:scheme="app"/>
             </intent-filter>
         </activity>
-        <!-- flutter_web_auth_2: receives the OAuth redirect from Stack Auth.
-             Stack Auth only whitelists HTTPS callbacks for this project, so
-             we use https://helpdesk.jarvis.cx/oauth2callback as the redirect
-             URI and let Android route that URL into the app via this
-             intent-filter. autoVerify="false" avoids the requirement to
-             host an assetlinks.json on helpdesk.jarvis.cx — Android will
-             show a one-time chooser ("Open with…") the first time the link
-             fires; the user picks the app and that choice is remembered. -->
-        <activity
-            android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
-            android:exported="true">
-            <intent-filter android:label="flutter_web_auth_2" android:autoVerify="false">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="helpdesk.jarvis.cx"
-                    android:pathPrefix="/oauth2callback" />
-            </intent-filter>
-        </activity>
+        <!-- OAuth callback handling lives entirely inside the app via an
+             in-app WebView (see lib/data/auth/oauth_browser_client.dart).
+             No intent-filter is needed because we never let the OS route
+             the HTTPS redirect URL to a separate browser. -->
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
