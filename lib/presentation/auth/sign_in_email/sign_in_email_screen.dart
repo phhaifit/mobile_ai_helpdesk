@@ -40,6 +40,17 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
     }
   }
 
+  Future<void> _continueWithGoogle() async {
+    final ok = await _store.signInWithGoogle();
+    if (!mounted) return;
+    if (ok) {
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        Routes.main,
+        (_) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -71,7 +82,7 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
                 Observer(
                   builder: (_) => TextField(
                     controller: _emailController,
-                    enabled: !_store.isLoading,
+                    enabled: !_store.isAnyFlowInFlight,
                     autofocus: true,
                     autocorrect: false,
                     autofillHints: const [AutofillHints.email],
@@ -118,8 +129,82 @@ class _SignInEmailScreenState extends State<SignInEmailScreen> {
                   style: theme.textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 24),
+                _OrDivider(label: l.translate('signin_tv_or')),
+                const SizedBox(height: 16),
+                Observer(
+                  builder: (_) => SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _store.canStartGoogleSignIn
+                          ? _continueWithGoogle
+                          : null,
+                      icon: _store.isGoogleSignInLoading
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const _GoogleGlyph(),
+                      label: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(l.translate('signin_btn_continue_google')),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.outlineVariant;
+    return Row(
+      children: [
+        Expanded(child: Divider(color: color)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        Expanded(child: Divider(color: color)),
+      ],
+    );
+  }
+}
+
+/// Lightweight Google "G" indicator drawn from a CustomPaint so we don't
+/// have to ship a logo asset just for this button. Visually clean enough
+/// for a recognizable cue without cloning the trademarked artwork.
+class _GoogleGlyph extends StatelessWidget {
+  const _GoogleGlyph();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 18,
+      width: 18,
+      child: Center(
+        child: Text(
+          'G',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.primary,
+            height: 1.0,
           ),
         ),
       ),

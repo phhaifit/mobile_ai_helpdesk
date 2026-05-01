@@ -19,6 +19,9 @@ class Endpoints {
   static const String authRefreshSession =
       '/api/v1/auth/sessions/current/refresh';
   static const String authCurrentSession = '/api/v1/auth/sessions/current';
+  static const String authOauthAuthorizeGoogle =
+      '/api/v1/auth/oauth/authorize/google';
+  static const String authOauthToken = '/api/v1/auth/oauth/token';
 
   // ---- Helpdesk Account ---------------------------------------------------
   static const String accountSsoValidate = '/api/account/sso-validate';

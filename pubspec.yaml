@@ -41,6 +41,10 @@ dependencies:
 
   # Encryption
   xxtea: ^2.1.0
+  crypto: ^3.0.3
+
+  # OAuth (Stack Auth — Google sign-in via Custom Tabs / ASWebAuthenticationSession)
+  flutter_web_auth_2: ^5.0.2
 
   # UI
   google_fonts: ^6.2.1
