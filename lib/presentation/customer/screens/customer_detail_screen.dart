@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:intl/intl.dart';
 
-class CustomerDetailScreen extends StatelessWidget {
+class CustomerDetailScreen extends StatefulWidget {
   final Customer customer;
   final CustomerStore store;
   final VoidCallback onBack;
@@ -20,28 +21,58 @@ class CustomerDetailScreen extends StatelessWidget {
     required this.onMerge,
   });
 
+  @override
+  State<CustomerDetailScreen> createState() => _CustomerDetailScreenState();
+}
+
+class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
+  late Customer _customer;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _customer = widget.customer;
+    _fetchDetail();
+  }
+
+  Future<void> _fetchDetail() async {
+    setState(() => _isLoading = true);
+    final updated = await widget.store.loadCustomerById(_customer.id);
+    if (updated != null && mounted) {
+      setState(() {
+        _customer = updated;
+      });
+    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
   void _onDelete(BuildContext context) async {
+    final localizations = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Xóa khách hàng'),
-        content: const Text('Bạn có chắc chắn muốn xóa khách hàng này không? Mọi dữ liệu sẽ bị mất vĩnh viễn.'),
+        title: Text(localizations.translate('customer_detail_delete_title')),
+        content: Text(localizations.translate('customer_detail_delete_confirm')),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Hủy', style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), 
+            child: Text(localizations.translate('common_cancel'), style: const TextStyle(color: Colors.grey))
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true), 
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Xóa', style: TextStyle(color: Colors.white))
+            child: Text(localizations.translate('customer_detail_delete_btn'), style: const TextStyle(color: Colors.white))
           ),
         ],
       ),
     );
 
     if (confirm == true) {
-      final success = await store.deleteCustomer(customer.id);
+      final success = await widget.store.deleteCustomer(_customer.id);
       if (success) {
-        onBack();
+        widget.onBack();
       }
     }
   }
@@ -70,7 +101,7 @@ class CustomerDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const Divider(height: 24),
+            Divider(height: 24, color: Colors.grey.shade300),
             ...children,
           ],
         ),
@@ -92,7 +123,14 @@ class CustomerDetailScreen extends StatelessWidget {
               children: [
                 Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                 const SizedBox(height: 2),
-                Text(value.isEmpty ? 'Chưa cập nhật' : value, style: TextStyle(fontSize: 14, color: value.isEmpty ? Colors.grey : Colors.black87, fontWeight: value.isEmpty ? null : FontWeight.w500)),
+                Text(
+                  value.isEmpty ? AppLocalizations.of(context).translate('customer_detail_not_updated') : value, 
+                  style: TextStyle(
+                    fontSize: 14, 
+                    color: value.isEmpty ? Colors.grey : Colors.black87, 
+                    fontWeight: value.isEmpty ? null : FontWeight.w500
+                  )
+                ),
               ],
             ),
           )
@@ -111,15 +149,17 @@ class CustomerDetailScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
-        title: const Text('Hồ sơ khách hàng', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
+        title: Text(AppLocalizations.of(context).translate('customer_detail_title'), style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(icon: const Icon(Icons.edit_outlined, color: AppColors.primaryBlue), onPressed: onEdit),
-          IconButton(icon: const Icon(Icons.merge_type, color: Colors.orange), onPressed: onMerge),
+          IconButton(icon: const Icon(Icons.edit_outlined, color: AppColors.primaryBlue), onPressed: widget.onEdit),
+          IconButton(icon: const Icon(Icons.merge_type, color: Colors.orange), onPressed: widget.onMerge),
           IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _onDelete(context)),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,22 +177,27 @@ class CustomerDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
-                      child: Text(
-                        _getInitials(customer.fullName),
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
-                      ),
-                    ),
+                     CircleAvatar(
+                       radius: 40,
+                       backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+                       backgroundImage: _customer.avatarUrl != null && _customer.avatarUrl!.isNotEmpty 
+                         ? NetworkImage(_customer.avatarUrl!) 
+                         : null,
+                       child: (_customer.avatarUrl == null || _customer.avatarUrl!.isEmpty)
+                         ? Text(
+                             _getInitials(_customer.fullName),
+                             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                           )
+                         : null,
+                     ),
                     const SizedBox(height: 16),
-                    Text(customer.fullName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    if (customer.tags.isNotEmpty) ...[
+                    Text(_customer.fullName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    if (_customer.tags.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: customer.tags.map((t) => Container(
+                        children: _customer.tags.map((t) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: AppColors.primaryBlue.withOpacity(0.1),
@@ -164,30 +209,57 @@ class CustomerDetailScreen extends StatelessWidget {
                           ),
                         )).toList(),
                       ),
-                    ]
+                    ],
+                    if (_customer.groups.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context).translate('customer_detail_groups'), 
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _customer.groups.map((g) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            border: Border.all(color: Colors.green.shade200),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            g,
+                            style: TextStyle(fontSize: 12, color: Colors.green.shade700, fontWeight: FontWeight.w600),
+                          ),
+                        )).toList(),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
             
-            _buildInfoCard('Thông tin liên hệ', [
-              if (customer.phones.isEmpty) _buildInfoRow(Icons.phone_outlined, 'Số điện thoại', ''),
-              for (var p in customer.phones) _buildInfoRow(Icons.phone_outlined, 'Số điện thoại', p),
-              if (customer.emails.isEmpty) _buildInfoRow(Icons.email_outlined, 'Email', ''),
-              for (var e in customer.emails) _buildInfoRow(Icons.email_outlined, 'Email', e),
+            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_contact_info'), [
+              if (_customer.phones.isEmpty) _buildInfoRow(Icons.phone_outlined, AppLocalizations.of(context).translate('customer_detail_phone'), ''),
+              for (var p in _customer.phones) _buildInfoRow(Icons.phone_outlined, AppLocalizations.of(context).translate('customer_detail_phone'), p),
+              if (_customer.emails.isEmpty) _buildInfoRow(Icons.email_outlined, AppLocalizations.of(context).translate('customer_detail_email'), ''),
+              for (var e in _customer.emails) _buildInfoRow(Icons.email_outlined, AppLocalizations.of(context).translate('customer_detail_email'), e),
             ]),
 
-            _buildInfoCard('Mạng xã hội', [
-              if (customer.zalos.isEmpty) _buildInfoRow(Icons.chat_bubble_outline, 'Zalo', '', iconColor: Colors.blue),
-              for (var z in customer.zalos) _buildInfoRow(Icons.chat_bubble_outline, 'Zalo', z, iconColor: Colors.blue),
-              if (customer.messengers.isEmpty) _buildInfoRow(Icons.message_outlined, 'Messenger', '', iconColor: Colors.blueAccent),
-              for (var m in customer.messengers) _buildInfoRow(Icons.message_outlined, 'Messenger', m, iconColor: Colors.blueAccent),
+            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_social'), [
+              if (_customer.zalos.isEmpty) _buildInfoRow(Icons.chat_bubble_outline, AppLocalizations.of(context).translate('customer_detail_zalo'), '', iconColor: Colors.blue),
+              for (var z in _customer.zalos) _buildInfoRow(Icons.chat_bubble_outline, AppLocalizations.of(context).translate('customer_detail_zalo'), z, iconColor: Colors.blue),
+              if (_customer.messengers.isEmpty) _buildInfoRow(Icons.message_outlined, AppLocalizations.of(context).translate('customer_detail_messenger'), '', iconColor: Colors.blueAccent),
+              for (var m in _customer.messengers) _buildInfoRow(Icons.message_outlined, AppLocalizations.of(context).translate('customer_detail_messenger'), m, iconColor: Colors.blueAccent),
             ]),
 
-            _buildInfoCard('Hoạt động', [
-              _buildInfoRow(Icons.confirmation_num_outlined, 'Tổng số phiếu (Tickets)', '${customer.totalTickets}'),
-              _buildInfoRow(Icons.access_time, 'Tạo lúc', dateFormat.format(customer.createdAt)),
-              _buildInfoRow(Icons.update, 'Chăm sóc gần nhất', customer.lastContactedAt != null ? dateFormat.format(customer.lastContactedAt!) : ''),
+            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_activity'), [
+              if (_customer.tenantName != null) 
+                _buildInfoRow(Icons.business_outlined, AppLocalizations.of(context).translate('customer_detail_tenant'), _customer.tenantName!),
+              _buildInfoRow(Icons.confirmation_num_outlined, AppLocalizations.of(context).translate('customer_detail_tickets'), '${_customer.totalTickets}'),
+              _buildInfoRow(Icons.access_time, AppLocalizations.of(context).translate('customer_detail_created_at'), dateFormat.format(_customer.createdAt)),
+              if (_customer.lastContactedAt != null)
+                _buildInfoRow(Icons.update, AppLocalizations.of(context).translate('customer_detail_last_contact'), dateFormat.format(_customer.lastContactedAt!)),
             ]),
           ],
         ),

@@ -124,14 +124,12 @@ abstract class _OmnichannelStore with Store {
   @action
   Future<void> updateMessengerSettings({
     required bool autoReply,
-    required String language,
     required String businessHours,
   }) async {
     await _runAction(
       () => _updateMessengerSettingsUseCase.call(
         params: MessengerSettingsUpdate(
           autoReply: autoReply,
-          language: language,
           businessHours: businessHours,
         ),
       ),
