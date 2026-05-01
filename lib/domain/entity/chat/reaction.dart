@@ -1,16 +1,29 @@
+import 'user.dart';
+
 class Reaction {
-  final String userId;
+  final String id;
+  final User user;
   final String emoji;
   final int amount;
 
-  const Reaction({required this.userId, required this.emoji, required this.amount});
+  const Reaction({
+    required this.id,
+    required this.user,
+    required this.emoji,
+    required this.amount,
+  });
 
-  /// Create a copy with optional fields
-  Reaction copyWith({required String emoji, required int amount}) {
+  Reaction copyWith({
+    String? id,
+    User? user,
+    String? emoji,
+    int? amount,
+  }) {
     return Reaction(
-      userId: userId,
-      emoji: emoji,
-      amount: amount,
+      id: id ?? this.id,
+      user: user ?? this.user,
+      emoji: emoji ?? this.emoji,
+      amount: amount ?? this.amount,
     );
   }
 }

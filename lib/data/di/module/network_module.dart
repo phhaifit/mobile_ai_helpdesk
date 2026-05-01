@@ -15,10 +15,9 @@ import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
-import '/data/network/rest_client.dart';
-import '/data/sharedpref/shared_preference_helper.dart';
 import '/data/realtime/socket/socket_service.dart';
 import '/data/realtime/sse/draft_response_sse_client.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
 import '/domain/repository/auth/auth_repository.dart';
 import '../../../di/service_locator.dart';
@@ -74,9 +73,6 @@ class NetworkModule {
             getIt<DioClient>(instanceName: helpdeskDioName).dio,
       ),
     );
-
-    // rest client:-------------------------------------------------------------
-    getIt.registerSingleton(RestClient());
 
     // dio clients:-------------------------------------------------------------
     final authDio = DioClient(

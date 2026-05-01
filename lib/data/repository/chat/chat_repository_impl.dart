@@ -1,17 +1,15 @@
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
-import 'package:ai_helpdesk/data/network/apis/chat/models/message_dto.dart';
-import 'package:ai_helpdesk/data/network/apis/chat/models/message_list_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/send_cs_message_to_customer_params.dart';
-import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
-import 'package:ai_helpdesk/domain/entity/chat/message.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
+import 'package:ai_helpdesk/domain/entity/chat/message_group.dart';
 import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'utils.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatApi _chatApi;
-  final SharedPreferenceHelper _prefs;
 
-  ChatRepositoryImpl(this._chatApi, this._prefs);
+  ChatRepositoryImpl(this._chatApi);
 
   @override
   Future<List<Message>> getMessages({
@@ -26,7 +24,7 @@ class ChatRepositoryImpl implements ChatRepository {
       lastMessageId: lastMessageId,
       limit: limit,
     );
-    return _toDomainMessages(dto);
+    return dto.messages.map((e) => e.toDomain()).toList();
   }
 
   @override
@@ -40,7 +38,7 @@ class ChatRepositoryImpl implements ChatRepository {
       lastMessageId: lastMessageId,
       limit: limit,
     );
-    return _toDomainMessages(dto);
+    return dto.messages.map((e) => e.toDomain()).toList();
   }
 
   @override
@@ -62,26 +60,72 @@ class ChatRepositoryImpl implements ChatRepository {
         socketId: socketId,
       ),
     );
-    return _toDomainMessage(dto);
+    return dto.toDomain();
   }
 
+  @override
+  Future<Reaction> reactToMessage(ReactToMessageRequest request) async {
+    final dto = await _chatApi.reactToMessage(params: mapReactParams(request));
+    return dto.toDomain();
+  }
 
-  // TODO: Refactor Domain Entity and Mapper to avoid duplication
-  Message _toDomainMessage(MessageDto dto) {
-    return Message(
-      id: dto.messageId,
-      chatRoomId: dto.chatRoomId,
-      content: dto.contentInfo['content'] as String? ?? '',
-      timestamp: dto.createdAt ?? DateTime.now(),
-      isMe: dto.sender == _prefs.tenantId,
-      senderName: dto.sender == _prefs.tenantId ? 'You' : 'Customer',
-      isPending: false,
-      readStatus: MessageReadStatus.delivered,
+  @override
+  Future<bool> unreactToMessage(ReactToMessageRequest request) async {
+    return _chatApi.unreactMessage(params: mapReactParams(request));
+  }
+
+  @override
+  Future<int> countSearchResultsInChatRoom({
+    required String chatRoomId,
+    required String keyword,
+  }) async {
+    return _chatApi.countSearchResultsInChatRoom(
+      chatRoomId: chatRoomId,
+      keyword: keyword,
     );
   }
 
-  List<Message> _toDomainMessages(MessageListDto dto) {
-    return dto.messages.map(_toDomainMessage).toList();
+  @override
+  Future<List<MessageGroup>> searchMessagesGroupedByChatRoom({
+    required String keyword,
+  }) async {
+    final groups = await _chatApi.searchMessagesGroupedByChatRoom(
+      keyword: keyword,
+    );
+    return groups.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Message>> flatSearchMessageList({
+    required String keyword,
+    String? chatRoomId,
+  }) async {
+    final dto = await _chatApi.flatSearchMessageList(
+      keyword: keyword,
+      chatRoomId: chatRoomId,
+    );
+    return dto.messages.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> analyzeTicketInChatRoomAi({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    return _chatApi.analyzeTicketInChatRoomAi(
+      chatRoomId: chatRoomId,
+      ticketId: ticketId,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> generateAiDraftResponse({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    return _chatApi.generateAiDraftResponse(
+      chatRoomId: chatRoomId,
+      ticketId: ticketId,
+    );
   }
 }
-

@@ -57,6 +57,22 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/analyze_ticket_in_chat_room_ai_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/count_search_results_in_chat_room_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/flat_search_message_list_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_room_counters_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_room_detail_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/search_messages_grouped_by_chat_room_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 // AI Agent
 import '/domain/repository/ai_agent/ai_agent_repository.dart';
 import '/domain/usecase/ai_agent/create_agent_usecase.dart';
@@ -275,6 +291,50 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
       UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
+    );
+
+    // Chat Use Cases:----------------------------------------------------------
+    getIt.registerSingleton<GetChatRoomsUseCase>(
+      GetChatRoomsUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatRoomCountersUseCase>(
+      GetChatRoomCountersUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatRoomDetailUseCase>(
+      GetChatRoomDetailUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatMessagesUseCase>(
+      GetChatMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<GetNewerChatMessagesUseCase>(
+      GetNewerChatMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<SendMessageFromAgentToCustomerUseCase>(
+      SendMessageFromAgentToCustomerUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<MarkChatRoomAsSeenUseCase>(
+      MarkChatRoomAsSeenUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<ReactToMessageUseCase>(
+      ReactToMessageUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<UnreactToMessageUseCase>(
+      UnreactToMessageUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<CountSearchResultsInChatRoomUseCase>(
+      CountSearchResultsInChatRoomUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<SearchMessagesGroupedByChatRoomUseCase>(
+      SearchMessagesGroupedByChatRoomUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<FlatSearchMessageListUseCase>(
+      FlatSearchMessageListUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<AnalyzeTicketInChatRoomAiUseCase>(
+      AnalyzeTicketInChatRoomAiUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<GenerateAiDraftResponseUseCase>(
+      GenerateAiDraftResponseUseCase(getIt<ChatRepository>()),
     );
   }
 }

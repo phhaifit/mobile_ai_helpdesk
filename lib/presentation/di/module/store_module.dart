@@ -5,8 +5,6 @@ import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
-import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
-import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
@@ -24,6 +22,9 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -88,6 +89,8 @@ import '../../ai_agent/store/ai_agent_store.dart';
 // import '../../customer_management/store/customer_store.dart';
 import '../../playground/store/playground_store.dart';
 
+import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
+import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
@@ -194,10 +197,16 @@ class StoreModule {
 
     // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(
-      ChatStore(getIt<ChatRepository>(), getIt<AnalyticsService>()),
+      ChatStore(
+        getIt<GetChatMessagesUseCase>(),
+        getIt<SendMessageFromAgentToCustomerUseCase>(),
+        getIt<ReactToMessageUseCase>(),
+        getIt<UnreactToMessageUseCase>(),
+        getIt<AnalyticsService>(),
+      ),
     );
     getIt.registerSingleton<ChatRoomStore>(
-      ChatRoomStore(getIt<ChatRoomRepository>()),
+      ChatRoomStore(getIt<GetChatRoomsUseCase>()),
     );
 
     // --- Theme & Language ---

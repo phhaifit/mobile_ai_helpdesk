@@ -1,8 +1,12 @@
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
-import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
-import 'package:ai_helpdesk/data/network/apis/chat/params/fetch_chat_rooms_params.dart';
+import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_room_counter.dart';
+import 'package:ai_helpdesk/domain/entity/chat/seen_info.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:dio/dio.dart';
+
+import 'utils.dart';
 
 class ChatRoomRepositoryImpl implements ChatRoomRepository {
   final ChatApi _chatApi;
@@ -10,36 +14,72 @@ class ChatRoomRepositoryImpl implements ChatRoomRepository {
   ChatRoomRepositoryImpl(this._chatApi);
 
   @override
-  Future<List<ChatRoom>> getChatRooms() async {
-    final raw = await _chatApi.getChatRoomList(params: FetchChatRoomsParams(getCounter: false, getAll: true));
-    return raw.map(_toDomain).toList();
+  Future<List<ChatRoom>> getChatRooms({
+    ChatRoomListQuery query = ChatRoomListQuery.inboxDefault,
+  }) async {
+    try {
+      final dto = await _chatApi.getChatRoomList(params: mapQuery(query));
+
+      return dto.map((e) => e.toDomain()).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
-  ChatRoom _toDomain(ChatRoomDto dto) {
-    final name = dto.customerInfo?.name ?? 'Unknown';
-
-    final lastContent = dto.lastMessage?.contentInfo['content'] as String? ?? '';
-    final lastTime = dto.lastMessage?.createdAt ?? DateTime.now();
-
-    return ChatRoom(
-      id: dto.chatRoomId,
-      name: name,
-      avatarInitials: _initials(name),
-      lastMessage: lastContent,
-      lastMessageIsMe: dto.lastMessage?.sender == dto.customerId,
-      lastMessageTime: lastTime,
-      unreadCount: dto.totalMessage - dto.seenMessageOrder,
-      isActive: true,
-      isAI: false,
-    );
+  @override
+  Future<ChatRoomCounter> getChatRoomCounters({
+    String? customerName,
+    bool getAll = false,
+  }) async {
+    try {
+      final dto = await _chatApi.getChatRoomCounters(
+        customerName: customerName,
+        getAll: getAll,
+      );
+      return ChatRoomCounter(
+        open: dto.open,
+        pending: dto.pending,
+        solved: dto.solved,
+        closed: dto.closed,
+      );
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    final a = parts.first.substring(0, 1).toUpperCase();
-    final b = parts.last.substring(0, 1).toUpperCase();
-    return '$a$b';
+  @override
+  Future<List<ChatRoom>> getChatRoomDetail({
+    String? chatRoomId,
+    String? customerId,
+  }) async {
+    try {
+      final dto = await _chatApi.getChatRoomDetail(
+        chatRoomId: chatRoomId,
+        customerId: customerId,
+      );
+      return dto.map((e) => e.toDomain()).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
+  }
+
+  @override
+  Future<SeenInfo> markChatRoomAsSeen({
+    required String chatRoomId,
+    required String messageId,
+    required int messageOrder,
+    String? socketId,
+  }) async {
+    try {
+      final dto = await _chatApi.markChatRoomAsSeen(
+        chatRoomId: chatRoomId,
+        messageId: messageId,
+        messageOrder: messageOrder,
+        socketId: socketId,
+      );
+      return dto.toDomain();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
-import 'package:ai_helpdesk/domain/entity/chat/message.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart'
+    show Message;
+import 'package:ai_helpdesk/domain/entity/chat/user.dart' show User;
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../../../core/events/socket/client/authenticate_socket_connection_event.dart';
@@ -249,13 +251,15 @@ class SocketService {
 
     return Message(
       id: p.messageId,
-      chatRoomId: p.chatRoomId,
-      content: p.displayContent, 
+      externalAccountId: '',
+      conversationId: p.chatRoomId,
+      sender: User(id: p.sender ?? '', name: p.sender ?? '', avatar: ''),
+      content: p.displayContent,
       timestamp: p.createdAt ?? DateTime.now(),
       isMe: isMe,
-      senderName: isMe ? 'You' : (p.sender == null ? 'Customer' : 'Agent'),
-      isPending: false,
-      readStatus: MessageReadStatus.delivered,
+      attachments: const [],
+      replyMessageId: null,
+      reactions: const [],
     );
   }
 

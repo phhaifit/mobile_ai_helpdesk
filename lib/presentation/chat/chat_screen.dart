@@ -405,10 +405,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     final message = messages[index];
                     final isGroupStart =
                         index == 0 ||
-                        messages[index - 1].senderName != message.senderName;
+                        messages[index - 1].sender.name != message.sender.name;
                     final isGroupEnd =
                         index == messages.length - 1 ||
-                        messages[index + 1].senderName != message.senderName;
+                        messages[index + 1].sender.name != message.sender.name;
 
                     return MessageBubble(
                       message: message,

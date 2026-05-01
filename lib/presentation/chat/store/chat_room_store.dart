@@ -1,15 +1,16 @@
 import 'package:mobx/mobx.dart';
 import '../../../domain/entity/chat/chat_room.dart';
 import '../../../domain/repository/chat/chat_room_repository.dart';
+import '../../../domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
 
 part 'chat_room_store.g.dart';
 
 class ChatRoomStore = _ChatRoomStore with _$ChatRoomStore;
 
 abstract class _ChatRoomStore with Store {
-  final ChatRoomRepository _chatRoomRepository;
+  final GetChatRoomsUseCase _getChatRooms;
 
-  _ChatRoomStore(this._chatRoomRepository);
+  _ChatRoomStore(this._getChatRooms);
 
   @observable
   ObservableList<ChatRoom> chatRooms = ObservableList<ChatRoom>();
@@ -24,7 +25,9 @@ abstract class _ChatRoomStore with Store {
   @action
   Future<void> fetchChatRooms() async {
     isLoading = true;
-    final rooms = await _chatRoomRepository.getChatRooms();
+    final rooms = await _getChatRooms.call(
+      params: ChatRoomListQuery.inboxDefault,
+    );
     chatRooms
       ..clear()
       ..addAll(rooms);

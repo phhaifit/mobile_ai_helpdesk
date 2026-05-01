@@ -39,7 +39,7 @@ mixin _$MessageDto {
   @JsonKey(name: 'zaloCliMsgID')
   String? get zaloCliMsgId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get deletedAt => throw _privateConstructorUsedError;
   ContactInfoDto get contactInfo => throw _privateConstructorUsedError;
   Map<String, dynamic> get contentInfo => throw _privateConstructorUsedError;
@@ -80,7 +80,7 @@ abstract class $MessageDtoCopyWith<$Res> {
     @JsonKey(name: 'channelID') String? channelId,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     DateTime createdAt,
-    DateTime updatedAt,
+    DateTime? updatedAt,
     DateTime? deletedAt,
     ContactInfoDto contactInfo,
     Map<String, dynamic> contentInfo,
@@ -121,7 +121,7 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
     Object? channelId = freezed,
     Object? zaloCliMsgId = freezed,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? contactInfo = null,
     Object? contentInfo = null,
@@ -190,10 +190,10 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime,
             updatedAt:
-                null == updatedAt
+                freezed == updatedAt
                     ? _value.updatedAt
                     : updatedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
+                        as DateTime?,
             deletedAt:
                 freezed == deletedAt
                     ? _value.deletedAt
@@ -276,7 +276,7 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     @JsonKey(name: 'channelID') String? channelId,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     DateTime createdAt,
-    DateTime updatedAt,
+    DateTime? updatedAt,
     DateTime? deletedAt,
     ContactInfoDto contactInfo,
     Map<String, dynamic> contentInfo,
@@ -317,7 +317,7 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
     Object? channelId = freezed,
     Object? zaloCliMsgId = freezed,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
     Object? deletedAt = freezed,
     Object? contactInfo = null,
     Object? contentInfo = null,
@@ -386,10 +386,10 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime,
         updatedAt:
-            null == updatedAt
+            freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
+                    as DateTime?,
         deletedAt:
             freezed == deletedAt
                 ? _value.deletedAt
@@ -455,7 +455,7 @@ class _$MessageDtoImpl implements _MessageDto {
     @JsonKey(name: 'channelID') this.channelId,
     @JsonKey(name: 'zaloCliMsgID') this.zaloCliMsgId,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.deletedAt,
     required this.contactInfo,
     final Map<String, dynamic> contentInfo = const {},
@@ -508,7 +508,7 @@ class _$MessageDtoImpl implements _MessageDto {
   @override
   final DateTime createdAt;
   @override
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @override
   final DateTime? deletedAt;
   @override
@@ -691,7 +691,7 @@ abstract class _MessageDto implements MessageDto {
     @JsonKey(name: 'channelID') final String? channelId,
     @JsonKey(name: 'zaloCliMsgID') final String? zaloCliMsgId,
     required final DateTime createdAt,
-    required final DateTime updatedAt,
+    final DateTime? updatedAt,
     final DateTime? deletedAt,
     required final ContactInfoDto contactInfo,
     final Map<String, dynamic> contentInfo,
@@ -736,7 +736,7 @@ abstract class _MessageDto implements MessageDto {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
   @override
   DateTime? get deletedAt;
   @override

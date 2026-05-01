@@ -94,7 +94,7 @@ class RepositoryModule {
     // --- Chat Repositories ---
     getIt.registerSingleton<ChatApi>(ChatApi(getIt<DioClient>()));
     getIt.registerSingleton<ChatRepositoryImpl>(
-      ChatRepositoryImpl(getIt<ChatApi>(), getIt<SharedPreferenceHelper>()),
+      ChatRepositoryImpl(getIt<ChatApi>()),
     );
     getIt.registerSingleton<ChatRoomRepositoryImpl>(
       ChatRoomRepositoryImpl(getIt<ChatApi>()),

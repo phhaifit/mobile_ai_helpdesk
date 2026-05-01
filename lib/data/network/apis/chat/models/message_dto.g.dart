@@ -20,7 +20,10 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
   channelId: json['channelID'] as String?,
   zaloCliMsgId: json['zaloCliMsgID'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  updatedAt:
+      json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
   deletedAt:
       json['deletedAt'] == null
           ? null
@@ -58,7 +61,7 @@ Map<String, dynamic> _$$MessageDtoImplToJson(_$MessageDtoImpl instance) =>
       'channelID': instance.channelId,
       'zaloCliMsgID': instance.zaloCliMsgId,
       'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'deletedAt': instance.deletedAt?.toIso8601String(),
       'contactInfo': instance.contactInfo,
       'contentInfo': instance.contentInfo,

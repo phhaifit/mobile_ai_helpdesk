@@ -23,7 +23,10 @@ GroupInfoDto _$GroupInfoDtoFromJson(Map<String, dynamic> json) {
 mixin _$GroupInfoDto {
   @JsonKey(name: 'groupID')
   String get groupId => throw _privateConstructorUsedError;
-  int get memberCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'displayName')
+  String get displayName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar')
+  String get avatar => throw _privateConstructorUsedError;
   List<MemberInfoDto> get members => throw _privateConstructorUsedError;
 
   /// Serializes this GroupInfoDto to a JSON map.
@@ -45,7 +48,8 @@ abstract class $GroupInfoDtoCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: 'groupID') String groupId,
-    int memberCount,
+    @JsonKey(name: 'displayName') String displayName,
+    @JsonKey(name: 'avatar') String avatar,
     List<MemberInfoDto> members,
   });
 }
@@ -66,7 +70,8 @@ class _$GroupInfoDtoCopyWithImpl<$Res, $Val extends GroupInfoDto>
   @override
   $Res call({
     Object? groupId = null,
-    Object? memberCount = null,
+    Object? displayName = null,
+    Object? avatar = null,
     Object? members = null,
   }) {
     return _then(
@@ -76,11 +81,16 @@ class _$GroupInfoDtoCopyWithImpl<$Res, $Val extends GroupInfoDto>
                     ? _value.groupId
                     : groupId // ignore: cast_nullable_to_non_nullable
                         as String,
-            memberCount:
-                null == memberCount
-                    ? _value.memberCount
-                    : memberCount // ignore: cast_nullable_to_non_nullable
-                        as int,
+            displayName:
+                null == displayName
+                    ? _value.displayName
+                    : displayName // ignore: cast_nullable_to_non_nullable
+                        as String,
+            avatar:
+                null == avatar
+                    ? _value.avatar
+                    : avatar // ignore: cast_nullable_to_non_nullable
+                        as String,
             members:
                 null == members
                     ? _value.members
@@ -103,7 +113,8 @@ abstract class _$$GroupInfoDtoImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: 'groupID') String groupId,
-    int memberCount,
+    @JsonKey(name: 'displayName') String displayName,
+    @JsonKey(name: 'avatar') String avatar,
     List<MemberInfoDto> members,
   });
 }
@@ -123,7 +134,8 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? groupId = null,
-    Object? memberCount = null,
+    Object? displayName = null,
+    Object? avatar = null,
     Object? members = null,
   }) {
     return _then(
@@ -133,11 +145,16 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
                 ? _value.groupId
                 : groupId // ignore: cast_nullable_to_non_nullable
                     as String,
-        memberCount:
-            null == memberCount
-                ? _value.memberCount
-                : memberCount // ignore: cast_nullable_to_non_nullable
-                    as int,
+        displayName:
+            null == displayName
+                ? _value.displayName
+                : displayName // ignore: cast_nullable_to_non_nullable
+                    as String,
+        avatar:
+            null == avatar
+                ? _value.avatar
+                : avatar // ignore: cast_nullable_to_non_nullable
+                    as String,
         members:
             null == members
                 ? _value._members
@@ -153,7 +170,8 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
 class _$GroupInfoDtoImpl implements _GroupInfoDto {
   const _$GroupInfoDtoImpl({
     @JsonKey(name: 'groupID') this.groupId = '',
-    this.memberCount = 0,
+    @JsonKey(name: 'displayName') this.displayName = '',
+    @JsonKey(name: 'avatar') this.avatar = '',
     final List<MemberInfoDto> members = const [],
   }) : _members = members;
 
@@ -164,8 +182,11 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
   @JsonKey(name: 'groupID')
   final String groupId;
   @override
-  @JsonKey()
-  final int memberCount;
+  @JsonKey(name: 'displayName')
+  final String displayName;
+  @override
+  @JsonKey(name: 'avatar')
+  final String avatar;
   final List<MemberInfoDto> _members;
   @override
   @JsonKey()
@@ -177,7 +198,7 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
 
   @override
   String toString() {
-    return 'GroupInfoDto(groupId: $groupId, memberCount: $memberCount, members: $members)';
+    return 'GroupInfoDto(groupId: $groupId, displayName: $displayName, avatar: $avatar, members: $members)';
   }
 
   @override
@@ -186,8 +207,9 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
         (other.runtimeType == runtimeType &&
             other is _$GroupInfoDtoImpl &&
             (identical(other.groupId, groupId) || other.groupId == groupId) &&
-            (identical(other.memberCount, memberCount) ||
-                other.memberCount == memberCount) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName) &&
+            (identical(other.avatar, avatar) || other.avatar == avatar) &&
             const DeepCollectionEquality().equals(other._members, _members));
   }
 
@@ -196,7 +218,8 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
   int get hashCode => Object.hash(
     runtimeType,
     groupId,
-    memberCount,
+    displayName,
+    avatar,
     const DeepCollectionEquality().hash(_members),
   );
 
@@ -217,7 +240,8 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
 abstract class _GroupInfoDto implements GroupInfoDto {
   const factory _GroupInfoDto({
     @JsonKey(name: 'groupID') final String groupId,
-    final int memberCount,
+    @JsonKey(name: 'displayName') final String displayName,
+    @JsonKey(name: 'avatar') final String avatar,
     final List<MemberInfoDto> members,
   }) = _$GroupInfoDtoImpl;
 
@@ -228,7 +252,11 @@ abstract class _GroupInfoDto implements GroupInfoDto {
   @JsonKey(name: 'groupID')
   String get groupId;
   @override
-  int get memberCount;
+  @JsonKey(name: 'displayName')
+  String get displayName;
+  @override
+  @JsonKey(name: 'avatar')
+  String get avatar;
   @override
   List<MemberInfoDto> get members;
 
@@ -246,9 +274,16 @@ MemberInfoDto _$MemberInfoDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MemberInfoDto {
+  @JsonKey(name: 'groupID')
+  String get groupId => throw _privateConstructorUsedError;
   @JsonKey(name: 'customerID')
   String get customerId => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get deletedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customer')
+  List<GroupCustomerInfoDto> get groupCustomerInfo =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this MemberInfoDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -267,7 +302,14 @@ abstract class $MemberInfoDtoCopyWith<$Res> {
     $Res Function(MemberInfoDto) then,
   ) = _$MemberInfoDtoCopyWithImpl<$Res, MemberInfoDto>;
   @useResult
-  $Res call({@JsonKey(name: 'customerID') String customerId, String name});
+  $Res call({
+    @JsonKey(name: 'groupID') String groupId,
+    @JsonKey(name: 'customerID') String customerId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+    @JsonKey(name: 'customer') List<GroupCustomerInfoDto> groupCustomerInfo,
+  });
 }
 
 /// @nodoc
@@ -281,6 +323,307 @@ class _$MemberInfoDtoCopyWithImpl<$Res, $Val extends MemberInfoDto>
   final $Res Function($Val) _then;
 
   /// Create a copy of MemberInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? groupId = null,
+    Object? customerId = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
+    Object? groupCustomerInfo = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            groupId:
+                null == groupId
+                    ? _value.groupId
+                    : groupId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            customerId:
+                null == customerId
+                    ? _value.customerId
+                    : customerId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            createdAt:
+                freezed == createdAt
+                    ? _value.createdAt
+                    : createdAt // ignore: cast_nullable_to_non_nullable
+                        as DateTime?,
+            updatedAt:
+                freezed == updatedAt
+                    ? _value.updatedAt
+                    : updatedAt // ignore: cast_nullable_to_non_nullable
+                        as DateTime?,
+            deletedAt:
+                freezed == deletedAt
+                    ? _value.deletedAt
+                    : deletedAt // ignore: cast_nullable_to_non_nullable
+                        as DateTime?,
+            groupCustomerInfo:
+                null == groupCustomerInfo
+                    ? _value.groupCustomerInfo
+                    : groupCustomerInfo // ignore: cast_nullable_to_non_nullable
+                        as List<GroupCustomerInfoDto>,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$MemberInfoDtoImplCopyWith<$Res>
+    implements $MemberInfoDtoCopyWith<$Res> {
+  factory _$$MemberInfoDtoImplCopyWith(
+    _$MemberInfoDtoImpl value,
+    $Res Function(_$MemberInfoDtoImpl) then,
+  ) = __$$MemberInfoDtoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'groupID') String groupId,
+    @JsonKey(name: 'customerID') String customerId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+    @JsonKey(name: 'customer') List<GroupCustomerInfoDto> groupCustomerInfo,
+  });
+}
+
+/// @nodoc
+class __$$MemberInfoDtoImplCopyWithImpl<$Res>
+    extends _$MemberInfoDtoCopyWithImpl<$Res, _$MemberInfoDtoImpl>
+    implements _$$MemberInfoDtoImplCopyWith<$Res> {
+  __$$MemberInfoDtoImplCopyWithImpl(
+    _$MemberInfoDtoImpl _value,
+    $Res Function(_$MemberInfoDtoImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of MemberInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? groupId = null,
+    Object? customerId = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
+    Object? groupCustomerInfo = null,
+  }) {
+    return _then(
+      _$MemberInfoDtoImpl(
+        groupId:
+            null == groupId
+                ? _value.groupId
+                : groupId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        customerId:
+            null == customerId
+                ? _value.customerId
+                : customerId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        createdAt:
+            freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                    as DateTime?,
+        updatedAt:
+            freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                    as DateTime?,
+        deletedAt:
+            freezed == deletedAt
+                ? _value.deletedAt
+                : deletedAt // ignore: cast_nullable_to_non_nullable
+                    as DateTime?,
+        groupCustomerInfo:
+            null == groupCustomerInfo
+                ? _value._groupCustomerInfo
+                : groupCustomerInfo // ignore: cast_nullable_to_non_nullable
+                    as List<GroupCustomerInfoDto>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MemberInfoDtoImpl implements _MemberInfoDto {
+  const _$MemberInfoDtoImpl({
+    @JsonKey(name: 'groupID') this.groupId = '',
+    @JsonKey(name: 'customerID') this.customerId = '',
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    @JsonKey(name: 'customer')
+    final List<GroupCustomerInfoDto> groupCustomerInfo = const [],
+  }) : _groupCustomerInfo = groupCustomerInfo;
+
+  factory _$MemberInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MemberInfoDtoImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'groupID')
+  final String groupId;
+  @override
+  @JsonKey(name: 'customerID')
+  final String customerId;
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
+  @override
+  final DateTime? deletedAt;
+  final List<GroupCustomerInfoDto> _groupCustomerInfo;
+  @override
+  @JsonKey(name: 'customer')
+  List<GroupCustomerInfoDto> get groupCustomerInfo {
+    if (_groupCustomerInfo is EqualUnmodifiableListView)
+      return _groupCustomerInfo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_groupCustomerInfo);
+  }
+
+  @override
+  String toString() {
+    return 'MemberInfoDto(groupId: $groupId, customerId: $customerId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, groupCustomerInfo: $groupCustomerInfo)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MemberInfoDtoImpl &&
+            (identical(other.groupId, groupId) || other.groupId == groupId) &&
+            (identical(other.customerId, customerId) ||
+                other.customerId == customerId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.deletedAt, deletedAt) ||
+                other.deletedAt == deletedAt) &&
+            const DeepCollectionEquality().equals(
+              other._groupCustomerInfo,
+              _groupCustomerInfo,
+            ));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    groupId,
+    customerId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    const DeepCollectionEquality().hash(_groupCustomerInfo),
+  );
+
+  /// Create a copy of MemberInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MemberInfoDtoImplCopyWith<_$MemberInfoDtoImpl> get copyWith =>
+      __$$MemberInfoDtoImplCopyWithImpl<_$MemberInfoDtoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MemberInfoDtoImplToJson(this);
+  }
+}
+
+abstract class _MemberInfoDto implements MemberInfoDto {
+  const factory _MemberInfoDto({
+    @JsonKey(name: 'groupID') final String groupId,
+    @JsonKey(name: 'customerID') final String customerId,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
+    final DateTime? deletedAt,
+    @JsonKey(name: 'customer')
+    final List<GroupCustomerInfoDto> groupCustomerInfo,
+  }) = _$MemberInfoDtoImpl;
+
+  factory _MemberInfoDto.fromJson(Map<String, dynamic> json) =
+      _$MemberInfoDtoImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'groupID')
+  String get groupId;
+  @override
+  @JsonKey(name: 'customerID')
+  String get customerId;
+  @override
+  DateTime? get createdAt;
+  @override
+  DateTime? get updatedAt;
+  @override
+  DateTime? get deletedAt;
+  @override
+  @JsonKey(name: 'customer')
+  List<GroupCustomerInfoDto> get groupCustomerInfo;
+
+  /// Create a copy of MemberInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MemberInfoDtoImplCopyWith<_$MemberInfoDtoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+GroupCustomerInfoDto _$GroupCustomerInfoDtoFromJson(Map<String, dynamic> json) {
+  return _GroupCustomerInfoDto.fromJson(json);
+}
+
+/// @nodoc
+mixin _$GroupCustomerInfoDto {
+  @JsonKey(name: 'customerID')
+  String get customerId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
+  String get name => throw _privateConstructorUsedError;
+
+  /// Serializes this GroupCustomerInfoDto to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of GroupCustomerInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $GroupCustomerInfoDtoCopyWith<GroupCustomerInfoDto> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GroupCustomerInfoDtoCopyWith<$Res> {
+  factory $GroupCustomerInfoDtoCopyWith(
+    GroupCustomerInfoDto value,
+    $Res Function(GroupCustomerInfoDto) then,
+  ) = _$GroupCustomerInfoDtoCopyWithImpl<$Res, GroupCustomerInfoDto>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'name') String name,
+  });
+}
+
+/// @nodoc
+class _$GroupCustomerInfoDtoCopyWithImpl<
+  $Res,
+  $Val extends GroupCustomerInfoDto
+>
+    implements $GroupCustomerInfoDtoCopyWith<$Res> {
+  _$GroupCustomerInfoDtoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GroupCustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -304,33 +647,36 @@ class _$MemberInfoDtoCopyWithImpl<$Res, $Val extends MemberInfoDto>
 }
 
 /// @nodoc
-abstract class _$$MemberInfoDtoImplCopyWith<$Res>
-    implements $MemberInfoDtoCopyWith<$Res> {
-  factory _$$MemberInfoDtoImplCopyWith(
-    _$MemberInfoDtoImpl value,
-    $Res Function(_$MemberInfoDtoImpl) then,
-  ) = __$$MemberInfoDtoImplCopyWithImpl<$Res>;
+abstract class _$$GroupCustomerInfoDtoImplCopyWith<$Res>
+    implements $GroupCustomerInfoDtoCopyWith<$Res> {
+  factory _$$GroupCustomerInfoDtoImplCopyWith(
+    _$GroupCustomerInfoDtoImpl value,
+    $Res Function(_$GroupCustomerInfoDtoImpl) then,
+  ) = __$$GroupCustomerInfoDtoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'customerID') String customerId, String name});
+  $Res call({
+    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'name') String name,
+  });
 }
 
 /// @nodoc
-class __$$MemberInfoDtoImplCopyWithImpl<$Res>
-    extends _$MemberInfoDtoCopyWithImpl<$Res, _$MemberInfoDtoImpl>
-    implements _$$MemberInfoDtoImplCopyWith<$Res> {
-  __$$MemberInfoDtoImplCopyWithImpl(
-    _$MemberInfoDtoImpl _value,
-    $Res Function(_$MemberInfoDtoImpl) _then,
+class __$$GroupCustomerInfoDtoImplCopyWithImpl<$Res>
+    extends _$GroupCustomerInfoDtoCopyWithImpl<$Res, _$GroupCustomerInfoDtoImpl>
+    implements _$$GroupCustomerInfoDtoImplCopyWith<$Res> {
+  __$$GroupCustomerInfoDtoImplCopyWithImpl(
+    _$GroupCustomerInfoDtoImpl _value,
+    $Res Function(_$GroupCustomerInfoDtoImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of MemberInfoDto
+  /// Create a copy of GroupCustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({Object? customerId = null, Object? name = null}) {
     return _then(
-      _$MemberInfoDtoImpl(
+      _$GroupCustomerInfoDtoImpl(
         customerId:
             null == customerId
                 ? _value.customerId
@@ -348,32 +694,32 @@ class __$$MemberInfoDtoImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$MemberInfoDtoImpl implements _MemberInfoDto {
-  const _$MemberInfoDtoImpl({
+class _$GroupCustomerInfoDtoImpl implements _GroupCustomerInfoDto {
+  const _$GroupCustomerInfoDtoImpl({
     @JsonKey(name: 'customerID') this.customerId = '',
-    this.name = '',
+    @JsonKey(name: 'name') this.name = '',
   });
 
-  factory _$MemberInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MemberInfoDtoImplFromJson(json);
+  factory _$GroupCustomerInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$GroupCustomerInfoDtoImplFromJson(json);
 
   @override
   @JsonKey(name: 'customerID')
   final String customerId;
   @override
-  @JsonKey()
+  @JsonKey(name: 'name')
   final String name;
 
   @override
   String toString() {
-    return 'MemberInfoDto(customerId: $customerId, name: $name)';
+    return 'GroupCustomerInfoDto(customerId: $customerId, name: $name)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$MemberInfoDtoImpl &&
+            other is _$GroupCustomerInfoDtoImpl &&
             (identical(other.customerId, customerId) ||
                 other.customerId == customerId) &&
             (identical(other.name, name) || other.name == name));
@@ -383,39 +729,44 @@ class _$MemberInfoDtoImpl implements _MemberInfoDto {
   @override
   int get hashCode => Object.hash(runtimeType, customerId, name);
 
-  /// Create a copy of MemberInfoDto
+  /// Create a copy of GroupCustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MemberInfoDtoImplCopyWith<_$MemberInfoDtoImpl> get copyWith =>
-      __$$MemberInfoDtoImplCopyWithImpl<_$MemberInfoDtoImpl>(this, _$identity);
+  _$$GroupCustomerInfoDtoImplCopyWith<_$GroupCustomerInfoDtoImpl>
+  get copyWith =>
+      __$$GroupCustomerInfoDtoImplCopyWithImpl<_$GroupCustomerInfoDtoImpl>(
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$MemberInfoDtoImplToJson(this);
+    return _$$GroupCustomerInfoDtoImplToJson(this);
   }
 }
 
-abstract class _MemberInfoDto implements MemberInfoDto {
-  const factory _MemberInfoDto({
+abstract class _GroupCustomerInfoDto implements GroupCustomerInfoDto {
+  const factory _GroupCustomerInfoDto({
     @JsonKey(name: 'customerID') final String customerId,
-    final String name,
-  }) = _$MemberInfoDtoImpl;
+    @JsonKey(name: 'name') final String name,
+  }) = _$GroupCustomerInfoDtoImpl;
 
-  factory _MemberInfoDto.fromJson(Map<String, dynamic> json) =
-      _$MemberInfoDtoImpl.fromJson;
+  factory _GroupCustomerInfoDto.fromJson(Map<String, dynamic> json) =
+      _$GroupCustomerInfoDtoImpl.fromJson;
 
   @override
   @JsonKey(name: 'customerID')
   String get customerId;
   @override
+  @JsonKey(name: 'name')
   String get name;
 
-  /// Create a copy of MemberInfoDto
+  /// Create a copy of GroupCustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MemberInfoDtoImplCopyWith<_$MemberInfoDtoImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$GroupCustomerInfoDtoImplCopyWith<_$GroupCustomerInfoDtoImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }

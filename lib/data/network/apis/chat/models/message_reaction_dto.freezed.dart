@@ -31,11 +31,9 @@ mixin _$MessageReactionDto {
   String? get customerId => throw _privateConstructorUsedError;
   @JsonKey(name: 'customerSupportID')
   String? get customerSupportId => throw _privateConstructorUsedError;
-  String? get customerName => throw _privateConstructorUsedError;
-  String? get customerSupportName => throw _privateConstructorUsedError;
-  String get customerSupportAvatar => throw _privateConstructorUsedError;
-  String get customerZaloAvatar => throw _privateConstructorUsedError;
-  String get customerMessengerAvatar => throw _privateConstructorUsedError;
+  CustomerInfoDto? get customerInfo => throw _privateConstructorUsedError;
+  CustomerSupportInfoDto? get customerSupportInfo =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this MessageReactionDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -61,12 +59,12 @@ abstract class $MessageReactionDtoCopyWith<$Res> {
     int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    String? customerName,
-    String? customerSupportName,
-    String customerSupportAvatar,
-    String customerZaloAvatar,
-    String customerMessengerAvatar,
+    CustomerInfoDto? customerInfo,
+    CustomerSupportInfoDto? customerSupportInfo,
   });
+
+  $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
+  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo;
 }
 
 /// @nodoc
@@ -90,11 +88,8 @@ class _$MessageReactionDtoCopyWithImpl<$Res, $Val extends MessageReactionDto>
     Object? amount = null,
     Object? customerId = freezed,
     Object? customerSupportId = freezed,
-    Object? customerName = freezed,
-    Object? customerSupportName = freezed,
-    Object? customerSupportAvatar = null,
-    Object? customerZaloAvatar = null,
-    Object? customerMessengerAvatar = null,
+    Object? customerInfo = freezed,
+    Object? customerSupportInfo = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -128,34 +123,49 @@ class _$MessageReactionDtoCopyWithImpl<$Res, $Val extends MessageReactionDto>
                     ? _value.customerSupportId
                     : customerSupportId // ignore: cast_nullable_to_non_nullable
                         as String?,
-            customerName:
-                freezed == customerName
-                    ? _value.customerName
-                    : customerName // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            customerSupportName:
-                freezed == customerSupportName
-                    ? _value.customerSupportName
-                    : customerSupportName // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            customerSupportAvatar:
-                null == customerSupportAvatar
-                    ? _value.customerSupportAvatar
-                    : customerSupportAvatar // ignore: cast_nullable_to_non_nullable
-                        as String,
-            customerZaloAvatar:
-                null == customerZaloAvatar
-                    ? _value.customerZaloAvatar
-                    : customerZaloAvatar // ignore: cast_nullable_to_non_nullable
-                        as String,
-            customerMessengerAvatar:
-                null == customerMessengerAvatar
-                    ? _value.customerMessengerAvatar
-                    : customerMessengerAvatar // ignore: cast_nullable_to_non_nullable
-                        as String,
+            customerInfo:
+                freezed == customerInfo
+                    ? _value.customerInfo
+                    : customerInfo // ignore: cast_nullable_to_non_nullable
+                        as CustomerInfoDto?,
+            customerSupportInfo:
+                freezed == customerSupportInfo
+                    ? _value.customerSupportInfo
+                    : customerSupportInfo // ignore: cast_nullable_to_non_nullable
+                        as CustomerSupportInfoDto?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of MessageReactionDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CustomerInfoDtoCopyWith<$Res>? get customerInfo {
+    if (_value.customerInfo == null) {
+      return null;
+    }
+
+    return $CustomerInfoDtoCopyWith<$Res>(_value.customerInfo!, (value) {
+      return _then(_value.copyWith(customerInfo: value) as $Val);
+    });
+  }
+
+  /// Create a copy of MessageReactionDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo {
+    if (_value.customerSupportInfo == null) {
+      return null;
+    }
+
+    return $CustomerSupportInfoDtoCopyWith<$Res>(_value.customerSupportInfo!, (
+      value,
+    ) {
+      return _then(_value.copyWith(customerSupportInfo: value) as $Val);
+    });
   }
 }
 
@@ -175,12 +185,14 @@ abstract class _$$MessageReactionDtoImplCopyWith<$Res>
     int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    String? customerName,
-    String? customerSupportName,
-    String customerSupportAvatar,
-    String customerZaloAvatar,
-    String customerMessengerAvatar,
+    CustomerInfoDto? customerInfo,
+    CustomerSupportInfoDto? customerSupportInfo,
   });
+
+  @override
+  $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
+  @override
+  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo;
 }
 
 /// @nodoc
@@ -203,11 +215,8 @@ class __$$MessageReactionDtoImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? customerId = freezed,
     Object? customerSupportId = freezed,
-    Object? customerName = freezed,
-    Object? customerSupportName = freezed,
-    Object? customerSupportAvatar = null,
-    Object? customerZaloAvatar = null,
-    Object? customerMessengerAvatar = null,
+    Object? customerInfo = freezed,
+    Object? customerSupportInfo = freezed,
   }) {
     return _then(
       _$MessageReactionDtoImpl(
@@ -241,31 +250,16 @@ class __$$MessageReactionDtoImplCopyWithImpl<$Res>
                 ? _value.customerSupportId
                 : customerSupportId // ignore: cast_nullable_to_non_nullable
                     as String?,
-        customerName:
-            freezed == customerName
-                ? _value.customerName
-                : customerName // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        customerSupportName:
-            freezed == customerSupportName
-                ? _value.customerSupportName
-                : customerSupportName // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        customerSupportAvatar:
-            null == customerSupportAvatar
-                ? _value.customerSupportAvatar
-                : customerSupportAvatar // ignore: cast_nullable_to_non_nullable
-                    as String,
-        customerZaloAvatar:
-            null == customerZaloAvatar
-                ? _value.customerZaloAvatar
-                : customerZaloAvatar // ignore: cast_nullable_to_non_nullable
-                    as String,
-        customerMessengerAvatar:
-            null == customerMessengerAvatar
-                ? _value.customerMessengerAvatar
-                : customerMessengerAvatar // ignore: cast_nullable_to_non_nullable
-                    as String,
+        customerInfo:
+            freezed == customerInfo
+                ? _value.customerInfo
+                : customerInfo // ignore: cast_nullable_to_non_nullable
+                    as CustomerInfoDto?,
+        customerSupportInfo:
+            freezed == customerSupportInfo
+                ? _value.customerSupportInfo
+                : customerSupportInfo // ignore: cast_nullable_to_non_nullable
+                    as CustomerSupportInfoDto?,
       ),
     );
   }
@@ -281,11 +275,8 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
     this.amount = 0,
     @JsonKey(name: 'customerID') this.customerId,
     @JsonKey(name: 'customerSupportID') this.customerSupportId,
-    this.customerName,
-    this.customerSupportName,
-    this.customerSupportAvatar = '',
-    this.customerZaloAvatar = '',
-    this.customerMessengerAvatar = '',
+    this.customerInfo,
+    this.customerSupportInfo,
   });
 
   factory _$MessageReactionDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -310,22 +301,13 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
   @JsonKey(name: 'customerSupportID')
   final String? customerSupportId;
   @override
-  final String? customerName;
+  final CustomerInfoDto? customerInfo;
   @override
-  final String? customerSupportName;
-  @override
-  @JsonKey()
-  final String customerSupportAvatar;
-  @override
-  @JsonKey()
-  final String customerZaloAvatar;
-  @override
-  @JsonKey()
-  final String customerMessengerAvatar;
+  final CustomerSupportInfoDto? customerSupportInfo;
 
   @override
   String toString() {
-    return 'MessageReactionDto(messageReactionId: $messageReactionId, messageId: $messageId, emoji: $emoji, amount: $amount, customerId: $customerId, customerSupportId: $customerSupportId, customerName: $customerName, customerSupportName: $customerSupportName, customerSupportAvatar: $customerSupportAvatar, customerZaloAvatar: $customerZaloAvatar, customerMessengerAvatar: $customerMessengerAvatar)';
+    return 'MessageReactionDto(messageReactionId: $messageReactionId, messageId: $messageId, emoji: $emoji, amount: $amount, customerId: $customerId, customerSupportId: $customerSupportId, customerInfo: $customerInfo, customerSupportInfo: $customerSupportInfo)';
   }
 
   @override
@@ -343,19 +325,10 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
                 other.customerId == customerId) &&
             (identical(other.customerSupportId, customerSupportId) ||
                 other.customerSupportId == customerSupportId) &&
-            (identical(other.customerName, customerName) ||
-                other.customerName == customerName) &&
-            (identical(other.customerSupportName, customerSupportName) ||
-                other.customerSupportName == customerSupportName) &&
-            (identical(other.customerSupportAvatar, customerSupportAvatar) ||
-                other.customerSupportAvatar == customerSupportAvatar) &&
-            (identical(other.customerZaloAvatar, customerZaloAvatar) ||
-                other.customerZaloAvatar == customerZaloAvatar) &&
-            (identical(
-                  other.customerMessengerAvatar,
-                  customerMessengerAvatar,
-                ) ||
-                other.customerMessengerAvatar == customerMessengerAvatar));
+            (identical(other.customerInfo, customerInfo) ||
+                other.customerInfo == customerInfo) &&
+            (identical(other.customerSupportInfo, customerSupportInfo) ||
+                other.customerSupportInfo == customerSupportInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -368,11 +341,8 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
     amount,
     customerId,
     customerSupportId,
-    customerName,
-    customerSupportName,
-    customerSupportAvatar,
-    customerZaloAvatar,
-    customerMessengerAvatar,
+    customerInfo,
+    customerSupportInfo,
   );
 
   /// Create a copy of MessageReactionDto
@@ -400,11 +370,8 @@ abstract class _MessageReactionDto implements MessageReactionDto {
     final int amount,
     @JsonKey(name: 'customerID') final String? customerId,
     @JsonKey(name: 'customerSupportID') final String? customerSupportId,
-    final String? customerName,
-    final String? customerSupportName,
-    final String customerSupportAvatar,
-    final String customerZaloAvatar,
-    final String customerMessengerAvatar,
+    final CustomerInfoDto? customerInfo,
+    final CustomerSupportInfoDto? customerSupportInfo,
   }) = _$MessageReactionDtoImpl;
 
   factory _MessageReactionDto.fromJson(Map<String, dynamic> json) =
@@ -427,15 +394,9 @@ abstract class _MessageReactionDto implements MessageReactionDto {
   @JsonKey(name: 'customerSupportID')
   String? get customerSupportId;
   @override
-  String? get customerName;
+  CustomerInfoDto? get customerInfo;
   @override
-  String? get customerSupportName;
-  @override
-  String get customerSupportAvatar;
-  @override
-  String get customerZaloAvatar;
-  @override
-  String get customerMessengerAvatar;
+  CustomerSupportInfoDto? get customerSupportInfo;
 
   /// Create a copy of MessageReactionDto
   /// with the given fields replaced by the non-null parameter values.

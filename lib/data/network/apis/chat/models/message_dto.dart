@@ -21,7 +21,7 @@ class MessageDto with _$MessageDto {
     @JsonKey(name: 'channelID') String? channelId,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? updatedAt,
     DateTime? deletedAt,
     required ContactInfoDto contactInfo,
     @Default({}) Map<String, dynamic> contentInfo,

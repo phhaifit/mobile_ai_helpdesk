@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'customer_info_dto.dart';
+import 'customer_support_info_dto.dart';
 
 part 'message_reaction_dto.freezed.dart';
 part 'message_reaction_dto.g.dart';
@@ -12,11 +14,8 @@ class MessageReactionDto with _$MessageReactionDto {
     @Default(0) int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    String? customerName,
-    String? customerSupportName,
-    @Default('') String customerSupportAvatar,
-    @Default('') String customerZaloAvatar,
-    @Default('') String customerMessengerAvatar,
+    CustomerInfoDto? customerInfo,
+    CustomerSupportInfoDto? customerSupportInfo,
   }) = _MessageReactionDto;
 
   factory MessageReactionDto.fromJson(Map<String, dynamic> json) => 

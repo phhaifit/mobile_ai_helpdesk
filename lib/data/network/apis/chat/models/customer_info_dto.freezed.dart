@@ -23,7 +23,11 @@ CustomerInfoDto _$CustomerInfoDtoFromJson(Map<String, dynamic> json) {
 mixin _$CustomerInfoDto {
   @JsonKey(name: 'customerID')
   String get customerId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'contactID')
+  String get contactId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'contactInfo')
+  List<ContactInfoDto> get contactInfo => throw _privateConstructorUsedError;
 
   /// Serializes this CustomerInfoDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -42,7 +46,12 @@ abstract class $CustomerInfoDtoCopyWith<$Res> {
     $Res Function(CustomerInfoDto) then,
   ) = _$CustomerInfoDtoCopyWithImpl<$Res, CustomerInfoDto>;
   @useResult
-  $Res call({@JsonKey(name: 'customerID') String customerId, String name});
+  $Res call({
+    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'contactID') String contactId,
+    String name,
+    @JsonKey(name: 'contactInfo') List<ContactInfoDto> contactInfo,
+  });
 }
 
 /// @nodoc
@@ -59,7 +68,12 @@ class _$CustomerInfoDtoCopyWithImpl<$Res, $Val extends CustomerInfoDto>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? customerId = null, Object? name = null}) {
+  $Res call({
+    Object? customerId = null,
+    Object? contactId = null,
+    Object? name = null,
+    Object? contactInfo = null,
+  }) {
     return _then(
       _value.copyWith(
             customerId:
@@ -67,11 +81,21 @@ class _$CustomerInfoDtoCopyWithImpl<$Res, $Val extends CustomerInfoDto>
                     ? _value.customerId
                     : customerId // ignore: cast_nullable_to_non_nullable
                         as String,
+            contactId:
+                null == contactId
+                    ? _value.contactId
+                    : contactId // ignore: cast_nullable_to_non_nullable
+                        as String,
             name:
                 null == name
                     ? _value.name
                     : name // ignore: cast_nullable_to_non_nullable
                         as String,
+            contactInfo:
+                null == contactInfo
+                    ? _value.contactInfo
+                    : contactInfo // ignore: cast_nullable_to_non_nullable
+                        as List<ContactInfoDto>,
           )
           as $Val,
     );
@@ -87,7 +111,12 @@ abstract class _$$CustomerInfoDtoImplCopyWith<$Res>
   ) = __$$CustomerInfoDtoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'customerID') String customerId, String name});
+  $Res call({
+    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'contactID') String contactId,
+    String name,
+    @JsonKey(name: 'contactInfo') List<ContactInfoDto> contactInfo,
+  });
 }
 
 /// @nodoc
@@ -103,7 +132,12 @@ class __$$CustomerInfoDtoImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? customerId = null, Object? name = null}) {
+  $Res call({
+    Object? customerId = null,
+    Object? contactId = null,
+    Object? name = null,
+    Object? contactInfo = null,
+  }) {
     return _then(
       _$CustomerInfoDtoImpl(
         customerId:
@@ -111,11 +145,21 @@ class __$$CustomerInfoDtoImplCopyWithImpl<$Res>
                 ? _value.customerId
                 : customerId // ignore: cast_nullable_to_non_nullable
                     as String,
+        contactId:
+            null == contactId
+                ? _value.contactId
+                : contactId // ignore: cast_nullable_to_non_nullable
+                    as String,
         name:
             null == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                     as String,
+        contactInfo:
+            null == contactInfo
+                ? _value._contactInfo
+                : contactInfo // ignore: cast_nullable_to_non_nullable
+                    as List<ContactInfoDto>,
       ),
     );
   }
@@ -126,8 +170,11 @@ class __$$CustomerInfoDtoImplCopyWithImpl<$Res>
 class _$CustomerInfoDtoImpl implements _CustomerInfoDto {
   const _$CustomerInfoDtoImpl({
     @JsonKey(name: 'customerID') this.customerId = '',
+    @JsonKey(name: 'contactID') this.contactId = '',
     this.name = '',
-  });
+    @JsonKey(name: 'contactInfo')
+    final List<ContactInfoDto> contactInfo = const [],
+  }) : _contactInfo = contactInfo;
 
   factory _$CustomerInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$CustomerInfoDtoImplFromJson(json);
@@ -136,12 +183,23 @@ class _$CustomerInfoDtoImpl implements _CustomerInfoDto {
   @JsonKey(name: 'customerID')
   final String customerId;
   @override
+  @JsonKey(name: 'contactID')
+  final String contactId;
+  @override
   @JsonKey()
   final String name;
+  final List<ContactInfoDto> _contactInfo;
+  @override
+  @JsonKey(name: 'contactInfo')
+  List<ContactInfoDto> get contactInfo {
+    if (_contactInfo is EqualUnmodifiableListView) return _contactInfo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_contactInfo);
+  }
 
   @override
   String toString() {
-    return 'CustomerInfoDto(customerId: $customerId, name: $name)';
+    return 'CustomerInfoDto(customerId: $customerId, contactId: $contactId, name: $name, contactInfo: $contactInfo)';
   }
 
   @override
@@ -151,12 +209,24 @@ class _$CustomerInfoDtoImpl implements _CustomerInfoDto {
             other is _$CustomerInfoDtoImpl &&
             (identical(other.customerId, customerId) ||
                 other.customerId == customerId) &&
-            (identical(other.name, name) || other.name == name));
+            (identical(other.contactId, contactId) ||
+                other.contactId == contactId) &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(
+              other._contactInfo,
+              _contactInfo,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, customerId, name);
+  int get hashCode => Object.hash(
+    runtimeType,
+    customerId,
+    contactId,
+    name,
+    const DeepCollectionEquality().hash(_contactInfo),
+  );
 
   /// Create a copy of CustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
@@ -178,7 +248,9 @@ class _$CustomerInfoDtoImpl implements _CustomerInfoDto {
 abstract class _CustomerInfoDto implements CustomerInfoDto {
   const factory _CustomerInfoDto({
     @JsonKey(name: 'customerID') final String customerId,
+    @JsonKey(name: 'contactID') final String contactId,
     final String name,
+    @JsonKey(name: 'contactInfo') final List<ContactInfoDto> contactInfo,
   }) = _$CustomerInfoDtoImpl;
 
   factory _CustomerInfoDto.fromJson(Map<String, dynamic> json) =
@@ -188,7 +260,13 @@ abstract class _CustomerInfoDto implements CustomerInfoDto {
   @JsonKey(name: 'customerID')
   String get customerId;
   @override
+  @JsonKey(name: 'contactID')
+  String get contactId;
+  @override
   String get name;
+  @override
+  @JsonKey(name: 'contactInfo')
+  List<ContactInfoDto> get contactInfo;
 
   /// Create a copy of CustomerInfoDto
   /// with the given fields replaced by the non-null parameter values.
