@@ -188,8 +188,8 @@ class StoreModule {
     );
 
     // --- Customer Store ---
-    getIt.registerSingleton<CustomerStore>(
-      CustomerStore(getIt<CustomerRepository>()),
+    getIt.registerLazySingleton<CustomerStore>(
+      () => CustomerStore(getIt<CustomerRepository>()),
     );
 
     // --- Chat Stores ---

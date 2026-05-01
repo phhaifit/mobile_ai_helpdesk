@@ -59,6 +59,8 @@ class MockCustomerDataSource {
   Future<List<Customer>> getCustomers({
     String? query,
     List<String>? tagIds,
+    int? limit,
+    int? offset,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     var result = _customers.toList();
@@ -117,13 +119,13 @@ class MockCustomerDataSource {
   }
 
   Future<Customer> mergeCustomers({
-    required String targetCustomerId,
-    required String sourceCustomerId,
+    required String primaryCustomerId,
+    required String secondaryCustomerId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    final targetIndex = _customers.indexWhere((c) => c.id == targetCustomerId);
-    final sourceIndex = _customers.indexWhere((c) => c.id == sourceCustomerId);
-
+    final targetIndex = _customers.indexWhere((c) => c.id == primaryCustomerId);
+    final sourceIndex = _customers.indexWhere((c) => c.id == secondaryCustomerId);
+    
     if (targetIndex == -1 || sourceIndex == -1) {
       throw Exception('Customer not found');
     }

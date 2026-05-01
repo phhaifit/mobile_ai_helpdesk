@@ -4,7 +4,11 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
+import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
+import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
@@ -100,7 +104,12 @@ class RepositoryModule {
 
     // --- Customer Repositories ---
     getIt.registerSingleton<CustomerRepository>(
-      CustomerRepositoryImpl(getIt<MockCustomerDataSource>()),
+      CustomerRepositoryImpl(getIt<CustomerApi>(), getIt<TagApi>()),
+    );
+    
+    getIt.registerSingleton<MockTagDataSource>(MockTagDataSource());
+    getIt.registerSingleton<TagRepository>(
+      TagRepositoryImpl(getIt<TagApi>()),
     );
 
     getIt.registerSingleton<OmnichannelApi>(OmnichannelApi(getIt<DioClient>()));

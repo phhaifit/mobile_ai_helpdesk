@@ -12,7 +12,6 @@ class MessengerPageDto {
   final String pageId;
   final bool connected;
   final bool? autoReply;
-  final String? language;
   final String? businessHours;
   final DateTime? lastSyncAt;
 
@@ -23,7 +22,6 @@ class MessengerPageDto {
     required this.pageId,
     required this.connected,
     this.autoReply,
-    this.language,
     this.businessHours,
     this.lastSyncAt,
   });
@@ -39,11 +37,6 @@ class MessengerPageDto {
       'pageId',
       'page_id',
       'id',
-    ]);
-    final String rawLanguage = _readString(json, const <String>[
-      'language',
-      'lang',
-      'locale',
     ]);
     final String rawBusinessHours = _readString(json, const <String>[
       'businessHours',
@@ -65,7 +58,6 @@ class MessengerPageDto {
         'autoReply',
         'auto_reply',
       ]),
-      language: rawLanguage.isEmpty ? null : rawLanguage,
       businessHours: rawBusinessHours.isEmpty ? null : rawBusinessHours,
       lastSyncAt: _readDateTime(json, const <String>[
         'lastSyncAt',
@@ -150,16 +142,6 @@ class OmnichannelApi {
     return _dioClient.dio.post(
       Endpoints.verifyMessengerAuthCode(),
       data: <String, dynamic>{'code': code},
-    );
-  }
-
-  Future<dynamic> connectMessengerPage({
-    required String pageId,
-    required String accessToken,
-  }) {
-    return _dioClient.dio.post(
-      Endpoints.connectMessengerPage(),
-      data: <String, dynamic>{'pageId': pageId, 'accessToken': accessToken},
     );
   }
 

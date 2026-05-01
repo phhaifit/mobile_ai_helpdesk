@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/customer/tag.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class CustomerAddEditScreen extends StatefulWidget {
   final Customer? customer;
@@ -76,15 +77,16 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
       );
 
       final success = await widget.store.saveCustomer(newCustomer);
+      if (!context.mounted) return;
+      
       if (success) {
-        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
-              children: const [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Lưu thông tin khách hàng thành công!'),
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(AppLocalizations.of(context).translate('customer_add_edit_save_success')),
               ],
             ),
             backgroundColor: Colors.green.shade600,
@@ -94,6 +96,16 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           ),
         );
         widget.onBack();
+      } else if (widget.store.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.store.errorMessage!),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
       }
     }
   }
@@ -103,12 +115,12 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Thêm thẻ mới (Tag)', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context).translate('customer_add_edit_add_tag_title'), style: const TextStyle(fontWeight: FontWeight.bold)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: TextField(
           controller: ctrl,
           decoration: InputDecoration(
-            labelText: 'Tên thẻ', 
+            labelText: AppLocalizations.of(context).translate('customer_add_edit_tag_name_label'), 
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
             fillColor: Colors.grey.shade50
@@ -116,7 +128,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy', style: TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context).translate('common_cancel'), style: const TextStyle(color: Colors.grey))),
           Observer(
             builder: (_) {
               if (widget.store.isSaving) return const Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
@@ -132,7 +144,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
                     if (context.mounted) Navigator.pop(context);
                   }
                 },
-                child: const Text('Thêm', style: TextStyle(color: Colors.white)),
+                child: Text(AppLocalizations.of(context).translate('common_add'), style: const TextStyle(color: Colors.white)),
               );
             }
           )
@@ -143,10 +155,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
 
   String _getContactLabel(ContactType type) {
     switch (type) {
-      case ContactType.email: return 'Email';
-      case ContactType.phone: return 'Số điện thoại';
-      case ContactType.zalo: return 'Zalo';
-      case ContactType.messenger: return 'Messenger';
+      case ContactType.email: return AppLocalizations.of(context).translate('customer_detail_email');
+      case ContactType.phone: return AppLocalizations.of(context).translate('customer_detail_phone');
+      case ContactType.zalo: return AppLocalizations.of(context).translate('customer_detail_zalo');
+      case ContactType.messenger: return AppLocalizations.of(context).translate('customer_detail_messenger');
     }
   }
 
@@ -169,28 +181,28 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('Chọn loại liên hệ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(AppLocalizations.of(context).translate('customer_add_edit_contact_type_title'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               ListTile(
                 leading: const Icon(Icons.email_outlined),
-                title: const Text('Email'),
+                title: Text(AppLocalizations.of(context).translate('customer_detail_email')),
                 onTap: () => _addContact(ContactType.email),
               ),
               ListTile(
                 leading: const Icon(Icons.phone_outlined),
-                title: const Text('Số điện thoại'),
+                title: Text(AppLocalizations.of(context).translate('customer_detail_phone')),
                 onTap: () => _addContact(ContactType.phone),
               ),
               ListTile(
                 leading: const Icon(Icons.chat_bubble_outline),
-                title: const Text('Zalo'),
+                title: Text(AppLocalizations.of(context).translate('customer_detail_zalo')),
                 onTap: () => _addContact(ContactType.zalo),
               ),
               ListTile(
                 leading: const Icon(Icons.message_outlined),
-                title: const Text('Messenger'),
+                title: Text(AppLocalizations.of(context).translate('customer_detail_messenger')),
                 onTap: () => _addContact(ContactType.messenger),
               ),
             ],
@@ -237,7 +249,10 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         leading: IconButton(icon: const Icon(Icons.close), onPressed: widget.onBack),
-        title: Text(widget.customer == null ? 'Thêm khách hàng' : 'Sửa khách hàng', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(widget.customer == null 
+          ? AppLocalizations.of(context).translate('customer_add_title') 
+          : AppLocalizations.of(context).translate('customer_edit_title'), 
+          style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Form(
         key: _formKey,
@@ -247,20 +262,20 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
           children: [
             TextFormField(
               controller: _nameCtrl,
-              decoration: _buildInputDeco('Họ tên *', Icons.person_outline),
-              validator: (v) => v!.isEmpty ? 'Vui lòng nhập họ tên' : null,
+              decoration: _buildInputDeco(AppLocalizations.of(context).translate('customer_add_edit_name_label'), Icons.person_outline),
+              validator: (v) => v!.isEmpty ? AppLocalizations.of(context).translate('customer_add_edit_name_error') : null,
               textCapitalization: TextCapitalization.words,
             ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Thông tin liên hệ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context).translate('customer_detail_contact_info'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 TextButton.icon(
                   style: TextButton.styleFrom(foregroundColor: AppColors.primaryBlue),
                   onPressed: _showAddContactModal,
                   icon: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Thêm liên hệ'),
+                  label: Text(AppLocalizations.of(context).translate('customer_add_edit_add_contact')),
                 ),
               ],
             ),
@@ -279,7 +294,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
                         decoration: _buildInputDeco(_getContactLabel(contact.type), _getContactIcon(contact.type)),
                         keyboardType: contact.type == ContactType.email ? TextInputType.emailAddress : (contact.type == ContactType.phone ? TextInputType.phone : null),
                         validator: contact.type == ContactType.email 
-                          ? (v) => !_isValidEmail(v ?? '') ? 'Email không hợp lệ' : null 
+                          ? (v) => !_isValidEmail(v ?? '') ? AppLocalizations.of(context).translate('customer_add_edit_email_error') : null 
                           : null,
                       ),
                     ),
@@ -310,12 +325,12 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Thẻ (Tags)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(AppLocalizations.of(context).translate('customer_filter_tags'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       TextButton.icon(
                         style: TextButton.styleFrom(foregroundColor: AppColors.primaryBlue),
                         onPressed: () => _showAddTagDialog(context),
                         icon: const Icon(Icons.add_circle_outline, size: 18),
-                        label: const Text('Thẻ mới'),
+                        label: Text(AppLocalizations.of(context).translate('customer_add_edit_new_tag')),
                       )
                     ],
                   ),
@@ -325,7 +340,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
                       if (widget.store.availableTags.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text('Không có thẻ nào để chọn.', style: TextStyle(color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
+                          child: Text(AppLocalizations.of(context).translate('customer_add_edit_no_tags'), style: TextStyle(color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
                         );
                       }
                       return Wrap(
@@ -371,9 +386,9 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Lưu thông tin',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      child: Text(
+                        AppLocalizations.of(context).translate('customer_add_edit_save_btn'),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     );
             }),

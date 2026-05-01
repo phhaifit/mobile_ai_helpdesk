@@ -64,6 +64,7 @@ dev_dependencies:
   mobx_codegen: ^2.5.0
   flutter_lints: ^5.0.0
   firebase_core_platform_interface: ^6.0.2
+  mocktail: ^1.0.5
 
 flutter:
   uses-material-design: true
