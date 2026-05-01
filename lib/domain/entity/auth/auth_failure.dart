@@ -58,22 +58,3 @@ class InvalidEmailFailure extends AuthFailure {
     String message = 'Please enter a valid email address.',
   ]) : super(code: 'auth_error_invalid_email', message: message);
 }
-
-/// User dismissed the in-app browser before completing the OAuth flow
-/// (e.g., tapped Cancel on the iOS modal or pressed back on Android).
-/// Treat as a benign no-op — UI should clear loading state without showing
-/// a scary error.
-class OAuthCancelledFailure extends AuthFailure {
-  const OAuthCancelledFailure([
-    String message = 'Sign-in was cancelled.',
-  ]) : super(code: 'auth_error_oauth_cancelled', message: message);
-}
-
-/// OAuth flow failed in a way that is not a clean cancellation: state
-/// mismatch (CSRF), missing `code` in callback, or the in-app browser
-/// returned an unexpected URL.
-class OAuthFailedFailure extends AuthFailure {
-  const OAuthFailedFailure([
-    String message = "Couldn't sign in with Google. Please try again.",
-  ]) : super(code: 'auth_error_oauth_failed', message: message);
-}

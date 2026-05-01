@@ -12,7 +12,6 @@ import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/refresh_session_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
@@ -86,9 +85,6 @@ class UseCaseModule {
     );
     getIt.registerSingleton<SignOutUseCase>(
       SignOutUseCase(getIt<AuthRepository>()),
-    );
-    getIt.registerSingleton<SignInWithGoogleUseCase>(
-      SignInWithGoogleUseCase(getIt<AuthRepository>()),
     );
 
     // Account Use Cases:-------------------------------------------------------

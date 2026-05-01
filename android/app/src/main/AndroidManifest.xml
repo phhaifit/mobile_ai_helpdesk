@@ -32,11 +32,6 @@
                 <data android:scheme="app"/>
             </intent-filter>
         </activity>
-        <!-- OAuth callback handling lives entirely inside the app via an
-             in-app WebView (see lib/data/auth/oauth_browser_client.dart).
-             No intent-filter is needed because we never let the OS route
-             the HTTPS redirect URL to a separate browser. -->
-
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

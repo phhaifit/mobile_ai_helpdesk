@@ -1,6 +1,5 @@
 import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
-import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
@@ -67,21 +66,15 @@ class RepositoryModule {
       PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
     );
 
-    // --- Auth (Stack Auth OTP + OAuth flow) ---
+    // --- Auth (Stack Auth OTP flow) ---
     getIt.registerSingleton<AuthLocalDatasource>(
       AuthLocalDatasource(getIt<SharedPreferenceHelper>()),
-    );
-    getIt.registerSingleton<OAuthBrowserClient>(
-      WebViewBrowserClient(
-        callbackUrlPrefix: EnvConfig.instance.oauthRedirectUri,
-      ),
     );
     getIt.registerSingleton<AuthRepository>(
       AuthRepositoryImpl(
         getIt<StackAuthApi>(),
         getIt<AuthLocalDatasource>(),
         EnvConfig.instance,
-        browser: getIt<OAuthBrowserClient>(),
       ),
     );
 
