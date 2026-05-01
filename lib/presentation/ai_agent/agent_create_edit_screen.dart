@@ -177,7 +177,7 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
               controller: _workflowsCtrl,
               decoration: InputDecoration(
                 labelText: l.translate('ai_agent_workflows'),
-                hintText: 'e.g. Order Tracking, Returns, FAQ',
+                hintText: l.translate('ai_agent_workflows_hint'),
                 border: const OutlineInputBorder(),
               ),
             ),

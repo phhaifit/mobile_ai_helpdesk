@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '/core/data/network/dio/dio_client.dart';
 import '/data/network/constants/endpoints.dart';
@@ -15,6 +16,7 @@ class PlaygroundApi {
   PlaygroundApi(this._dioClient);
 
   Future<String> askAgent(String agentId, AskQuestionRequest req) async {
+    debugPrint('[PlaygroundApi] askAgent called');
     final response = await _dioClient.dio.post<dynamic>(
       Endpoints.agentAsk(agentId),
       data: req.toJson(),
@@ -26,6 +28,7 @@ class PlaygroundApi {
     String agentId,
     ChatCompletionRequest req,
   ) async {
+    debugPrint('[PlaygroundApi] chatComplete called');
     final response = await _dioClient.dio.post<dynamic>(
       Endpoints.agentChatComplete(agentId),
       data: req.toJson(),
@@ -37,6 +40,7 @@ class PlaygroundApi {
     String tenantId,
     DraftResponseRequest req,
   ) async {
+    debugPrint('[PlaygroundApi] getDraftResponse called');
     final response = await _dioClient.dio.post<dynamic>(
       Endpoints.agentDraftResponse(tenantId),
       data: req.toJson(),
@@ -51,6 +55,7 @@ class PlaygroundApi {
     String tenantId,
     DraftResponseRequest req,
   ) {
+    debugPrint('[PlaygroundApi] streamDraftResponse called');
     final controller = StreamController<String>();
 
     _dioClient.dio

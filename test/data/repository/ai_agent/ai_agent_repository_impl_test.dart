@@ -6,7 +6,6 @@ import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.da
 import 'package:ai_helpdesk/data/sharedpref/constants/preferences.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/entity/ai_agent/ai_agent.dart';
-import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -59,66 +58,6 @@ class _FakeAiAgentApi extends AiAgentApi {
   }
 }
 
-class _FakeFallbackAiAgentRepository implements AiAgentRepository {
-  int getAgentsCallCount = 0;
-  int createAgentCallCount = 0;
-  int updateAgentCallCount = 0;
-  int deleteAgentCallCount = 0;
-
-  final List<AiAgent> _agents = <AiAgent>[
-    AiAgent(
-      id: 'fallback-1',
-      name: 'Fallback Agent',
-      description: 'Used when tenant is missing',
-      avatarUrl: null,
-      mode: AgentMode.semiAuto,
-      platforms: const <String>[],
-      workflows: const <String>[],
-      teamId: null,
-      createdAt: DateTime(2024, 1, 1),
-    ),
-  ];
-
-  @override
-  Future<List<AiAgent>> getAgents() async {
-    getAgentsCallCount += 1;
-    return List<AiAgent>.from(_agents);
-  }
-
-  @override
-  Future<AiAgent?> getAgentById(String id) async {
-    for (final agent in _agents) {
-      if (agent.id == id) return agent;
-    }
-    return null;
-  }
-
-  @override
-  Future<AiAgent> createAgent(AiAgent agent) async {
-    createAgentCallCount += 1;
-    final created = agent.copyWith(id: 'fallback-created');
-    _agents.add(created);
-    return created;
-  }
-
-  @override
-  Future<AiAgent> updateAgent(AiAgent agent) async {
-    updateAgentCallCount += 1;
-    final idx = _agents.indexWhere((a) => a.id == agent.id);
-    if (idx >= 0) {
-      _agents[idx] = agent;
-      return agent;
-    }
-    throw Exception('Agent not found');
-  }
-
-  @override
-  Future<void> deleteAgent(String id) async {
-    deleteAgentCallCount += 1;
-    _agents.removeWhere((a) => a.id == id);
-  }
-}
-
 Future<SharedPreferenceHelper> _buildPrefs(Map<String, Object> initial) async {
   SharedPreferences.setMockInitialValues(initial);
   final prefs = await SharedPreferences.getInstance();
@@ -143,38 +82,21 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AiAgentRepositoryImpl tenant handling', () {
-    test('getAgents falls back when tenantId is missing', () async {
+    test('getAgents throws when tenantId is missing', () async {
       final api = _FakeAiAgentApi();
       final prefs = await _buildPrefs(<String, Object>{});
-      final fallback = _FakeFallbackAiAgentRepository();
-      final repo = AiAgentRepositoryImpl(
-        api,
-        prefs,
-        fallbackRepository: fallback,
-      );
+      final repo = AiAgentRepositoryImpl(api, prefs);
 
-      final agents = await repo.getAgents();
-
-      expect(agents, hasLength(1));
-      expect(agents.first.id, 'fallback-1');
-      expect(fallback.getAgentsCallCount, 1);
+      await expectLater(repo.getAgents(), throwsA(isA<Exception>()));
       expect(api.getAgentByTenantCallCount, 0);
     });
 
-    test('createAgent falls back when tenantId is missing', () async {
+    test('createAgent throws when tenantId is missing', () async {
       final api = _FakeAiAgentApi();
       final prefs = await _buildPrefs(<String, Object>{});
-      final fallback = _FakeFallbackAiAgentRepository();
-      final repo = AiAgentRepositoryImpl(
-        api,
-        prefs,
-        fallbackRepository: fallback,
-      );
+      final repo = AiAgentRepositoryImpl(api, prefs);
 
-      final created = await repo.createAgent(_sampleAgent());
-
-      expect(created.id, 'fallback-created');
-      expect(fallback.createAgentCallCount, 1);
+      await expectLater(repo.createAgent(_sampleAgent()), throwsA(isA<Exception>()));
       expect(api.createAgentCallCount, 0);
       expect(api.updateAgentInfoCallCount, 0);
     });
@@ -191,11 +113,7 @@ void main() {
       final prefs = await _buildPrefs(<String, Object>{
         Preferences.tenantId: 'tn-001',
       });
-      final repo = AiAgentRepositoryImpl(
-        api,
-        prefs,
-        fallbackRepository: _FakeFallbackAiAgentRepository(),
-      );
+      final repo = AiAgentRepositoryImpl(api, prefs);
 
       final agents = await repo.getAgents();
 
@@ -211,11 +129,7 @@ void main() {
       final prefs = await _buildPrefs(<String, Object>{
         Preferences.tenantId: 'tn-abc',
       });
-      final repo = AiAgentRepositoryImpl(
-        api,
-        prefs,
-        fallbackRepository: _FakeFallbackAiAgentRepository(),
-      );
+      final repo = AiAgentRepositoryImpl(api, prefs);
 
       final created = await repo.createAgent(_sampleAgent());
 

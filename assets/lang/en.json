@@ -535,6 +535,7 @@
   "ai_agent_no_agents": "No agents yet. Tap + to create one.",
   "ai_agent_save": "Save Agent",
   "ai_agent_cancel": "Cancel",
+  "ai_agent_workflows_hint": "e.g. Order Tracking, Returns, FAQ",
 
   "playground_title": "Chat Playground",
   "playground_new_session": "New Session",
@@ -546,6 +547,10 @@
   "playground_use_draft": "Use this",
   "playground_dismiss_draft": "Dismiss",
   "playground_try_suggestion": "Try asking:",
+  "playground_suggestion_return": "I want to return a product",
+  "playground_suggestion_order_status": "Where is my order?",
+  "playground_suggestion_refund_policy": "What is your refund policy?",
+  "playground_suggestion_contact_support": "Contact support",
   "playground_type_message": "Type a message...",
   "playground_edit_message": "Edit Message",
   "playground_attach_file": "Attach File",

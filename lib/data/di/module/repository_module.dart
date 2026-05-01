@@ -1,7 +1,6 @@
 import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
@@ -15,7 +14,6 @@ import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
@@ -52,31 +50,9 @@ import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:get_it/get_it.dart';
 
-// Import Interfaces (Domain)
-import '../../../domain/repository/ai_agent/ai_agent_repository.dart';
-import '../../../domain/repository/chat/chat_repository.dart';
-import '../../../domain/repository/chat/chat_room_repository.dart';
-import '../../../domain/repository/customer/customer_repository.dart';
-import '../../../domain/repository/playground/playground_repository.dart';
-// Import DataSources
-import '../../local/datasources/chat/chat_datasource.dart';
-import '../../local/datasources/chat/chat_room_datasource.dart';
-// import '../../local/datasources/customer_management/customer_datasource.dart';
-import '../../local/datasources/playground/playground_datasource.dart';
-// Import Implementations (Data)
 import '../../network/apis/ai_agent/ai_agent_api.dart';
 import '../../network/apis/playground/playground_api.dart';
 import '../../repository/ai_agent/ai_agent_repository_impl.dart';
-import '../../repository/ai_agent/mock_ai_agent_repository_impl.dart';
-import '../../repository/chat/chat_repository_impl.dart';
-import '../../repository/chat/chat_room_repository_impl.dart';
-import '../../repository/team/mock_team_repository_impl.dart';
-import '../../repository/tenant/mock_tenant_repository_impl.dart';
-import '../../repository/invitation/mock_invitation_repository_impl.dart';
-// import '../../repository/customer_management/customer_repository_impl.dart';
-import '../../repository/playground/playground_repository_impl.dart';
-import '../../local/datasources/customer/mock_customer_datasource.dart';
-import '../../repository/customer/customer_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -84,13 +60,7 @@ class RepositoryModule {
 
     // --- AI Agent Repository ---
     getIt.registerSingleton<AiAgentRepository>(
-      AiAgentRepositoryImpl(
-        getIt<AiAgentApi>(),
-        getIt<SharedPreferenceHelper>(),
-        fallbackRepository: MockAiAgentRepositoryImpl(
-          getIt<AiAgentDataSource>(),
-        ),
-      ),
+      AiAgentRepositoryImpl(getIt<AiAgentApi>(), getIt<SharedPreferenceHelper>()),
     );
 
     // --- Playground Repository ---
@@ -98,6 +68,7 @@ class RepositoryModule {
       PlaygroundRepositoryImpl(
         getIt<PlaygroundDataSource>(),
         getIt<PlaygroundApi>(),
+        getIt<SharedPreferenceHelper>(),
       ),
     );
 

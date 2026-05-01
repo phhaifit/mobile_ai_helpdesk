@@ -69,6 +69,7 @@
   "ai_agent_no_agents": "Ingen agenter endnu. Tryk + for at oprette en.",
   "ai_agent_save": "Gem agent",
   "ai_agent_cancel": "Annuller",
+  "ai_agent_workflows_hint": "f.eks. Ordresporing, Returneringer, FAQ",
 
   "playground_title": "Chat Playground",
   "playground_new_session": "Ny session",
@@ -80,6 +81,10 @@
   "playground_use_draft": "Brug dette",
   "playground_dismiss_draft": "Afvis",
   "playground_try_suggestion": "Prøv at spørge:",
+  "playground_suggestion_return": "Jeg vil returnere et produkt",
+  "playground_suggestion_order_status": "Hvor er min ordre?",
+  "playground_suggestion_refund_policy": "Hvad er jeres refusionspolitik?",
+  "playground_suggestion_contact_support": "Kontakt support",
   "playground_type_message": "Skriv en besked...",
   "playground_edit_message": "Rediger besked",
   "playground_attach_file": "Vedhæft fil",

@@ -1,5 +1,7 @@
 # Jarvis Helpdesk - Mobile App API
 
+TenantId for test: aca752db-91a4-4f6a-ac48-3c28989bdbd5
+
 ## API Docs
 - Root > 8. AI Agent [Get active AI agent by tenant](https://033thw3m9z.apidog.io/get-active-ai-agent-by-tenant-32922649e0.md): 
 - Root > 8. AI Agent [Create AI agent for tenant](https://033thw3m9z.apidog.io/create-ai-agent-for-tenant-32922650e0.md): 

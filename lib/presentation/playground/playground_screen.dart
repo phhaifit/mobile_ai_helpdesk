@@ -5,6 +5,7 @@ import '/constants/dimens.dart';
 import '/di/service_locator.dart';
 import '/domain/entity/ai_agent/ai_agent.dart';
 import '/domain/entity/playground/playground_session.dart';
+import '/domain/repository/playground/playground_repository.dart';
 import '/presentation/playground/store/playground_store.dart';
 import '/presentation/playground/widgets/context_selector.dart';
 import '/presentation/playground/widgets/draft_response_panel.dart';
@@ -39,6 +40,9 @@ class PlaygroundScreen extends StatefulWidget {
 }
 
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
+  static const _draftResponseTestTenantId =
+      'aca752db-91a4-4f6a-ac48-3c28989bdbd5';
+
   late final PlaygroundStore _store;
   final ScrollController _scrollCtrl = ScrollController();
   final TextEditingController _inputCtrl = TextEditingController();
@@ -46,13 +50,6 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   bool _showDrafts = false;
   List<String> _drafts = [];
   List<String> _pendingAttachments = [];
-
-  static const _suggestions = [
-    'Tôi muốn đổi trả sản phẩm',
-    'Đơn hàng của tôi ở đâu?',
-    'Chính sách hoàn tiền như thế nào?',
-    'Liên hệ hỗ trợ',
-  ];
 
   @override
   void initState() {
@@ -89,17 +86,46 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     _scrollToBottom();
   }
 
-  void _onSend(String text) {
-    _store.sendMessage(text, attachments: [..._pendingAttachments]);
+  Future<void> _onSend(String text) async {
+    final attachments = [..._pendingAttachments];
+    setState(() => _pendingAttachments = []);
+
+    await _store.sendMessage(text, attachments: attachments);
     _scrollToBottom();
-    // Generate mock drafts after each message for demonstration.
+
+    final session = _store.activeSession;
+    if (session == null || session.messages.isEmpty) {
+      return;
+    }
+
+    final params = DraftResponseParams(
+      chatHistory: session.messages
+          .map(
+            (m) => <String, String>{
+              'role': m.role.name,
+              'content': m.content,
+            },
+          )
+          .toList(),
+      channel: _contextType == PlaygroundContextType.lazada ? 'lazada' : 'chat',
+      type: 'draft_response',
+      defaultConfigType: const <String>['playground'],
+      tenantID: _draftResponseTestTenantId,
+      ticketID: session.id,
+      chatRoomID: session.id,
+      customerID: 'playground-user',
+    );
+
+    await _store.fetchDraftResponse(params);
+
+    if (!mounted) {
+      return;
+    }
+
+    final draft = _store.draftResponse.trim();
     setState(() {
-      _pendingAttachments = [];
-      _drafts = [
-        'Cảm ơn bạn đã liên hệ! Tôi sẽ xử lý ngay.',
-        'Vấn đề của bạn đã được ghi nhận và đội ngũ sẽ liên hệ trong 2 giờ.',
-      ];
-      _showDrafts = true;
+      _drafts = draft.isEmpty ? <String>[] : <String>[draft];
+      _showDrafts = _drafts.isNotEmpty;
     });
   }
 
@@ -117,6 +143,12 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final suggestions = [
+      l.translate('playground_suggestion_return'),
+      l.translate('playground_suggestion_order_status'),
+      l.translate('playground_suggestion_refund_policy'),
+      l.translate('playground_suggestion_contact_support'),
+    ];
 
     final bodyContent = Column(
       children: [
@@ -141,7 +173,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
             if (_store.activeSession == null) {
               return _EmptyState(
-                suggestions: _suggestions,
+                suggestions: suggestions,
                 onSuggestionTap: (s) {
                   _newSession().then((_) => _onSend(s));
                 },
@@ -154,7 +186,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 children: [
                   const SizedBox(height: 16),
                   SuggestionChips(
-                    suggestions: _suggestions,
+                    suggestions: suggestions,
                     onSelected: _onSend,
                   ),
                 ],

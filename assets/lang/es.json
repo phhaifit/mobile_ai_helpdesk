@@ -69,6 +69,7 @@
   "ai_agent_no_agents": "Sin agentes aún. Toca + para crear uno.",
   "ai_agent_save": "Guardar agente",
   "ai_agent_cancel": "Cancelar",
+  "ai_agent_workflows_hint": "p. ej. Seguimiento de pedidos, Devoluciones, FAQ",
 
   "playground_title": "Chat Playground",
   "playground_new_session": "Nueva sesión",
@@ -80,6 +81,10 @@
   "playground_use_draft": "Usar esto",
   "playground_dismiss_draft": "Descartar",
   "playground_try_suggestion": "Intenta preguntar:",
+  "playground_suggestion_return": "Quiero devolver un producto",
+  "playground_suggestion_order_status": "¿Dónde está mi pedido?",
+  "playground_suggestion_refund_policy": "¿Cuál es su política de reembolso?",
+  "playground_suggestion_contact_support": "Contactar soporte",
   "playground_type_message": "Escribe un mensaje...",
   "playground_edit_message": "Editar mensaje",
   "playground_attach_file": "Adjuntar archivo",

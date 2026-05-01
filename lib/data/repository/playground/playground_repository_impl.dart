@@ -5,6 +5,7 @@ import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/models/request/chat_completion_request.dart';
 import '/data/network/models/request/chat_message.dart';
 import '/data/network/models/request/draft_response_request.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/entity/playground/playground_message.dart';
 import '/domain/entity/playground/playground_session.dart';
 import '/domain/repository/playground/playground_repository.dart';
@@ -12,8 +13,25 @@ import '/domain/repository/playground/playground_repository.dart';
 class PlaygroundRepositoryImpl implements PlaygroundRepository {
   final PlaygroundDataSource _dataSource;
   final PlaygroundApi _api;
+  final SharedPreferenceHelper _prefs;
 
-  PlaygroundRepositoryImpl(this._dataSource, this._api);
+  PlaygroundRepositoryImpl(this._dataSource, this._api, this._prefs);
+
+  Future<String?> _resolveTenantId() async {
+    final id = (await _prefs.tenantId)?.trim();
+    if (id == null || id.isEmpty) {
+      return null;
+    }
+    return id;
+  }
+
+  Future<String> _requireTenantId() async {
+    final tenantId = await _resolveTenantId();
+    if (tenantId == null) {
+      throw Exception('Tenant ID is required to call draft response APIs.');
+    }
+    return tenantId;
+  }
 
   @override
   Future<List<PlaygroundSession>> getSessions() => _dataSource.getSessions();
@@ -35,38 +53,36 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     String content,
     List<String> attachments,
   ) async {
-    // 1. Add user message locally and get a placeholder AI message.
-    final mockAiMsg =
-        await _dataSource.sendMessage(sessionId, content, attachments);
-
-    // 2. Fetch the session to get agentId for the API call.
+    // 1. Fetch the session to get agentId for the API call.
     final session = await _dataSource.getSessionById(sessionId);
-    if (session?.agentId == null) {
-      // No agent linked — return the mock response as fallback.
-      return mockAiMsg;
+    if (session == null) {
+      throw Exception('Session not found: $sessionId');
     }
 
-    // 3. Build chat history from session messages (excluding the placeholder).
-    final history = session!.messages
-        .where((m) => m.id != mockAiMsg.id)
+    if (session.agentId == null) {
+      throw Exception('Session does not have an assigned AI Agent.');
+    }
+
+    // 2. Build chat history from current session messages.
+    final history = session.messages
         .map((m) => ChatMessage(role: m.role.name, content: m.content))
         .toList();
 
-    // 4. Call real API.
+    // 3. Call real API then persist messages locally.
     try {
       final realText = await _api.chatComplete(
         session.agentId!,
         ChatCompletionRequest(prompt: content, chatHistory: history),
       );
-      // 5. Replace placeholder AI message content with real response.
-      return await _dataSource.editMessage(
+
+      return await _dataSource.sendMessage(
         sessionId,
-        mockAiMsg.id,
-        realText.isNotEmpty ? realText : mockAiMsg.content,
+        content,
+        attachments,
+        assistantResponse: realText,
       );
-    } on DioException {
-      // Network error — return the mock response so the UI doesn't break.
-      return mockAiMsg;
+    } on DioException catch (e) {
+      throw Exception('Failed to send message: ${e.message}');
     }
   }
 
@@ -80,21 +96,29 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
 
   @override
   Future<String> getDraftResponse(DraftResponseParams params) async {
-    final req = _toRequest(params);
+    final tenantId =
+        params.tenantID.trim().isNotEmpty
+            ? params.tenantID
+            : await _requireTenantId();
+    final req = _toRequest(params, tenantId);
     try {
-      return await _api.getDraftResponse(params.tenantID, req);
+      return await _api.getDraftResponse(tenantId, req);
     } on DioException catch (e) {
       throw Exception('Failed to get draft response: ${e.message}');
     }
   }
 
   @override
-  Stream<String> streamDraftResponse(DraftResponseParams params) {
-    final req = _toRequest(params);
-    return _api.streamDraftResponse(params.tenantID, req);
+  Stream<String> streamDraftResponse(DraftResponseParams params) async* {
+    final tenantId =
+        params.tenantID.trim().isNotEmpty
+            ? params.tenantID
+            : await _requireTenantId();
+    final req = _toRequest(params, tenantId);
+    yield* _api.streamDraftResponse(tenantId, req);
   }
 
-  DraftResponseRequest _toRequest(DraftResponseParams params) =>
+  DraftResponseRequest _toRequest(DraftResponseParams params, String tenantId) =>
       DraftResponseRequest(
         chatHistory: params.chatHistory
             .map((m) => ChatMessage(
@@ -105,7 +129,7 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
         channel: params.channel,
         type: params.type,
         defaultConfigType: params.defaultConfigType,
-        tenantID: params.tenantID,
+        tenantID: tenantId,
         ticketID: params.ticketID,
         chatRoomID: params.chatRoomID,
         customerID: params.customerID,

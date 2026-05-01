@@ -98,12 +98,8 @@ import '../../../domain/usecase/playground/get_draft_response_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 import '../../../domain/usecase/playground/stream_draft_response_usecase.dart';
-import '../../../domain/analytics/analytics_service.dart';
 // import '../../login/store/login_store.dart';
 
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 

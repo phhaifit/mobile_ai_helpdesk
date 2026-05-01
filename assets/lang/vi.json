@@ -542,6 +542,7 @@
   "ai_agent_no_agents": "Chưa có đại lý nào. Nhấn + để tạo.",
   "ai_agent_save": "Lưu đại lý",
   "ai_agent_cancel": "Hủy",
+  "ai_agent_workflows_hint": "vd: Theo dõi đơn hàng, Đổi trả, FAQ",
 
   "playground_title": "Playground Chat",
   "playground_new_session": "Phiên mới",
@@ -553,6 +554,10 @@
   "playground_use_draft": "Dùng cái này",
   "playground_dismiss_draft": "Bỏ qua",
   "playground_try_suggestion": "Thử hỏi:",
+  "playground_suggestion_return": "Tôi muốn đổi trả sản phẩm",
+  "playground_suggestion_order_status": "Đơn hàng của tôi ở đâu?",
+  "playground_suggestion_refund_policy": "Chính sách hoàn tiền như thế nào?",
+  "playground_suggestion_contact_support": "Liên hệ hỗ trợ",
   "playground_type_message": "Nhập tin nhắn...",
   "playground_edit_message": "Chỉnh sửa tin nhắn",
   "playground_attach_file": "Đính kèm tệp",

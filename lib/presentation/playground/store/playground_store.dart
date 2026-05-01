@@ -238,8 +238,7 @@ abstract class _PlaygroundStore with Store {
     isDraftStreaming = true;
     errorStore.errorMessage = '';
 
-    final stream =
-        _streamDraftResponseUseCase.call(params: params) as Stream<String>;
+    final stream = _streamDraftResponseUseCase.call(params: params);
     _draftStreamSubscription = stream.listen(
       (chunk) => runInAction(() => draftResponse += chunk),
       onError: (dynamic e) => runInAction(() {
