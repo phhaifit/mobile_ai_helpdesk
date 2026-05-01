@@ -169,8 +169,7 @@ class RepositoryModule {
       getIt.registerSingleton<MarketingRepository>(
         MockMarketingRepositoryImpl(),
       );
-    } else {
-      // ignore: dead_code
+    } else { // ignore: dead_code
       getIt.registerSingleton<MarketingBroadcastApi>(
         MarketingBroadcastApi(getIt<DioClient>()),
       );
