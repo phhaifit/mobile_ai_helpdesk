@@ -16,6 +16,7 @@ import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
@@ -129,6 +130,9 @@ class StoreModule {
     getIt.registerFactory<SignInEmailStore>(
       () => SignInEmailStore(
         sendOtpUseCase: getIt<SendOtpUseCase>(),
+        signInWithGoogleUseCase: getIt<SignInWithGoogleUseCase>(),
+        getCurrentAccountUseCase: getIt<GetCurrentAccountUseCase>(),
+        authStore: getIt<AuthStore>(),
         analyticsService: getIt<AnalyticsService>(),
       ),
     );

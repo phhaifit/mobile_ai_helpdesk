@@ -41,6 +41,16 @@ dependencies:
 
   # Encryption
   xxtea: ^2.1.0
+  crypto: ^3.0.3
+
+  # OAuth (Stack Auth — Google sign-in)
+  # We use an in-app WebView (not Custom Tabs / ASWebAuthenticationSession)
+  # because Stack Auth's whitelist only contains the HTTPS web redirect URL
+  # `https://helpdesk.jarvis.cx/oauth2callback`, and routing that HTTPS URL
+  # back to the mobile app would otherwise require deploying an
+  # assetlinks.json / apple-app-site-association on helpdesk.jarvis.cx
+  # (DevOps-side change we cannot make from the mobile project).
+  webview_flutter: ^4.10.0
 
   # UI
   google_fonts: ^6.2.1

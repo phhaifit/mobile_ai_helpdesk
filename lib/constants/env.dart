@@ -12,6 +12,9 @@ enum EnvConfig {
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
+    oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
+    oauthCallbackUrlScheme: 'https',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
@@ -26,6 +29,9 @@ enum EnvConfig {
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
+    oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
+    oauthCallbackUrlScheme: 'https',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
@@ -40,6 +46,9 @@ enum EnvConfig {
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
+    oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
+    oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
+    oauthCallbackUrlScheme: 'https',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
     receiveTimeout: 15000,
@@ -54,6 +63,15 @@ enum EnvConfig {
   final String authApiBaseUrl;
   final String helpdeskApiBaseUrl;
   final String otpCallbackUrl;
+  /// Redirect URI passed to Stack Auth's `/oauth/authorize/google` endpoint.
+  /// Must match what is registered on Stack Auth's project settings.
+  /// Custom scheme keeps the catch-redirect path entirely on-device (no
+  /// Universal/App Links setup required).
+  final String oauthRedirectUri;
+  final String oauthErrorRedirectUri;
+  /// Scheme portion of [oauthRedirectUri] — handed to flutter_web_auth_2 so
+  /// it knows which navigation to intercept and close the in-app browser on.
+  final String oauthCallbackUrlScheme;
   final String stackProjectId;
   final String stackPublishableClientKey;
   final int receiveTimeout;
@@ -68,6 +86,9 @@ enum EnvConfig {
     required this.authApiBaseUrl,
     required this.helpdeskApiBaseUrl,
     required this.otpCallbackUrl,
+    required this.oauthRedirectUri,
+    required this.oauthErrorRedirectUri,
+    required this.oauthCallbackUrlScheme,
     required this.stackProjectId,
     required this.stackPublishableClientKey,
     required this.receiveTimeout,
