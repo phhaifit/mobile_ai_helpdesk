@@ -70,7 +70,7 @@ class Endpoints {
   // Customer Management
   static String customerList() => '/api/customer';
   static String customerDetail(String id) => '/api/customer/$id';
-  static String checkValidEmail() => '/api/customer/check-valid-email';
+  static String checkEmailAvailability() => '/api/customer/check-valid-email';
   static String createCustomer() => '/api/customer';
   static String updateCustomer(String id) => '/api/customer/update-customer/$id';
   static String addCustomerTag(String id) => '/api/customer/$id/tags';

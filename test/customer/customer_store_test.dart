@@ -71,7 +71,8 @@ void main() {
       await store.loadCustomers();
 
       expect(store.isLoading, isFalse);
-      expect(store.errorMessage, contains('Failed to load customers'));
+      // loadCustomers maps DioException to a code; non-Dio exceptions fall through to 'load_generic'.
+      expect(store.errorMessage, equals('load_generic'));
     });
 
     test('saveCustomer checks email validity for new customers', () async {
@@ -86,13 +87,13 @@ void main() {
         tags: [],
       );
 
-      when(() => mockRepo.checkValidEmail('taken@example.com')).thenAnswer((_) async => false);
+      when(() => mockRepo.checkEmailAvailability('taken@example.com')).thenAnswer((_) async => false);
 
       final result = await store.saveCustomer(newCustomer);
 
       expect(result, isFalse);
-      expect(store.errorMessage, contains('Email address is already in use'));
-      verify(() => mockRepo.checkValidEmail('taken@example.com')).called(1);
+      expect(store.errorMessage, contains('email is already in use'));
+      verify(() => mockRepo.checkEmailAvailability('taken@example.com')).called(1);
     });
 
     test('pagination updates page and appends data', () async {

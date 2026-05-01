@@ -241,4 +241,28 @@ class MockCustomerDataSource {
     _customers[index] = updated;
     return updated;
   }
+
+  Future<Tag> updateTag({required String id, required String name}) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final index = _tags.indexWhere((t) => t.id == id);
+    if (index == -1) throw Exception('Tag not found');
+    final updated = Tag(id: id, name: name);
+    _tags[index] = updated;
+    return updated;
+  }
+
+  Future<void> deleteTag({required String id}) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    _tags.removeWhere((t) => t.id == id);
+  }
+
+  Future<bool> checkEmailAvailability(String email) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return !_customers.any((c) => c.emails.contains(email));
+  }
+
+  Future<String?> getTenantName(String id) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return 'Mock Tenant';
+  }
 }

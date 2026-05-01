@@ -23,7 +23,7 @@ class MockRepository implements CustomerRepository {
   }
 
   @override
-  Future<bool> checkValidEmail(String email) async => true;
+  Future<bool> checkEmailAvailability(String email) async => true;
 
   @override
   Future<List<Tag>> getAvailableTags() async {

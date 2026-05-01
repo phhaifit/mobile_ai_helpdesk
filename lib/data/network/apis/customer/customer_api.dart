@@ -45,10 +45,10 @@ class CustomerApi {
     return CustomerDto.fromJson(list.first as Map<String, dynamic>);
   }
 
-  Future<bool> checkValidEmail(String email) async {
+  Future<bool> checkEmailAvailability(String email) async {
     try {
       final response = await _dioClient.dio.get(
-        Endpoints.checkValidEmail(),
+        Endpoints.checkEmailAvailability(),
         queryParameters: {'email': email},
       );
       return response.data['status'] == 'OK' || response.data['status'] == 'NOT_FOUND';

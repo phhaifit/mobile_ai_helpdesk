@@ -76,7 +76,7 @@ class _CustomerAddEditScreenState extends State<CustomerAddEditScreen> {
         tags: _selectedTags,
       );
 
-      final success = await widget.store.saveCustomer(newCustomer);
+      final success = await widget.store.saveCustomer(newCustomer, previous: widget.customer);
       if (!context.mounted) return;
       
       if (success) {

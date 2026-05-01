@@ -66,6 +66,49 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     return name.substring(0, 1).toUpperCase();
   }
 
+  Widget _buildErrorState(BuildContext context, String code) {
+    final l10n = AppLocalizations.of(context);
+    final messageKey = switch (code) {
+      'load_subscription' => 'customer_list_error_subscription',
+      'load_permission' => 'customer_list_error_permission',
+      'load_not_found' => 'customer_list_error_not_found',
+      _ => 'customer_list_error_generic',
+    };
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 56, color: Colors.orange.shade400),
+            const SizedBox(height: 16),
+            Text(
+              l10n.translate('customer_list_error_title'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.translate(messageKey),
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => widget.store.loadCustomers(),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(l10n.translate('customer_list_retry')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,6 +186,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               builder: (_) {
                 if (widget.store.isLoading && widget.store.customers.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
+                }
+                if (widget.store.customers.isEmpty && widget.store.errorMessage != null) {
+                  return _buildErrorState(context, widget.store.errorMessage!);
                 }
                 if (widget.store.customers.isEmpty) {
                   return Center(

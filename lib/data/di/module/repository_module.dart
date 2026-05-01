@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
@@ -101,8 +102,14 @@ class RepositoryModule {
     );
 
     // --- Customer Repositories ---
+    // MockCustomerDataSource is passed as an in-memory fallback used in debug builds when
+    // the backend returns 404/5xx/network errors (auth/permission errors still propagate).
     getIt.registerSingleton<CustomerRepository>(
-      CustomerRepositoryImpl(getIt<CustomerApi>(), getIt<TagApi>()),
+      CustomerRepositoryImpl(
+        getIt<CustomerApi>(),
+        getIt<TagApi>(),
+        getIt<MockCustomerDataSource>(),
+      ),
     );
     
     getIt.registerSingleton<MockTagDataSource>(MockTagDataSource());
