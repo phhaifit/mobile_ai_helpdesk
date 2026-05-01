@@ -25,7 +25,9 @@
       "Bash(git fetch *)",
       "Bash(git merge *)",
       "Bash(git rm *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(flutter test *)",
+      "Bash(grep -v \"//\")"
     ]
   }
 }

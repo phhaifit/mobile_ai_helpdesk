@@ -65,9 +65,7 @@ void main() {
     isSelected: true,
   );
 
-  setUp(() {
-    mockRepo = MockMarketingBroadcastRepository();
-
+  setUpAll(() {
     registerFallbackValue(const BroadcastTemplateQuery());
     registerFallbackValue(const BroadcastQuery());
     registerFallbackValue(
@@ -90,6 +88,10 @@ void main() {
     registerFallbackValue(
       const FacebookAdminAccountCreateData(accessToken: ''),
     );
+  });
+
+  setUp(() {
+    mockRepo = MockMarketingBroadcastRepository();
   });
 
   group('GetBroadcastTemplatesUseCase', () {

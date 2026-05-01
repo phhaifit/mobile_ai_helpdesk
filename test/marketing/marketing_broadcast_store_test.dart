@@ -85,7 +85,22 @@ class MockSelectFacebookAdminPageUseCase extends Mock
 class MockMarketingBroadcastRealtimeService extends Mock
     implements MarketingBroadcastRealtimeService {}
 
-class MockEventBus extends Mock implements EventBus {}
+class FakeEventBus extends Fake implements EventBus {
+  final Map<Type, Stream<dynamic>> _streams = {};
+
+  void stubStream<T>(Stream<T> stream) {
+    _streams[T] = stream;
+  }
+
+  @override
+  Stream<T> on<T>() => (_streams[T] ?? Stream<T>.empty()) as Stream<T>;
+
+  @override
+  void destroy() {}
+
+  @override
+  StreamController<dynamic> get streamController => throw UnimplementedError();
+}
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
@@ -112,7 +127,7 @@ void main() {
   late MockGetFacebookAdminPagesUseCase mockGetFbPages;
   late MockSelectFacebookAdminPageUseCase mockSelectFbPage;
   late MockMarketingBroadcastRealtimeService mockRealtimeService;
-  late MockEventBus mockEventBus;
+  late FakeEventBus mockEventBus;
   late MockAnalyticsService mockAnalytics;
   late StreamController<BroadcastStatusRealtimeEvent> realtimeController;
 
@@ -173,6 +188,69 @@ void main() {
     ).thenAnswer((_) async => pages);
   }
 
+  setUpAll(() {
+    registerFallbackValue(
+      const GetBroadcastTemplatesParams(query: BroadcastTemplateQuery()),
+    );
+    registerFallbackValue(
+      const CreateBroadcastTemplateParams(
+        data: BroadcastTemplateUpsertData(name: '', content: '', variableKeys: []),
+      ),
+    );
+    registerFallbackValue(
+      const UpdateBroadcastTemplateParams(
+        templateId: '',
+        data: BroadcastTemplateUpsertData(name: '', content: '', variableKeys: []),
+      ),
+    );
+    registerFallbackValue(const DeleteBroadcastTemplateParams(templateId: ''));
+    registerFallbackValue(const GetBroadcastsParams(query: BroadcastQuery()));
+    registerFallbackValue(
+      const CreateBroadcastParams(
+        data: BroadcastUpsertData(name: '', templateId: ''),
+      ),
+    );
+    registerFallbackValue(
+      const UpdateBroadcastParams(
+        broadcastId: '',
+        data: BroadcastUpsertData(name: '', templateId: ''),
+      ),
+    );
+    registerFallbackValue(const DeleteBroadcastParams(broadcastId: ''));
+    registerFallbackValue(const ExecuteBroadcastParams(broadcastId: ''));
+    registerFallbackValue(const StopBroadcastParams(broadcastId: ''));
+    registerFallbackValue(const ResumeBroadcastParams(broadcastId: ''));
+    registerFallbackValue(
+      const GetBroadcastRecipientsParams(
+        query: BroadcastRecipientsQuery(
+          broadcastId: '',
+          filter: BroadcastRecipientsFilter(),
+        ),
+      ),
+    );
+    registerFallbackValue(
+      const GetDeliveryReceiptsParams(
+        broadcastId: '',
+        query: PaginationQuery(offset: 0, limit: 20),
+      ),
+    );
+    registerFallbackValue(
+      const CreateFacebookAdminAccountParams(
+        data: FacebookAdminAccountCreateData(accessToken: ''),
+      ),
+    );
+    registerFallbackValue(
+      const DisconnectFacebookAdminAccountParams(accountId: ''),
+    );
+    registerFallbackValue(
+      const ReauthFacebookAdminAccountParams(accountId: '', accessToken: ''),
+    );
+    registerFallbackValue(const GetFacebookAdminPagesParams(accountId: ''));
+    registerFallbackValue(
+      const SelectFacebookAdminPageParams(accountId: '', pageId: ''),
+    );
+  });
+
   setUp(() {
     mockGetTemplates = MockGetBroadcastTemplatesUseCase();
     mockCreateTemplate = MockCreateBroadcastTemplateUseCase();
@@ -194,32 +272,11 @@ void main() {
     mockGetFbPages = MockGetFacebookAdminPagesUseCase();
     mockSelectFbPage = MockSelectFacebookAdminPageUseCase();
     mockRealtimeService = MockMarketingBroadcastRealtimeService();
-    mockEventBus = MockEventBus();
+    mockEventBus = FakeEventBus();
     mockAnalytics = MockAnalyticsService();
 
     realtimeController = StreamController<BroadcastStatusRealtimeEvent>.broadcast();
-    when(() => mockEventBus.on<BroadcastStatusRealtimeEvent>()).thenAnswer(
-      (_) => realtimeController.stream,
-    );
-
-    registerFallbackValue(const BroadcastTemplateQuery());
-    registerFallbackValue(const BroadcastQuery());
-    registerFallbackValue(
-      const BroadcastTemplateUpsertData(name: '', content: '', variableKeys: []),
-    );
-    registerFallbackValue(
-      const BroadcastUpsertData(name: '', templateId: ''),
-    );
-    registerFallbackValue(
-      const BroadcastRecipientsQuery(
-        broadcastId: '',
-        filter: BroadcastRecipientsFilter(),
-      ),
-    );
-    registerFallbackValue(const PaginationQuery(offset: 0, limit: 20));
-    registerFallbackValue(
-      const FacebookAdminAccountCreateData(accessToken: ''),
-    );
+    mockEventBus.stubStream(realtimeController.stream);
 
     store = MarketingBroadcastStore(
       mockGetTemplates,
@@ -310,7 +367,7 @@ void main() {
     test('sets errorMessage on failure', () async {
       when(
         () => mockGetTemplates.call(params: any(named: 'params')),
-      ).thenThrow(Exception('network error'));
+      ).thenAnswer((_) => Future.error(Exception('network error')));
 
       await store.fetchTemplates();
 
@@ -415,7 +472,7 @@ void main() {
     test('sets errorMessage on failure', () async {
       when(
         () => mockGetBroadcasts.call(params: any(named: 'params')),
-      ).thenThrow(Exception('timeout'));
+      ).thenAnswer((_) => Future.error(Exception('timeout')));
 
       await store.fetchCampaigns();
 
