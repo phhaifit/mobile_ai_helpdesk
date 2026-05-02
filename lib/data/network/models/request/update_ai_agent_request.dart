@@ -10,6 +10,8 @@ class UpdateAiAgentRequest {
   final bool? autoResponse;
   final bool? autoDraftResponse;
   final bool? enableTemplate;
+  final String? organizationDescription;
+  final String? responseFormatGuide;
 
   const UpdateAiAgentRequest({
     this.toneOfAI,
@@ -18,6 +20,8 @@ class UpdateAiAgentRequest {
     this.autoResponse,
     this.autoDraftResponse,
     this.enableTemplate,
+    this.organizationDescription,
+    this.responseFormatGuide,
   });
 
   Map<String, dynamic> toJson() {
@@ -28,6 +32,12 @@ class UpdateAiAgentRequest {
     if (autoResponse != null) map['autoResponse'] = autoResponse;
     if (autoDraftResponse != null) map['autoDraftResponse'] = autoDraftResponse;
     if (enableTemplate != null) map['enableTemplate'] = enableTemplate;
+    if (organizationDescription != null) {
+      map['organizationDescription'] = organizationDescription;
+    }
+    if (responseFormatGuide != null) {
+      map['responseFormatGuide'] = responseFormatGuide;
+    }
     return map;
   }
 }

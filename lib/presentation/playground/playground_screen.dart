@@ -40,9 +40,6 @@ class PlaygroundScreen extends StatefulWidget {
 }
 
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
-  static const _draftResponseTestTenantId =
-      'aca752db-91a4-4f6a-ac48-3c28989bdbd5';
-
   late final PlaygroundStore _store;
   final ScrollController _scrollCtrl = ScrollController();
   final TextEditingController _inputCtrl = TextEditingController();
@@ -110,7 +107,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       channel: _contextType == PlaygroundContextType.lazada ? 'lazada' : 'chat',
       type: 'draft_response',
       defaultConfigType: const <String>['playground'],
-      tenantID: _draftResponseTestTenantId,
+      tenantID: '',
       ticketID: session.id,
       chatRoomID: session.id,
       customerID: 'playground-user',

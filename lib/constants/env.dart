@@ -10,7 +10,8 @@ enum EnvConfig {
   dev._(
     environment: Environment.dev,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
-    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://ai-service.jarvis.cx',
+    ssoValidateApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
@@ -24,7 +25,8 @@ enum EnvConfig {
   staging._(
     environment: Environment.staging,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
-    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://ai-service.jarvis.cx',
+    ssoValidateApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
@@ -38,7 +40,8 @@ enum EnvConfig {
   prod._(
     environment: Environment.prod,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
-    helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    helpdeskApiBaseUrl: 'https://ai-service.jarvis.cx',
+    ssoValidateApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     stackProjectId: '45a1e2fd-77ee-4872-9fb7-987b8c119633',
     stackPublishableClientKey: 'pck_zdfc9dt5w3ed0kje1xwpmdwt8zjehr15ap3nvnkgnbfcr',
@@ -53,6 +56,7 @@ enum EnvConfig {
   final Environment environment;
   final String authApiBaseUrl;
   final String helpdeskApiBaseUrl;
+  final String ssoValidateApiBaseUrl;
   final String otpCallbackUrl;
   final String stackProjectId;
   final String stackPublishableClientKey;
@@ -67,6 +71,7 @@ enum EnvConfig {
     required this.environment,
     required this.authApiBaseUrl,
     required this.helpdeskApiBaseUrl,
+    required this.ssoValidateApiBaseUrl,
     required this.otpCallbackUrl,
     required this.stackProjectId,
     required this.stackPublishableClientKey,

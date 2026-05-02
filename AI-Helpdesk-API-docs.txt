@@ -1,32 +1,53 @@
 # Jarvis Helpdesk - Mobile App API
 
-TenantId for test: aca752db-91a4-4f6a-ac48-3c28989bdbd5
-
 ## API Docs
-- Root > 8. AI Agent [Get active AI agent by tenant](https://033thw3m9z.apidog.io/get-active-ai-agent-by-tenant-32922649e0.md): 
-- Root > 8. AI Agent [Create AI agent for tenant](https://033thw3m9z.apidog.io/create-ai-agent-for-tenant-32922650e0.md): 
-- Root > 8. AI Agent [Update AI agent configuration](https://033thw3m9z.apidog.io/update-ai-agent-configuration-32922651e0.md): 
-- Root > 8. AI Agent [Update AI agent configuration (by agent ID)](https://033thw3m9z.apidog.io/update-ai-agent-configuration-by-agent-id-32922652e0.md): 
-- Root > 8. AI Agent [Delete AI agent](https://033thw3m9z.apidog.io/delete-ai-agent-32922653e0.md): 
-- Root > 8. AI Agent [Update AI agent profile/information](https://033thw3m9z.apidog.io/update-ai-agent-profileinformation-32922654e0.md): 
-- Root > 8. AI Agent [Ask a question to the AI agent (playground/chat)](https://033thw3m9z.apidog.io/ask-a-question-to-the-ai-agent-playgroundchat-32922655e0.md): Used for playground chat testing and file-based Q&A (Section 8.1 & 13)
-- Root > 8. AI Agent [Chat completion using AI agent](https://033thw3m9z.apidog.io/chat-completion-using-ai-agent-32922656e0.md): 
-- Root > 8. AI Agent [Complete a prompt using AI agent](https://033thw3m9z.apidog.io/complete-a-prompt-using-ai-agent-32922657e0.md): 
-- Root > 8. AI Agent [Query AI agent knowledge base directly](https://033thw3m9z.apidog.io/query-ai-agent-knowledge-base-directly-32922658e0.md): 
-- Root > 8. AI Agent [Analyze website — suggest AI agent name + description](https://033thw3m9z.apidog.io/analyze-website-suggest-ai-agent-name-description-32922659e0.md): 
-- Root > 8. AI Agent [Generate rules and FAQ from website](https://033thw3m9z.apidog.io/generate-rules-and-faq-from-website-32922660e0.md): 
-- Root > 8. AI Agent [Generate FAQ questions from agent configuration](https://033thw3m9z.apidog.io/generate-faq-questions-from-agent-configuration-32922661e0.md): 
-- Root > 8. AI Agent [Generate personalized agent from industry template](https://033thw3m9z.apidog.io/generate-personalized-agent-from-industry-template-32922662e0.md): 
-- Root > 8. AI Agent Actions [Draft response using AI Agent](https://033thw3m9z.apidog.io/draft-response-using-ai-agent-32922663e0.md): 
-- Root > 8. AI Agent Actions [Stream draft response (SSE)](https://033thw3m9z.apidog.io/stream-draft-response-sse-32922664e0.md): 
-- Root > 8. AI Agent Actions [Auto response with minimal input](https://033thw3m9z.apidog.io/auto-response-with-minimal-input-32922665e0.md): 
-- Root > 8. AI Agent Actions [Analyze ticket using AI Agent](https://033thw3m9z.apidog.io/analyze-ticket-using-ai-agent-32922666e0.md): 
-- Root > 8. AI Agent Actions [Correct spelling](https://033thw3m9z.apidog.io/correct-spelling-32922667e0.md): 
-- Root > 8. AI Agent Actions [Shorten response](https://033thw3m9z.apidog.io/shorten-response-32922668e0.md): 
-- Root > 8. AI Agent Actions [Lengthen response](https://033thw3m9z.apidog.io/lengthen-response-32922669e0.md): 
-- Root > 8. AI Agent Actions [Make response more professional](https://033thw3m9z.apidog.io/make-response-more-professional-32922670e0.md): 
-- Root > 8. AI Agent Actions [Make response more casual](https://033thw3m9z.apidog.io/make-response-more-casual-32922671e0.md): 
-- Root > 8. AI Agent Actions [Simplify words](https://033thw3m9z.apidog.io/simplify-words-32922672e0.md): 
+- Root > 5. AI > Agents [Get active AI agent by tenant](https://033thw3m9z.apidog.io/get-active-ai-agent-by-tenant-32922649e0.md): Retrieves the AI agent associated with the given tenant. **Auto-creates** a default agent (Casual tone, English) on first access if one does not yet exist — so this endpoint is idempotent and never returns 404 for a valid tenant.
+- Root > 5. AI > Agents [Create AI agent for tenant](https://033thw3m9z.apidog.io/create-ai-agent-for-tenant-32922650e0.md): Creates a new AI agent for the given tenant with default configuration (`toneOfAI: Casual`, `language: English`, all auto-flags off) and seeds default rules and system sub-agents.
+- Root > 5. AI > Agents [Update AI agent configuration](https://033thw3m9z.apidog.io/update-ai-agent-configuration-32922651e0.md): Partially updates the runtime configuration of the tenant's AI agent. Only the fields provided in the request body are merged into the existing `configs` JSONB column — omitted fields keep their current values.
+- Root > 5. AI > Agents [Update AI agent configuration (by agent ID)](https://033thw3m9z.apidog.io/update-ai-agent-configuration-by-agent-id-32922652e0.md): 
+- Root > 5. AI > Agents [Delete AI agent](https://033thw3m9z.apidog.io/delete-ai-agent-32922653e0.md): 
+- Root > 5. AI > Agents [Update AI agent profile/information](https://033thw3m9z.apidog.io/update-ai-agent-profileinformation-32922654e0.md): 
+- Root > 5. AI > Agents [Ask a question to the AI agent (playground/chat)](https://033thw3m9z.apidog.io/ask-a-question-to-the-ai-agent-playgroundchat-32922655e0.md): Used for playground chat testing and file-based Q&A (Section 8.1 & 13)
+- Root > 5. AI > Agents [Chat completion using AI agent](https://033thw3m9z.apidog.io/chat-completion-using-ai-agent-32922656e0.md): 
+- Root > 5. AI > Agents [Complete a prompt using AI agent](https://033thw3m9z.apidog.io/complete-a-prompt-using-ai-agent-32922657e0.md): 
+- Root > 5. AI > Agents [Query AI agent knowledge base directly](https://033thw3m9z.apidog.io/query-ai-agent-knowledge-base-directly-32922658e0.md): 
+- Root > 5. AI > Agents [Analyze website — suggest AI agent name + description](https://033thw3m9z.apidog.io/analyze-website-suggest-ai-agent-name-description-32922659e0.md): 
+- Root > 5. AI > Agents [Generate rules and FAQ from website](https://033thw3m9z.apidog.io/generate-rules-and-faq-from-website-32922660e0.md): 
+- Root > 5. AI > Agents [Generate FAQ questions from agent configuration](https://033thw3m9z.apidog.io/generate-faq-questions-from-agent-configuration-32922661e0.md): 
+- Root > 5. AI > Agents [Generate personalized agent from industry template](https://033thw3m9z.apidog.io/generate-personalized-agent-from-industry-template-32922662e0.md): 
+- Root > 5. AI > Agent Actions [Draft response using AI Agent](https://033thw3m9z.apidog.io/draft-response-using-ai-agent-32922663e0.md): 
+- Root > 5. AI > Agent Actions [Stream draft response (SSE)](https://033thw3m9z.apidog.io/stream-draft-response-sse-32922664e0.md): 
+- Root > 5. AI > Agent Actions [Auto response with minimal input](https://033thw3m9z.apidog.io/auto-response-with-minimal-input-32922665e0.md): 
+- Root > 5. AI > Agent Actions [Analyze ticket using AI Agent](https://033thw3m9z.apidog.io/analyze-ticket-using-ai-agent-32922666e0.md): 
+- Root > 5. AI > Agent Actions [Correct spelling](https://033thw3m9z.apidog.io/correct-spelling-32922667e0.md): 
+- Root > 5. AI > Agent Actions [Shorten response](https://033thw3m9z.apidog.io/shorten-response-32922668e0.md): 
+- Root > 5. AI > Agent Actions [Lengthen response](https://033thw3m9z.apidog.io/lengthen-response-32922669e0.md): 
+- Root > 5. AI > Agent Actions [Make response more professional](https://033thw3m9z.apidog.io/make-response-more-professional-32922670e0.md): 
+- Root > 5. AI > Agent Actions [Make response more casual](https://033thw3m9z.apidog.io/make-response-more-casual-32922671e0.md): 
+- Root > 5. AI > Agent Actions [Simplify words](https://033thw3m9z.apidog.io/simplify-words-32922672e0.md): 
+- Root > 5. AI > Jarvis Agent [Send message to Jarvis Agent (sync)](https://033thw3m9z.apidog.io/send-message-to-jarvis-agent-sync-32922673e0.md): 
+- Root > 5. AI > Jarvis Agent [Stream Jarvis Agent response (SSE)](https://033thw3m9z.apidog.io/stream-jarvis-agent-response-sse-32922674e0.md): 
+- Root > 5. AI > Jarvis Agent [Confirm or deny HITL proposal](https://033thw3m9z.apidog.io/confirm-or-deny-hitl-proposal-32922675e0.md): 
+- Root > 5. AI > Knowledge Base [List all knowledge sources](https://033thw3m9z.apidog.io/list-all-knowledge-sources-32922676e0.md): 
+- Root > 5. AI > Knowledge Base [Filter sources by type](https://033thw3m9z.apidog.io/filter-sources-by-type-32922677e0.md): 
+- Root > 5. AI > Knowledge Base [Update source status](https://033thw3m9z.apidog.io/update-source-status-32922678e0.md): 
+- Root > 5. AI > Knowledge Base [Delete knowledge source](https://033thw3m9z.apidog.io/delete-knowledge-source-32922679e0.md): 
+- Root > 5. AI > Knowledge Base [Reindex specific source](https://033thw3m9z.apidog.io/reindex-specific-source-32922680e0.md): 
+- Root > 5. AI > Knowledge Base [Update source crawl/sync interval](https://033thw3m9z.apidog.io/update-source-crawlsync-interval-32922681e0.md): 
+- Root > 5. AI > Knowledge Base [Import knowledge from Web (single URL or whole site)](https://033thw3m9z.apidog.io/import-knowledge-from-web-single-url-or-whole-site-32922682e0.md): 
+- Root > 5. AI > Knowledge Base [Import knowledge from local file upload](https://033thw3m9z.apidog.io/import-knowledge-from-local-file-upload-32922683e0.md): 
+- Root > 5. AI > Knowledge Base [Import knowledge from Google Drive](https://033thw3m9z.apidog.io/import-knowledge-from-google-drive-32922684e0.md): 
+- Root > 5. AI > Knowledge Base [Import knowledge from database query](https://033thw3m9z.apidog.io/import-knowledge-from-database-query-32922685e0.md): 
+- Root > 5. AI > Knowledge Base [Update database query source](https://033thw3m9z.apidog.io/update-database-query-source-32922686e0.md): 
+- Root > 5. AI > Knowledge Base [Test database connection and query](https://033thw3m9z.apidog.io/test-database-connection-and-query-32922687e0.md): 
+- Root > 5. AI > Knowledge Base [Poll source processing status](https://033thw3m9z.apidog.io/poll-source-processing-status-32922688e0.md): 
+- Root > 5. AI > Knowledge Base [Get source status updates via SSE](https://033thw3m9z.apidog.io/get-source-status-updates-via-sse-32922689e0.md): 
+- Root > 5. AI > Prompt Templates [List all response templates (prompts)](https://033thw3m9z.apidog.io/list-all-response-templates-prompts-32922690e0.md): Filter by assistantId for public/private prompt listing
+- Root > 5. AI > Prompt Templates [Create new prompt template](https://033thw3m9z.apidog.io/create-new-prompt-template-32922691e0.md): 
+- Root > 5. AI > Prompt Templates [Get template details](https://033thw3m9z.apidog.io/get-template-details-32922692e0.md): 
+- Root > 5. AI > Prompt Templates [Update prompt template](https://033thw3m9z.apidog.io/update-prompt-template-32922693e0.md): 
+- Root > 5. AI > Prompt Templates [Delete prompt template](https://033thw3m9z.apidog.io/delete-prompt-template-32922694e0.md): 
+- Root > 5. AI > Prompt Templates [Toggle template active status](https://033thw3m9z.apidog.io/toggle-template-active-status-32922695e0.md): 
 
 ## Schemas
 - Root [OAuthTokenRequest](https://033thw3m9z.apidog.io/oauthtokenrequest-14125305d0.md): 
@@ -91,3 +112,32 @@ TenantId for test: aca752db-91a4-4f6a-ac48-3c28989bdbd5
 - Root [Notification](https://033thw3m9z.apidog.io/notification-14125364d0.md): 
 - Root [PaginatedResponse](https://033thw3m9z.apidog.io/paginatedresponse-14125365d0.md): 
 - Root [ErrorResponse](https://033thw3m9z.apidog.io/errorresponse-14125366d0.md): 
+- Root [AiAgentConfigs](https://033thw3m9z.apidog.io/aiagentconfigs-14669696d0.md): 
+- Root [AiAgent](https://033thw3m9z.apidog.io/aiagent-14669697d0.md): 
+- Root [UpdateAiAgentConfigResponse](https://033thw3m9z.apidog.io/updateaiagentconfigresponse-14669698d0.md): 
+- Root [ApiStatus](https://033thw3m9z.apidog.io/apistatus-14423866d0.md): 
+- Root [ErrorResponse](https://033thw3m9z.apidog.io/errorresponse-14423867d0.md): 
+- Root [ContactInfo](https://033thw3m9z.apidog.io/contactinfo-14423868d0.md): 
+- Root [FileAttachment](https://033thw3m9z.apidog.io/fileattachment-14423869d0.md): 
+- Root [MessageReaction](https://033thw3m9z.apidog.io/messagereaction-14423870d0.md): 
+- Root [ChannelEntity](https://033thw3m9z.apidog.io/channelentity-14423871d0.md): 
+- Root [SenderEntity](https://033thw3m9z.apidog.io/senderentity-14423872d0.md): 
+- Root [TicketEntity](https://033thw3m9z.apidog.io/ticketentity-14423873d0.md): 
+- Root [MessageEntities](https://033thw3m9z.apidog.io/messageentities-14423874d0.md): 
+- Root [Message](https://033thw3m9z.apidog.io/message-14423875d0.md): 
+- Root [SeenInfo](https://033thw3m9z.apidog.io/seeninfo-14423876d0.md): 
+- Root [CustomerInfo](https://033thw3m9z.apidog.io/customerinfo-14423877d0.md): 
+- Root [GroupInfo](https://033thw3m9z.apidog.io/groupinfo-14423878d0.md): 
+- Root [ChatRoom](https://033thw3m9z.apidog.io/chatroom-14423879d0.md): 
+- Root [ChatRoomCounter](https://033thw3m9z.apidog.io/chatroomcounter-14423880d0.md): 
+- Root [SocketAuthPayload](https://033thw3m9z.apidog.io/socketauthpayload-14423881d0.md): 
+- Root [SocketAuthResponse](https://033thw3m9z.apidog.io/socketauthresponse-14423882d0.md): 
+- Root [SocketTypingPayload](https://033thw3m9z.apidog.io/sockettypingpayload-14423883d0.md): 
+- Root [SocketMessagePayload](https://033thw3m9z.apidog.io/socketmessagepayload-14423884d0.md): 
+- Root [SocketSeenPayload](https://033thw3m9z.apidog.io/socketseenpayload-14423885d0.md): 
+- Root [SocketReactionPayload](https://033thw3m9z.apidog.io/socketreactionpayload-14423886d0.md): 
+- Root [SocketTicketStatusPayload](https://033thw3m9z.apidog.io/socketticketstatuspayload-14423887d0.md): 
+- Root [SocketNewTicketPayload](https://033thw3m9z.apidog.io/socketnewticketpayload-14423888d0.md): 
+- Root [SocketNotificationPayload](https://033thw3m9z.apidog.io/socketnotificationpayload-14423889d0.md): 
+- Root [SocketEscalationPayload](https://033thw3m9z.apidog.io/socketescalationpayload-14423890d0.md): 
+- Root [SocketDraftResponseProgressPayload](https://033thw3m9z.apidog.io/socketdraftresponseprogresspayload-14423891d0.md): 

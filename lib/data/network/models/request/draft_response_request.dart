@@ -7,7 +7,7 @@ class DraftResponseRequest {
   final List<ChatMessage> chatHistory;
   final String channel;
   final String type;
-  final List<String> defaultConfigType;
+  final List<Map<String, dynamic>> defaultConfigType;
   final String tenantID;
   final String ticketID;
   final String chatRoomID;

@@ -15,6 +15,8 @@ class AiAgent {
   final List<String> workflows;
   final String? teamId;
   final DateTime createdAt;
+  final DateTime? updatedAt;
+  final String? websiteUrl;
 
   // API configuration fields (from UpdateAiAgentDto)
   final String? toneOfAI;
@@ -23,6 +25,8 @@ class AiAgent {
   final bool? autoResponse;
   final bool? autoDraftResponse;
   final bool? enableTemplate;
+  final String? organizationDescription;
+  final String? responseFormatGuide;
 
   const AiAgent({
     required this.id,
@@ -32,6 +36,8 @@ class AiAgent {
     required this.platforms,
     required this.workflows,
     required this.createdAt,
+    this.updatedAt,
+    this.websiteUrl,
     this.avatarUrl,
     this.teamId,
     this.toneOfAI,
@@ -40,6 +46,8 @@ class AiAgent {
     this.autoResponse,
     this.autoDraftResponse,
     this.enableTemplate,
+    this.organizationDescription,
+    this.responseFormatGuide,
   });
 
   factory AiAgent.fromJson(Map<String, dynamic> json) =>
@@ -57,12 +65,16 @@ class AiAgent {
     List<String>? workflows,
     String? teamId,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    String? websiteUrl,
     String? toneOfAI,
     String? language,
     bool? includeReference,
     bool? autoResponse,
     bool? autoDraftResponse,
     bool? enableTemplate,
+    String? organizationDescription,
+    String? responseFormatGuide,
   }) =>
       AiAgent(
         id: id ?? this.id,
@@ -74,11 +86,16 @@ class AiAgent {
         workflows: workflows ?? this.workflows,
         teamId: teamId ?? this.teamId,
         createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        websiteUrl: websiteUrl ?? this.websiteUrl,
         toneOfAI: toneOfAI ?? this.toneOfAI,
         language: language ?? this.language,
         includeReference: includeReference ?? this.includeReference,
         autoResponse: autoResponse ?? this.autoResponse,
         autoDraftResponse: autoDraftResponse ?? this.autoDraftResponse,
         enableTemplate: enableTemplate ?? this.enableTemplate,
+        organizationDescription:
+            organizationDescription ?? this.organizationDescription,
+        responseFormatGuide: responseFormatGuide ?? this.responseFormatGuide,
       );
 }

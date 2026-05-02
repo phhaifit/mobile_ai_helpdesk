@@ -6,6 +6,8 @@ class Endpoints {
   // Helpdesk host (tenant-scoped endpoints).
   static String get baseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
   static String get helpdeskBaseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+    static String get ssoValidateBaseUrl =>
+            EnvConfig.instance.ssoValidateApiBaseUrl;
 
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;

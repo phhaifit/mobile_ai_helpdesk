@@ -67,6 +67,7 @@ class RepositoryModule {
     getIt.registerSingleton<PlaygroundRepository>(
       PlaygroundRepositoryImpl(
         getIt<PlaygroundDataSource>(),
+        getIt<AiAgentApi>(),
         getIt<PlaygroundApi>(),
         getIt<SharedPreferenceHelper>(),
       ),

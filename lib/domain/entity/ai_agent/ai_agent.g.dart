@@ -16,6 +16,11 @@ AiAgent _$AiAgentFromJson(Map<String, dynamic> json) => AiAgent(
   workflows:
       (json['workflows'] as List<dynamic>).map((e) => e as String).toList(),
   createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt:
+      json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+  websiteUrl: json['websiteUrl'] as String?,
   avatarUrl: json['avatarUrl'] as String?,
   teamId: json['teamId'] as String?,
   toneOfAI: json['toneOfAI'] as String?,
@@ -24,6 +29,8 @@ AiAgent _$AiAgentFromJson(Map<String, dynamic> json) => AiAgent(
   autoResponse: json['autoResponse'] as bool?,
   autoDraftResponse: json['autoDraftResponse'] as bool?,
   enableTemplate: json['enableTemplate'] as bool?,
+  organizationDescription: json['organizationDescription'] as String?,
+  responseFormatGuide: json['responseFormatGuide'] as String?,
 );
 
 Map<String, dynamic> _$AiAgentToJson(AiAgent instance) => <String, dynamic>{
@@ -36,12 +43,16 @@ Map<String, dynamic> _$AiAgentToJson(AiAgent instance) => <String, dynamic>{
   'workflows': instance.workflows,
   'teamId': instance.teamId,
   'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'websiteUrl': instance.websiteUrl,
   'toneOfAI': instance.toneOfAI,
   'language': instance.language,
   'includeReference': instance.includeReference,
   'autoResponse': instance.autoResponse,
   'autoDraftResponse': instance.autoDraftResponse,
   'enableTemplate': instance.enableTemplate,
+  'organizationDescription': instance.organizationDescription,
+  'responseFormatGuide': instance.responseFormatGuide,
 };
 
 const _$AgentModeEnumMap = {

@@ -9,11 +9,16 @@
 ## Global Preconditions
 1. Login successfully.
 2. Ensure access token is valid (unless case is 401/403).
-3. Ensure test tenant is active: aca752db-91a4-4f6a-ac48-3c28989bdbd5.
+3. Ensure tenantId is present in shared preferences.
 4. Build app in debug to observe logs:
    - [AiAgentApi] ... called
    - [PlaygroundApi] ... called
 5. Clear stale app data before each suite when needed.
+
+## aiAgentId Source Rule
+- For every endpoint that requires `{aiAgentId}`, always resolve it from:
+   - `GET /api/v1/ai-agents/tenants/{tenantId}` response field `id`.
+- Do not use stale cached UI ids as the source of truth.
 
 ## Endpoint Coverage Map (Current App)
 - GET /api/v1/ai-agents/tenants/{tenantId}: Covered by opening AI Agent list.
@@ -52,7 +57,7 @@
 ### A3. Update AI agent
 | ID | App Steps | Expected API | Expected Result |
 |---|---|---|---|
-| AA-UPD-01 | Open agent detail, edit valid fields, Save | PATCH /{id} and PATCH /{id}/information | Updated values shown in detail/list |
+| AA-UPD-01 | Open agent detail, edit valid fields, Save | GET /tenants/{tenantId} then PATCH /{id} and PATCH /{id}/information | Updated values shown in detail/list |
 | AA-UPD-02 | Update with no changed fields | PATCH may still send | No regression, data unchanged |
 | AA-UPD-03 | Update with invalid agent id | PATCH | 404 shown |
 | AA-UPD-04 | Update with expired token | PATCH | 401 handled |
@@ -61,7 +66,7 @@
 ### A4. Delete AI agent
 | ID | App Steps | Expected API | Expected Result |
 |---|---|---|---|
-| AA-DEL-01 | Open detail, Delete, Confirm | DELETE /{id} | Agent removed, back to list |
+| AA-DEL-01 | Open detail, Delete, Confirm | GET /tenants/{tenantId} then DELETE /{id} | Agent removed, back to list |
 | AA-DEL-02 | Delete then Cancel in dialog | No API | Nothing deleted |
 | AA-DEL-03 | Delete already removed agent | DELETE | 404 handled gracefully |
 | AA-DEL-04 | Delete with insufficient permission | DELETE | 403 shown |
@@ -72,7 +77,7 @@
 ### B1. Session and chat-complete
 | ID | App Steps | Expected API | Expected Result |
 |---|---|---|---|
-| PG-CHAT-01 | Open Playground from Agent Detail, create session, send message | POST /{aiAgentId}/chat-complete | AI response appears in conversation |
+| PG-CHAT-01 | Open Playground from Agent Detail, create session, send message | GET /tenants/{tenantId} then POST /{aiAgentId}/chat-complete | AI response appears in conversation |
 | PG-CHAT-02 | Send message with attachments | POST chat-complete | Message and attachment chips render, response received |
 | PG-CHAT-03 | Send very long prompt | POST chat-complete | No crash, response rendered |
 | PG-CHAT-04 | Create session without agent then send | chat-complete may fail by design | Error shown, app remains usable |
@@ -86,7 +91,7 @@
 | ID | App Steps | Expected API | Expected Result |
 |---|---|---|---|
 | PG-DR-01 | Send message in Playground | POST /{tenantId}/draft-response | [PlaygroundApi] getDraftResponse called appears in console |
-| PG-DR-02 | Verify request tenant | POST /draft-response | tenantId = aca752db-91a4-4f6a-ac48-3c28989bdbd5 |
+| PG-DR-02 | Verify request tenant | POST /draft-response | tenantId is sourced from shared preferences |
 | PG-DR-03 | Valid payload, normal response | POST | Draft panel appears with suggested text |
 | PG-DR-04 | API returns empty string | POST | Draft panel hidden |
 | PG-DR-05 | API returns message/content instead of text | POST | Extracted text still shown |
@@ -132,4 +137,5 @@
 - All smoke cases pass.
 - No crash or frozen UI in any negative case.
 - Expected endpoint is hit with correct identifiers.
-- For draft-response tests, tenantId used is exactly: aca752db-91a4-4f6a-ac48-3c28989bdbd5.
+- For draft-response tests, tenantId must come from shared preferences runtime value.
+- For aiAgentId-based tests, aiAgentId must come from `getAgentByTenant(...).id`.

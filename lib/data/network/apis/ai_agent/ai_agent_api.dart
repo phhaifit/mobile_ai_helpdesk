@@ -18,13 +18,10 @@ class AiAgentApi {
 
   Future<Map<String, dynamic>> createAgent(
     String tenantId,
-    UpdateAiAgentRequest dto,
   ) async {
-    debugPrint('data: ${dto.toJson()}');
     debugPrint('[AiAgentApi] createAgent called');
     final response = await _dioClient.dio.post<Map<String, dynamic>>(
       Endpoints.agentsByTenant(tenantId),
-      data: dto.toJson(),
     );
     return response.data ?? {};
   }

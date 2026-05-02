@@ -19,7 +19,9 @@ class _FakeAiAgentApi extends AiAgentApi {
 
   int getAgentByTenantCallCount = 0;
   int createAgentCallCount = 0;
+  int updateAgentByIdCallCount = 0;
   int updateAgentInfoCallCount = 0;
+  String? lastUpdateAgentInfoId;
   String? lastTenantId;
 
   Map<String, dynamic> getAgentByTenantResponse = <String, dynamic>{};
@@ -39,11 +41,19 @@ class _FakeAiAgentApi extends AiAgentApi {
   @override
   Future<Map<String, dynamic>> createAgent(
     String tenantId,
-    UpdateAiAgentRequest dto,
   ) async {
     createAgentCallCount += 1;
     lastTenantId = tenantId;
     return createAgentResponse;
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateAgentById(
+    String agentId,
+    UpdateAiAgentRequest dto,
+  ) async {
+    updateAgentByIdCallCount += 1;
+    return <String, dynamic>{'id': agentId};
   }
 
   @override
@@ -54,6 +64,7 @@ class _FakeAiAgentApi extends AiAgentApi {
     String? avatar,
   }) async {
     updateAgentInfoCallCount += 1;
+    lastUpdateAgentInfoId = agentId;
     return <String, dynamic>{'id': agentId};
   }
 }
@@ -104,10 +115,12 @@ void main() {
     test('getAgents uses tenantId from shared preferences', () async {
       final api = _FakeAiAgentApi()
         ..getAgentByTenantResponse = <String, dynamic>{
-          '_id': 'agent-remote-1',
+          'id': 'agent-remote-1',
           'name': 'Remote Agent',
           'description': 'Loaded from API',
-          'autoResponse': true,
+          'configs': <String, dynamic>{
+            'autoResponse': true,
+          },
           'createdAt': '2025-01-01T00:00:00.000Z',
         };
       final prefs = await _buildPrefs(<String, Object>{
@@ -125,7 +138,16 @@ void main() {
     });
 
     test('createAgent uses tenantId and updates profile info', () async {
-      final api = _FakeAiAgentApi();
+      final api = _FakeAiAgentApi()
+        ..getAgentByTenantResponse = <String, dynamic>{
+          'id': 'agent-active-1',
+          'name': 'Remote Agent',
+          'description': 'Loaded from API',
+          'configs': <String, dynamic>{
+            'autoResponse': false,
+          },
+          'createdAt': '2025-01-01T00:00:00.000Z',
+        };
       final prefs = await _buildPrefs(<String, Object>{
         Preferences.tenantId: 'tn-abc',
       });
@@ -134,9 +156,12 @@ void main() {
       final created = await repo.createAgent(_sampleAgent());
 
       expect(api.createAgentCallCount, 1);
+      expect(api.updateAgentByIdCallCount, 1);
       expect(api.updateAgentInfoCallCount, 1);
+      expect(api.getAgentByTenantCallCount, 1);
       expect(api.lastTenantId, 'tn-abc');
-      expect(created.id, 'agent-created');
+      expect(api.lastUpdateAgentInfoId, 'agent-active-1');
+      expect(created.id, 'agent-active-1');
       expect(created.name, 'Support Bot');
     });
   });

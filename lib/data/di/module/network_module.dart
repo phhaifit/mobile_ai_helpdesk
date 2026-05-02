@@ -100,6 +100,7 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
+        getIt<StackHeadersInterceptor>(),
         getIt<AuthInterceptor>(),
         getIt<TenantHeaderInterceptor>(),
         getIt<RefreshTokenInterceptor>(),

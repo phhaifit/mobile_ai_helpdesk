@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '/data/local/datasources/playground/playground_datasource.dart';
+import '/data/network/apis/ai_agent/ai_agent_api.dart';
 import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/models/request/chat_completion_request.dart';
 import '/data/network/models/request/chat_message.dart';
@@ -12,10 +13,16 @@ import '/domain/repository/playground/playground_repository.dart';
 
 class PlaygroundRepositoryImpl implements PlaygroundRepository {
   final PlaygroundDataSource _dataSource;
+  final AiAgentApi _aiAgentApi;
   final PlaygroundApi _api;
   final SharedPreferenceHelper _prefs;
 
-  PlaygroundRepositoryImpl(this._dataSource, this._api, this._prefs);
+  PlaygroundRepositoryImpl(
+    this._dataSource,
+    this._aiAgentApi,
+    this._api,
+    this._prefs,
+  );
 
   Future<String?> _resolveTenantId() async {
     final id = (await _prefs.tenantId)?.trim();
@@ -31,6 +38,15 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
       throw Exception('Tenant ID is required to call draft response APIs.');
     }
     return tenantId;
+  }
+
+  Future<String> _requireActiveAgentId(String tenantId) async {
+    final json = await _aiAgentApi.getAgentByTenant(tenantId);
+    final id = (json['id'] ?? json['_id'] ?? '').toString();
+    if (id.isEmpty) {
+      throw Exception('Active AI Agent id is missing from tenant response.');
+    }
+    return id;
   }
 
   @override
@@ -53,15 +69,14 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     String content,
     List<String> attachments,
   ) async {
-    // 1. Fetch the session to get agentId for the API call.
+    // 1. Fetch the session to validate it exists.
     final session = await _dataSource.getSessionById(sessionId);
     if (session == null) {
       throw Exception('Session not found: $sessionId');
     }
 
-    if (session.agentId == null) {
-      throw Exception('Session does not have an assigned AI Agent.');
-    }
+    final tenantId = await _requireTenantId();
+    final activeAgentId = await _requireActiveAgentId(tenantId);
 
     // 2. Build chat history from current session messages.
     final history = session.messages
@@ -71,7 +86,7 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     // 3. Call real API then persist messages locally.
     try {
       final realText = await _api.chatComplete(
-        session.agentId!,
+        activeAgentId,
         ChatCompletionRequest(prompt: content, chatHistory: history),
       );
 
@@ -128,7 +143,9 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
             .toList(),
         channel: params.channel,
         type: params.type,
-        defaultConfigType: params.defaultConfigType,
+        defaultConfigType: params.defaultConfigType
+          .map((item) => <String, dynamic>{'value': item})
+          .toList(),
         tenantID: tenantId,
         ticketID: params.ticketID,
         chatRoomID: params.chatRoomID,
