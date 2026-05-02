@@ -11,6 +11,7 @@ enum EnvConfig {
     environment: Environment.dev,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    aiServiceApiBaseUrl: 'https://ai-service.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
     oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
@@ -28,6 +29,7 @@ enum EnvConfig {
     environment: Environment.staging,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    aiServiceApiBaseUrl: 'https://ai-service.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
     oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
@@ -45,6 +47,7 @@ enum EnvConfig {
     environment: Environment.prod,
     authApiBaseUrl: 'https://auth-api.jarvis.cx',
     helpdeskApiBaseUrl: 'https://helpdesk-api.jarvis.cx',
+    aiServiceApiBaseUrl: 'https://ai-service.jarvis.cx',
     otpCallbackUrl: 'https://helpdesk.jarvis.cx/callback',
     oauthRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback',
     oauthErrorRedirectUri: 'https://helpdesk.jarvis.cx/oauth2callback/error',
@@ -62,6 +65,9 @@ enum EnvConfig {
   final Environment environment;
   final String authApiBaseUrl;
   final String helpdeskApiBaseUrl;
+  /// AI-Services host (NestJS).  Owns `/api/v1/ai-agents`, `/api/v1/knowledges`,
+  /// `/api/v1/response-templates`, `/api/v1/media`.  Separate from BE Helpdesk.
+  final String aiServiceApiBaseUrl;
   final String otpCallbackUrl;
   /// Redirect URI passed to Stack Auth's `/oauth/authorize/google` endpoint.
   /// Must match what is registered on Stack Auth's project settings.
@@ -85,6 +91,7 @@ enum EnvConfig {
     required this.environment,
     required this.authApiBaseUrl,
     required this.helpdeskApiBaseUrl,
+    required this.aiServiceApiBaseUrl,
     required this.otpCallbackUrl,
     required this.oauthRedirectUri,
     required this.oauthErrorRedirectUri,
@@ -115,6 +122,20 @@ enum EnvConfig {
   static const _sentryDsnProd = String.fromEnvironment(
     'SENTRY_DSN_PROD',
     defaultValue: '',
+  );
+
+  /// Google OAuth client ID for the Knowledge Base Google Drive import flow.
+  /// Pass via `--dart-define=GOOGLE_OAUTH_CLIENT_ID=<id>`.
+  static const _googleOauthClientId = String.fromEnvironment(
+    'GOOGLE_OAUTH_CLIENT_ID',
+    defaultValue: '',
+  );
+
+  /// Where Google redirects after the user grants consent.  We capture this
+  /// URL inside the in-app WebView; nothing is actually served at this URL.
+  static const _googleOauthRedirectUri = String.fromEnvironment(
+    'GOOGLE_OAUTH_REDIRECT_URI',
+    defaultValue: 'https://helpdesk.jarvis.cx/google-drive/callback',
   );
 
   static final EnvConfig instance = _fromName(_envName);
@@ -157,6 +178,10 @@ enum EnvConfig {
   }
 
   bool get isSentryEnabled => sentryDsn.isNotEmpty;
+
+  String get googleOauthClientId => _googleOauthClientId;
+  String get googleOauthRedirectUri => _googleOauthRedirectUri;
+  bool get isGoogleOauthConfigured => _googleOauthClientId.isNotEmpty;
 
   // The dart-define flag can force-enable real omnichannel integration.
   bool get useRealOmnichannel =>

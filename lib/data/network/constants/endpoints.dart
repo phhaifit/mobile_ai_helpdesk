@@ -10,6 +10,11 @@ class Endpoints {
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
 
+  // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
+  // media. Separate from BE Helpdesk.
+  static String get aiServiceBaseUrl =>
+      EnvConfig.instance.aiServiceApiBaseUrl;
+
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
 
@@ -75,11 +80,65 @@ class Endpoints {
   static String customerDetail(String id) => '/api/customer/$id';
   static String checkValidEmail() => '/api/customer/check-valid-email';
   static String createCustomer() => '/api/customer';
-  static String updateCustomer(String id) => '/api/customer/update-customer/$id';
+  static String updateCustomer(String id) =>
+      '/api/customer/update-customer/$id';
   static String addCustomerTag(String id) => '/api/customer/$id/tags';
-  static String removeCustomerTag(String customerId, String tagId) => '/api/customer/$customerId/tags/$tagId';
+  static String removeCustomerTag(String customerId, String tagId) =>
+      '/api/customer/$customerId/tags/$tagId';
   static String mergeCustomers() => '/api/customer/merge';
-  static String addCustomerContact(String id) => '/api/customer/add-customer-contact/$id';
-  static String deleteCustomerContact() => '/api/customer/delete-customer-contact';
+  static String addCustomerContact(String id) =>
+      '/api/customer/add-customer-contact/$id';
+  static String deleteCustomerContact() =>
+      '/api/customer/delete-customer-contact';
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
+
+  // Ticket endpoints
+  static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
+  static String ticketComments(String ticketId) =>
+      '/api/ticket/comment/get-comment/$ticketId';
+  static const String ticketAddComment = '/api/ticket/comment/add-comment';
+  static String ticketDeleteComment(String commentId) =>
+      '/api/ticket/comment/$commentId';
+
+  // ---- Knowledge Base ------------------------------------------------------
+  static String knowledgeSources(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/sources';
+  static String knowledgeSourcesByType(String tenantId, String apiType) =>
+      '/api/v1/knowledges/$tenantId/sources/$apiType';
+
+  /// PATCH (status) and DELETE both use this path; method disambiguates.
+  static String knowledgeSource(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId';
+
+  static String knowledgeReindex(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId/reindex';
+  static String knowledgeInterval(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/sources/$sourceId/interval';
+
+  static String knowledgeImportWeb(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/web';
+  static String knowledgeImportLocalFile(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/local-file';
+  static String knowledgeImportGoogleDrive(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/google-drive';
+  static String knowledgeImportDatabaseQuery(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/database-query';
+  static String knowledgeUpdateDatabaseQuery(String tenantId, String sourceId) =>
+      '/api/v1/knowledges/$tenantId/database-query/$sourceId';
+
+  static const String knowledgeTestDatabaseQuery =
+      '/api/v1/knowledges/test-database-query';
+  static const String knowledgePollStatus =
+      '/api/v1/knowledges/sources/poll-status';
+
+  static String knowledgeStatusSse(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/status-sse';
+
+  // WebSocket
+  static String ticketWebSocket(String ticketId) {
+    final wsBase = baseUrl
+        .replaceFirst('https://', 'wss://')
+        .replaceFirst('http://', 'ws://');
+    return '$wsBase/ws/ticket/$ticketId';
+  }
 }

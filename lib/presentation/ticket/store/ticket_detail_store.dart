@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/constants/analytics_events.dart';
+import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
@@ -33,6 +36,9 @@ abstract class _TicketDetailStoreBase with Store {
   final GetTicketHistoryUseCase _getTicketHistoryUseCase;
   final SessionStore _sessionStore;
   final AnalyticsService _analyticsService;
+  final TicketWebSocketService _wsService;
+
+  StreamSubscription<Comment>? _wsSubscription;
 
   _TicketDetailStoreBase(
     this._getTicketByIdUseCase,
@@ -46,6 +52,7 @@ abstract class _TicketDetailStoreBase with Store {
     this._getTicketHistoryUseCase,
     this._sessionStore,
     this._analyticsService,
+    this._wsService,
   );
 
   @observable
@@ -102,12 +109,36 @@ abstract class _TicketDetailStoreBase with Store {
             'priority': ticket!.priority.name,
           },
         );
+        _connectWebSocket(ticketId);
       }
     } catch (e) {
       errorMessage = e.toString();
     } finally {
       isLoading = false;
     }
+  }
+
+  void _connectWebSocket(String ticketId) {
+    _wsSubscription?.cancel();
+    _wsService.connect(ticketId).then((_) {
+      _wsSubscription = _wsService.commentStream
+          .where((c) => c.ticketId == ticketId)
+          .listen(_onIncomingComment);
+    });
+  }
+
+  void _onIncomingComment(Comment comment) {
+    runInAction(() {
+      // Deduplicate: skip if the same id already exists (e.g. echoed back after addComment).
+      if (!comments.any((c) => c.id == comment.id)) {
+        comments = [...comments, comment];
+      }
+    });
+  }
+
+  void dispose() {
+    _wsSubscription?.cancel();
+    _wsService.disconnect();
   }
 
   @action

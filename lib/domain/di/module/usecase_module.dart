@@ -15,12 +15,20 @@ import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_database_query_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_google_drive_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_local_file_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_web_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/poll_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -262,23 +270,48 @@ class UseCaseModule {
     );
 
     // Knowledge Use Cases:-----------------------------------------------------
+    final knowledgeRepo = getIt<KnowledgeRepository>();
     getIt.registerSingleton<GetKnowledgeSourcesUseCase>(
-      GetKnowledgeSourcesUseCase(getIt<KnowledgeRepository>()),
+      GetKnowledgeSourcesUseCase(knowledgeRepo),
     );
-    getIt.registerSingleton<AddKnowledgeSourceUseCase>(
-      AddKnowledgeSourceUseCase(getIt<KnowledgeRepository>()),
+    getIt.registerSingleton<GetKnowledgeSourcesByTypeUseCase>(
+      GetKnowledgeSourcesByTypeUseCase(knowledgeRepo),
     );
     getIt.registerSingleton<DeleteKnowledgeSourceUseCase>(
-      DeleteKnowledgeSourceUseCase(getIt<KnowledgeRepository>()),
+      DeleteKnowledgeSourceUseCase(knowledgeRepo),
     );
     getIt.registerSingleton<ReindexSourceUseCase>(
-      ReindexSourceUseCase(getIt<KnowledgeRepository>()),
-    );
-    getIt.registerSingleton<TestDbConnectionUseCase>(
-      TestDbConnectionUseCase(getIt<KnowledgeRepository>()),
+      ReindexSourceUseCase(knowledgeRepo),
     );
     getIt.registerSingleton<UpdateSourceCrawlIntervalUseCase>(
-      UpdateSourceCrawlIntervalUseCase(getIt<KnowledgeRepository>()),
+      UpdateSourceCrawlIntervalUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<UpdateSourceStatusUseCase>(
+      UpdateSourceStatusUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<ImportWebSourceUseCase>(
+      ImportWebSourceUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<ImportLocalFileUseCase>(
+      ImportLocalFileUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<ImportGoogleDriveUseCase>(
+      ImportGoogleDriveUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<ImportDatabaseQueryUseCase>(
+      ImportDatabaseQueryUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<UpdateDatabaseQueryUseCase>(
+      UpdateDatabaseQueryUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<TestDatabaseQueryUseCase>(
+      TestDatabaseQueryUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<PollSourceStatusUseCase>(
+      PollSourceStatusUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<WatchSourceStatusesUseCase>(
+      WatchSourceStatusesUseCase(knowledgeRepo),
     );
   }
 }

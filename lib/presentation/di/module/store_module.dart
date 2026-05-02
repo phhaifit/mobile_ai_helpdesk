@@ -19,12 +19,19 @@ import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_database_query_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_google_drive_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_local_file_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/import_web_source_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/poll_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/knowledge/test_db_connection_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
@@ -62,6 +69,7 @@ import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
+import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
@@ -182,6 +190,7 @@ class StoreModule {
         getIt<GetTicketHistoryUseCase>(),
         getIt<SessionStore>(),
         getIt<AnalyticsService>(),
+        getIt<TicketWebSocketService>(),
       ),
     );
     getIt.registerFactory(
@@ -299,11 +308,18 @@ class StoreModule {
     getIt.registerSingleton<KnowledgeStore>(
       KnowledgeStore(
         getIt<GetKnowledgeSourcesUseCase>(),
-        getIt<AddKnowledgeSourceUseCase>(),
-        getIt<DeleteKnowledgeSourceUseCase>(),
         getIt<ReindexSourceUseCase>(),
-        getIt<TestDbConnectionUseCase>(),
+        getIt<DeleteKnowledgeSourceUseCase>(),
         getIt<UpdateSourceCrawlIntervalUseCase>(),
+        getIt<UpdateSourceStatusUseCase>(),
+        getIt<ImportWebSourceUseCase>(),
+        getIt<ImportLocalFileUseCase>(),
+        getIt<ImportGoogleDriveUseCase>(),
+        getIt<ImportDatabaseQueryUseCase>(),
+        getIt<UpdateDatabaseQueryUseCase>(),
+        getIt<TestDatabaseQueryUseCase>(),
+        getIt<PollSourceStatusUseCase>(),
+        getIt<WatchSourceStatusesUseCase>(),
       ),
     );
   }
