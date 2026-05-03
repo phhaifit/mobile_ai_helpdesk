@@ -36,6 +36,8 @@ class NetworkModule {
       AuthInterceptor(
         accessToken: () async =>
             await getIt<SharedPreferenceHelper>().authToken,
+        tenantId: () async =>
+            await getIt<SharedPreferenceHelper>().currentTenantId,
       ),
     );
 

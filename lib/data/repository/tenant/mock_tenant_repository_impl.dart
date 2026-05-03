@@ -12,6 +12,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
 
   final List<Tenant> _tenants = [];
   int _nextId = 100;
+  String? _currentTenantId;
 
   static final List<Tenant> _seedTenants = [
     Tenant(
@@ -79,6 +80,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
       createdAt: tenant.createdAt,
     );
     _tenants.add(created);
+    _currentTenantId = created.id;
     return created;
   }
 
@@ -119,6 +121,9 @@ class MockTenantRepositoryImpl implements TenantRepository {
       return false;
     }
     _tenants.removeAt(index);
+    if (_currentTenantId == id) {
+      _currentTenantId = null;
+    }
     return true;
   }
 
@@ -162,6 +167,16 @@ class MockTenantRepositoryImpl implements TenantRepository {
     );
 
     return updatedSettings;
+  }
+
+  @override
+  Future<String?> getCachedTenantId() async {
+    return _currentTenantId;
+  }
+
+  @override
+  Future<void> saveCachedTenantId(String? tenantId) async {
+    _currentTenantId = tenantId;
   }
 
   @override

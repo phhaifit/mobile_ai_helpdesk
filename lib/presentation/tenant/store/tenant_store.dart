@@ -38,10 +38,21 @@ abstract class _TenantStore with Store {
     isLoading = true;
     try {
       final list = await _tenantRepository.getTenants();
+      final cachedId = await _tenantRepository.getCachedTenantId();
       tenantList
         ..clear()
         ..addAll(list);
-      currentTenant ??= tenantList.isNotEmpty ? tenantList.first : null;
+      Tenant? selected;
+      if (cachedId != null) {
+        for (final tenant in tenantList) {
+          if (tenant.id == cachedId) {
+            selected = tenant;
+            break;
+          }
+        }
+      }
+      currentTenant = selected ?? (tenantList.isNotEmpty ? tenantList.first : null);
+      await _tenantRepository.saveCachedTenantId(currentTenant?.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {
@@ -56,6 +67,7 @@ abstract class _TenantStore with Store {
       final t = await _tenantRepository.getTenantById(tenantId);
       if (t != null) {
         currentTenant = t;
+        await _tenantRepository.saveCachedTenantId(t.id);
       }
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
@@ -71,6 +83,7 @@ abstract class _TenantStore with Store {
       final created = await _tenantRepository.createTenant(tenant);
       tenantList.add(created);
       currentTenant = created;
+      await _tenantRepository.saveCachedTenantId(created.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {
@@ -86,6 +99,7 @@ abstract class _TenantStore with Store {
       );
       tenantList.add(created);
       currentTenant = created;
+      await _tenantRepository.saveCachedTenantId(created.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {
@@ -105,6 +119,7 @@ abstract class _TenantStore with Store {
       if (currentTenant?.id == id) {
         currentTenant = tenantList.isNotEmpty ? tenantList.first : null;
       }
+      await _tenantRepository.saveCachedTenantId(currentTenant?.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {

@@ -1,12 +1,14 @@
 import '/data/network/apis/tenant/tenant_api.dart';
+import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/entity/tenant/tenant.dart';
 import '/domain/entity/tenant_settings/tenant_settings.dart';
 import '/domain/repository/tenant/tenant_repository.dart';
 
 class TenantRepositoryImpl implements TenantRepository {
-  TenantRepositoryImpl(this._tenantApi);
+  TenantRepositoryImpl(this._tenantApi, this._sharedPreferenceHelper);
 
   final TenantApi _tenantApi;
+  final SharedPreferenceHelper _sharedPreferenceHelper;
 
   @override
   Future<List<Tenant>> getTenants() => _tenantApi.getTenants();
@@ -49,6 +51,16 @@ class TenantRepositoryImpl implements TenantRepository {
         'autoResolutionTimeoutHours': autoResolutionTimeoutHours,
       },
     );
+  }
+
+  @override
+  Future<String?> getCachedTenantId() async {
+    return _sharedPreferenceHelper.currentTenantId;
+  }
+
+  @override
+  Future<void> saveCachedTenantId(String? tenantId) async {
+    await _sharedPreferenceHelper.saveCurrentTenantId(tenantId);
   }
 
   @override

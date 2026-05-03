@@ -124,7 +124,10 @@ class RepositoryModule {
 
     // --- Tenant Repository ---
     getIt.registerLazySingleton<TenantRepository>(
-      () => TenantRepositoryImpl(getIt<TenantApi>()),
+      () => TenantRepositoryImpl(
+        getIt<TenantApi>(),
+        getIt<SharedPreferenceHelper>(),
+      ),
     );
 
     // --- Team Repository ---

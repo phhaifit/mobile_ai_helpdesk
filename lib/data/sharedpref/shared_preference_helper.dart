@@ -105,4 +105,16 @@ class SharedPreferenceHelper {
   Future<bool> removeUser() async {
     return _sharedPreference.remove(Preferences.userData);
   }
+
+  // Tenant context:----------------------------------------------------------
+  Future<String?> get currentTenantId async {
+    return _sharedPreference.getString(Preferences.currentTenantId);
+  }
+
+  Future<bool> saveCurrentTenantId(String? tenantId) async {
+    if (tenantId == null || tenantId.trim().isEmpty) {
+      return _sharedPreference.remove(Preferences.currentTenantId);
+    }
+    return _sharedPreference.setString(Preferences.currentTenantId, tenantId);
+  }
 }
