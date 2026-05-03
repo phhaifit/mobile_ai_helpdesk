@@ -381,9 +381,9 @@ void main() {
 
   group('GetDeliveryReceiptsUseCase', () {
     test('passes broadcastId and pagination query to repository', () async {
-      final page = BroadcastPage<BroadcastDeliveryReceipt>(
+      const page = BroadcastPage<BroadcastDeliveryReceipt>(
         items: [
-          BroadcastDeliveryReceipt(
+          const BroadcastDeliveryReceipt(
             id: 'r_1',
             broadcastId: 'bc_1',
             recipientId: 'user_1',

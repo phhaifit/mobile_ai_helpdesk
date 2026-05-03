@@ -46,6 +46,33 @@ class Endpoints {
   static String playgroundMessages(String sessionId) =>
       '/api/playground/sessions/$sessionId/messages';
 
+  // Tenant endpoints
+  static String tenants() => '/api/v1/tenants';
+    static String createTenantOnFirstLogin() => '/api/v1/tenants/create-first-login';
+  static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
+    static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
+  static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
+  static String tenantSettings(String tenantId) =>
+      '/api/v1/tenants/$tenantId/settings';
+
+  // Team member endpoints
+  static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
+  static String tenantMember(String tenantId, String memberId) =>
+      '/api/v1/tenants/$tenantId/members/$memberId';
+  static String tenantMemberPermissions(String tenantId, String memberId) =>
+      '/api/v1/tenants/$tenantId/members/$memberId/permissions';
+
+  // Invitation endpoints
+  static String tenantInvitations(String tenantId) =>
+      '/api/v1/tenants/$tenantId/invitations';
+  static String resendInvitation(String invitationId) =>
+      '/api/v1/invitations/$invitationId/resend';
+  static String acceptInvitation(String invitationId) =>
+      '/api/v1/invitations/$invitationId/accept';
+  static String declineInvitation(String invitationId) =>
+      '/api/v1/invitations/$invitationId/decline';
+  static String deleteInvitation(String invitationId) =>
+      '/api/v1/invitations/$invitationId';
   // Marketing/Broadcasting endpoints (Phase A contract baseline)
   // Templates
   static String marketingTemplates() => '/api/marketing/templates';
@@ -171,9 +198,6 @@ class Endpoints {
   // Tag Management
   static String get tags => '/api/v1/tags';
   static String tag(String id) => '/api/v1/tags/$id';
-
-  // ---- Tenants -------------------------------------------------------------
-  static String tenant(String id) => '/api/v1/tenants/$id';
 
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
 

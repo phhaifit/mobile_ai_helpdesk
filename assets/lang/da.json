@@ -88,6 +88,11 @@
   "common_try_again": "Prøv igen",
   "common_error_loading": "Kunne ikke indlæse data.",
   "playground_ai_typing": "AI skriver...",
+  "tenant_info_auto_resolution_timeout_label": "Lukningstidsgrænse (timer)",
+  "tenant_info_auto_resolution_timeout_hint": "Indtast antal timer (f.eks. 24)",
+  "tenant_info_msg_auto_resolution_invalid_timeout": "Tidsgrænsen skal være et positivt antal timer.",
+  "tenant_info_msg_auto_resolution_updated": "Auto-lukningsindstillinger er opdateret.",
+  "tenant_info_msg_auto_resolution_failed": "Kunne ikke opdatere auto-lukningsindstillinger.",
 
   "marketing_tv_title": "Marketing",
   "marketing_tv_campaigns": "Kampagner",
