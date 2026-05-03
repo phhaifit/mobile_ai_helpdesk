@@ -3,9 +3,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import '../widgets/customer_filter_sheet.dart';
 
-class CustomerListScreen extends StatelessWidget {
+class CustomerListScreen extends StatefulWidget {
   final CustomerStore store;
   final VoidCallback onMenuTap;
   final Function(Customer) onSelectCustomer;
@@ -19,12 +20,40 @@ class CustomerListScreen extends StatelessWidget {
     required this.onAddCustomer,
   });
 
+  @override
+  State<CustomerListScreen> createState() => _CustomerListScreenState();
+}
+
+class _CustomerListScreenState extends State<CustomerListScreen> {
+  final ScrollController _scrollController = ScrollController();
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.store.searchQuery);
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      widget.store.loadCustomers(isLoadMore: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _showFilter(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CustomerFilterSheet(store: store),
+      builder: (_) => CustomerFilterSheet(store: widget.store),
     );
   }
 
@@ -47,13 +76,13 @@ class CustomerListScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: onMenuTap,
+          onPressed: widget.onMenuTap,
         ),
-        title: const Text('Khách hàng', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context).translate('customer_list_title'), style: const TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_alt_1, color: AppColors.primaryBlue),
-            onPressed: onAddCustomer,
+            onPressed: widget.onAddCustomer,
           ),
         ],
       ),
@@ -71,15 +100,27 @@ class CustomerListScreen extends StatelessWidget {
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Tìm kiếm tên, email, sđt...',
-                        hintStyle: TextStyle(color: Colors.grey),
-                        prefixIcon: Icon(Icons.search, color: Colors.grey),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 14),
+                    child: Observer(
+                      builder: (_) => TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context).translate('customer_list_search_hint'),
+                          hintStyle: TextStyle(color: Colors.grey),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 14),
+                          suffixIcon: widget.store.searchQuery.isNotEmpty 
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.grey, size: 18),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  widget.store.setSearchQuery('');
+                                },
+                              )
+                            : null,
+                        ),
+                        onChanged: (val) => widget.store.setSearchQuery(val),
                       ),
-                      onChanged: (val) => store.setSearchQuery(val),
                     ),
                   ),
                 ),
@@ -100,26 +141,33 @@ class CustomerListScreen extends StatelessWidget {
           Expanded(
             child: Observer(
               builder: (_) {
-                if (store.isLoading) {
+                if (widget.store.isLoading && widget.store.customers.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (store.customers.isEmpty) {
+                if (widget.store.customers.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.inbox_rounded, size: 64, color: Colors.grey.shade400),
                         const SizedBox(height: 16),
-                        Text('Không tìm thấy khách hàng nào', style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                        Text(AppLocalizations.of(context).translate('customer_list_empty'), style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
                       ],
                     ),
                   );
                 }
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(12),
-                  itemCount: store.customers.length,
+                  itemCount: widget.store.customers.length + (widget.store.isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    final customer = store.customers[index];
+                    if (index >= widget.store.customers.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    final customer = widget.store.customers[index];
                     return Card(
                       elevation: 0,
                       color: Colors.white,
@@ -130,7 +178,7 @@ class CustomerListScreen extends StatelessWidget {
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
-                        onTap: () => onSelectCustomer(customer),
+                        onTap: () => widget.onSelectCustomer(customer),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
@@ -139,10 +187,15 @@ class CustomerListScreen extends StatelessWidget {
                               CircleAvatar(
                                 radius: 24,
                                 backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
-                                child: Text(
-                                  _getInitials(customer.fullName),
-                                  style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
+                                backgroundImage: customer.avatarUrl != null && customer.avatarUrl!.isNotEmpty 
+                                  ? NetworkImage(customer.avatarUrl!) 
+                                  : null,
+                                child: (customer.avatarUrl == null || customer.avatarUrl!.isEmpty)
+                                  ? Text(
+                                      _getInitials(customer.fullName),
+                                      style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
+                                    )
+                                  : null,
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -199,10 +252,10 @@ class CustomerListScreen extends StatelessWidget {
 
                                         if (customer.phones.isNotEmpty) rows.add(buildRow(Icons.phone_outlined, customer.phones.first));
                                         if (customer.emails.isNotEmpty) rows.add(buildRow(Icons.email_outlined, customer.emails.first));
-                                        if (customer.zalos.isNotEmpty) rows.add(buildRow(Icons.chat_bubble_outline, 'Zalo: ${customer.zalos.first}'));
-                                        if (customer.messengers.isNotEmpty) rows.add(buildRow(Icons.message_outlined, 'Mess: ${customer.messengers.first}'));
+                                        if (customer.zalos.isNotEmpty) rows.add(buildRow(Icons.chat_bubble_outline, '${AppLocalizations.of(context).translate('customer_list_zalo')}: ${customer.zalos.first}'));
+                                        if (customer.messengers.isNotEmpty) rows.add(buildRow(Icons.message_outlined, '${AppLocalizations.of(context).translate('customer_list_messenger')}: ${customer.messengers.first}'));
                                         
-                                        if (rows.isEmpty) return const Text('Chưa cập nhật liên hệ', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 13));
+                                        if (rows.isEmpty) return Text(AppLocalizations.of(context).translate('customer_list_no_contact'), style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 13));
                                         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
                                       },
                                     ),

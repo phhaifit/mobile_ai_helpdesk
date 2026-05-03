@@ -10,11 +10,16 @@ import '/core/data/network/dio/interceptors/stack_headers_interceptor.dart';
 import '/core/data/network/dio/interceptors/tenant_header_interceptor.dart';
 import '/core/events/auth_events.dart';
 import '/core/monitoring/sentry/sentry_service.dart';
+import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
+
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
+import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import '/data/realtime/socket/socket_service.dart';
 import '/data/realtime/sse/draft_response_sse_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
@@ -25,6 +30,7 @@ import '../../../di/service_locator.dart';
 class NetworkModule {
   static const String authDioName = 'authApi';
   static const String helpdeskDioName = 'helpdeskApi';
+  static const String aiServiceDioName = 'aiServiceApi';
 
   static Future<void> configureNetworkModuleInjection() async {
     final env = EnvConfig.instance;
@@ -100,10 +106,32 @@ class NetworkModule {
         getIt<LoggingInterceptor>(),
       ]);
 
+    // AI-Services host (knowledge base, AI agents, response templates, media).
+    // Same Bearer + tenant header as Helpdesk; refresh-token interceptor
+    // re-uses the helpdesk Dio for refreshing since Stack Auth tokens are
+    // shared across BE hosts.
+    final aiServiceDio = DioClient(
+      dioConfigs: DioConfigs(
+        baseUrl: env.aiServiceApiBaseUrl,
+        connectionTimeout: Endpoints.connectionTimeout,
+        receiveTimeout: Endpoints.receiveTimeout,
+      ),
+    )..addInterceptors([
+        getIt<AuthInterceptor>(),
+        getIt<TenantHeaderInterceptor>(),
+        getIt<RefreshTokenInterceptor>(),
+        getIt<ErrorInterceptor>(),
+        getIt<LoggingInterceptor>(),
+      ]);
+
     getIt.registerSingleton<DioClient>(authDio, instanceName: authDioName);
     getIt.registerSingleton<DioClient>(
       helpdeskDio,
       instanceName: helpdeskDioName,
+    );
+    getIt.registerSingleton<DioClient>(
+      aiServiceDio,
+      instanceName: aiServiceDioName,
     );
     // Backwards-compatible default so existing APIs (OmnichannelApi, PostApi)
     // keep working without per-call instanceName lookups.
@@ -113,6 +141,8 @@ class NetworkModule {
     getIt.registerSingleton<StackAuthApi>(
       StackAuthApi(getIt<DioClient>(instanceName: authDioName)),
     );
+    getIt.registerSingleton<CustomerApi>(CustomerApi(getIt<DioClient>()));
+    getIt.registerSingleton<TagApi>(TagApi(getIt<DioClient>()));
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );
@@ -124,6 +154,17 @@ class NetworkModule {
 
     getIt.registerSingleton<DraftResponseSseClient>(
       DraftResponseSseClient(getIt<DioClient>()),
+    );
+
+    // websocket:---------------------------------------------------------------
+    getIt.registerSingleton<TicketWebSocketService>(
+      TicketWebSocketService(
+        getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+      ),
+    );
+
+    getIt.registerSingleton<MarketingBroadcastRealtimeService>(
+      MarketingBroadcastRealtimeService(getIt<DioClient>(), getIt<EventBus>()),
     );
   }
 }

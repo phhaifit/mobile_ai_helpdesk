@@ -8,10 +8,10 @@ part of 'account.dart';
 
 Account _$AccountFromJson(Map<String, dynamic> json) => Account(
   accountId: json['accountID'] as String,
-  tenantId: json['tenantID'] as String,
+  tenantId: json['tenantID'] as String?,
   email: json['email'] as String,
   username: json['username'] as String,
-  fullname: json['fullname'] as String,
+  fullname: json['fullname'] as String?,
   role: json['role'] as String,
   isBlocked: json['isBlocked'] as bool,
   phoneNumber: json['phoneNumber'] as String?,

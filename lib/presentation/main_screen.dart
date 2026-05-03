@@ -1,13 +1,10 @@
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
-import 'chat/support_inbox_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
-import 'tenant/employee_screen.dart';
-import 'tenant/tenant_info_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
+import 'chat/support_inbox_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
 import 'marketing/campaign_list_screen.dart';
@@ -17,6 +14,9 @@ import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
 import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
+import 'tenant/employee_screen.dart';
+import 'tenant/tenant_info_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
 import 'team/store/team_store.dart';
 import 'tenant/invitation_response_screen.dart';
@@ -36,21 +36,34 @@ class _MainScreenState extends State<MainScreen> {
   late String _selectedCategory;
   bool _showSidebarMobile = false;
 
-  late List<MenuCategory> _categories;
+  List<MenuCategory> _categories = const [];
+  bool _categoriesInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_categoriesInitialized) return;
+    _categoriesInitialized = true;
     _initializeCategories();
 
     // If initialCategory is a category title (e.g. 'Hỗ trợ khách hàng'),
     // default to the first menu item inside that category. Otherwise use
     // the provided initialCategory (which may already be a menu item).
-    String initial = widget.initialCategory;
+    final String initial = widget.initialCategory;
     final matchingCategory = _categories.firstWhere(
       (c) => c.title == initial,
-      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+      orElse:
+          () => MenuCategory(
+            title: '',
+            icon: Icons.help_outline_rounded,
+            items: [],
+          ),
     );
 
     if (matchingCategory.items.isNotEmpty) {
@@ -136,14 +149,14 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.campaign_outlined,
         items: [
           MenuItem(
-            id: 'campaigns',
+            id: Routes.campaignList,
             title: 'Chiến dịch',
-            onTap: () => _selectCategory('campaigns'),
+            onTap: () => _selectCategory(Routes.campaignList),
           ),
           MenuItem(
-            id: 'template',
+            id: Routes.templateLibrary,
             title: 'Template',
-            onTap: () => _selectCategory('template'),
+            onTap: () => _selectCategory(Routes.templateLibrary),
           ),
         ],
       ),
@@ -181,8 +194,16 @@ class _MainScreenState extends State<MainScreen> {
             title: 'Mock invitation response',
             onTap: _openMockInvitationResponse,
           ),
-          MenuItem(id: 'template', title: 'Template', onTap: () => _selectCategory('template')),
-          MenuItem(id: 'facebook_admin', title: 'Facebook Admin', onTap: () => _selectCategory('facebook_admin')),
+          MenuItem(
+            id: Routes.templateLibrary,
+            title: 'Template',
+            onTap: () => _selectCategory(Routes.templateLibrary),
+          ),
+          MenuItem(
+            id: Routes.facebookAdminSetup,
+            title: 'Facebook Admin',
+            onTap: () => _selectCategory(Routes.facebookAdminSetup),
+          ),
         ],
       ),
       MenuCategory(
@@ -324,11 +345,11 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const AgentListScreen();
       case 'playground':
         contentWidget = const PlaygroundScreen(agent: null);
-      case 'campaigns':
+      case Routes.campaignList:
         contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
-      case 'template':
+      case Routes.templateLibrary:
         contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
-      case 'facebook_admin':
+      case Routes.facebookAdminSetup:
         contentWidget = const FacebookAdminSetupScreen();
       case 'prompt_library':
         contentWidget = _wrapWithMenuBar(
@@ -528,7 +549,7 @@ class _MainScreenState extends State<MainScreen> {
             if (_showSidebarMobile)
               GestureDetector(
                 onTap: () => setState(() => _showSidebarMobile = false),
-                child: Container(color: Colors.black.withOpacity(0.3)),
+                child: Container(color: Colors.black.withValues(alpha: 0.3)),
               ),
             if (_showSidebarMobile)
               Positioned(

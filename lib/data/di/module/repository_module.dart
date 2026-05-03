@@ -1,19 +1,33 @@
 import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
+import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
+import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
+import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
+import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
+import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
+import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
+import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/knowledge/knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/marketing_broadcast_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/marketing_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_broadcast_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_repository_impl.dart';
@@ -34,6 +48,7 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
@@ -43,8 +58,8 @@ import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
-
 import '../../repository/chat/chat_repository_impl.dart';
 import '../../repository/chat/chat_room_repository_impl.dart';
 
@@ -62,15 +77,21 @@ class RepositoryModule {
       PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
     );
 
-    // --- Auth (Stack Auth OTP flow) ---
+    // --- Auth (Stack Auth OTP + OAuth flow) ---
     getIt.registerSingleton<AuthLocalDatasource>(
       AuthLocalDatasource(getIt<SharedPreferenceHelper>()),
+    );
+    getIt.registerSingleton<OAuthBrowserClient>(
+      WebViewBrowserClient(
+        callbackUrlPrefix: EnvConfig.instance.oauthRedirectUri,
+      ),
     );
     getIt.registerSingleton<AuthRepository>(
       AuthRepositoryImpl(
         getIt<StackAuthApi>(),
         getIt<AuthLocalDatasource>(),
         EnvConfig.instance,
+        browser: getIt<OAuthBrowserClient>(),
       ),
     );
 
@@ -87,8 +108,19 @@ class RepositoryModule {
       MockTicketLocalDataSource(),
     );
 
-    getIt.registerSingleton<TicketRepository>(
+    getIt.registerSingleton<MockTicketRepositoryImpl>(
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
+    );
+
+    getIt.registerSingleton<TicketApi>(
+      TicketApi(getIt<DioClient>()),
+    );
+
+    getIt.registerSingleton<TicketRepository>(
+      TicketRepositoryImpl(
+        getIt<TicketApi>(),
+        getIt<MockTicketRepositoryImpl>(),
+      ),
     );
 
     // --- Chat Repositories ---
@@ -104,7 +136,12 @@ class RepositoryModule {
 
     // --- Customer Repositories ---
     getIt.registerSingleton<CustomerRepository>(
-      CustomerRepositoryImpl(getIt<MockCustomerDataSource>()),
+      CustomerRepositoryImpl(getIt<CustomerApi>(), getIt<TagApi>()),
+    );
+    
+    getIt.registerSingleton<MockTagDataSource>(MockTagDataSource());
+    getIt.registerSingleton<TagRepository>(
+      TagRepositoryImpl(getIt<TagApi>()),
     );
 
     getIt.registerSingleton<OmnichannelApi>(OmnichannelApi(getIt<DioClient>()));
@@ -143,11 +180,50 @@ class RepositoryModule {
       MockMonetizationRepositoryImpl(),
     );
 
-    getIt.registerSingleton<MarketingRepository>(MockMarketingRepositoryImpl());
+    // Toggle to swap between in-memory mocks and real backend impls.
+    // Flip to false once backend ships /broadcasts/recipients filters,
+    // /broadcasts/{id}/receipts, and the realtime channel.
+    const bool kUseMarketingMock = true;
+
+    if (kUseMarketingMock) {
+      getIt.registerSingleton<MockBroadcastRealtimeSimulator>(
+        MockBroadcastRealtimeSimulator(getIt<EventBus>()),
+      );
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MockMarketingBroadcastRepositoryImpl(
+          simulator: getIt<MockBroadcastRealtimeSimulator>(),
+        ),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MockMarketingRepositoryImpl(),
+      );
+    } else { // ignore: dead_code
+      getIt.registerSingleton<MarketingBroadcastApi>(
+        MarketingBroadcastApi(getIt<DioClient>()),
+      );
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MarketingBroadcastRepositoryImpl(getIt<MarketingBroadcastApi>()),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MarketingRepositoryImpl(
+          getIt<MarketingBroadcastRepository>(),
+          getIt<DioClient>(),
+        ),
+      );
+    }
 
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
 
-    getIt.registerSingleton<KnowledgeRepository>(MockKnowledgeRepositoryImpl());
+    // --- Knowledge API & Repository (AI-Services host) ---
+    getIt.registerSingleton<KnowledgeApi>(
+      KnowledgeApi(
+        getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName),
+      ),
+    );
+
+    getIt.registerSingleton<KnowledgeRepository>(
+      KnowledgeRepositoryImpl(getIt<KnowledgeApi>()),
+    );
   }
 }
