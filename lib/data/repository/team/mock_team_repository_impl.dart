@@ -37,6 +37,12 @@ class MockTeamRepositoryImpl implements TeamRepository {
     Permission(code: 'tickets:read'),
   ];
 
+  static const Map<TeamRole, List<Permission>> _defaultPermissionsByRole = {
+    TeamRole.owner: _ownerPermissions,
+    TeamRole.admin: _adminPermissions,
+    TeamRole.member: _memberPermissions,
+  };
+
   static final List<TeamMember> _seedMembers = [
     TeamMember(
       id: 'mem-001',
@@ -105,6 +111,42 @@ class MockTeamRepositoryImpl implements TeamRepository {
   Future<void> _delay([int milliseconds = 450]) =>
       Future<void>.delayed(Duration(milliseconds: milliseconds));
 
+  bool _canAssignOwnerRole(String tenantId, String memberId) {
+    final existingOwner = _members.firstWhere(
+      (m) => m.tenantId == tenantId && m.role == TeamRole.owner,
+      orElse: () => TeamMember(
+        id: '',
+        tenantId: '',
+        email: '',
+        role: TeamRole.member,
+        permissions: const <Permission>[],
+        isActive: false,
+        createdAt: DateTime(2000, 1, 1),
+      ),
+    );
+    if (existingOwner.id.isEmpty) {
+      return true;
+    }
+    return existingOwner.id == memberId;
+  }
+
+  List<Permission> _normalizePermissions({
+    required TeamRole role,
+    required List<Permission> incoming,
+  }) {
+    final defaults = _defaultPermissionsByRole[role] ?? _memberPermissions;
+    if (incoming.isEmpty) {
+      return List<Permission>.from(defaults);
+    }
+    final allowedCodes = defaults.map((p) => p.code).toSet();
+    final filtered = incoming.where((p) => allowedCodes.contains(p.code));
+    final normalized = filtered.toList(growable: false);
+    if (normalized.isEmpty) {
+      return List<Permission>.from(defaults);
+    }
+    return normalized;
+  }
+
   @override
   Future<List<TeamMember>> getMembers(String tenantId) async {
     await _delay(480);
@@ -147,8 +189,32 @@ class MockTeamRepositoryImpl implements TeamRepository {
     if (index == -1) {
       return null;
     }
-    _members[index] = member;
-    return member;
+    final existing = _members[index];
+    if (existing.role == TeamRole.owner && member.role != TeamRole.owner) {
+      return null;
+    }
+    if (member.role == TeamRole.owner &&
+        !_canAssignOwnerRole(member.tenantId, member.id)) {
+      return null;
+    }
+    final normalizedPermissions = _normalizePermissions(
+      role: member.role,
+      incoming: member.permissions,
+    );
+    final updated = TeamMember(
+      id: member.id,
+      tenantId: member.tenantId,
+      email: member.email,
+      displayName: member.displayName,
+      role: member.role,
+      permissions: normalizedPermissions,
+      isActive: member.isActive,
+      createdAt: member.createdAt,
+      phoneNumber: member.phoneNumber,
+      avatarUrl: member.avatarUrl,
+    );
+    _members[index] = updated;
+    return updated;
   }
 
   @override

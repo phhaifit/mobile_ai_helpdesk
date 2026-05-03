@@ -769,7 +769,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   Future<void> _handleDeleteInvitation(String invitationId, AppLocalizations l) async {
-    await _teamStore.declineInvitation(invitationId);
+    await _teamStore.deleteInvitation(invitationId);
     if (!mounted) {
       return;
     }

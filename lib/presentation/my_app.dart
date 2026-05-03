@@ -15,7 +15,6 @@ import '../di/service_locator.dart';
 class MyApp extends StatelessWidget {
   final ThemeStore _themeStore = getIt<ThemeStore>();
   final LanguageStore _languageStore = getIt<LanguageStore>();
-  
   MyApp({super.key});
 
   @override
@@ -26,14 +25,16 @@ class MyApp extends StatelessWidget {
           navigatorKey: AppNavigator.key,
           debugShowCheckedModeBanner: false,
           title: Strings.appName,
-          theme: _themeStore.darkMode
-              ? AppThemeData.darkThemeData
-              : AppThemeData.lightThemeData,
+          theme:
+              _themeStore.darkMode
+                  ? AppThemeData.darkThemeData
+                  : AppThemeData.lightThemeData,
           onGenerateRoute: Routes.onGenerateRoute,
           locale: Locale(_languageStore.locale),
-          supportedLocales: _languageStore.supportedLanguages
-              .map((language) => Locale(language.locale, language.code))
-              .toList(),
+          supportedLocales:
+              _languageStore.supportedLanguages
+                  .map((language) => Locale(language.locale, language.code))
+                  .toList(),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
