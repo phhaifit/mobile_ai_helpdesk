@@ -34,8 +34,23 @@ abstract class _TicketTabStoreBase with Store {
   bool isCreateMode = false;
 
   @observable
-  ObservableFuture<List<Ticket>> loadTicketsFuture =
-      ObservableFuture.value(const []);
+  ObservableFuture<List<Ticket>> loadTicketsFuture = ObservableFuture.value(
+    const [],
+  );
+
+  @observable
+  ObservableFuture<List<Ticket>> loadMoreFuture = ObservableFuture.value(
+    const [],
+  );
+
+  @observable
+  int offset = 0;
+
+  @observable
+  int limit = 20;
+
+  @observable
+  bool hasMore = true;
 
   @observable
   String? errorMessage;
@@ -55,6 +70,9 @@ abstract class _TicketTabStoreBase with Store {
   @computed
   bool get isLoading => loadTicketsFuture.status == FutureStatus.pending;
 
+  @computed
+  bool get isLoadingMore => loadMoreFuture.status == FutureStatus.pending;
+
   TicketTabScope get _currentTabScope {
     switch (selectedTabIndex) {
       case 0:
@@ -70,11 +88,10 @@ abstract class _TicketTabStoreBase with Store {
   @action
   Future<void> loadTickets() async {
     errorMessage = null;
+    offset = 0;
+    hasMore = true;
 
-    final params = TicketQueryParams(
-      tab: _currentTabScope,
-      currentAgentId: currentAgentId,
-    );
+    final params = _buildQueryParams(offsetOverride: offset);
 
     loadTicketsFuture = ObservableFuture(
       _getTicketsUseCase.call(params: params),
@@ -82,11 +99,46 @@ abstract class _TicketTabStoreBase with Store {
 
     try {
       allTickets = await loadTicketsFuture;
+      if (_shouldUseServerStatusFilter) {
+        hasMore = false;
+      } else {
+        hasMore = allTickets.length >= limit;
+      }
       _updateFilteredTickets();
     } catch (e) {
       errorMessage = e.toString();
       allTickets = [];
       filteredTickets = [];
+    }
+  }
+
+  @action
+  Future<void> loadMore() async {
+    if (isLoading ||
+        isLoadingMore ||
+        !hasMore ||
+        _shouldUseServerStatusFilter) {
+      return;
+    }
+    errorMessage = null;
+
+    final nextOffset = allTickets.length;
+    final params = _buildQueryParams(offsetOverride: nextOffset);
+
+    loadMoreFuture = ObservableFuture(_getTicketsUseCase.call(params: params));
+
+    try {
+      final moreTickets = await loadMoreFuture;
+      if (moreTickets.isEmpty) {
+        hasMore = false;
+        return;
+      }
+
+      allTickets = [...allTickets, ...moreTickets];
+      hasMore = moreTickets.length >= limit;
+      _updateFilteredTickets();
+    } catch (e) {
+      errorMessage = e.toString();
     }
   }
 
@@ -99,18 +151,31 @@ abstract class _TicketTabStoreBase with Store {
   @action
   void setSearchQuery(String query) {
     searchQuery = query;
+    if (_shouldUseServerSearch) {
+      loadTickets();
+      return;
+    }
     _updateFilteredTickets();
   }
 
   @action
   void setFilter(TicketFilter filter) {
     activeFilter = filter;
+    if (_shouldUseServerStatusFilter) {
+      loadTickets();
+      return;
+    }
     _updateFilteredTickets();
   }
 
   @action
   void clearFilter() {
+    final hadServerFilter = _shouldUseServerStatusFilter;
     activeFilter = TicketFilter.empty();
+    if (hadServerFilter) {
+      loadTickets();
+      return;
+    }
     _updateFilteredTickets();
   }
 
@@ -130,6 +195,9 @@ abstract class _TicketTabStoreBase with Store {
   List<Ticket> _applyTabFilter(List<Ticket> tickets) {
     switch (selectedTabIndex) {
       case 0: // "Phiếu hỗ trợ của tôi" - Assigned to current agent
+        if (currentAgentId.isEmpty) {
+          return tickets;
+        }
         return tickets
             .where((ticket) => ticket.assignedAgentId == currentAgentId)
             .toList();
@@ -150,10 +218,12 @@ abstract class _TicketTabStoreBase with Store {
 
     final normalizedQuery = searchQuery.toLowerCase();
     return tickets
-        .where((ticket) =>
-            ticket.title.toLowerCase().contains(normalizedQuery) ||
-            ticket.id.toLowerCase().contains(normalizedQuery) ||
-            ticket.customerName.toLowerCase().contains(normalizedQuery))
+        .where(
+          (ticket) =>
+              ticket.title.toLowerCase().contains(normalizedQuery) ||
+              ticket.id.toLowerCase().contains(normalizedQuery) ||
+              ticket.customerName.toLowerCase().contains(normalizedQuery),
+        )
         .toList();
   }
 
@@ -171,7 +241,8 @@ abstract class _TicketTabStoreBase with Store {
       }
 
       // Filter by priorities
-      if (activeFilter.priorities != null && activeFilter.priorities!.isNotEmpty) {
+      if (activeFilter.priorities != null &&
+          activeFilter.priorities!.isNotEmpty) {
         if (!activeFilter.priorities!.contains(ticket.priority)) {
           return false;
         }
@@ -185,21 +256,24 @@ abstract class _TicketTabStoreBase with Store {
       }
 
       // Filter by categories
-      if (activeFilter.categories != null && activeFilter.categories!.isNotEmpty) {
+      if (activeFilter.categories != null &&
+          activeFilter.categories!.isNotEmpty) {
         if (!activeFilter.categories!.contains(ticket.category)) {
           return false;
         }
       }
 
       // Filter by created by (agent)
-      if (activeFilter.createdById != null && activeFilter.createdById!.isNotEmpty) {
+      if (activeFilter.createdById != null &&
+          activeFilter.createdById!.isNotEmpty) {
         if (ticket.createdByID != activeFilter.createdById) {
           return false;
         }
       }
 
       // Filter by customer
-      if (activeFilter.customerId != null && activeFilter.customerId!.isNotEmpty) {
+      if (activeFilter.customerId != null &&
+          activeFilter.customerId!.isNotEmpty) {
         if (ticket.customerId != activeFilter.customerId) {
           return false;
         }
@@ -257,10 +331,7 @@ abstract class _TicketTabStoreBase with Store {
     try {
       errorMessage = null;
       await _assignAgentUseCase.call(
-        params: AssignAgentParams(
-          ticketId: ticket.id,
-          agentId: currentAgentId,
-        ),
+        params: AssignAgentParams(ticketId: ticket.id, agentId: currentAgentId),
       );
       await loadTickets();
     } catch (e) {
@@ -279,10 +350,7 @@ abstract class _TicketTabStoreBase with Store {
 
     try {
       await _assignAgentUseCase.call(
-        params: AssignAgentParams(
-          ticketId: ticket.id,
-          agentId: null,
-        ),
+        params: AssignAgentParams(ticketId: ticket.id, agentId: null),
       );
       await loadTickets();
       return true;
@@ -305,5 +373,31 @@ abstract class _TicketTabStoreBase with Store {
   @action
   void closeCreateMode() {
     isCreateMode = false;
+  }
+
+  bool get _shouldUseServerSearch => _currentTabScope == TicketTabScope.all;
+
+  bool get _shouldUseServerStatusFilter =>
+      _currentTabScope == TicketTabScope.my &&
+      activeFilter.statuses != null &&
+      activeFilter.statuses!.length == 1;
+
+  TicketQueryParams _buildQueryParams({required int offsetOverride}) {
+    var params = TicketQueryParams(
+      tab: _currentTabScope,
+      currentAgentId: currentAgentId,
+      offset: offsetOverride,
+      limit: limit,
+    );
+
+    if (_currentTabScope == TicketTabScope.all && searchQuery.isNotEmpty) {
+      params = params.copyWith(search: searchQuery.trim());
+    }
+
+    if (_shouldUseServerStatusFilter) {
+      params = params.copyWith(statuses: activeFilter.statuses);
+    }
+
+    return params;
   }
 }

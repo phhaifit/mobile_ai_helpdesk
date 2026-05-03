@@ -38,13 +38,17 @@ class MockTicketRepositoryImpl implements TicketRepository {
         if (params.currentAgentId == null || params.currentAgentId!.isEmpty) {
           result = [];
         } else {
-          result = result
-              .where((ticket) => ticket.assignedAgentId == params.currentAgentId)
-              .toList();
+          result =
+              result
+                  .where(
+                    (ticket) => ticket.assignedAgentId == params.currentAgentId,
+                  )
+                  .toList();
         }
         break;
       case TicketTabScope.unassigned:
-        result = result.where((ticket) => ticket.assignedAgentId == null).toList();
+        result =
+            result.where((ticket) => ticket.assignedAgentId == null).toList();
         break;
       case TicketTabScope.all:
         break;
@@ -52,39 +56,54 @@ class MockTicketRepositoryImpl implements TicketRepository {
 
     if (params.search != null && params.search!.trim().isNotEmpty) {
       final query = params.search!.trim().toLowerCase();
-      result = result.where((ticket) {
-        return ticket.id.toLowerCase().contains(query) ||
-            ticket.title.toLowerCase().contains(query) ||
-            ticket.customerName.toLowerCase().contains(query);
-      }).toList();
+      result =
+          result.where((ticket) {
+            return ticket.id.toLowerCase().contains(query) ||
+                ticket.title.toLowerCase().contains(query) ||
+                ticket.customerName.toLowerCase().contains(query);
+          }).toList();
     }
 
     if (params.statuses != null && params.statuses!.isNotEmpty) {
-      result = result.where((ticket) => params.statuses!.contains(ticket.status)).toList();
+      result =
+          result
+              .where((ticket) => params.statuses!.contains(ticket.status))
+              .toList();
     }
 
     if (params.priorities != null && params.priorities!.isNotEmpty) {
-      result = result
-          .where((ticket) => params.priorities!.contains(ticket.priority))
-          .toList();
+      result =
+          result
+              .where((ticket) => params.priorities!.contains(ticket.priority))
+              .toList();
     }
 
     if (params.sources != null && params.sources!.isNotEmpty) {
-      result = result.where((ticket) => params.sources!.contains(ticket.source)).toList();
+      result =
+          result
+              .where((ticket) => params.sources!.contains(ticket.source))
+              .toList();
     }
 
     if (params.categories != null && params.categories!.isNotEmpty) {
-      result = result
-          .where((ticket) => params.categories!.contains(ticket.category))
-          .toList();
+      result =
+          result
+              .where((ticket) => params.categories!.contains(ticket.category))
+              .toList();
     }
 
     if (params.createdById != null && params.createdById!.isNotEmpty) {
-      result = result.where((ticket) => ticket.createdByID == params.createdById).toList();
+      result =
+          result
+              .where((ticket) => ticket.createdByID == params.createdById)
+              .toList();
     }
 
     if (params.customerId != null && params.customerId!.isNotEmpty) {
-      result = result.where((ticket) => ticket.customerId == params.customerId).toList();
+      result =
+          result
+              .where((ticket) => ticket.customerId == params.customerId)
+              .toList();
     }
 
     if (params.fromDate != null) {
@@ -93,7 +112,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
         params.fromDate!.month,
         params.fromDate!.day,
       );
-      result = result.where((ticket) => !ticket.createdAt.isBefore(fromDateStart)).toList();
+      result =
+          result
+              .where((ticket) => !ticket.createdAt.isBefore(fromDateStart))
+              .toList();
     }
 
     if (params.toDate != null) {
@@ -105,7 +127,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
         59,
         59,
       );
-      result = result.where((ticket) => !ticket.createdAt.isAfter(toDateEnd)).toList();
+      result =
+          result
+              .where((ticket) => !ticket.createdAt.isAfter(toDateEnd))
+              .toList();
     }
 
     return List.unmodifiable(result);
@@ -145,9 +170,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
     }
 
     final now = DateTime.now();
-    final resolvedAt = ticket.status == TicketStatus.resolved
-        ? (ticket.resolvedAt ?? now)
-        : ticket.resolvedAt;
+    final resolvedAt =
+        ticket.status == TicketStatus.resolved
+            ? (ticket.resolvedAt ?? now)
+            : ticket.resolvedAt;
 
     final updatedTicket = ticket.copyWith(
       createdAt: existingTicket.createdAt,
@@ -176,7 +202,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
   }
 
   @override
-  Future<Ticket> assignAgent({required String ticketId, String? agentId}) async {
+  Future<Ticket> assignAgent({
+    required String ticketId,
+    String? agentId,
+  }) async {
     await _simulateDelay();
 
     final ticket = _localDataSource.getTicketById(ticketId);
@@ -208,7 +237,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
   }
 
   @override
-  Future<Comment> addComment({required String ticketId, required Comment comment}) async {
+  Future<Comment> addComment({
+    required String ticketId,
+    required Comment comment,
+  }) async {
     await _simulateDelay();
 
     final ticket = _localDataSource.getTicketById(ticketId);
@@ -218,9 +250,10 @@ class MockTicketRepositoryImpl implements TicketRepository {
 
     final now = DateTime.now();
     final createdComment = comment.copyWith(
-      id: comment.id.isEmpty
-          ? 'comment_${now.millisecondsSinceEpoch}'
-          : comment.id,
+      id:
+          comment.id.isEmpty
+              ? 'comment_${now.millisecondsSinceEpoch}'
+              : comment.id,
       ticketId: ticketId,
       createdAt: comment.createdAt,
       updatedAt: now,
