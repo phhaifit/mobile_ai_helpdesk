@@ -16,8 +16,10 @@ import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart'
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
+import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
+import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
@@ -26,6 +28,9 @@ import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart'
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/knowledge/knowledge_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/marketing_broadcast_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/marketing_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_broadcast_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/marketing/mock_marketing_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/monetization/mock_monetization_repository_impl.dart';
@@ -46,6 +51,7 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
@@ -55,8 +61,8 @@ import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
-
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
     final getIt = GetIt.instance;
@@ -168,7 +174,37 @@ class RepositoryModule {
       MockMonetizationRepositoryImpl(),
     );
 
-    getIt.registerSingleton<MarketingRepository>(MockMarketingRepositoryImpl());
+    // Toggle to swap between in-memory mocks and real backend impls.
+    // Flip to false once backend ships /broadcasts/recipients filters,
+    // /broadcasts/{id}/receipts, and the realtime channel.
+    const bool kUseMarketingMock = true;
+
+    if (kUseMarketingMock) {
+      getIt.registerSingleton<MockBroadcastRealtimeSimulator>(
+        MockBroadcastRealtimeSimulator(getIt<EventBus>()),
+      );
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MockMarketingBroadcastRepositoryImpl(
+          simulator: getIt<MockBroadcastRealtimeSimulator>(),
+        ),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MockMarketingRepositoryImpl(),
+      );
+    } else { // ignore: dead_code
+      getIt.registerSingleton<MarketingBroadcastApi>(
+        MarketingBroadcastApi(getIt<DioClient>()),
+      );
+      getIt.registerSingleton<MarketingBroadcastRepository>(
+        MarketingBroadcastRepositoryImpl(getIt<MarketingBroadcastApi>()),
+      );
+      getIt.registerSingleton<MarketingRepository>(
+        MarketingRepositoryImpl(
+          getIt<MarketingBroadcastRepository>(),
+          getIt<DioClient>(),
+        ),
+      );
+    }
 
     // --- Prompt Repository ---
     getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());

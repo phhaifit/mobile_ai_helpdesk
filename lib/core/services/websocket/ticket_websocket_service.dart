@@ -29,7 +29,7 @@ class TicketWebSocketService {
   final AsyncValueGetter<String?> _getToken;
 
   WebSocketChannel? _channel;
-  StreamSubscription? _streamSub;
+  StreamSubscription<dynamic>? _streamSub;
   String? _connectedTicketId;
 
   final _commentController = StreamController<Comment>.broadcast();
