@@ -617,7 +617,6 @@
   "customer_add_edit_tag_name_label": "Tên thẻ",
   "customer_add_edit_contact_type_title": "Chọn loại liên hệ",
   "common_add": "Thêm",
-  "common_cancel": "Hủy",
   "customer_merge_title": "Hợp nhất thông tin khách hàng",
   "customer_merge_customer_label": "Khách hàng %d",
   "customer_merge_select_hint": "Chọn khách hàng",

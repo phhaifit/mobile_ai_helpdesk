@@ -121,6 +121,7 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
+        getIt<StackHeadersInterceptor>(),
         getIt<AuthInterceptor>(),
         getIt<TenantHeaderInterceptor>(),
         getIt<RefreshTokenInterceptor>(),
@@ -152,8 +153,12 @@ class NetworkModule {
     );
 
     // api classes:-------------------------------------------------------------
-    getIt.registerSingleton<AiAgentApi>(AiAgentApi(getIt<DioClient>()));
-    getIt.registerSingleton<PlaygroundApi>(PlaygroundApi(getIt<DioClient>()));
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<PlaygroundApi>(
+      PlaygroundApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
     // websocket:---------------------------------------------------------------
     getIt.registerSingleton<TicketWebSocketService>(
       TicketWebSocketService(

@@ -18,7 +18,7 @@ class AccountApi {
   /// Marked `skipTenant` because tenantID is unknown until this call succeeds.
   Future<Map<String, dynamic>> ssoValidate() async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '${Endpoints.ssoValidateBaseUrl}${Endpoints.accountSsoValidate}',
+      Endpoints.accountSsoValidate,
       options: Options(extra: const <String, dynamic>{'skipTenant': true}),
     );
     return response.data ?? <String, dynamic>{};

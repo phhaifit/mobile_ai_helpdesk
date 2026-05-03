@@ -610,7 +610,6 @@
   "customer_add_edit_tag_name_label": "Tag Name",
   "customer_add_edit_contact_type_title": "Select Contact Type",
   "common_add": "Add",
-  "common_cancel": "Cancel",
   "customer_merge_title": "Merge Customer Information",
   "customer_merge_customer_label": "Customer %d",
   "customer_merge_select_hint": "Select customer",
