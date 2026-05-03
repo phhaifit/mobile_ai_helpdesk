@@ -23,8 +23,8 @@ class ApiResponseParser {
   static List<Map<String, dynamic>> asMapList(dynamic payload) {
     final unwrapped = unwrap(payload);
     if (unwrapped is List) {
-      return unwrapped
-          .whereType<Map>()
+        return unwrapped
+          .whereType<Map<String, dynamic>>()
           .map((item) => Map<String, dynamic>.from(item))
           .toList(growable: false);
     }
@@ -32,8 +32,8 @@ class ApiResponseParser {
       for (final key in const ['items', 'results', 'records']) {
         final value = unwrapped[key];
         if (value is List) {
-          return value
-              .whereType<Map>()
+            return value
+              .whereType<Map<String, dynamic>>()
               .map((item) => Map<String, dynamic>.from(item))
               .toList(growable: false);
         }
