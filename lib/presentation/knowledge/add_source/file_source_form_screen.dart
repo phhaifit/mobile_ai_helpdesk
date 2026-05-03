@@ -1,19 +1,32 @@
-import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
-import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
+/// Local-file import form.  Uses the real `file_picker` plugin to pick a
+/// document, multipart-uploads via `POST /local-file`, and shows live upload
+/// progress reactively from the store.
 class FileSourceFormScreen extends StatefulWidget {
   final KnowledgeStore store;
 
-  const FileSourceFormScreen({super.key, required this.store});
+  const FileSourceFormScreen({required this.store, super.key});
 
   @override
   State<FileSourceFormScreen> createState() => _FileSourceFormScreenState();
 }
 
 class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
-  String? _mockFileName;
-  bool _isSaving = false;
+  static const _accent = Color(0xFF1A73E8);
+  static const _allowedExtensions = ['pdf', 'docx', 'doc', 'txt', 'csv', 'xlsx'];
+  static const _maxSizeBytes = 50 * 1024 * 1024; // 50 MB
+
+  File? _file;
+  String? _fileName;
+  int _fileSize = 0;
+  String? _localError;
+  bool _saving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +37,13 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _saving ? null : () => Navigator.pop(context),
         ),
-        title: const Text('Tệp tin',
-            style: TextStyle(
-                color: Colors.black87, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.grey),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
+        title: const Text(
+          'Tệp tin',
+          style:
+              TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Column(
         children: [
@@ -45,57 +54,58 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildLabel('Tệp tin', required: true),
+                  _label('Tệp tin', required: true),
                   const SizedBox(height: 10),
-                  _buildFilePicker(),
-                  if (_mockFileName != null) ...[
+                  _picker(),
+                  if (_file != null) ...[
                     const SizedBox(height: 10),
-                    _buildSelectedFile(),
+                    _selected(),
                   ],
                   const SizedBox(height: 8),
                   Text(
-                    'Định dạng hỗ trợ: PDF, DOCX, TXT, CSV, XLSX',
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    'Định dạng hỗ trợ: ${_allowedExtensions.map((e) => e.toUpperCase()).join(', ')} • Tối đa 50 MB',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
+                  if (_localError != null) ...[
+                    const SizedBox(height: 12),
+                    _errorBanner(_localError!),
+                  ],
+                  Observer(builder: (_) {
+                    if (widget.store.uploadProgress == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _uploadProgress(widget.store.uploadProgress!),
+                    );
+                  }),
+                  Observer(builder: (_) {
+                    final err = widget.store.errorMessage;
+                    if (!_saving || err == null) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: _errorBanner(err),
+                    );
+                  }),
                 ],
               ),
             ),
           ),
-          _buildBottomBar(),
+          _bottomBar(),
         ],
       ),
     );
   }
 
-  Widget _buildLabel(String text, {bool required = false}) {
-    return RichText(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(
-            fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black87),
-        children: required
-            ? const [
-                TextSpan(
-                    text: ' *',
-                    style: TextStyle(color: Colors.red, fontSize: 13))
-              ]
-            : [],
-      ),
-    );
-  }
-
-  Widget _buildFilePicker() {
+  Widget _picker() {
     return GestureDetector(
-      onTap: _mockPickFile,
+      onTap: _saving ? null : _pickFile,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 40),
         decoration: BoxDecoration(
           border: Border.all(
-            color: _mockFileName != null
-                ? const Color(0xFF1A73E8)
-                : Colors.grey[300]!,
+            color: _file != null ? _accent : Colors.grey[300]!,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -106,19 +116,22 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
             Icon(Icons.cloud_upload_outlined,
                 size: 40, color: Colors.grey[400]),
             const SizedBox(height: 10),
-            const Text('Nhấn để tải lên tệp',
-                style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w500)),
+            const Text(
+              'Nhấn để chọn tệp',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 4),
-            Text('PDF, DOCX, TXT, CSV, XLSX',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+            Text(
+              _allowedExtensions.map((e) => e.toUpperCase()).join(', '),
+              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSelectedFile() {
+  Widget _selected() {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -128,31 +141,89 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.insert_drive_file,
-              color: Color(0xFF1A73E8), size: 28),
+          const Icon(Icons.insert_drive_file, color: _accent, size: 28),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_mockFileName!,
-                    style: const TextStyle(fontWeight: FontWeight.w500)),
-                Text('204 KB',
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text(
+                  _fileName ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  _formatBytes(_fileSize),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: () => setState(() => _mockFileName = null),
-            child: const Icon(Icons.close, size: 18, color: Colors.grey),
+          IconButton(
+            icon: const Icon(Icons.close, size: 18, color: Colors.grey),
+            onPressed: _saving
+                ? null
+                : () => setState(() {
+                      _file = null;
+                      _fileName = null;
+                      _fileSize = 0;
+                    }),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _uploadProgress(double progress) {
+    final pct = (progress * 100).clamp(0, 100).toStringAsFixed(0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Đang tải lên… $pct%',
+          style: const TextStyle(fontSize: 13, color: Colors.black87),
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 6,
+            backgroundColor: Colors.grey[200],
+            valueColor: const AlwaysStoppedAnimation(_accent),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _errorBanner(String msg) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFFEE2E2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline,
+              color: Color(0xFFDC2626), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              msg,
+              style: const TextStyle(color: Color(0xFFDC2626), fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bottomBar() {
     return Container(
       padding: EdgeInsets.fromLTRB(
           16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
@@ -164,12 +235,13 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _saving ? null : () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 side: BorderSide(color: Colors.grey[300]!),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: const Text('Đóng',
                   style: TextStyle(color: Colors.black87)),
@@ -178,25 +250,28 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: (_mockFileName == null || _isSaving) ? null : _submit,
+              onPressed: (_file == null || _saving) ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A73E8),
+                backgroundColor: _accent,
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: Colors.grey[300],
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 elevation: 0,
               ),
-              child: _isSaving
+              child: _saving
                   ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2),
                     )
-                  : const Text('Xác nhận',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  : const Text(
+                      'Tải lên',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
         ],
@@ -204,24 +279,82 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
     );
   }
 
-  void _mockPickFile() {
-    setState(() => _mockFileName = 'tai_lieu_noi_bo.docx');
+  Widget _label(String text, {bool required = false}) {
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+        children: required
+            ? const [
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: Colors.red, fontSize: 13),
+                ),
+              ]
+            : const [],
+      ),
+    );
+  }
+
+  Future<void> _pickFile() async {
+    setState(() => _localError = null);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: _allowedExtensions,
+      withData: false,
+      allowMultiple: false,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final picked = result.files.single;
+    final path = picked.path;
+    if (path == null) {
+      setState(() => _localError = 'Không lấy được đường dẫn tệp.');
+      return;
+    }
+    final size = picked.size;
+    if (size > _maxSizeBytes) {
+      setState(() {
+        _localError =
+            'Tệp vượt quá ${_formatBytes(_maxSizeBytes)} — vui lòng chọn tệp nhỏ hơn.';
+      });
+      return;
+    }
+
+    setState(() {
+      _file = File(path);
+      _fileName = picked.name;
+      _fileSize = size;
+    });
   }
 
   Future<void> _submit() async {
-    if (_mockFileName == null) return;
-    setState(() => _isSaving = true);
-    final source = KnowledgeSource(
-      id: '',
-      name: _mockFileName!,
-      type: KnowledgeSourceType.localFile,
-      status: KnowledgeSourceStatus.indexing,
-      lastSyncAt: DateTime.now(),
-      crawlInterval: CrawlInterval.manual,
-      config: {'fileName': _mockFileName, 'fileSize': 204800},
-    );
-    await widget.store.addSource(source);
-    setState(() => _isSaving = false);
-    if (mounted) Navigator.pop(context);
+    final file = _file;
+    final name = _fileName;
+    if (file == null || name == null) return;
+    setState(() {
+      _saving = true;
+      _localError = null;
+    });
+    final result = await widget.store
+        .importLocalFile(file: file, fileName: name)
+        .catchError((Object _) => null);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (result != null) {
+      Navigator.pop(context);
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

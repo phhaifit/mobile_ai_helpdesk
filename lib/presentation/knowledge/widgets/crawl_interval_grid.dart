@@ -1,21 +1,22 @@
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:flutter/material.dart';
 
+/// Compact 2x2 picker for [CrawlInterval], used inside add-source forms.
 class CrawlIntervalGrid extends StatelessWidget {
   final CrawlInterval selected;
   final ValueChanged<CrawlInterval> onSelected;
 
   const CrawlIntervalGrid({
-    super.key,
     required this.selected,
     required this.onSelected,
+    super.key,
   });
 
-  static const _options = [
-    (CrawlInterval.manual, '1 lần', 'Chạy 1 lần duy nhất và không lặp lại'),
-    (CrawlInterval.daily, 'Hàng ngày', 'Chạy ngay bây giờ và lặp lại sau 1 ngày'),
-    (CrawlInterval.weekly, 'Hàng tuần', 'Chạy ngay bây giờ và lặp lại sau 7 ngày'),
-    (CrawlInterval.monthly, 'Hàng tháng', 'Chạy ngay bây giờ và lặp lại sau 30 ngày'),
+  static const _options = <_Option>[
+    _Option(CrawlInterval.once, '1 lần', 'Chạy 1 lần và không lặp lại'),
+    _Option(CrawlInterval.daily, 'Hàng ngày', 'Lặp lại sau mỗi ngày'),
+    _Option(CrawlInterval.weekly, 'Hàng tuần', 'Lặp lại sau mỗi tuần'),
+    _Option(CrawlInterval.monthly, 'Hàng tháng', 'Lặp lại sau mỗi tháng'),
   ];
 
   @override
@@ -28,21 +29,22 @@ class CrawlIntervalGrid extends StatelessWidget {
       mainAxisSpacing: 10,
       childAspectRatio: 2.2,
       children: _options.map((option) {
-        final (interval, title, subtitle) = option;
-        final isSelected = selected == interval;
+        final isSelected = selected == option.interval;
         return GestureDetector(
-          onTap: () => onSelected(interval),
+          onTap: () => onSelected(option.interval),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               border: Border.all(
-                color: isSelected ? const Color(0xFF1A73E8) : Colors.grey[200]!,
+                color: isSelected
+                    ? const Color(0xFF1A73E8)
+                    : Colors.grey[200]!,
                 width: isSelected ? 1.5 : 1,
               ),
               borderRadius: BorderRadius.circular(8),
               color: isSelected
-                  ? const Color(0xFF1A73E8).withOpacity(0.05)
+                  ? const Color(0xFF1A73E8).withValues(alpha: 0.05)
                   : Colors.white,
             ),
             child: Column(
@@ -50,7 +52,7 @@ class CrawlIntervalGrid extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  title,
+                  option.title,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -61,7 +63,7 @@ class CrawlIntervalGrid extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  subtitle,
+                  option.subtitle,
                   style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -73,4 +75,11 @@ class CrawlIntervalGrid extends StatelessWidget {
       }).toList(),
     );
   }
+}
+
+class _Option {
+  final CrawlInterval interval;
+  final String title;
+  final String subtitle;
+  const _Option(this.interval, this.title, this.subtitle);
 }
