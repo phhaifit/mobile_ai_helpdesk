@@ -10,9 +10,6 @@ class Preferences {
   static const String isDarkMode = 'is_dark_mode';
   static const String currentLanguage = 'current_language';
 
-  // Tenant context
-  static const String currentTenantId = 'current_tenant_id';
-
   // Analytics - First Launch & Installation
   static const String isAppFirstOpen = 'is_app_first_open';
   static const String firstLaunchTime = 'first_launch_time';

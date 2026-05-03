@@ -55,12 +55,16 @@ class TenantRepositoryImpl implements TenantRepository {
 
   @override
   Future<String?> getCachedTenantId() async {
-    return _sharedPreferenceHelper.currentTenantId;
+    return _sharedPreferenceHelper.tenantId;
   }
 
   @override
   Future<void> saveCachedTenantId(String? tenantId) async {
-    await _sharedPreferenceHelper.saveCurrentTenantId(tenantId);
+    if (tenantId == null || tenantId.trim().isEmpty) {
+      await _sharedPreferenceHelper.removeTenantId();
+      return;
+    }
+    await _sharedPreferenceHelper.saveTenantId(tenantId);
   }
 
   @override
