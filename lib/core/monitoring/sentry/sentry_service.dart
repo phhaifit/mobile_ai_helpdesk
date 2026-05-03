@@ -67,7 +67,9 @@ class SentryService {
         if (context != null && context.isNotEmpty) {
           scope.setTag('error_context', context);
         }
-        extras?.forEach(scope.setExtra);
+        if (extras != null && extras.isNotEmpty) {
+          scope.setContexts('extras', extras);
+        }
       },
     );
   }

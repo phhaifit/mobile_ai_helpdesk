@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CampaignListScreen extends StatefulWidget {
   final bool showAppBar;
@@ -19,6 +20,7 @@ class CampaignListScreen extends StatefulWidget {
 
 class _CampaignListScreenState extends State<CampaignListScreen> {
   late final MarketingStore _store;
+  late final MarketingBroadcastStore _broadcastStore;
   int _rowsPerPage = 10;
   int _currentPage = 1;
 
@@ -26,6 +28,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
   void initState() {
     super.initState();
     _store = getIt<MarketingStore>();
+    _broadcastStore = getIt<MarketingBroadcastStore>();
     _store.fetchOverview();
   }
 
@@ -33,98 +36,313 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
     final nameController = TextEditingController();
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text(
-          'Tạo chiến dịch',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-        content: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Tên chiến dịch', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  hintText: 'Nhập tên chiến dịch...',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      builder: (ctx) {
+        final width = MediaQuery.of(context).size.width;
+        final isSmall = width < 500;
+
+        return AlertDialog(
+          title: const Text(
+            'Tạo chiến dịch',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          content: SizedBox(
+            width: isSmall ? width * 0.85 : 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tên chiến dịch',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F4FD),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFBBDEFB)),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFF1976D2)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Bạn có thể cấu hình chi tiết kênh gửi, đối tượng nhận và lịch gửi sau khi tạo chiến dịch.',
-                        style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
-                      ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    hintText: 'Nhập tên chiến dịch...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F4FD),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFBBDEFB)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.lightbulb_outline,
+                        size: 16,
+                        color: Color(0xFF1976D2),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Bạn có thể cấu hình chi tiết kênh gửi, đối tượng nhận và lịch gửi sau khi tạo chiến dịch.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = nameController.text.trim();
-              if (name.isEmpty) return;
-              Navigator.pop(ctx);
-              _store.setDraftCampaignName(name);
-              Navigator.pushNamed(context, Routes.campaignCreate)
-                  .then((_) => _store.fetchCampaigns());
-            },
-            child: const Text('Bắt đầu'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Hủy'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) return;
+                Navigator.pop(ctx);
+                _store.setDraftCampaignName(name);
+                Navigator.pushNamed(
+                  context,
+                  Routes.campaignCreate,
+                ).then((_) => _store.fetchCampaigns());
+              },
+              child: const Text('Bắt đầu'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+
     return Scaffold(
-      appBar: widget.showAppBar
-          ? AppBar(
-              leading: widget.onMenuTap != null
-                  ? IconButton(icon: const Icon(Icons.menu), onPressed: widget.onMenuTap)
-                  : null,
-              title: Text(l.translate('marketing_tv_campaigns')),
-            )
-          : null,
+      appBar:
+          widget.showAppBar
+              ? AppBar(
+                leading:
+                    widget.onMenuTap != null
+                        ? IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: widget.onMenuTap,
+                        )
+                        : null,
+                title: Text(l.translate('marketing_tv_campaigns')),
+              )
+              : null,
       backgroundColor: const Color(0xFFF5F5F5),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(isMobile ? 12 : 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, l),
             const SizedBox(height: 16),
-            Expanded(child: _buildTable(l)),
+            Expanded(child: isMobile ? _buildMobileList(l) : _buildTable(l)),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildMobileList(AppLocalizations l) {
+    return Observer(
+      builder: (_) {
+        if (_store.isLoadingOverview) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final campaigns = _store.campaigns.toList();
+        if (campaigns.isEmpty) return _buildEmptyState(l);
+
+        return ListView.builder(
+          itemCount: campaigns.length,
+          itemBuilder: (ctx, i) {
+            final c = campaigns[i];
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            c.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatusChip(c.status, l),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          _channelIcon(c.channel),
+                          size: 16,
+                          color: _channelColor(c.channel),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _channelLabel(c.channel, l),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${c.targeting.estimatedCount} người',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        Text(
+                          c.scheduledAt != null
+                              ? _formatDate(c.scheduledAt!)
+                              : '—',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                _store.selectCampaign(c);
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.campaignDetail,
+                                ).then((_) => _store.fetchCampaigns());
+                              },
+                              icon: const Icon(Icons.open_in_new, size: 16),
+                              label: const Text('Chi tiết'),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                final status = c.status;
+                                if (status == CampaignStatus.draft ||
+                                    status == CampaignStatus.scheduled) {
+                                  _confirmAction(
+                                    context,
+                                    l,
+                                    label: l.translate(
+                                      'marketing_btn_start_campaign',
+                                    ),
+                                    message: 'Bắt đầu chiến dịch "${c.name}"?',
+                                    color: Colors.green,
+                                    icon: Icons.play_arrow_rounded,
+                                    onConfirm: () => _broadcastStore.executeCampaign(c.id).then((_) => _store.fetchCampaigns()),
+                                  );
+                                } else if (status == CampaignStatus.running) {
+                                  _confirmAction(
+                                    context,
+                                    l,
+                                    label: l.translate(
+                                      'marketing_btn_stop_campaign',
+                                    ),
+                                    message: 'Tạm dừng chiến dịch "${c.name}"?',
+                                    color: Colors.orange,
+                                    icon: Icons.pause_rounded,
+                                    onConfirm: () => _broadcastStore.stopCampaign(c.id).then((_) => _store.fetchCampaigns()),
+                                  );
+                                } else if (status == CampaignStatus.paused) {
+                                  _confirmAction(
+                                    context,
+                                    l,
+                                    label: l.translate(
+                                      'marketing_btn_resume_campaign',
+                                    ),
+                                    message: 'Tiếp tục chiến dịch "${c.name}"?',
+                                    color: Colors.green,
+                                    icon: Icons.play_arrow_rounded,
+                                    onConfirm:
+                                        () => _broadcastStore.resumeCampaign(c.id).then((_) => _store.fetchCampaigns()),
+                                  );
+                                }
+                              },
+                              icon: Icon(_getControlIcon(c.status)),
+                              label: Text(_getControlLabel(c.status, l)),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  IconData _getControlIcon(CampaignStatus status) {
+    if (status == CampaignStatus.running) return Icons.pause_rounded;
+    return Icons.play_arrow_rounded;
+  }
+
+  String _getControlLabel(CampaignStatus status, AppLocalizations l) {
+    switch (status) {
+      case CampaignStatus.draft:
+      case CampaignStatus.scheduled:
+        return 'Bắt đầu';
+      case CampaignStatus.running:
+        return 'Dừng';
+      case CampaignStatus.paused:
+        return 'Tiếp tục';
+      default:
+        return '—';
+    }
   }
 
   Widget _buildHeader(BuildContext context, AppLocalizations l) {
@@ -162,7 +380,7 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
         final end = (start + _rowsPerPage).clamp(0, all.length);
         final paged = all.sublist(start, end);
 
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -175,7 +393,9 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
               Expanded(
                 child: ListView.separated(
                   itemCount: paged.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
+                  separatorBuilder:
+                      (_, __) =>
+                          const Divider(height: 1, indent: 16, endIndent: 16),
                   itemBuilder: (ctx, i) => _buildCampaignRow(ctx, paged[i], l),
                 ),
               ),
@@ -193,7 +413,10 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: const BoxDecoration(
         color: Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
       ),
       child: const Row(
         children: [
@@ -208,7 +431,11 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
     );
   }
 
-  Widget _buildCampaignRow(BuildContext ctx, BroadcastCampaign c, AppLocalizations l) {
+  Widget _buildCampaignRow(
+    BuildContext ctx,
+    BroadcastCampaign c,
+    AppLocalizations l,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -220,7 +447,10 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                 Expanded(
                   child: Text(
                     c.name,
-                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -228,13 +458,19 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                 InkWell(
                   onTap: () {
                     _store.selectCampaign(c);
-                    Navigator.pushNamed(ctx, Routes.campaignDetail)
-                        .then((_) => _store.fetchCampaigns());
+                    Navigator.pushNamed(
+                      ctx,
+                      Routes.campaignDetail,
+                    ).then((_) => _store.fetchCampaigns());
                   },
                   borderRadius: BorderRadius.circular(4),
                   child: const Padding(
                     padding: EdgeInsets.all(2),
-                    child: Icon(Icons.open_in_new, size: 14, color: Color(0xFF6B7280)),
+                    child: Icon(
+                      Icons.open_in_new,
+                      size: 14,
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
                 ),
               ],
@@ -252,7 +488,10 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
               ),
               child: Text(
                 '${c.targeting.estimatedCount}',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -275,8 +514,10 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
                   tooltip: 'Chi tiết',
                   onTap: () {
                     _store.selectCampaign(c);
-                    Navigator.pushNamed(ctx, Routes.campaignDetail)
-                        .then((_) => _store.fetchCampaigns());
+                    Navigator.pushNamed(
+                      ctx,
+                      Routes.campaignDetail,
+                    ).then((_) => _store.fetchCampaigns());
                   },
                 ),
                 _ActionIcon(
@@ -293,7 +534,11 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
     );
   }
 
-  Widget _buildQuickControl(BuildContext ctx, BroadcastCampaign c, AppLocalizations l) {
+  Widget _buildQuickControl(
+    BuildContext ctx,
+    BroadcastCampaign c,
+    AppLocalizations l,
+  ) {
     switch (c.status) {
       case CampaignStatus.draft:
       case CampaignStatus.scheduled:
@@ -301,42 +546,48 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
           icon: Icons.play_arrow_rounded,
           tooltip: l.translate('marketing_btn_start_campaign'),
           color: Colors.green,
-          onTap: () => _confirmAction(
-            ctx, l,
-            label: l.translate('marketing_btn_start_campaign'),
-            message: 'Bắt đầu chiến dịch "${c.name}"?',
-            color: Colors.green,
-            icon: Icons.play_arrow_rounded,
-            onConfirm: () => _store.startCampaign(c.id),
-          ),
+          onTap:
+              () => _confirmAction(
+                ctx,
+                l,
+                label: l.translate('marketing_btn_start_campaign'),
+                message: 'Bắt đầu chiến dịch "${c.name}"?',
+                color: Colors.green,
+                icon: Icons.play_arrow_rounded,
+                onConfirm: () => _broadcastStore.executeCampaign(c.id).then((_) => _store.fetchCampaigns()),
+              ),
         );
       case CampaignStatus.running:
         return _ActionIcon(
           icon: Icons.pause_rounded,
           tooltip: l.translate('marketing_btn_stop_campaign'),
           color: Colors.orange,
-          onTap: () => _confirmAction(
-            ctx, l,
-            label: l.translate('marketing_btn_stop_campaign'),
-            message: 'Tạm dừng chiến dịch "${c.name}"?',
-            color: Colors.orange,
-            icon: Icons.pause_rounded,
-            onConfirm: () => _store.stopCampaign(c.id),
-          ),
+          onTap:
+              () => _confirmAction(
+                ctx,
+                l,
+                label: l.translate('marketing_btn_stop_campaign'),
+                message: 'Tạm dừng chiến dịch "${c.name}"?',
+                color: Colors.orange,
+                icon: Icons.pause_rounded,
+                onConfirm: () => _broadcastStore.stopCampaign(c.id).then((_) => _store.fetchCampaigns()),
+              ),
         );
       case CampaignStatus.paused:
         return _ActionIcon(
           icon: Icons.play_arrow_rounded,
           tooltip: l.translate('marketing_btn_resume_campaign'),
           color: Colors.green,
-          onTap: () => _confirmAction(
-            ctx, l,
-            label: l.translate('marketing_btn_resume_campaign'),
-            message: 'Tiếp tục chiến dịch "${c.name}"?',
-            color: Colors.green,
-            icon: Icons.play_arrow_rounded,
-            onConfirm: () => _store.resumeCampaign(c.id),
-          ),
+          onTap:
+              () => _confirmAction(
+                ctx,
+                l,
+                label: l.translate('marketing_btn_resume_campaign'),
+                message: 'Tiếp tục chiến dịch "${c.name}"?',
+                color: Colors.green,
+                icon: Icons.play_arrow_rounded,
+                onConfirm: () => _broadcastStore.resumeCampaign(c.id).then((_) => _store.fetchCampaigns()),
+              ),
         );
       case CampaignStatus.completed:
       case CampaignStatus.failed:
@@ -355,29 +606,33 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
   }) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
-        content: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withValues(alpha: 0.12),
-              child: Icon(icon, color: color),
+      builder:
+          (_) => AlertDialog(
+            content: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: 0.12),
+                  child: Icon(icon, color: color),
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: Text(message)),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: color),
-            onPressed: () {
-              Navigator.pop(ctx);
-              onConfirm();
-            },
-            child: Text(label),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Hủy'),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: color),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onConfirm();
+                },
+                child: Text(label),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -390,7 +645,14 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
       children: [
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -406,7 +668,11 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
       ),
       child: Text(
         _statusLabel(status, l),
-        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -423,7 +689,11 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
               color: AppColors.messengerBlue.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.campaign_outlined, size: 40, color: AppColors.messengerBlue.withValues(alpha: 0.5)),
+            child: Icon(
+              Icons.campaign_outlined,
+              size: 40,
+              color: AppColors.messengerBlue.withValues(alpha: 0.5),
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -447,30 +717,44 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Text('Số dòng mỗi trang:', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+          const Text(
+            'Số dòng mỗi trang:',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
           const SizedBox(width: 8),
           DropdownButton<int>(
             value: _rowsPerPage,
             underline: const SizedBox.shrink(),
             isDense: true,
             style: const TextStyle(fontSize: 12, color: Color(0xFF374151)),
-            items: [5, 10, 20, 50].map((v) => DropdownMenuItem(value: v, child: Text('$v'))).toList(),
-            onChanged: (v) => setState(() {
-              _rowsPerPage = v!;
-              _currentPage = 1;
-            }),
+            items:
+                [5, 10, 20, 50]
+                    .map((v) => DropdownMenuItem(value: v, child: Text('$v')))
+                    .toList(),
+            onChanged:
+                (v) => setState(() {
+                  _rowsPerPage = v!;
+                  _currentPage = 1;
+                }),
           ),
           const SizedBox(width: 16),
-          Text('$_currentPage / $totalPages', style: const TextStyle(fontSize: 12, color: Color(0xFF374151))),
+          Text(
+            '$_currentPage / $totalPages',
+            style: const TextStyle(fontSize: 12, color: Color(0xFF374151)),
+          ),
           IconButton(
             icon: const Icon(Icons.chevron_left, size: 18),
-            onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+            onPressed:
+                _currentPage > 1 ? () => setState(() => _currentPage--) : null,
             padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right, size: 18),
-            onPressed: _currentPage < totalPages ? () => setState(() => _currentPage++) : null,
+            onPressed:
+                _currentPage < totalPages
+                    ? () => setState(() => _currentPage++)
+                    : null,
             padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(),
           ),
@@ -479,24 +763,32 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
     );
   }
 
-  void _confirmDelete(BuildContext ctx, BroadcastCampaign c, AppLocalizations l) {
+  void _confirmDelete(
+    BuildContext ctx,
+    BroadcastCampaign c,
+    AppLocalizations l,
+  ) {
     showDialog(
       context: ctx,
-      builder: (_) => AlertDialog(
-        title: const Text('Xóa chiến dịch'),
-        content: Text('Bạn có chắc muốn xóa "${c.name}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              Navigator.pop(ctx);
-              // Future: _store.deleteCampaign(c.id)
-            },
-            child: const Text('Xóa'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Xóa chiến dịch'),
+            content: Text('Bạn có chắc muốn xóa "${c.name}"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Hủy'),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  // Future: _store.deleteCampaign(c.id)
+                },
+                child: const Text('Xóa'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -506,50 +798,74 @@ class _CampaignListScreenState extends State<CampaignListScreen> {
 
   Color _statusColor(CampaignStatus s) {
     switch (s) {
-      case CampaignStatus.running: return Colors.green;
-      case CampaignStatus.paused: return Colors.orange;
-      case CampaignStatus.completed: return Colors.blue;
-      case CampaignStatus.failed: return Colors.red;
-      case CampaignStatus.scheduled: return Colors.purple;
-      case CampaignStatus.draft: return Colors.grey;
+      case CampaignStatus.running:
+        return Colors.green;
+      case CampaignStatus.paused:
+        return Colors.orange;
+      case CampaignStatus.completed:
+        return Colors.blue;
+      case CampaignStatus.failed:
+        return Colors.red;
+      case CampaignStatus.scheduled:
+        return Colors.purple;
+      case CampaignStatus.draft:
+        return Colors.grey;
     }
   }
 
   String _statusLabel(CampaignStatus s, AppLocalizations l) {
     switch (s) {
-      case CampaignStatus.draft: return l.translate('marketing_tv_status_draft');
-      case CampaignStatus.scheduled: return l.translate('marketing_tv_status_scheduled');
-      case CampaignStatus.running: return l.translate('marketing_tv_status_running');
-      case CampaignStatus.paused: return l.translate('marketing_tv_status_paused');
-      case CampaignStatus.completed: return l.translate('marketing_tv_status_completed');
-      case CampaignStatus.failed: return l.translate('marketing_tv_status_failed');
+      case CampaignStatus.draft:
+        return l.translate('marketing_tv_status_draft');
+      case CampaignStatus.scheduled:
+        return l.translate('marketing_tv_status_scheduled');
+      case CampaignStatus.running:
+        return l.translate('marketing_tv_status_running');
+      case CampaignStatus.paused:
+        return l.translate('marketing_tv_status_paused');
+      case CampaignStatus.completed:
+        return l.translate('marketing_tv_status_completed');
+      case CampaignStatus.failed:
+        return l.translate('marketing_tv_status_failed');
     }
   }
 
   String _channelLabel(CampaignChannel ch, AppLocalizations l) {
     switch (ch) {
-      case CampaignChannel.messenger: return l.translate('marketing_tv_channel_messenger');
-      case CampaignChannel.zalo: return l.translate('marketing_tv_channel_zalo');
-      case CampaignChannel.email: return l.translate('marketing_tv_channel_email');
-      case CampaignChannel.sms: return l.translate('marketing_tv_channel_sms');
+      case CampaignChannel.messenger:
+        return l.translate('marketing_tv_channel_messenger');
+      case CampaignChannel.zalo:
+        return l.translate('marketing_tv_channel_zalo');
+      case CampaignChannel.email:
+        return l.translate('marketing_tv_channel_email');
+      case CampaignChannel.sms:
+        return l.translate('marketing_tv_channel_sms');
     }
   }
 
   IconData _channelIcon(CampaignChannel ch) {
     switch (ch) {
-      case CampaignChannel.messenger: return Icons.chat_bubble_outline;
-      case CampaignChannel.zalo: return Icons.message_outlined;
-      case CampaignChannel.email: return Icons.email_outlined;
-      case CampaignChannel.sms: return Icons.sms_outlined;
+      case CampaignChannel.messenger:
+        return Icons.chat_bubble_outline;
+      case CampaignChannel.zalo:
+        return Icons.message_outlined;
+      case CampaignChannel.email:
+        return Icons.email_outlined;
+      case CampaignChannel.sms:
+        return Icons.sms_outlined;
     }
   }
 
   Color _channelColor(CampaignChannel ch) {
     switch (ch) {
-      case CampaignChannel.messenger: return const Color(0xFF1877F2);
-      case CampaignChannel.zalo: return const Color(0xFF0068FF);
-      case CampaignChannel.email: return Colors.teal;
-      case CampaignChannel.sms: return Colors.purple;
+      case CampaignChannel.messenger:
+        return const Color(0xFF1877F2);
+      case CampaignChannel.zalo:
+        return const Color(0xFF0068FF);
+      case CampaignChannel.email:
+        return Colors.teal;
+      case CampaignChannel.sms:
+        return Colors.purple;
     }
   }
 }
@@ -562,7 +878,11 @@ class _HeaderCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF6B7280),
+      ),
     );
   }
 }
@@ -573,7 +893,12 @@ class _ActionIcon extends StatelessWidget {
   final VoidCallback onTap;
   final Color? color;
 
-  const _ActionIcon({required this.icon, required this.tooltip, required this.onTap, this.color});
+  const _ActionIcon({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {

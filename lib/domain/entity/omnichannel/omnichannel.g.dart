@@ -31,10 +31,7 @@ MessengerIntegrationState _$MessengerIntegrationStateFromJson(
       json['lastSyncAt'] == null
           ? null
           : DateTime.parse(json['lastSyncAt'] as String),
-  syncedCustomers: (json['syncedCustomers'] as num).toInt(),
-  failedCustomers: (json['failedCustomers'] as num).toInt(),
   autoReply: json['autoReply'] as bool,
-  language: json['language'] as String,
   businessHours: json['businessHours'] as String,
 );
 
@@ -46,10 +43,7 @@ Map<String, dynamic> _$MessengerIntegrationStateToJson(
   'oauthState': _$OAuthStateEnumMap[instance.oauthState]!,
   'pageName': instance.pageName,
   'lastSyncAt': instance.lastSyncAt?.toIso8601String(),
-  'syncedCustomers': instance.syncedCustomers,
-  'failedCustomers': instance.failedCustomers,
   'autoReply': instance.autoReply,
-  'language': instance.language,
   'businessHours': instance.businessHours,
 };
 

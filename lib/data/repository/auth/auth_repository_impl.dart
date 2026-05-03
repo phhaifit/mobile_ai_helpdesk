@@ -1,168 +1,209 @@
+import 'package:ai_helpdesk/constants/env.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
+import 'package:ai_helpdesk/data/auth/oauth_pkce.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:ai_helpdesk/data/network/apis/auth/auth_api.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
+import 'package:ai_helpdesk/data/network/stack_error_mapper.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_failure.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_session.dart';
+import 'package:ai_helpdesk/domain/entity/auth/otp_send_result.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
-/// Auth Repository Implementation - combines API + Local storage
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthApi _api;
-  final AuthLocalDatasource _localDatasource;
+  final StackAuthApi _api;
+  final AuthLocalDatasource _local;
+  final EnvConfig _env;
+  final OAuthBrowserClient _browser;
+  final OAuthPkceGenerator _pkce;
 
-  AuthRepositoryImpl(this._api, this._localDatasource);
+  AuthRepositoryImpl(
+    this._api,
+    this._local,
+    this._env, {
+    required OAuthBrowserClient browser,
+    OAuthPkceGenerator? pkce,
+  })  : _browser = browser,
+        _pkce = pkce ?? OAuthPkceGenerator();
 
   @override
-  Future<Either<Failure, AuthResponse>> login(LoginRequest request) async {
+  Future<Either<Failure, OtpSendResult>> sendOtp({
+    required String email,
+  }) async {
     try {
-      final response = await _api.login(request);
-      final authResponse = AuthResponse.fromJson(response);
-
-      // Save token and user locally
-      await _localDatasource.saveAuthToken(authResponse.token);
-      await _localDatasource.saveUser(authResponse.user);
-      await _localDatasource.setLoggedIn(true);
-
-      return Right(authResponse);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
+      final json = await _api.sendSignInCode(
+        email: email,
+        callbackUrl: _env.otpCallbackUrl,
+      );
+      return Right(OtpSendResult.fromJson(json));
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> register(
-    RegisterRequest request,
-  ) async {
+  Future<Either<Failure, AuthSession>> signInWithOtp({
+    required String code,
+    required String nonce,
+  }) async {
     try {
-      final response = await _api.register(request);
-      final authResponse = AuthResponse.fromJson(response);
-
-      // Save token and user locally
-      await _localDatasource.saveAuthToken(authResponse.token);
-      await _localDatasource.saveUser(authResponse.user);
-      await _localDatasource.setLoggedIn(true);
-
-      return Right(authResponse);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
+      final concatenated = '$code$nonce';
+      final json = await _api.signInWithCode(concatenatedCode: concatenated);
+      final session = AuthSession.fromJson(json);
+      await _local.saveSession(session);
+      return Right(session);
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, User>> getCurrentUser() async {
+  Future<Either<Failure, AuthSession>> signInWithGoogle({
+    bool forceAccountChooser = false,
+  }) async {
+    final pair = _pkce.generatePair();
+    final state = _pkce.generateState();
+
+    final authorizeUrl = _api.buildGoogleAuthorizeUrl(
+      clientId: _env.stackProjectId,
+      publishableClientKey: _env.stackPublishableClientKey,
+      redirectUri: _env.oauthRedirectUri,
+      state: state,
+      codeChallenge: pair.challenge,
+      errorRedirectUri: _env.oauthErrorRedirectUri,
+    );
+
+    final String callbackUrl;
     try {
-      // Get token from local storage
-      final token = await _localDatasource.getAuthToken();
-      if (token == null) {
-        return const Left(NetworkFailure('No auth token found'));
+      callbackUrl = await _browser.authenticate(
+        url: authorizeUrl,
+        callbackUrlScheme: _env.oauthCallbackUrlScheme,
+        forceAccountChooser: forceAccountChooser,
+      );
+    } on OAuthCancelledException {
+      return const Left(OAuthCancelledFailure());
+    } catch (e) {
+      return Left(OAuthFailedFailure(e.toString()));
+    }
+
+    final callbackUri = Uri.tryParse(callbackUrl);
+    if (callbackUri == null) {
+      return const Left(OAuthFailedFailure());
+    }
+    final params = callbackUri.queryParameters;
+    // Stack Auth surfaces provider-side errors via `?error=...` on the
+    // configured error_redirect_url — propagate as a recoverable failure.
+    final errorParam = params['error'];
+    if (errorParam != null && errorParam.isNotEmpty) {
+      return Left(OAuthFailedFailure(errorParam));
+    }
+    final receivedCode = params['code'];
+    final receivedState = params['state'];
+    if (receivedCode == null || receivedCode.isEmpty) {
+      return const Left(OAuthFailedFailure());
+    }
+    if (receivedState != state) {
+      // CSRF guard — never trust a callback whose state we did not mint.
+      return const Left(OAuthFailedFailure('State mismatch.'));
+    }
+
+    try {
+      final json = await _api.exchangeOAuthCode(
+        code: receivedCode,
+        redirectUri: _env.oauthRedirectUri,
+        clientId: _env.stackProjectId,
+        publishableClientKey: _env.stackPublishableClientKey,
+        codeVerifier: pair.verifier,
+      );
+      final accessToken = json['access_token'];
+      final refreshToken = json['refresh_token'];
+      if (accessToken is! String ||
+          accessToken.isEmpty ||
+          refreshToken is! String ||
+          refreshToken.isEmpty) {
+        return const Left(OAuthFailedFailure());
       }
-
-      // Call API to get current user
-      final response = await _api.getCurrentUser(token);
-      final user = User.fromJson(response);
-
-      // Update local storage
-      await _localDatasource.saveUser(user);
-
-      return Right(user);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
+      // OAuth token response uses `newUser` (camelCase) and omits `user_id`
+      // (which is populated downstream by the splash guard / SSO-validate
+      // round-trip), so build the [AuthSession] manually instead of through
+      // [AuthSession.fromJson] which expects the OTP-flow snake_case shape.
+      final session = AuthSession(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userId: '',
+        isNewUser: json['newUser'] == true,
+      );
+      await _local.saveSession(session);
+      return Right(session);
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> logout() async {
+  Future<Either<Failure, String>> refreshAccessToken() async {
+    final refresh = await _local.getRefreshToken();
+    if (refresh == null || refresh.isEmpty) {
+      return const Left(SessionExpiredFailure());
+    }
     try {
-      // Get token
-      final token = await _localDatasource.getAuthToken();
-      if (token != null) {
-        await _api.logout(token);
+      final json = await _api.refreshSession(refreshToken: refresh);
+      final newAccess = json['access_token'];
+      if (newAccess is! String || newAccess.isEmpty) {
+        return const Left(SessionExpiredFailure());
       }
-
-      // Clear local data
-      await _localDatasource.clearAllAuthData();
-
-      return const Right(null);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> changePassword(
-    ChangePasswordRequest request,
-  ) async {
-    try {
-      // Get token from local storage
-      final token = await _localDatasource.getAuthToken();
-      if (token == null) {
-        return const Left(NetworkFailure('No auth token found'));
+      await _local.updateAccessToken(newAccess);
+      return Right(newAccess);
+    } on DioException catch (e) {
+      final failure = StackErrorMapper.map(e);
+      if (failure is SessionExpiredFailure ||
+          failure is UnauthorizedFailure ||
+          (e.response?.statusCode == 401)) {
+        await _local.clearAll();
+        return const Left(SessionExpiredFailure());
       }
-
-      await _api.changePassword(request, token);
-      return const Right(null);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
+      return Left(failure);
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> requestPasswordReset(String email) async {
-    try {
-      await _api.requestPasswordReset(email);
-      return const Right(null);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> resetPassword(
-    ResetPasswordRequest request,
-  ) async {
-    try {
-      await _api.resetPassword(request);
-      return const Right(null);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
-    }
-  }
-
-  @override
-  Future<Either<Failure, AuthResponse>> refreshToken() async {
-    try {
-      // Get token from local storage
-      final token = await _localDatasource.getAuthToken();
-      if (token == null) {
-        return const Left(NetworkFailure('No auth token found'));
+  Future<Either<Failure, void>> signOut() async {
+    final access = await _local.getAccessToken();
+    final refresh = await _local.getRefreshToken();
+    Failure? failure;
+    if (access != null &&
+        access.isNotEmpty &&
+        refresh != null &&
+        refresh.isNotEmpty) {
+      try {
+        await _api.signOutCurrent(accessToken: access, refreshToken: refresh);
+      } on DioException catch (e) {
+        // Non-fatal: we still clear local state so the user can proceed.
+        failure = StackErrorMapper.map(e);
+      } catch (_) {
+        // Ignore — local clear is the source of truth for sign-out state.
       }
-
-      final response = await _api.refreshToken(token);
-      final authResponse = AuthResponse.fromJson(response);
-
-      // Update local storage with new token
-      await _localDatasource.saveAuthToken(authResponse.token);
-      await _localDatasource.saveUser(authResponse.user);
-
-      return Right(authResponse);
-    } on Exception catch (e) {
-      return Left(NetworkFailure(e.toString().replaceFirst('Exception: ', '')));
     }
+    await _local.clearAll();
+    return failure == null ? const Right(null) : Left(failure);
   }
+
+  @override
+  Future<AuthSession?> loadSession() => _local.loadSession();
 
   @override
   Future<bool> isAuthenticated() async {
-    try {
-      final token = await _localDatasource.getAuthToken();
-      final isLoggedIn = await _localDatasource.isLoggedIn();
-      return token != null && token.isNotEmpty && isLoggedIn;
-    } catch (e) {
-      return false;
-    }
+    final refresh = await _local.getRefreshToken();
+    return refresh != null && refresh.isNotEmpty;
   }
 }

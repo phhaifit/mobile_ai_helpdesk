@@ -1,38 +1,42 @@
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
-import 'package:ai_helpdesk/data/models/auth/change_password_request.dart';
-import 'package:ai_helpdesk/data/models/auth/login_request.dart';
-import 'package:ai_helpdesk/data/models/auth/register_request.dart';
-import 'package:ai_helpdesk/data/models/auth/reset_password_request.dart';
-import 'package:ai_helpdesk/domain/entity/auth/auth_response.dart';
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
+import 'package:ai_helpdesk/domain/entity/auth/auth_session.dart';
+import 'package:ai_helpdesk/domain/entity/auth/otp_send_result.dart';
 import 'package:dartz/dartz.dart';
 
-/// Abstract repository for authentication operations
+/// Stack Auth OTP flow.
 abstract class AuthRepository {
-  /// Login with email and password
-  Future<Either<Failure, AuthResponse>> login(LoginRequest request);
+  /// Request an OTP to be emailed. Returns the `nonce` used to sign in.
+  Future<Either<Failure, OtpSendResult>> sendOtp({required String email});
 
-  /// Register a new account
-  Future<Either<Failure, AuthResponse>> register(RegisterRequest request);
+  /// Exchange the user-entered 6-char code + nonce for an [AuthSession].
+  Future<Either<Failure, AuthSession>> signInWithOtp({
+    required String code,
+    required String nonce,
+  });
 
-  /// Get current logged-in user
-  Future<Either<Failure, User>> getCurrentUser();
+  /// Run the full Google OAuth (PKCE) flow: open the in-app browser at
+  /// Stack Auth's `/oauth/authorize/google` endpoint, wait for the registered
+  /// callback URL, then exchange `code + code_verifier` for an [AuthSession].
+  /// On success the session is persisted locally just like the OTP flow.
+  ///
+  /// Set [forceAccountChooser] true to clear cached cookies + force Google's
+  /// account chooser; default false preserves the auto-resume UX.
+  Future<Either<Failure, AuthSession>> signInWithGoogle({
+    bool forceAccountChooser = false,
+  });
 
-  /// Logout the current user
-  Future<Either<Failure, void>> logout();
+  /// Rotate the access token using the stored refresh token. Returns the new
+  /// access token on success. Called by the refresh interceptor and the
+  /// splash guard — must be idempotent and never recurse through itself.
+  Future<Either<Failure, String>> refreshAccessToken();
 
-  /// Change password for current user
-  Future<Either<Failure, void>> changePassword(ChangePasswordRequest request);
+  /// Invalidate the current refresh token on the backend and clear local
+  /// session state. Local state is cleared even if the network call fails.
+  Future<Either<Failure, void>> signOut();
 
-  /// Request password reset (send reset email)
-  Future<Either<Failure, void>> requestPasswordReset(String email);
+  /// Load the cached session (access + refresh) from local storage, or null.
+  Future<AuthSession?> loadSession();
 
-  /// Reset password with reset token
-  Future<Either<Failure, void>> resetPassword(ResetPasswordRequest request);
-
-  /// Refresh authentication token
-  Future<Either<Failure, AuthResponse>> refreshToken();
-
-  /// Check if user is authenticated (has valid token)
+  /// Whether a non-empty refresh token is present locally.
   Future<bool> isAuthenticated();
 }

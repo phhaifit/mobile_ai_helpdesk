@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/presentation/auth/sign_in_email/sign_in_email_screen.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/login/login_screen.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/test.dart';
@@ -37,17 +37,17 @@ void main() {
     expect(getIt.isRegistered<LanguageStore>(), isTrue);
   });
 
-  testWidgets('LoginScreen renders without crashing', (tester) async {
+  testWidgets('SignInEmailScreen renders without crashing', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('en'),
-        localizationsDelegates: const [
+      const MaterialApp(
+        locale: Locale('en'),
+        localizationsDelegates: [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('en')],
-        home: const LoginScreen(),
+        supportedLocales: [Locale('en')],
+        home: SignInEmailScreen(),
       ),
     );
     await tester.pump();

@@ -126,6 +126,11 @@ app.*.symbols
 .swiftpm/
 migrate_working_dir/
 
+# Environment configuration (local overrides)
+.env
+.env.local
+.env.*.local
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -155,6 +160,7 @@ TICKET_MANAGEMENT_STATUS.md
 ticket_widget_trees.md
 
 /monetization.md
+/omnichannel-integrations.md
 .cursor/
 
 pubspec.yaml

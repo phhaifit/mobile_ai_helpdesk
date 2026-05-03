@@ -16,7 +16,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
   late final OmnichannelStore _store;
 
   bool _autoReply = false;
-  String _language = 'vi';
   final TextEditingController _businessHourController = TextEditingController();
 
   @override
@@ -31,7 +30,6 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
 
       setState(() {
         _autoReply = messenger.autoReply;
-        _language = messenger.language;
         _businessHourController.text = messenger.businessHours;
       });
     });
@@ -71,27 +69,10 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(l.translate('omnichannel_messenger_auto_reply')),
                 value: _autoReply,
-                onChanged: (value) => setState(() {
-                  _autoReply = value;
-                }),
-              ),
-              const SizedBox(height: 8),
-              Text(l.translate('omnichannel_messenger_language')),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: _language,
-                items: const [
-                  DropdownMenuItem(value: 'vi', child: Text('Vietnamese')),
-                  DropdownMenuItem(value: 'en', child: Text('English')),
-                ],
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _language = value;
-                  });
-                },
+                onChanged:
+                    (value) => setState(() {
+                      _autoReply = value;
+                    }),
               ),
               const SizedBox(height: 16),
               Text(l.translate('omnichannel_messenger_business_hours')),
@@ -107,15 +88,15 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _store.isLoading
-                    ? null
-                    : () {
-                        _store.updateMessengerSettings(
-                          autoReply: _autoReply,
-                          language: _language,
-                          businessHours: _businessHourController.text.trim(),
-                        );
-                      },
+                onPressed:
+                    _store.isLoading
+                        ? null
+                        : () {
+                          _store.updateMessengerSettings(
+                            autoReply: _autoReply,
+                            businessHours: _businessHourController.text.trim(),
+                          );
+                        },
                 icon: const Icon(Icons.save),
                 label: Text(l.translate('omnichannel_save_button')),
               ),

@@ -127,6 +127,42 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
     });
   }
 
+  late final _$zaloQrAtom = Atom(
+    name: '_OmnichannelStore.zaloQr',
+    context: context,
+  );
+
+  @override
+  ZaloQr? get zaloQr {
+    _$zaloQrAtom.reportRead();
+    return super.zaloQr;
+  }
+
+  @override
+  set zaloQr(ZaloQr? value) {
+    _$zaloQrAtom.reportWrite(value, super.zaloQr, () {
+      super.zaloQr = value;
+    });
+  }
+
+  late final _$zaloQrStatusAtom = Atom(
+    name: '_OmnichannelStore.zaloQrStatus',
+    context: context,
+  );
+
+  @override
+  ZaloQrStatus? get zaloQrStatus {
+    _$zaloQrStatusAtom.reportRead();
+    return super.zaloQrStatus;
+  }
+
+  @override
+  set zaloQrStatus(ZaloQrStatus? value) {
+    _$zaloQrStatusAtom.reportWrite(value, super.zaloQrStatus, () {
+      super.zaloQrStatus = value;
+    });
+  }
+
   late final _$fetchOverviewAsyncAction = AsyncAction(
     '_OmnichannelStore.fetchOverview',
     context: context,
@@ -177,26 +213,24 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
   @override
   Future<void> updateMessengerSettings({
     required bool autoReply,
-    required String language,
     required String businessHours,
   }) {
     return _$updateMessengerSettingsAsyncAction.run(
       () => super.updateMessengerSettings(
         autoReply: autoReply,
-        language: language,
         businessHours: businessHours,
       ),
     );
   }
 
-  late final _$connectZaloFromQrAsyncAction = AsyncAction(
-    '_OmnichannelStore.connectZaloFromQr',
+  late final _$startZaloQrFlowAsyncAction = AsyncAction(
+    '_OmnichannelStore.startZaloQrFlow',
     context: context,
   );
 
   @override
-  Future<void> connectZaloFromQr() {
-    return _$connectZaloFromQrAsyncAction.run(() => super.connectZaloFromQr());
+  Future<void> startZaloQrFlow() {
+    return _$startZaloQrFlowAsyncAction.run(() => super.startZaloQrFlow());
   }
 
   late final _$disconnectZaloAsyncAction = AsyncAction(
@@ -257,6 +291,8 @@ overview: ${overview},
 actionMessageKey: ${actionMessageKey},
 actionWasSuccess: ${actionWasSuccess},
 errorMessage: ${errorMessage},
+zaloQr: ${zaloQr},
+zaloQrStatus: ${zaloQrStatus},
 isLoading: ${isLoading}
     ''';
   }

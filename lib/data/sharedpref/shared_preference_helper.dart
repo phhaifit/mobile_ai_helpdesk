@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:ai_helpdesk/domain/entity/auth/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants/preferences.dart';
@@ -11,7 +9,7 @@ class SharedPreferenceHelper {
 
   SharedPreferenceHelper(this._sharedPreference);
 
-  // Auth:----------------------------------------------------------------------
+  // Auth access token:---------------------------------------------------------
   Future<String?> get authToken async {
     return _sharedPreference.getString(Preferences.authToken);
   }
@@ -24,13 +22,52 @@ class SharedPreferenceHelper {
     return _sharedPreference.remove(Preferences.authToken);
   }
 
-  // Login:---------------------------------------------------------------------
+  // Auth refresh token:--------------------------------------------------------
+  Future<String?> get authRefreshToken async {
+    return _sharedPreference.getString(Preferences.authRefreshToken);
+  }
+
+  Future<bool> saveAuthRefreshToken(String token) async {
+    return _sharedPreference.setString(Preferences.authRefreshToken, token);
+  }
+
+  Future<bool> removeAuthRefreshToken() async {
+    return _sharedPreference.remove(Preferences.authRefreshToken);
+  }
+
+  // Login status:--------------------------------------------------------------
   Future<bool> get isLoggedIn async {
     return _sharedPreference.getBool(Preferences.isLoggedIn) ?? false;
   }
 
   Future<bool> saveIsLoggedIn(bool value) async {
     return _sharedPreference.setBool(Preferences.isLoggedIn, value);
+  }
+
+  // Account JSON cache (serialised `Account` payload):-------------------------
+  Future<String?> get accountJson async {
+    return _sharedPreference.getString(Preferences.accountJson);
+  }
+
+  Future<bool> saveAccountJson(String json) async {
+    return _sharedPreference.setString(Preferences.accountJson, json);
+  }
+
+  Future<bool> removeAccountJson() async {
+    return _sharedPreference.remove(Preferences.accountJson);
+  }
+
+  // Tenant ID (required header for Helpdesk APIs):-----------------------------
+  Future<String?> get tenantId async {
+    return _sharedPreference.getString(Preferences.tenantId);
+  }
+
+  Future<bool> saveTenantId(String id) async {
+    return _sharedPreference.setString(Preferences.tenantId, id);
+  }
+
+  Future<bool> removeTenantId() async {
+    return _sharedPreference.remove(Preferences.tenantId);
   }
 
   // Theme:---------------------------------------------------------------------
@@ -51,7 +88,7 @@ class SharedPreferenceHelper {
     return _sharedPreference.setString(Preferences.currentLanguage, language);
   }
 
-  // Analytics - First Launch & Installation Tracking:---------------------------
+  // Analytics - First Launch & Installation Tracking:--------------------------
   bool? getIsAppFirstOpen() {
     return _sharedPreference.getBool(Preferences.isAppFirstOpen);
   }
@@ -82,39 +119,5 @@ class SharedPreferenceHelper {
 
   Future<bool> setFirstLaunchTime(String value) {
     return _sharedPreference.setString(Preferences.firstLaunchTime, value);
-  }
-
-  // User:----------------------------------------------------------------------
-  Future<void> saveUser(User user) async {
-    final userJson = jsonEncode(user.toJson());
-    await _sharedPreference.setString(Preferences.userData, userJson);
-  }
-
-  Future<User?> getUser() async {
-    final userJson = _sharedPreference.getString(Preferences.userData);
-    if (userJson == null) return null;
-
-    try {
-      final userMap = jsonDecode(userJson) as Map<String, dynamic>;
-      return User.fromJson(userMap);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<bool> removeUser() async {
-    return _sharedPreference.remove(Preferences.userData);
-  }
-
-  // Tenant context:----------------------------------------------------------
-  Future<String?> get currentTenantId async {
-    return _sharedPreference.getString(Preferences.currentTenantId);
-  }
-
-  Future<bool> saveCurrentTenantId(String? tenantId) async {
-    if (tenantId == null || tenantId.trim().isEmpty) {
-      return _sharedPreference.remove(Preferences.currentTenantId);
-    }
-    return _sharedPreference.setString(Preferences.currentTenantId, tenantId);
   }
 }
