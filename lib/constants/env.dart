@@ -1,9 +1,16 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Application environment configuration.
 ///
 /// Usage:
 ///   flutter run --dart-define=ENV=dev        (default)
 ///   flutter run --dart-define=ENV=staging
 ///   flutter run --dart-define=ENV=prod
+///
+/// Environment variables can be overridden via:
+/// 1. .env file in project root (loaded automatically at startup)
+/// 2. --dart-define CLI flag
+/// 3. Hardcoded defaults in EnvConfig enum
 enum Environment { dev, staging, prod }
 
 enum EnvConfig {
@@ -150,6 +157,38 @@ enum EnvConfig {
       default:
         return EnvConfig.dev;
     }
+  }
+
+  /// Get the resolved base URL from .env → --dart-define → hardcoded default
+  /// Priority: .env > dart-define > hardcoded defaults in enum
+  static String getResolvedBaseUrl() {
+    String envKey = '';
+    switch (instance.environment) {
+      case Environment.prod:
+        envKey = 'BASE_URL_PROD';
+        break;
+      case Environment.staging:
+        envKey = 'BASE_URL_STAGING';
+        break;
+      case Environment.dev:
+        envKey = 'BASE_URL_DEV';
+        break;
+    }
+
+    // Priority 1: .env file
+    final fromDotEnv = dotenv.env[envKey];
+    if (fromDotEnv != null && fromDotEnv.isNotEmpty) {
+      return fromDotEnv;
+    }
+
+    // Priority 2: --dart-define CLI
+    final fromDartDefine = String.fromEnvironment(envKey, defaultValue: '');
+    if (fromDartDefine.isNotEmpty) {
+      return fromDartDefine;
+    }
+
+    // Priority 3: Hardcoded default
+    return instance.baseUrl;
   }
 
   bool get isDev => environment == Environment.dev;

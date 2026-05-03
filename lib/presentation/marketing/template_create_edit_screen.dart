@@ -23,7 +23,8 @@ class TemplateCreateEditScreen extends StatefulWidget {
   const TemplateCreateEditScreen({super.key, this.template});
 
   @override
-  State<TemplateCreateEditScreen> createState() => _TemplateCreateEditScreenState();
+  State<TemplateCreateEditScreen> createState() =>
+      _TemplateCreateEditScreenState();
 }
 
 class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
@@ -38,8 +39,12 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
     _store.initDraftFromTemplate(widget.template);
     _nameController.text = _store.draftTemplateName;
     _contentController.text = _store.draftTemplateContent;
-    _nameController.addListener(() => _store.setDraftTemplateName(_nameController.text));
-    _contentController.addListener(() => _store.setDraftTemplateContent(_contentController.text));
+    _nameController.addListener(
+      () => _store.setDraftTemplateName(_nameController.text),
+    );
+    _contentController.addListener(
+      () => _store.setDraftTemplateContent(_contentController.text),
+    );
   }
 
   @override
@@ -53,99 +58,196 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final isEdit = widget.template != null;
+    final isSmall = MediaQuery.of(context).size.width < 400;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? l.translate('marketing_tv_edit_template') : l.translate('marketing_tv_create_template')),
+        title: Text(
+          isEdit
+              ? l.translate('marketing_tv_edit_template')
+              : l.translate('marketing_tv_create_template'),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isSmall ? 12 : 16),
         child: Observer(
-          builder: (_) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Tên template', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Nhập tên template...',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.label_outline),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<TemplateCategory>(
-                value: _store.draftTemplateCategory,
-                decoration: const InputDecoration(border: OutlineInputBorder(), prefixIcon: Icon(Icons.category_outlined)),
-                items: TemplateCategory.values
-                    .map((c) => DropdownMenuItem(value: c, child: Text(_categoryLabel(c, l))))
-                    .toList(),
-                onChanged: (v) { if (v != null) _store.setDraftTemplateCategory(v); },
-              ),
-              const SizedBox(height: 16),
-              const Text('Kênh gửi', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<CampaignChannel>(
-                value: _store.draftTemplateChannel,
-                decoration: const InputDecoration(border: OutlineInputBorder(), prefixIcon: Icon(Icons.send_outlined)),
-                items: CampaignChannel.values
-                    .map((c) => DropdownMenuItem(value: c, child: Text(_channelLabel(c, l))))
-                    .toList(),
-                onChanged: (v) { if (v != null) _store.setDraftTemplateChannel(v); },
-              ),
-              const SizedBox(height: 16),
-              Row(
+          builder:
+              (_) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(child: Text('Nội dung', style: TextStyle(fontWeight: FontWeight.bold))),
-                  TextButton.icon(
-                    onPressed: _insertVariable,
-                    icon: const Icon(Icons.add, size: 14),
-                    label: const Text('Thêm biến', style: TextStyle(fontSize: 12)),
+                  Text(
+                    'Tên template',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isSmall ? 13 : 14,
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 6 : 8),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Nhập tên template...',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.label_outline),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 10,
+                        horizontal: 12,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 12 : 16),
+                  Text(
+                    'Danh mục',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isSmall ? 13 : 14,
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 6 : 8),
+                  DropdownButtonFormField<TemplateCategory>(
+                    value: _store.draftTemplateCategory,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.category_outlined),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 10,
+                        horizontal: 12,
+                      ),
+                    ),
+                    items:
+                        TemplateCategory.values
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(_categoryLabel(c, l)),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (v) {
+                      if (v != null) _store.setDraftTemplateCategory(v);
+                    },
+                  ),
+                  SizedBox(height: isSmall ? 12 : 16),
+                  Text(
+                    'Kênh gửi',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isSmall ? 13 : 14,
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 6 : 8),
+                  DropdownButtonFormField<CampaignChannel>(
+                    value: _store.draftTemplateChannel,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.send_outlined),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 10,
+                        horizontal: 12,
+                      ),
+                    ),
+                    items:
+                        CampaignChannel.values
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(_channelLabel(c, l)),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (v) {
+                      if (v != null) _store.setDraftTemplateChannel(v);
+                    },
+                  ),
+                  SizedBox(height: isSmall ? 12 : 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Nội dung',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: isSmall ? 13 : 14,
+                          ),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _insertVariable,
+                        icon: const Icon(Icons.add, size: 14),
+                        label: Text(
+                          'Thêm biến',
+                          style: TextStyle(fontSize: isSmall ? 11 : 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: isSmall ? 6 : 8),
+                  TextField(
+                    controller: _contentController,
+                    maxLines: isSmall ? 6 : 8,
+                    decoration: InputDecoration(
+                      hintText: l.translate(
+                        'marketing_tv_template_content_hint',
+                      ),
+                      border: const OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmall ? 8 : 12,
+                        horizontal: 12,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: isSmall ? 6 : 8),
+                  _buildVariableChips(),
+                  SizedBox(height: isSmall ? 18 : 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: isSmall ? 10 : 12,
+                        ),
+                      ),
+                      onPressed:
+                          _store.isSubmitting
+                              ? null
+                              : () async {
+                                await _store.saveTemplate();
+                                if (mounted && _store.actionWasSuccess) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        l.translate(
+                                          'marketing_success_template_saved',
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                }
+                              },
+                      child:
+                          _store.isSubmitting
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Text(
+                                l.translate('marketing_btn_save_template'),
+                              ),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _contentController,
-                maxLines: 8,
-                decoration: InputDecoration(
-                  hintText: l.translate('marketing_tv_template_content_hint'),
-                  border: const OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildVariableChips(),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _store.isSubmitting
-                      ? null
-                      : () async {
-                          await _store.saveTemplate();
-                          if (mounted && _store.actionWasSuccess) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l.translate('marketing_success_template_saved')),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            Navigator.pop(context);
-                          }
-                        },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: _store.isSubmitting
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(l.translate('marketing_btn_save_template')),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -159,19 +261,28 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Biến phát hiện:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const Text(
+          'Biến phát hiện:',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 4),
         Wrap(
           spacing: 6,
-          children: vars
-              .map((v) => Chip(
-                    label: Text('{{$v}}', style: const TextStyle(fontSize: 11)),
-                    backgroundColor: Colors.blue.shade50,
-                    side: BorderSide(color: Colors.blue.shade200),
-                    padding: EdgeInsets.zero,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ))
-              .toList(),
+          children:
+              vars
+                  .map(
+                    (v) => Chip(
+                      label: Text(
+                        '{{$v}}',
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      backgroundColor: Colors.blue.shade50,
+                      side: BorderSide(color: Colors.blue.shade200),
+                      padding: EdgeInsets.zero,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
@@ -192,16 +303,22 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
             FilledButton(
               onPressed: () {
                 if (ctrl.text.isNotEmpty) {
                   final cursor = _contentController.selection.base.offset;
                   final text = _contentController.text;
                   final variable = '{{${ctrl.text.trim()}}}';
-                  final newText = cursor >= 0 && cursor <= text.length
-                      ? text.substring(0, cursor) + variable + text.substring(cursor)
-                      : text + variable;
+                  final newText =
+                      cursor >= 0 && cursor <= text.length
+                          ? text.substring(0, cursor) +
+                              variable +
+                              text.substring(cursor)
+                          : text + variable;
                   _contentController.text = newText;
                   _store.setDraftTemplateContent(newText);
                 }
@@ -217,19 +334,27 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
 
   String _categoryLabel(TemplateCategory c, AppLocalizations l) {
     switch (c) {
-      case TemplateCategory.promotional: return l.translate('marketing_tv_category_promotional');
-      case TemplateCategory.transactional: return l.translate('marketing_tv_category_transactional');
-      case TemplateCategory.announcement: return l.translate('marketing_tv_category_announcement');
-      case TemplateCategory.reminder: return l.translate('marketing_tv_category_reminder');
+      case TemplateCategory.promotional:
+        return l.translate('marketing_tv_category_promotional');
+      case TemplateCategory.transactional:
+        return l.translate('marketing_tv_category_transactional');
+      case TemplateCategory.announcement:
+        return l.translate('marketing_tv_category_announcement');
+      case TemplateCategory.reminder:
+        return l.translate('marketing_tv_category_reminder');
     }
   }
 
   String _channelLabel(CampaignChannel c, AppLocalizations l) {
     switch (c) {
-      case CampaignChannel.messenger: return l.translate('marketing_tv_channel_messenger');
-      case CampaignChannel.zalo: return l.translate('marketing_tv_channel_zalo');
-      case CampaignChannel.email: return l.translate('marketing_tv_channel_email');
-      case CampaignChannel.sms: return l.translate('marketing_tv_channel_sms');
+      case CampaignChannel.messenger:
+        return l.translate('marketing_tv_channel_messenger');
+      case CampaignChannel.zalo:
+        return l.translate('marketing_tv_channel_zalo');
+      case CampaignChannel.email:
+        return l.translate('marketing_tv_channel_email');
+      case CampaignChannel.sms:
+        return l.translate('marketing_tv_channel_sms');
     }
   }
 }

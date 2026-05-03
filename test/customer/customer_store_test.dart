@@ -120,19 +120,23 @@ void main() {
         ),
       ];
 
-      when(() => mockRepo.getCustomers(
-            offset: 0,
-            limit: 20,
-            query: any(named: 'query'),
-            tagIds: any(named: 'tagIds'),
-          )).thenAnswer((_) async => page1);
+      when(
+        () => mockRepo.getCustomers(
+          offset: 0,
+          limit: 20,
+          query: any(named: 'query'),
+          tagIds: any(named: 'tagIds'),
+        ),
+      ).thenAnswer((_) async => page1);
 
-      when(() => mockRepo.getCustomers(
-            offset: 20,
-            limit: 20,
-            query: any(named: 'query'),
-            tagIds: any(named: 'tagIds'),
-          )).thenAnswer((_) async => page2);
+      when(
+        () => mockRepo.getCustomers(
+          offset: 20,
+          limit: 20,
+          query: any(named: 'query'),
+          tagIds: any(named: 'tagIds'),
+        ),
+      ).thenAnswer((_) async => page2);
 
       await store.loadCustomers(); // Load first page
       expect(store.customers.length, 20);

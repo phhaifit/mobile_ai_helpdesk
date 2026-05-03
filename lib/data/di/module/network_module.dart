@@ -19,6 +19,7 @@ import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
+import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
@@ -153,6 +154,10 @@ class NetworkModule {
       TicketWebSocketService(
         getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
       ),
+    );
+
+    getIt.registerSingleton<MarketingBroadcastRealtimeService>(
+      MarketingBroadcastRealtimeService(getIt<DioClient>(), getIt<EventBus>()),
     );
   }
 }

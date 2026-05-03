@@ -16,4 +16,6 @@ abstract class InvitationRepository {
   Future<Invitation?> acceptInvitation(String invitationId);
 
   Future<Invitation?> declineInvitation(String invitationId);
+
+  Future<bool> deleteInvitation(String invitationId);
 }

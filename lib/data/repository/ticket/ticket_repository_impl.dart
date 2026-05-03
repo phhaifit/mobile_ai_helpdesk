@@ -179,7 +179,6 @@ class TicketRepositoryImpl implements TicketRepository {
           limit: params.limit,
         );
       case TicketTabScope.all:
-      default:
         return _api.getAllTickets(
           offset: params.offset,
           limit: params.limit,
