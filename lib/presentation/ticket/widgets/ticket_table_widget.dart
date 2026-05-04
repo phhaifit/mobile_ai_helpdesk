@@ -14,6 +14,9 @@ class TicketTableWidget extends StatelessWidget {
   final Function(Ticket)? onViewDetails;
   final int selectedTabIndex;
   final String currentAgentId;
+  final VoidCallback? onLoadMore;
+  final bool isLoadingMore;
+  final bool hasMore;
 
   const TicketTableWidget({
     super.key,
@@ -23,6 +26,9 @@ class TicketTableWidget extends StatelessWidget {
     this.onViewDetails,
     this.selectedTabIndex = 1,
     required this.currentAgentId,
+    this.onLoadMore,
+    this.isLoadingMore = false,
+    this.hasMore = true,
   });
 
   @override
@@ -53,10 +59,7 @@ class TicketTableWidget extends StatelessWidget {
               const SizedBox(height: 4),
               const Text(
                 'Nhấn nút "Thêm phiếu" phía trên để tạo phiếu mới',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -74,12 +77,15 @@ class TicketTableWidget extends StatelessWidget {
           onAcceptTicket: onAcceptTicket,
           onCancelTicket: onCancelTicket,
           onViewDetails: onViewDetails,
+          onLoadMore: onLoadMore,
+          isLoadingMore: isLoadingMore,
+          hasMore: hasMore,
           onFilterPressed: () {
             showDialog(
               context: context,
-              builder: (context) => TicketColumnSelectorDialog(
-                store: columnVisibilityStore,
-              ),
+              builder:
+                  (context) =>
+                      TicketColumnSelectorDialog(store: columnVisibilityStore),
             );
           },
         );

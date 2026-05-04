@@ -12,8 +12,7 @@ class Endpoints {
 
   // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
   // media. Separate from BE Helpdesk.
-  static String get aiServiceBaseUrl =>
-      EnvConfig.instance.aiServiceApiBaseUrl;
+  static String get aiServiceBaseUrl => EnvConfig.instance.aiServiceApiBaseUrl;
 
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
@@ -219,6 +218,15 @@ class Endpoints {
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 
   // Ticket endpoints
+  static const String ticketAll = '/api/ticket/all';
+  static const String ticketMy = '/api/ticket/my-ticket';
+  static const String ticketMyByStatus = '/api/ticket/mine-by-status';
+  static const String ticketUnassigned = '/api/ticket/unassigned';
+  static String ticketDetail(String ticketId) => '/api/ticket/$ticketId';
+  static const String ticketUpdateStatus = '/api/ticket/update-status';
+  static const String ticketCreate = '/api/ticket/new';
+  static String ticketUpdateDetail(String ticketId) =>
+      '/api/ticket/my-ticket/$ticketId/detail';
   static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
   static String ticketComments(String ticketId) =>
       '/api/ticket/comment/get-comment/$ticketId';
@@ -249,8 +257,10 @@ class Endpoints {
       '/api/v1/knowledges/$tenantId/google-drive';
   static String knowledgeImportDatabaseQuery(String tenantId) =>
       '/api/v1/knowledges/$tenantId/database-query';
-  static String knowledgeUpdateDatabaseQuery(String tenantId, String sourceId) =>
-      '/api/v1/knowledges/$tenantId/database-query/$sourceId';
+  static String knowledgeUpdateDatabaseQuery(
+    String tenantId,
+    String sourceId,
+  ) => '/api/v1/knowledges/$tenantId/database-query/$sourceId';
 
   static const String knowledgeTestDatabaseQuery =
       '/api/v1/knowledges/test-database-query';
