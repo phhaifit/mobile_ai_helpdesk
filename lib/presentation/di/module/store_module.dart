@@ -91,6 +91,7 @@ import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_column_visibility_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
@@ -181,7 +182,12 @@ class StoreModule {
       ),
     );
 
+    getIt.registerSingleton<SessionStore>(SessionStore());
+
     // --- Ticket Stores ---
+    getIt.registerSingleton<TicketColumnVisibilityStore>(
+      TicketColumnVisibilityStore(),
+    );
     getIt.registerFactory(
       () => TicketTabStore(
         getIt<SessionStore>(),

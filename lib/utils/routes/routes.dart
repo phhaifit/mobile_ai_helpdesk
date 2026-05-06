@@ -153,7 +153,7 @@ class Routes {
       case ticketList:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const MainScreen(initialCategory: 'Phiếu chưa xử lý'),
+          builder: (_) => const MainScreen(initialCategory: 'pending_tickets'),
         );
       case createTicket:
         return MaterialPageRoute(

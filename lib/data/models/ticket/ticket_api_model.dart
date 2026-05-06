@@ -72,22 +72,28 @@ class TicketApiModel {
   // ── Mapping helpers ────────────────────────────────────────────────────────
 
   static TicketStatus _mapStatus(String raw) {
-    switch (raw) {
+    switch (raw.toLowerCase()) {
       case 'open':
         return TicketStatus.open;
+      case 'in_progress':
+      case 'in-progress':
+        return TicketStatus.inProgress;
       case 'pending':
         return TicketStatus.pending;
       case 'solved':
         return TicketStatus.resolved;
       case 'closed':
         return TicketStatus.closed;
+      case 'processing_by_ai':
+      case 'processing-by-ai':
+        return TicketStatus.processingByAI;
       default:
         return TicketStatus.open;
     }
   }
 
   static TicketPriority _mapPriority(String raw) {
-    switch (raw) {
+    switch (raw.toLowerCase()) {
       case 'low':
         return TicketPriority.low;
       case 'medium':

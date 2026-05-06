@@ -14,10 +14,20 @@ class TenantSettings {
   /// If true, audit / verbose logging can be enabled server-side.
   final bool enableAuditLog;
 
+  /// Enables automatic ticket resolution after inactivity.
+  @JsonKey(defaultValue: false)
+  final bool autoResolutionEnabled;
+
+  /// Auto-resolution timeout in hours.
+  @JsonKey(defaultValue: 24)
+  final int autoResolutionTimeoutHours;
+
   const TenantSettings({
     required this.allowInvitations,
     required this.defaultRole,
     required this.enableAuditLog,
+    this.autoResolutionEnabled = false,
+    this.autoResolutionTimeoutHours = 24,
   });
 
   factory TenantSettings.fromJson(Map<String, dynamic> json) =>
