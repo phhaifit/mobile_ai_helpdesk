@@ -10,7 +10,14 @@ _$MessageEntitiesDtoImpl _$$MessageEntitiesDtoImplFromJson(
   Map<String, dynamic> json,
 ) => _$MessageEntitiesDtoImpl(
   channels: json['channels'] as Map<String, dynamic>? ?? const {},
-  senders: json['senders'] as Map<String, dynamic>? ?? const {},
+  senders:
+      (json['senders'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(
+          k,
+          CustomerSupportInfoDto.fromJson(e as Map<String, dynamic>),
+        ),
+      ) ??
+      const {},
   tickets: json['tickets'] as Map<String, dynamic>? ?? const {},
 );
 

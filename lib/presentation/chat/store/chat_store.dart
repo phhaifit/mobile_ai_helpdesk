@@ -130,7 +130,7 @@ abstract class _ChatStore with Store {
       } else {
         // Add new reaction
         messageList[index] = message.copyWith(
-          reactions: [...message.reactions, newReaction],
+          reactions: [...message.reactions, Reaction(id: '', user: User(id: 'You', name: 'You', avatar: ''), emoji: emoji, amount: 1)],
         );
       }
     }
@@ -194,11 +194,4 @@ abstract class _ChatStore with Store {
     _draftSub?.cancel();
   }
 
-  @action
-  void _updateMessageReadStatus(String messageId, SeenInfo newSeenInfo) {
-    final index = messageList.indexWhere((m) => m.id == messageId);
-    if (index != -1) {
-      messageList[index] = messageList[index].copyWith(seenInfo: newSeenInfo);
-    }
-  }
 }

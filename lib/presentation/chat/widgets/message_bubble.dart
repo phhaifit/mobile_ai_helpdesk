@@ -61,7 +61,7 @@ class MessageBubble extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 46, bottom: 2),
                     child: Text(
-                      message.senderName,
+                      message.sender.name,
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 11,
@@ -165,7 +165,7 @@ class MessageBubble extends StatelessWidget {
                         ),
                         if (isMe) ...[
                           const SizedBox(width: 4),
-                          _buildReadStatusIcon(),
+                          _buildDeliveryStatusIcon(),
                         ],
                       ],
                     ),
@@ -184,8 +184,8 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    final initial = message.senderName.isNotEmpty
-        ? message.senderName[0].toUpperCase()
+    final initial = message.sender.name.isNotEmpty
+        ? message.sender.name[0].toUpperCase()
         : '?';
     return CircleAvatar(
       radius: 15,
@@ -239,24 +239,26 @@ class MessageBubble extends StatelessWidget {
     return '${time.day}/${time.month} $timeStr';
   }
 
-  Widget _buildReadStatusIcon() {
-    switch (message.readStatus) {
-      case MessageReadStatus.sent:
-        return Tooltip(
-          message: 'Sent',
-          child: Icon(Icons.done, size: 14, color: Colors.grey.shade600),
-        );
-      case MessageReadStatus.delivered:
-        return Tooltip(
-          message: 'Delivered',
-          child: Icon(Icons.done_all, size: 14, color: Colors.grey.shade600),
-        );
-      case MessageReadStatus.read:
-        return const Tooltip(
-          message: 'Read',
-          child: Icon(Icons.done_all, size: 14, color: AppColors.messengerBlue),
-        );
-    }
+  Widget _buildDeliveryStatusIcon() {
+    // switch (message.readStatus) {
+    //   case MessageReadStatus.sent:
+    //     return Tooltip(
+    //       message: 'Sent',
+    //       child: Icon(Icons.done, size: 14, color: Colors.grey.shade600),
+    //     );
+    //   case MessageReadStatus.delivered:
+    //     return Tooltip(
+    //       message: 'Delivered',
+    //       child: Icon(Icons.done_all, size: 14, color: Colors.grey.shade600),
+    //     );
+    //   case MessageReadStatus.read:
+    //     return const Tooltip(
+    //       message: 'Read',
+    //       child: Icon(Icons.done_all, size: 14, color: AppColors.messengerBlue),
+    //     );
+    // }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildReactions() {
@@ -278,7 +280,7 @@ class MessageBubble extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${reaction.emoji} ${reaction.userNames.length}',
+                '${reaction.emoji} ${reaction.amount}',
                 style: const TextStyle(fontSize: 12),
               ),
             ),

@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'content_info_dto.freezed.dart';
-part 'content_info_dto.g.dart';
 
 @freezed
 class ContentInfoDto with _$ContentInfoDto {
@@ -26,34 +25,41 @@ class ContentInfoDto with _$ContentInfoDto {
 
   const factory ContentInfoDto.unknown() = UnknownContentInfoDto;
 
-  factory ContentInfoDto.fromJson(Map<String, dynamic> json) => 
-      _$ContentInfoDtoFromJson(json);
 }
 
-extension ContentInfoDtoMapper on ContentInfoDto {
-  static ContentInfoDto fromJson(Map<String, dynamic> json, String type) {
+class ContentInfoDtoMapper {
+  static ContentInfoDto fromJson(
+    Map<String, dynamic> json,
+    String type,
+  ) {
     switch (type) {
       case 'MESSENGER':
         return ContentInfoDto.messenger(
-          messageId: json['messageID'] as String,
+          messageId: json['messageID'] as String? ?? '',
           messengerMessageId: json['messengerMessageID'] as String,
           content: json['content'] as String,
-          recipientId: json['recipientID'] as String,
-          createdAt: json['createdAt'] is String ? DateTime.parse(json['createdAt'] as String) : null,
-          updatedAt: json['updatedAt'] is String ? DateTime.parse(json['updatedAt'] as String) : null,
-          deletedAt: json['deletedAt'] is String ? DateTime.parse(json['deletedAt'] as String) : null,
+          recipientId: json['recipientID'] as String? ?? '',
+          createdAt: _parseDate(json['createdAt']),
+          updatedAt: _parseDate(json['updatedAt']),
+          deletedAt: _parseDate(json['deletedAt']),
         );
+
       case 'ZALO':
         return ContentInfoDto.zalo(
           messageId: json['messageID'] as String,
           zaloMessageId: json['zaloMessageID'] as String,
           content: json['content'] as String,
-          createdAt: json['createdAt'] is String ? DateTime.parse(json['createdAt'] as String) : null,
-          updatedAt: json['updatedAt'] is String ? DateTime.parse(json['updatedAt'] as String) : null,
-          deletedAt: json['deletedAt'] is String ? DateTime.parse(json['deletedAt'] as String) : null,
+          createdAt: _parseDate(json['createdAt']),
+          updatedAt: _parseDate(json['updatedAt']),
+          deletedAt: _parseDate(json['deletedAt']),
         );
+
       default:
         return const ContentInfoDto.unknown();
     }
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    return value is String ? DateTime.parse(value) : null;
   }
 }

@@ -41,6 +41,8 @@ mixin _$ChatRoomDto {
   List<Map<String, dynamic>> get tickets => throw _privateConstructorUsedError;
   List<SeenInfoDto> get seenInfo => throw _privateConstructorUsedError;
   int get seenMessageOrder => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get defaultChannel =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this ChatRoomDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -75,6 +77,7 @@ abstract class $ChatRoomDtoCopyWith<$Res> {
     List<Map<String, dynamic>> tickets,
     List<SeenInfoDto> seenInfo,
     int seenMessageOrder,
+    Map<String, dynamic>? defaultChannel,
   });
 
   $MessageDtoCopyWith<$Res>? get lastMessage;
@@ -112,6 +115,7 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
     Object? tickets = null,
     Object? seenInfo = null,
     Object? seenMessageOrder = null,
+    Object? defaultChannel = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -190,6 +194,11 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
                     ? _value.seenMessageOrder
                     : seenMessageOrder // ignore: cast_nullable_to_non_nullable
                         as int,
+            defaultChannel:
+                freezed == defaultChannel
+                    ? _value.defaultChannel
+                    : defaultChannel // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>?,
           )
           as $Val,
     );
@@ -263,6 +272,7 @@ abstract class _$$ChatRoomDtoImplCopyWith<$Res>
     List<Map<String, dynamic>> tickets,
     List<SeenInfoDto> seenInfo,
     int seenMessageOrder,
+    Map<String, dynamic>? defaultChannel,
   });
 
   @override
@@ -302,6 +312,7 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
     Object? tickets = null,
     Object? seenInfo = null,
     Object? seenMessageOrder = null,
+    Object? defaultChannel = freezed,
   }) {
     return _then(
       _$ChatRoomDtoImpl(
@@ -380,6 +391,11 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
                 ? _value.seenMessageOrder
                 : seenMessageOrder // ignore: cast_nullable_to_non_nullable
                     as int,
+        defaultChannel:
+            freezed == defaultChannel
+                ? _value._defaultChannel
+                : defaultChannel // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>?,
       ),
     );
   }
@@ -404,9 +420,11 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
     final List<Map<String, dynamic>> tickets = const [],
     final List<SeenInfoDto> seenInfo = const [],
     this.seenMessageOrder = 0,
+    final Map<String, dynamic>? defaultChannel,
   }) : _myCurrentTicket = myCurrentTicket,
        _tickets = tickets,
-       _seenInfo = seenInfo;
+       _seenInfo = seenInfo,
+       _defaultChannel = defaultChannel;
 
   factory _$ChatRoomDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChatRoomDtoImplFromJson(json);
@@ -470,10 +488,19 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
   @override
   @JsonKey()
   final int seenMessageOrder;
+  final Map<String, dynamic>? _defaultChannel;
+  @override
+  Map<String, dynamic>? get defaultChannel {
+    final value = _defaultChannel;
+    if (value == null) return null;
+    if (_defaultChannel is EqualUnmodifiableMapView) return _defaultChannel;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'ChatRoomDto(chatRoomId: $chatRoomId, customerId: $customerId, groupId: $groupId, lastMessageId: $lastMessageId, totalMessage: $totalMessage, followupCount: $followupCount, createdAt: $createdAt, updatedAt: $updatedAt, lastMessage: $lastMessage, customerInfo: $customerInfo, groupInfo: $groupInfo, myCurrentTicket: $myCurrentTicket, tickets: $tickets, seenInfo: $seenInfo, seenMessageOrder: $seenMessageOrder)';
+    return 'ChatRoomDto(chatRoomId: $chatRoomId, customerId: $customerId, groupId: $groupId, lastMessageId: $lastMessageId, totalMessage: $totalMessage, followupCount: $followupCount, createdAt: $createdAt, updatedAt: $updatedAt, lastMessage: $lastMessage, customerInfo: $customerInfo, groupInfo: $groupInfo, myCurrentTicket: $myCurrentTicket, tickets: $tickets, seenInfo: $seenInfo, seenMessageOrder: $seenMessageOrder, defaultChannel: $defaultChannel)';
   }
 
   @override
@@ -509,7 +536,11 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
             const DeepCollectionEquality().equals(other._tickets, _tickets) &&
             const DeepCollectionEquality().equals(other._seenInfo, _seenInfo) &&
             (identical(other.seenMessageOrder, seenMessageOrder) ||
-                other.seenMessageOrder == seenMessageOrder));
+                other.seenMessageOrder == seenMessageOrder) &&
+            const DeepCollectionEquality().equals(
+              other._defaultChannel,
+              _defaultChannel,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -531,6 +562,7 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
     const DeepCollectionEquality().hash(_tickets),
     const DeepCollectionEquality().hash(_seenInfo),
     seenMessageOrder,
+    const DeepCollectionEquality().hash(_defaultChannel),
   );
 
   /// Create a copy of ChatRoomDto
@@ -564,6 +596,7 @@ abstract class _ChatRoomDto implements ChatRoomDto {
     final List<Map<String, dynamic>> tickets,
     final List<SeenInfoDto> seenInfo,
     final int seenMessageOrder,
+    final Map<String, dynamic>? defaultChannel,
   }) = _$ChatRoomDtoImpl;
 
   factory _ChatRoomDto.fromJson(Map<String, dynamic> json) =
@@ -603,6 +636,8 @@ abstract class _ChatRoomDto implements ChatRoomDto {
   List<SeenInfoDto> get seenInfo;
   @override
   int get seenMessageOrder;
+  @override
+  Map<String, dynamic>? get defaultChannel;
 
   /// Create a copy of ChatRoomDto
   /// with the given fields replaced by the non-null parameter values.

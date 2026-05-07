@@ -46,6 +46,12 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
   replyMessage: json['replyMessage'] as Map<String, dynamic>? ?? const {},
   slackMessage: json['slackMessage'] as Map<String, dynamic>? ?? const {},
   zohoDeskMessage: json['zohoDeskMessage'] as Map<String, dynamic>? ?? const {},
+  senderInfo:
+      json['senderInfo'] == null
+          ? null
+          : CustomerSupportInfoDto.fromJson(
+            json['senderInfo'] as Map<String, dynamic>,
+          ),
 );
 
 Map<String, dynamic> _$$MessageDtoImplToJson(_$MessageDtoImpl instance) =>
@@ -71,4 +77,5 @@ Map<String, dynamic> _$$MessageDtoImplToJson(_$MessageDtoImpl instance) =>
       'replyMessage': instance.replyMessage,
       'slackMessage': instance.slackMessage,
       'zohoDeskMessage': instance.zohoDeskMessage,
+      'senderInfo': instance.senderInfo,
     };

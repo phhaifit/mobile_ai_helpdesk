@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'contact_info_dto.dart';
+import 'customer_support_info_dto.dart';
 import 'file_attachment_dto.dart';
 import 'message_reaction_dto.dart';
 
@@ -31,6 +32,7 @@ class MessageDto with _$MessageDto {
     @Default({}) Map<String, dynamic> replyMessage,
     @Default({}) Map<String, dynamic> slackMessage,
     @Default({}) Map<String, dynamic> zohoDeskMessage,
+    @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
   }) = _MessageDto;
 
   factory MessageDto.fromJson(Map<String, dynamic> json) => 

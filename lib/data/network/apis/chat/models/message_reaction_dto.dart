@@ -14,8 +14,10 @@ class MessageReactionDto with _$MessageReactionDto {
     @Default(0) int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    CustomerInfoDto? customerInfo,
-    CustomerSupportInfoDto? customerSupportInfo,
+    @JsonKey(name: 'customerSupportName') String? customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') String? customerSupportAvatar,
+    @JsonKey(name: 'customerName') String? customerName,
+    @JsonKey(name: 'customerAvatar') String? customerAvatar,
   }) = _MessageReactionDto;
 
   factory MessageReactionDto.fromJson(Map<String, dynamic> json) => 

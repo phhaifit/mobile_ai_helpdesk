@@ -26,6 +26,7 @@ class ChatRoomDto with _$ChatRoomDto {
     @Default([]) List<Map<String, dynamic>> tickets,
     @Default([]) List<SeenInfoDto> seenInfo,
     @Default(0) int seenMessageOrder,
+    Map<String, dynamic>? defaultChannel,
   }) = _ChatRoomDto;
 
   factory ChatRoomDto.fromJson(Map<String, dynamic> json) => 

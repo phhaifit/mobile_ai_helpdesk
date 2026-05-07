@@ -15,25 +15,6 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
-ContentInfoDto _$ContentInfoDtoFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType']) {
-    case 'messenger':
-      return MessengerContentInfoDto.fromJson(json);
-    case 'zalo':
-      return ZaloContentInfoDto.fromJson(json);
-    case 'unknown':
-      return UnknownContentInfoDto.fromJson(json);
-
-    default:
-      throw CheckedFromJsonException(
-        json,
-        'runtimeType',
-        'ContentInfoDto',
-        'Invalid union type "${json['runtimeType']}"!',
-      );
-  }
-}
-
 /// @nodoc
 mixin _$ContentInfoDto {
   @optionalTypeArgs
@@ -125,9 +106,6 @@ mixin _$ContentInfoDto {
     TResult Function(UnknownContentInfoDto value)? unknown,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
-
-  /// Serializes this ContentInfoDto to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -235,7 +213,7 @@ class __$$MessengerContentInfoDtoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$MessengerContentInfoDtoImpl implements MessengerContentInfoDto {
   const _$MessengerContentInfoDtoImpl({
     @JsonKey(name: 'messageID') this.messageId = '',
@@ -245,11 +223,7 @@ class _$MessengerContentInfoDtoImpl implements MessengerContentInfoDto {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    final String? $type,
-  }) : $type = $type ?? 'messenger';
-
-  factory _$MessengerContentInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MessengerContentInfoDtoImplFromJson(json);
+  });
 
   @override
   @JsonKey(name: 'messageID')
@@ -269,9 +243,6 @@ class _$MessengerContentInfoDtoImpl implements MessengerContentInfoDto {
   final DateTime? updatedAt;
   @override
   final DateTime? deletedAt;
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
 
   @override
   String toString() {
@@ -298,7 +269,6 @@ class _$MessengerContentInfoDtoImpl implements MessengerContentInfoDto {
                 other.deletedAt == deletedAt));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
@@ -463,11 +433,6 @@ class _$MessengerContentInfoDtoImpl implements MessengerContentInfoDto {
     }
     return orElse();
   }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$MessengerContentInfoDtoImplToJson(this);
-  }
 }
 
 abstract class MessengerContentInfoDto implements ContentInfoDto {
@@ -480,9 +445,6 @@ abstract class MessengerContentInfoDto implements ContentInfoDto {
     final DateTime? updatedAt,
     final DateTime? deletedAt,
   }) = _$MessengerContentInfoDtoImpl;
-
-  factory MessengerContentInfoDto.fromJson(Map<String, dynamic> json) =
-      _$MessengerContentInfoDtoImpl.fromJson;
 
   @JsonKey(name: 'messageID')
   String get messageId;
@@ -579,7 +541,7 @@ class __$$ZaloContentInfoDtoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$ZaloContentInfoDtoImpl implements ZaloContentInfoDto {
   const _$ZaloContentInfoDtoImpl({
     @JsonKey(name: 'messageID') this.messageId = '',
@@ -588,11 +550,7 @@ class _$ZaloContentInfoDtoImpl implements ZaloContentInfoDto {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    final String? $type,
-  }) : $type = $type ?? 'zalo';
-
-  factory _$ZaloContentInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ZaloContentInfoDtoImplFromJson(json);
+  });
 
   @override
   @JsonKey(name: 'messageID')
@@ -609,9 +567,6 @@ class _$ZaloContentInfoDtoImpl implements ZaloContentInfoDto {
   final DateTime? updatedAt;
   @override
   final DateTime? deletedAt;
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
 
   @override
   String toString() {
@@ -636,7 +591,6 @@ class _$ZaloContentInfoDtoImpl implements ZaloContentInfoDto {
                 other.deletedAt == deletedAt));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
     runtimeType,
@@ -798,11 +752,6 @@ class _$ZaloContentInfoDtoImpl implements ZaloContentInfoDto {
     }
     return orElse();
   }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$ZaloContentInfoDtoImplToJson(this);
-  }
 }
 
 abstract class ZaloContentInfoDto implements ContentInfoDto {
@@ -814,9 +763,6 @@ abstract class ZaloContentInfoDto implements ContentInfoDto {
     final DateTime? updatedAt,
     final DateTime? deletedAt,
   }) = _$ZaloContentInfoDtoImpl;
-
-  factory ZaloContentInfoDto.fromJson(Map<String, dynamic> json) =
-      _$ZaloContentInfoDtoImpl.fromJson;
 
   @JsonKey(name: 'messageID')
   String get messageId;
@@ -857,16 +803,9 @@ class __$$UnknownContentInfoDtoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$UnknownContentInfoDtoImpl implements UnknownContentInfoDto {
-  const _$UnknownContentInfoDtoImpl({final String? $type})
-    : $type = $type ?? 'unknown';
-
-  factory _$UnknownContentInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UnknownContentInfoDtoImplFromJson(json);
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+  const _$UnknownContentInfoDtoImpl();
 
   @override
   String toString() {
@@ -880,7 +819,6 @@ class _$UnknownContentInfoDtoImpl implements UnknownContentInfoDto {
             other is _$UnknownContentInfoDtoImpl);
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => runtimeType.hashCode;
 
@@ -1002,16 +940,8 @@ class _$UnknownContentInfoDtoImpl implements UnknownContentInfoDto {
     }
     return orElse();
   }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$UnknownContentInfoDtoImplToJson(this);
-  }
 }
 
 abstract class UnknownContentInfoDto implements ContentInfoDto {
   const factory UnknownContentInfoDto() = _$UnknownContentInfoDtoImpl;
-
-  factory UnknownContentInfoDto.fromJson(Map<String, dynamic> json) =
-      _$UnknownContentInfoDtoImpl.fromJson;
 }

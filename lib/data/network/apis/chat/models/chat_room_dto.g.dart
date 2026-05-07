@@ -43,6 +43,7 @@ _$ChatRoomDtoImpl _$$ChatRoomDtoImplFromJson(
           .toList() ??
       const [],
   seenMessageOrder: (json['seenMessageOrder'] as num?)?.toInt() ?? 0,
+  defaultChannel: json['defaultChannel'] as Map<String, dynamic>?,
 );
 
 Map<String, dynamic> _$$ChatRoomDtoImplToJson(_$ChatRoomDtoImpl instance) =>
@@ -62,4 +63,5 @@ Map<String, dynamic> _$$ChatRoomDtoImplToJson(_$ChatRoomDtoImpl instance) =>
       'tickets': instance.tickets,
       'seenInfo': instance.seenInfo,
       'seenMessageOrder': instance.seenMessageOrder,
+      'defaultChannel': instance.defaultChannel,
     };

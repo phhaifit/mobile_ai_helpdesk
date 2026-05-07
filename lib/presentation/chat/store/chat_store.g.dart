@@ -215,18 +215,6 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void _updateMessageReadStatus(String messageId, InvalidType newStatus) {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore._updateMessageReadStatus',
-    );
-    try {
-      return super._updateMessageReadStatus(messageId, newStatus);
-    } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   String toString() {
     return '''
 messageList: ${messageList},

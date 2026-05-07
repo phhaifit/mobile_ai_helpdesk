@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'react_to_message_usecase.dart';
 
 class UnreactToMessageUseCase extends UseCase<bool, ReactToMessageRequest> {
   final ChatRepository _repository;

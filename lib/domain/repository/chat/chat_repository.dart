@@ -1,3 +1,5 @@
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/entity/chat/message.dart';
 import '../../../domain/entity/chat/message_group.dart';
 import '../../../domain/entity/chat/reaction.dart';
@@ -17,17 +19,12 @@ abstract class ChatRepository {
   });
 
   Future<Message> sendMessageFromAgentToCustomer({
-    required String chatRoomId,
-    required String channelId,
-    required String contactId,
-    required String content,
-    String? replyMessageId,
-    String? socketId,
+    required SendAgentToCustomerMessageParams params,
   });
 
-  Future<Reaction> reactToMessage(ReactToMessageRequest request);
+  Future<Reaction> reactToMessage(ReactToMessageRequest params);
 
-  Future<bool> unreactToMessage(ReactToMessageRequest request);
+  Future<bool> unreactToMessage(ReactToMessageRequest params);
 
   Future<int> countSearchResultsInChatRoom({
     required String chatRoomId,
@@ -51,25 +48,5 @@ abstract class ChatRepository {
   Future<Map<String, dynamic>> generateAiDraftResponse({
     required String chatRoomId,
     String? ticketId,
-  });
-}
-
-class ReactToMessageRequest {
-  final String messageId;
-  final String zaloMessageId;
-  final String reactIcon;
-  final String zaloAccountId;
-  final String chatRoomId;
-  final String? socketId;
-  final String? channelId;
-
-  const ReactToMessageRequest({
-    required this.messageId,
-    required this.zaloMessageId,
-    required this.reactIcon,
-    required this.zaloAccountId,
-    required this.chatRoomId,
-    this.socketId,
-    this.channelId,
   });
 }

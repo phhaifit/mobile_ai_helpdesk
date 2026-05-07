@@ -31,9 +31,14 @@ mixin _$MessageReactionDto {
   String? get customerId => throw _privateConstructorUsedError;
   @JsonKey(name: 'customerSupportID')
   String? get customerSupportId => throw _privateConstructorUsedError;
-  CustomerInfoDto? get customerInfo => throw _privateConstructorUsedError;
-  CustomerSupportInfoDto? get customerSupportInfo =>
-      throw _privateConstructorUsedError;
+  @JsonKey(name: 'customerSupportName')
+  String? get customerSupportName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customerSupportAvatar')
+  String? get customerSupportAvatar => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customerName')
+  String? get customerName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customerAvatar')
+  String? get customerAvatar => throw _privateConstructorUsedError;
 
   /// Serializes this MessageReactionDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,12 +64,11 @@ abstract class $MessageReactionDtoCopyWith<$Res> {
     int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    CustomerInfoDto? customerInfo,
-    CustomerSupportInfoDto? customerSupportInfo,
+    @JsonKey(name: 'customerSupportName') String? customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') String? customerSupportAvatar,
+    @JsonKey(name: 'customerName') String? customerName,
+    @JsonKey(name: 'customerAvatar') String? customerAvatar,
   });
-
-  $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
-  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo;
 }
 
 /// @nodoc
@@ -88,8 +92,10 @@ class _$MessageReactionDtoCopyWithImpl<$Res, $Val extends MessageReactionDto>
     Object? amount = null,
     Object? customerId = freezed,
     Object? customerSupportId = freezed,
-    Object? customerInfo = freezed,
-    Object? customerSupportInfo = freezed,
+    Object? customerSupportName = freezed,
+    Object? customerSupportAvatar = freezed,
+    Object? customerName = freezed,
+    Object? customerAvatar = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -123,49 +129,29 @@ class _$MessageReactionDtoCopyWithImpl<$Res, $Val extends MessageReactionDto>
                     ? _value.customerSupportId
                     : customerSupportId // ignore: cast_nullable_to_non_nullable
                         as String?,
-            customerInfo:
-                freezed == customerInfo
-                    ? _value.customerInfo
-                    : customerInfo // ignore: cast_nullable_to_non_nullable
-                        as CustomerInfoDto?,
-            customerSupportInfo:
-                freezed == customerSupportInfo
-                    ? _value.customerSupportInfo
-                    : customerSupportInfo // ignore: cast_nullable_to_non_nullable
-                        as CustomerSupportInfoDto?,
+            customerSupportName:
+                freezed == customerSupportName
+                    ? _value.customerSupportName
+                    : customerSupportName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            customerSupportAvatar:
+                freezed == customerSupportAvatar
+                    ? _value.customerSupportAvatar
+                    : customerSupportAvatar // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            customerName:
+                freezed == customerName
+                    ? _value.customerName
+                    : customerName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            customerAvatar:
+                freezed == customerAvatar
+                    ? _value.customerAvatar
+                    : customerAvatar // ignore: cast_nullable_to_non_nullable
+                        as String?,
           )
           as $Val,
     );
-  }
-
-  /// Create a copy of MessageReactionDto
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CustomerInfoDtoCopyWith<$Res>? get customerInfo {
-    if (_value.customerInfo == null) {
-      return null;
-    }
-
-    return $CustomerInfoDtoCopyWith<$Res>(_value.customerInfo!, (value) {
-      return _then(_value.copyWith(customerInfo: value) as $Val);
-    });
-  }
-
-  /// Create a copy of MessageReactionDto
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo {
-    if (_value.customerSupportInfo == null) {
-      return null;
-    }
-
-    return $CustomerSupportInfoDtoCopyWith<$Res>(_value.customerSupportInfo!, (
-      value,
-    ) {
-      return _then(_value.copyWith(customerSupportInfo: value) as $Val);
-    });
   }
 }
 
@@ -185,14 +171,11 @@ abstract class _$$MessageReactionDtoImplCopyWith<$Res>
     int amount,
     @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'customerSupportID') String? customerSupportId,
-    CustomerInfoDto? customerInfo,
-    CustomerSupportInfoDto? customerSupportInfo,
+    @JsonKey(name: 'customerSupportName') String? customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') String? customerSupportAvatar,
+    @JsonKey(name: 'customerName') String? customerName,
+    @JsonKey(name: 'customerAvatar') String? customerAvatar,
   });
-
-  @override
-  $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
-  @override
-  $CustomerSupportInfoDtoCopyWith<$Res>? get customerSupportInfo;
 }
 
 /// @nodoc
@@ -215,8 +198,10 @@ class __$$MessageReactionDtoImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? customerId = freezed,
     Object? customerSupportId = freezed,
-    Object? customerInfo = freezed,
-    Object? customerSupportInfo = freezed,
+    Object? customerSupportName = freezed,
+    Object? customerSupportAvatar = freezed,
+    Object? customerName = freezed,
+    Object? customerAvatar = freezed,
   }) {
     return _then(
       _$MessageReactionDtoImpl(
@@ -250,16 +235,26 @@ class __$$MessageReactionDtoImplCopyWithImpl<$Res>
                 ? _value.customerSupportId
                 : customerSupportId // ignore: cast_nullable_to_non_nullable
                     as String?,
-        customerInfo:
-            freezed == customerInfo
-                ? _value.customerInfo
-                : customerInfo // ignore: cast_nullable_to_non_nullable
-                    as CustomerInfoDto?,
-        customerSupportInfo:
-            freezed == customerSupportInfo
-                ? _value.customerSupportInfo
-                : customerSupportInfo // ignore: cast_nullable_to_non_nullable
-                    as CustomerSupportInfoDto?,
+        customerSupportName:
+            freezed == customerSupportName
+                ? _value.customerSupportName
+                : customerSupportName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        customerSupportAvatar:
+            freezed == customerSupportAvatar
+                ? _value.customerSupportAvatar
+                : customerSupportAvatar // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        customerName:
+            freezed == customerName
+                ? _value.customerName
+                : customerName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        customerAvatar:
+            freezed == customerAvatar
+                ? _value.customerAvatar
+                : customerAvatar // ignore: cast_nullable_to_non_nullable
+                    as String?,
       ),
     );
   }
@@ -275,8 +270,10 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
     this.amount = 0,
     @JsonKey(name: 'customerID') this.customerId,
     @JsonKey(name: 'customerSupportID') this.customerSupportId,
-    this.customerInfo,
-    this.customerSupportInfo,
+    @JsonKey(name: 'customerSupportName') this.customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') this.customerSupportAvatar,
+    @JsonKey(name: 'customerName') this.customerName,
+    @JsonKey(name: 'customerAvatar') this.customerAvatar,
   });
 
   factory _$MessageReactionDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -301,13 +298,21 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
   @JsonKey(name: 'customerSupportID')
   final String? customerSupportId;
   @override
-  final CustomerInfoDto? customerInfo;
+  @JsonKey(name: 'customerSupportName')
+  final String? customerSupportName;
   @override
-  final CustomerSupportInfoDto? customerSupportInfo;
+  @JsonKey(name: 'customerSupportAvatar')
+  final String? customerSupportAvatar;
+  @override
+  @JsonKey(name: 'customerName')
+  final String? customerName;
+  @override
+  @JsonKey(name: 'customerAvatar')
+  final String? customerAvatar;
 
   @override
   String toString() {
-    return 'MessageReactionDto(messageReactionId: $messageReactionId, messageId: $messageId, emoji: $emoji, amount: $amount, customerId: $customerId, customerSupportId: $customerSupportId, customerInfo: $customerInfo, customerSupportInfo: $customerSupportInfo)';
+    return 'MessageReactionDto(messageReactionId: $messageReactionId, messageId: $messageId, emoji: $emoji, amount: $amount, customerId: $customerId, customerSupportId: $customerSupportId, customerSupportName: $customerSupportName, customerSupportAvatar: $customerSupportAvatar, customerName: $customerName, customerAvatar: $customerAvatar)';
   }
 
   @override
@@ -325,10 +330,14 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
                 other.customerId == customerId) &&
             (identical(other.customerSupportId, customerSupportId) ||
                 other.customerSupportId == customerSupportId) &&
-            (identical(other.customerInfo, customerInfo) ||
-                other.customerInfo == customerInfo) &&
-            (identical(other.customerSupportInfo, customerSupportInfo) ||
-                other.customerSupportInfo == customerSupportInfo));
+            (identical(other.customerSupportName, customerSupportName) ||
+                other.customerSupportName == customerSupportName) &&
+            (identical(other.customerSupportAvatar, customerSupportAvatar) ||
+                other.customerSupportAvatar == customerSupportAvatar) &&
+            (identical(other.customerName, customerName) ||
+                other.customerName == customerName) &&
+            (identical(other.customerAvatar, customerAvatar) ||
+                other.customerAvatar == customerAvatar));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -341,8 +350,10 @@ class _$MessageReactionDtoImpl implements _MessageReactionDto {
     amount,
     customerId,
     customerSupportId,
-    customerInfo,
-    customerSupportInfo,
+    customerSupportName,
+    customerSupportAvatar,
+    customerName,
+    customerAvatar,
   );
 
   /// Create a copy of MessageReactionDto
@@ -370,8 +381,10 @@ abstract class _MessageReactionDto implements MessageReactionDto {
     final int amount,
     @JsonKey(name: 'customerID') final String? customerId,
     @JsonKey(name: 'customerSupportID') final String? customerSupportId,
-    final CustomerInfoDto? customerInfo,
-    final CustomerSupportInfoDto? customerSupportInfo,
+    @JsonKey(name: 'customerSupportName') final String? customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') final String? customerSupportAvatar,
+    @JsonKey(name: 'customerName') final String? customerName,
+    @JsonKey(name: 'customerAvatar') final String? customerAvatar,
   }) = _$MessageReactionDtoImpl;
 
   factory _MessageReactionDto.fromJson(Map<String, dynamic> json) =
@@ -394,9 +407,17 @@ abstract class _MessageReactionDto implements MessageReactionDto {
   @JsonKey(name: 'customerSupportID')
   String? get customerSupportId;
   @override
-  CustomerInfoDto? get customerInfo;
+  @JsonKey(name: 'customerSupportName')
+  String? get customerSupportName;
   @override
-  CustomerSupportInfoDto? get customerSupportInfo;
+  @JsonKey(name: 'customerSupportAvatar')
+  String? get customerSupportAvatar;
+  @override
+  @JsonKey(name: 'customerName')
+  String? get customerName;
+  @override
+  @JsonKey(name: 'customerAvatar')
+  String? get customerAvatar;
 
   /// Create a copy of MessageReactionDto
   /// with the given fields replaced by the non-null parameter values.

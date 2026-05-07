@@ -12,3 +12,23 @@ class ReactToMessageUseCase extends UseCase<Reaction, ReactToMessageRequest> {
     return _repository.reactToMessage(params);
   }
 }
+
+class ReactToMessageRequest {
+  final String messageId;
+  final String zaloMessageId;
+  final String reactIcon;
+  final String zaloAccountId;
+  final String chatRoomId;
+  final String? socketId;
+  final String? channelId;
+
+  const ReactToMessageRequest({
+    required this.messageId,
+    required this.zaloMessageId,
+    required this.reactIcon,
+    required this.zaloAccountId,
+    required this.chatRoomId,
+    this.socketId,
+    this.channelId,
+  });
+}

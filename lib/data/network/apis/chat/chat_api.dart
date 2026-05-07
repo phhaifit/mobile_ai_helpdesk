@@ -28,7 +28,7 @@ class ChatApi {
       queryParameters: params.toJson(),
     );
 
-    return (res.data as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
+    return (res.data['data'] as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   
@@ -46,7 +46,7 @@ class ChatApi {
         'getAll': getAll,
       },
     );
-    return ChatRoomCounterDto.fromJson((res.data as List)[0] as Map<String, dynamic>);
+    return ChatRoomCounterDto.fromJson((res.data['data'] as List)[0] as Map<String, dynamic>);
   }
 
   Future<List<ChatRoomDto>> getChatRoomDetail({
@@ -60,7 +60,7 @@ class ChatApi {
         if (customerId != null) 'customerID': customerId,
       },
     );
-    return (res.data as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
+    return (res.data['data'] as List).map((e) => ChatRoomDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Returns messages for a chat room with cursor-based pagination.
@@ -83,7 +83,7 @@ class ChatApi {
         'limit': limit,
       },
     );
-    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
+    return MessageListDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// Fetches messages newer than lastMessageID (ascending order).
@@ -102,7 +102,7 @@ class ChatApi {
         'limit': limit,
       },
     );
-    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
+    return MessageListDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// Sends a message from a customer support agent to a customer.
@@ -118,7 +118,7 @@ class ChatApi {
       Endpoints.csToCustomer(),
       data: params.toJson(),
     );
-    return MessageDto.fromJson(res.data as Map<String, dynamic>);
+    return MessageDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// Marks a chat room as read up to a specific message.
@@ -139,7 +139,7 @@ class ChatApi {
         if (socketId != null) 'socketID': socketId,
       },
     );
-    return SeenInfoDto.fromJson(res.data as Map<String, dynamic>);
+    return SeenInfoDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// Adds an emoji reaction to a message.
@@ -152,7 +152,7 @@ class ChatApi {
       Endpoints.reactToMessage(),
       data: params.toJson(),
     );
-    return MessageReactionDto.fromJson(res.data as Map<String, dynamic>);
+    return MessageReactionDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// Removes an emoji reaction.
@@ -165,7 +165,7 @@ class ChatApi {
       Endpoints.unreactToMessage(),
       data: params.toJson(),
     );
-    return res.data['success'] as bool? ?? false;
+    return res.data['data']['success'] as bool? ?? false;
   } 
 
   /// Counts the number of search results in a chat room.
@@ -181,7 +181,7 @@ class ChatApi {
         'keyword': keyword,
       },
     );
-    return res.data as int? ?? 0;
+    return res.data['data'] as int? ?? 0;
   }
 
   /// Returns search results grouped by chat room, useful for global search UI.
@@ -194,7 +194,7 @@ class ChatApi {
         'keyword': keyword,
       },
     );
-    return (res.data as List).map((e) => MessageGroupDto.fromJson(e as Map<String, dynamic>)).toList();
+    return (res.data['data'] as List).map((e) => MessageGroupDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Returns a flat list of messages matching the keyword, optionally scoped to a chat room.
@@ -209,7 +209,7 @@ class ChatApi {
         if (chatRoomId != null) 'chatRoomId': chatRoomId,
       },
     );
-    return MessageListDto.fromJson(res.data as Map<String, dynamic>);
+    return MessageListDto.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
   /// BE proxy to AI-Services.
@@ -224,7 +224,7 @@ class ChatApi {
         if (ticketId != null) 'ticketId': ticketId,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return (res.data['data'] as Map).cast<String, dynamic>();
   }
 
   /// BE proxy to AI-Services.
@@ -241,7 +241,7 @@ class ChatApi {
         if (ticketId != null) 'ticketId': ticketId,
       },
     );
-    return (res.data as Map).cast<String, dynamic>();
+    return (res.data['data'] as Map).cast<String, dynamic>();
   }
 }
 

@@ -15,18 +15,10 @@ _$MessageReactionDtoImpl _$$MessageReactionDtoImplFromJson(
   amount: (json['amount'] as num?)?.toInt() ?? 0,
   customerId: json['customerID'] as String?,
   customerSupportId: json['customerSupportID'] as String?,
-  customerInfo:
-      json['customerInfo'] == null
-          ? null
-          : CustomerInfoDto.fromJson(
-            json['customerInfo'] as Map<String, dynamic>,
-          ),
-  customerSupportInfo:
-      json['customerSupportInfo'] == null
-          ? null
-          : CustomerSupportInfoDto.fromJson(
-            json['customerSupportInfo'] as Map<String, dynamic>,
-          ),
+  customerSupportName: json['customerSupportName'] as String?,
+  customerSupportAvatar: json['customerSupportAvatar'] as String?,
+  customerName: json['customerName'] as String?,
+  customerAvatar: json['customerAvatar'] as String?,
 );
 
 Map<String, dynamic> _$$MessageReactionDtoImplToJson(
@@ -38,6 +30,8 @@ Map<String, dynamic> _$$MessageReactionDtoImplToJson(
   'amount': instance.amount,
   'customerID': instance.customerId,
   'customerSupportID': instance.customerSupportId,
-  'customerInfo': instance.customerInfo,
-  'customerSupportInfo': instance.customerSupportInfo,
+  'customerSupportName': instance.customerSupportName,
+  'customerSupportAvatar': instance.customerSupportAvatar,
+  'customerName': instance.customerName,
+  'customerAvatar': instance.customerAvatar,
 };

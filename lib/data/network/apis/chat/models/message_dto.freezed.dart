@@ -50,6 +50,8 @@ mixin _$MessageDto {
   Map<String, dynamic> get slackMessage => throw _privateConstructorUsedError;
   Map<String, dynamic> get zohoDeskMessage =>
       throw _privateConstructorUsedError;
+  @JsonKey(name: 'senderInfo')
+  CustomerSupportInfoDto? get senderInfo => throw _privateConstructorUsedError;
 
   /// Serializes this MessageDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -90,9 +92,11 @@ abstract class $MessageDtoCopyWith<$Res> {
     Map<String, dynamic> replyMessage,
     Map<String, dynamic> slackMessage,
     Map<String, dynamic> zohoDeskMessage,
+    @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
   });
 
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
+  $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo;
 }
 
 /// @nodoc
@@ -131,6 +135,7 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
     Object? replyMessage = null,
     Object? slackMessage = null,
     Object? zohoDeskMessage = null,
+    Object? senderInfo = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -239,6 +244,11 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
                     ? _value.zohoDeskMessage
                     : zohoDeskMessage // ignore: cast_nullable_to_non_nullable
                         as Map<String, dynamic>,
+            senderInfo:
+                freezed == senderInfo
+                    ? _value.senderInfo
+                    : senderInfo // ignore: cast_nullable_to_non_nullable
+                        as CustomerSupportInfoDto?,
           )
           as $Val,
     );
@@ -251,6 +261,20 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
   $ContactInfoDtoCopyWith<$Res> get contactInfo {
     return $ContactInfoDtoCopyWith<$Res>(_value.contactInfo, (value) {
       return _then(_value.copyWith(contactInfo: value) as $Val);
+    });
+  }
+
+  /// Create a copy of MessageDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo {
+    if (_value.senderInfo == null) {
+      return null;
+    }
+
+    return $CustomerSupportInfoDtoCopyWith<$Res>(_value.senderInfo!, (value) {
+      return _then(_value.copyWith(senderInfo: value) as $Val);
     });
   }
 }
@@ -286,10 +310,13 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     Map<String, dynamic> replyMessage,
     Map<String, dynamic> slackMessage,
     Map<String, dynamic> zohoDeskMessage,
+    @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
   });
 
   @override
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
+  @override
+  $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo;
 }
 
 /// @nodoc
@@ -327,6 +354,7 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
     Object? replyMessage = null,
     Object? slackMessage = null,
     Object? zohoDeskMessage = null,
+    Object? senderInfo = freezed,
   }) {
     return _then(
       _$MessageDtoImpl(
@@ -435,6 +463,11 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
                 ? _value._zohoDeskMessage
                 : zohoDeskMessage // ignore: cast_nullable_to_non_nullable
                     as Map<String, dynamic>,
+        senderInfo:
+            freezed == senderInfo
+                ? _value.senderInfo
+                : senderInfo // ignore: cast_nullable_to_non_nullable
+                    as CustomerSupportInfoDto?,
       ),
     );
   }
@@ -465,6 +498,7 @@ class _$MessageDtoImpl implements _MessageDto {
     final Map<String, dynamic> replyMessage = const {},
     final Map<String, dynamic> slackMessage = const {},
     final Map<String, dynamic> zohoDeskMessage = const {},
+    @JsonKey(name: 'senderInfo') this.senderInfo,
   }) : _contentInfo = contentInfo,
        _ticketInfo = ticketInfo,
        _files = files,
@@ -577,8 +611,12 @@ class _$MessageDtoImpl implements _MessageDto {
   }
 
   @override
+  @JsonKey(name: 'senderInfo')
+  final CustomerSupportInfoDto? senderInfo;
+
+  @override
   String toString() {
-    return 'MessageDto(messageId: $messageId, chatRoomId: $chatRoomId, contactId: $contactId, ticketId: $ticketId, sender: $sender, replyMessageId: $replyMessageId, messageOrder: $messageOrder, messageType: $messageType, channelId: $channelId, zaloCliMsgId: $zaloCliMsgId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, contactInfo: $contactInfo, contentInfo: $contentInfo, ticketInfo: $ticketInfo, files: $files, reaction: $reaction, replyMessage: $replyMessage, slackMessage: $slackMessage, zohoDeskMessage: $zohoDeskMessage)';
+    return 'MessageDto(messageId: $messageId, chatRoomId: $chatRoomId, contactId: $contactId, ticketId: $ticketId, sender: $sender, replyMessageId: $replyMessageId, messageOrder: $messageOrder, messageType: $messageType, channelId: $channelId, zaloCliMsgId: $zaloCliMsgId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, contactInfo: $contactInfo, contentInfo: $contentInfo, ticketInfo: $ticketInfo, files: $files, reaction: $reaction, replyMessage: $replyMessage, slackMessage: $slackMessage, zohoDeskMessage: $zohoDeskMessage, senderInfo: $senderInfo)';
   }
 
   @override
@@ -634,7 +672,9 @@ class _$MessageDtoImpl implements _MessageDto {
             const DeepCollectionEquality().equals(
               other._zohoDeskMessage,
               _zohoDeskMessage,
-            ));
+            ) &&
+            (identical(other.senderInfo, senderInfo) ||
+                other.senderInfo == senderInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -662,6 +702,7 @@ class _$MessageDtoImpl implements _MessageDto {
     const DeepCollectionEquality().hash(_replyMessage),
     const DeepCollectionEquality().hash(_slackMessage),
     const DeepCollectionEquality().hash(_zohoDeskMessage),
+    senderInfo,
   ]);
 
   /// Create a copy of MessageDto
@@ -701,6 +742,7 @@ abstract class _MessageDto implements MessageDto {
     final Map<String, dynamic> replyMessage,
     final Map<String, dynamic> slackMessage,
     final Map<String, dynamic> zohoDeskMessage,
+    @JsonKey(name: 'senderInfo') final CustomerSupportInfoDto? senderInfo,
   }) = _$MessageDtoImpl;
 
   factory _MessageDto.fromJson(Map<String, dynamic> json) =
@@ -755,6 +797,9 @@ abstract class _MessageDto implements MessageDto {
   Map<String, dynamic> get slackMessage;
   @override
   Map<String, dynamic> get zohoDeskMessage;
+  @override
+  @JsonKey(name: 'senderInfo')
+  CustomerSupportInfoDto? get senderInfo;
 
   /// Create a copy of MessageDto
   /// with the given fields replaced by the non-null parameter values.
