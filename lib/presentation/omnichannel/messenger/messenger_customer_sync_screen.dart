@@ -58,14 +58,6 @@ class _MessengerCustomerSyncScreenState
                       Text(
                         '${l.translate('omnichannel_last_sync')}: ${formatDateTime(messenger.lastSyncAt)}',
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${l.translate('omnichannel_synced_customers')}: ${messenger.syncedCustomers}',
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${l.translate('omnichannel_failed_customers')}: ${messenger.failedCustomers}',
-                      ),
                     ],
                   ),
                 ),

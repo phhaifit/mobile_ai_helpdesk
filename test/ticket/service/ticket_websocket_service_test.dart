@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
@@ -20,7 +19,10 @@ void main() {
   late TicketWebSocketService service;
 
   setUp(() {
-    service = TicketWebSocketService(getToken: () async => 'test-token');
+    service = TicketWebSocketService(
+      getToken: () async => 'test-token',
+      getTenantId: () async => 'tenant-test',
+    );
   });
 
   tearDown(() {
@@ -52,9 +54,9 @@ void main() {
   // connectedTicketId state
   // ---------------------------------------------------------------------------
 
-  group('connectedTicketId', () {
+  group('connectedChatRoomId', () {
     test('is null before any connect call', () {
-      expect(service.connectedTicketId, isNull);
+      expect(service.connectedChatRoomId, isNull);
     });
   });
 
@@ -79,8 +81,10 @@ void main() {
 
   group('dispose', () {
     test('does not throw when called on a fresh service', () {
-      final localService =
-          TicketWebSocketService(getToken: () async => null);
+      final localService = TicketWebSocketService(
+        getToken: () async => null,
+        getTenantId: () async => null,
+      );
       expect(() => localService.dispose(), returnsNormally);
     });
   });

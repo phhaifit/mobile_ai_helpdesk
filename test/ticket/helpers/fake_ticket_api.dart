@@ -10,6 +10,7 @@ class FakeTicketApi extends TicketApi {
   List<dynamic> customerTicketsResponse = [];
   List<dynamic> commentsResponse = [];
   Map<String, dynamic> addCommentResponse = {};
+  Map<String, dynamic> ticketDetailResponse = {};
 
   // --- captured arguments ---
   String? lastGetCustomerTicketsId;
@@ -17,6 +18,7 @@ class FakeTicketApi extends TicketApi {
   String? lastAddCommentTicketId;
   String? lastAddCommentContent;
   String? lastDeleteCommentId;
+  String? lastGetTicketDetailId;
 
   FakeTicketApi()
       : super(DioClient(
@@ -24,9 +26,21 @@ class FakeTicketApi extends TicketApi {
         ));
 
   @override
+  Future<List<dynamic>> getCustomerHistory(String customerId) async {
+    lastGetCustomerTicketsId = customerId;
+    return customerTicketsResponse;
+  }
+
+  @override
   Future<List<dynamic>> getCustomerTickets(String customerId) async {
     lastGetCustomerTicketsId = customerId;
     return customerTicketsResponse;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTicketDetail(String ticketId) async {
+    lastGetTicketDetailId = ticketId;
+    return ticketDetailResponse;
   }
 
   @override

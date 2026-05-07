@@ -4,27 +4,22 @@ import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dar
 
 class UpdateSourceCrawlIntervalParams {
   final String id;
-  final CrawlInterval crawlInterval;
+  final CrawlInterval interval;
 
   const UpdateSourceCrawlIntervalParams({
     required this.id,
-    required this.crawlInterval,
+    required this.interval,
   });
 }
 
 class UpdateSourceCrawlIntervalUseCase
-    extends UseCase<KnowledgeSource, UpdateSourceCrawlIntervalParams> {
+    extends UseCase<void, UpdateSourceCrawlIntervalParams> {
   final KnowledgeRepository _repository;
 
   UpdateSourceCrawlIntervalUseCase(this._repository);
 
   @override
-  Future<KnowledgeSource> call({
-    required UpdateSourceCrawlIntervalParams params,
-  }) {
-    return _repository.updateSourceCrawlInterval(
-      params.id,
-      params.crawlInterval,
-    );
+  Future<void> call({required UpdateSourceCrawlIntervalParams params}) {
+    return _repository.updateSourceInterval(params.id, params.interval);
   }
 }

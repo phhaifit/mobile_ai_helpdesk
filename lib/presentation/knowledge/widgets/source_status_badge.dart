@@ -1,78 +1,86 @@
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:flutter/material.dart';
 
+/// Compact pill displaying the live status of a knowledge source.
+/// Maps the four backend statuses to colour + label + icon, plus an
+/// inline spinner when the source is in flight.
 class SourceStatusBadge extends StatelessWidget {
   final KnowledgeSourceStatus status;
 
-  const SourceStatusBadge({super.key, required this.status});
+  const SourceStatusBadge({required this.status, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = _StatusTheme.of(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _backgroundColor.withOpacity(0.15),
+        color: theme.foreground.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _backgroundColor, width: 1),
+        border: Border.all(color: theme.foreground, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (status == KnowledgeSourceStatus.indexing)
+          if (status.isInFlight)
             SizedBox(
               width: 10,
               height: 10,
               child: CircularProgressIndicator(
                 strokeWidth: 1.5,
-                valueColor: AlwaysStoppedAnimation(_backgroundColor),
+                valueColor: AlwaysStoppedAnimation(theme.foreground),
               ),
             )
           else
-            Icon(_icon, size: 12, color: _backgroundColor),
+            Icon(theme.icon, size: 12, color: theme.foreground),
           const SizedBox(width: 4),
           Text(
-            _label,
+            theme.label,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: _backgroundColor,
+              color: theme.foreground,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Color get _backgroundColor {
-    switch (status) {
-      case KnowledgeSourceStatus.active:
-        return const Color(0xFF16A34A);
-      case KnowledgeSourceStatus.indexing:
-        return const Color(0xFF7C3AED);
-      case KnowledgeSourceStatus.error:
-        return const Color(0xFFDC2626);
-    }
-  }
+class _StatusTheme {
+  final Color foreground;
+  final IconData icon;
+  final String label;
 
-  IconData get _icon {
-    switch (status) {
-      case KnowledgeSourceStatus.active:
-        return Icons.check_circle_outline;
-      case KnowledgeSourceStatus.indexing:
-        return Icons.sync;
-      case KnowledgeSourceStatus.error:
-        return Icons.error_outline;
-    }
-  }
+  const _StatusTheme(this.foreground, this.icon, this.label);
 
-  String get _label {
-    switch (status) {
-      case KnowledgeSourceStatus.active:
-        return 'Hoạt động';
-      case KnowledgeSourceStatus.indexing:
-        return 'Đang đồng bộ';
-      case KnowledgeSourceStatus.error:
-        return 'Lỗi';
+  factory _StatusTheme.of(KnowledgeSourceStatus s) {
+    switch (s) {
+      case KnowledgeSourceStatus.completed:
+        return const _StatusTheme(
+          Color(0xFF16A34A),
+          Icons.check_circle_outline,
+          'Hoạt động',
+        );
+      case KnowledgeSourceStatus.processing:
+        return const _StatusTheme(
+          Color(0xFF1A73E8),
+          Icons.sync,
+          'Đang đồng bộ',
+        );
+      case KnowledgeSourceStatus.pending:
+        return const _StatusTheme(
+          Color(0xFF7C3AED),
+          Icons.pending_outlined,
+          'Đang chờ',
+        );
+      case KnowledgeSourceStatus.failed:
+        return const _StatusTheme(
+          Color(0xFFDC2626),
+          Icons.error_outline,
+          'Lỗi',
+        );
     }
   }
 }

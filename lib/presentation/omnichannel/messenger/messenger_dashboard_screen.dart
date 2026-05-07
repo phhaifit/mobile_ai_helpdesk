@@ -85,7 +85,7 @@ class _MessengerDashboardScreenState extends State<MessengerDashboardScreen> {
                 context,
                 title: l.translate('omnichannel_messenger_customer_sync_title'),
                 subtitle:
-                    '${data.syncedCustomers} ${l.translate('omnichannel_synced')} / ${data.failedCustomers} ${l.translate('omnichannel_failed')}',
+                    '${l.translate('omnichannel_last_sync')}: ${formatDateTime(data.lastSyncAt)}',
                 route: Routes.messengerCustomerSync,
               ),
               _buildNavTile(

@@ -45,10 +45,7 @@ class MessengerIntegrationState {
   final OAuthState oauthState;
   final String pageName;
   final DateTime? lastSyncAt;
-  final int syncedCustomers;
-  final int failedCustomers;
   final bool autoReply;
-  final String language;
   final String businessHours;
 
   const MessengerIntegrationState({
@@ -56,10 +53,7 @@ class MessengerIntegrationState {
     required this.oauthState,
     required this.pageName,
     required this.lastSyncAt,
-    required this.syncedCustomers,
-    required this.failedCustomers,
     required this.autoReply,
-    required this.language,
     required this.businessHours,
   });
 
@@ -68,10 +62,7 @@ class MessengerIntegrationState {
     OAuthState? oauthState,
     String? pageName,
     DateTime? lastSyncAt,
-    int? syncedCustomers,
-    int? failedCustomers,
     bool? autoReply,
-    String? language,
     String? businessHours,
   }) {
     return MessengerIntegrationState(
@@ -79,10 +70,7 @@ class MessengerIntegrationState {
       oauthState: oauthState ?? this.oauthState,
       pageName: pageName ?? this.pageName,
       lastSyncAt: lastSyncAt ?? this.lastSyncAt,
-      syncedCustomers: syncedCustomers ?? this.syncedCustomers,
-      failedCustomers: failedCustomers ?? this.failedCustomers,
       autoReply: autoReply ?? this.autoReply,
-      language: language ?? this.language,
       businessHours: businessHours ?? this.businessHours,
     );
   }

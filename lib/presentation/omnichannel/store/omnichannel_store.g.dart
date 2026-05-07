@@ -213,13 +213,11 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
   @override
   Future<void> updateMessengerSettings({
     required bool autoReply,
-    required String language,
     required String businessHours,
   }) {
     return _$updateMessengerSettingsAsyncAction.run(
       () => super.updateMessengerSettings(
         autoReply: autoReply,
-        language: language,
         businessHours: businessHours,
       ),
     );

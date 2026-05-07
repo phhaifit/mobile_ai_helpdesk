@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class CustomerFilterSheet extends StatelessWidget {
   final CustomerStore store;
@@ -22,12 +23,15 @@ class CustomerFilterSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Lọc khách hàng',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                AppLocalizations.of(context).translate('customer_filter_title'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const Text('Thẻ', style: TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                AppLocalizations.of(context).translate('customer_filter_tags'), 
+                style: const TextStyle(fontWeight: FontWeight.w600)
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -50,7 +54,7 @@ class CustomerFilterSheet extends StatelessWidget {
                         store.clearFilters();
                         Navigator.pop(context);
                       },
-                      child: const Text('Xóa lọc'),
+                      child: Text(AppLocalizations.of(context).translate('customer_filter_clear')),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -63,7 +67,10 @@ class CustomerFilterSheet extends StatelessWidget {
                         store.applyFilters();
                         Navigator.pop(context);
                       },
-                      child: const Text('Áp dụng', style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        AppLocalizations.of(context).translate('customer_filter_apply'), 
+                        style: const TextStyle(color: Colors.white)
+                      ),
                     ),
                   ),
                 ],

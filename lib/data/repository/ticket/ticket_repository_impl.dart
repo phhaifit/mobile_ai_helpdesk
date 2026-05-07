@@ -5,11 +5,21 @@ import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
+import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket_query_params.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 
+/// Real [TicketRepository] implementation.
+///
+/// **Sub-issue B (customer history + comments)** uses real REST APIs.
+/// Comments are sourced from the chat-room WebSocket/REST channel
+/// (with the ticket's `chatRoomId` resolved on demand).
+///
+/// **Ticket core** (list, detail, create, update, assignment, status) uses
+/// real REST APIs when available. Missing endpoints (delete, history,
+/// available-agents) fall back to mock for now.
 class TicketRepositoryImpl implements TicketRepository {
   final TicketApi _ticketApi;
   final ChatRoomApi _chatRoomApi;
@@ -91,34 +101,175 @@ class TicketRepositoryImpl implements TicketRepository {
             : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
       );
 
-  // ── Friend's scope — delegated to mock ────────────────────────────────────
+  // ── Ticket core APIs ──────────────────────────────────────────────────────
 
   @override
   Future<List<Ticket>> getTickets({
     TicketQueryParams params = const TicketQueryParams(),
-  }) =>
-      _mock.getTickets(params: params);
+  }) async {
+    final raw = await _getTicketsFromApi(params);
+    return _mapTickets(raw);
+  }
 
   @override
-  Future<Ticket?> getTicketById(String id) => _mock.getTicketById(id);
+  Future<Ticket?> getTicketById(String id) async {
+    final data = await _ticketApi.getTicketDetail(id);
+    if (data.isEmpty) return null;
+    return TicketApiModel.fromJson(data).toDomain();
+  }
 
   @override
-  Future<Ticket> createTicket(Ticket ticket) => _mock.createTicket(ticket);
+  Future<Ticket> createTicket(Ticket ticket) async {
+    final data = await _ticketApi.createTicket(
+      title: ticket.title,
+      description: ticket.description.isEmpty ? null : ticket.description,
+      customerId: ticket.customerId,
+      priority: _mapPriorityToApi(ticket.priority),
+    );
+
+    if (data.isEmpty || (data['id'] as String?)?.isEmpty == true) {
+      return _mock.createTicket(ticket);
+    }
+
+    final apiTicket = TicketApiModel.fromJson(data).toDomain();
+    return _mergeTicket(ticket, apiTicket);
+  }
 
   @override
-  Future<Ticket> updateTicket(Ticket ticket) => _mock.updateTicket(ticket);
+  Future<Ticket> updateTicket(Ticket ticket) async {
+    await _ticketApi.updateTicketDetail(
+      ticketId: ticket.id,
+      title: ticket.title.isEmpty ? null : ticket.title,
+      priority: _mapPriorityToApi(ticket.priority),
+      assigneeId: ticket.assignedAgentId,
+      includeAssigneeId: true,
+    );
+
+    final status = _mapStatusToApi(ticket.status);
+    if (status != null) {
+      await _ticketApi.updateTicketStatus(ticketId: ticket.id, status: status);
+    }
+
+    final refreshed = await getTicketById(ticket.id);
+    if (refreshed != null) {
+      return _mergeTicket(ticket, refreshed);
+    }
+
+    return ticket.copyWith(updatedAt: DateTime.now());
+  }
 
   @override
-  Future<void> deleteTicket(String id) => _mock.deleteTicket(id);
+  Future<void> deleteTicket(String id) {
+    return _mock.deleteTicket(id);
+  }
 
   @override
-  Future<Ticket> assignAgent({required String ticketId, String? agentId}) =>
-      _mock.assignAgent(ticketId: ticketId, agentId: agentId);
+  Future<Ticket> assignAgent({
+    required String ticketId,
+    String? agentId,
+  }) async {
+    await _ticketApi.updateTicketDetail(
+      ticketId: ticketId,
+      assigneeId: agentId,
+      includeAssigneeId: true,
+    );
+
+    final refreshed = await getTicketById(ticketId);
+    if (refreshed != null) {
+      return refreshed;
+    }
+
+    return _mock.assignAgent(ticketId: ticketId, agentId: agentId);
+  }
 
   @override
-  Future<List<Agent>> getAvailableAgents() => _mock.getAvailableAgents();
+  Future<List<Agent>> getAvailableAgents() {
+    return _mock.getAvailableAgents();
+  }
 
   @override
-  Future<List<TicketHistory>> getTicketHistory(String ticketId) =>
-      _mock.getTicketHistory(ticketId);
+  Future<List<TicketHistory>> getTicketHistory(String ticketId) {
+    return _mock.getTicketHistory(ticketId);
+  }
+
+  Future<List<dynamic>> _getTicketsFromApi(TicketQueryParams params) {
+    switch (params.tab) {
+      case TicketTabScope.my:
+        if (params.statuses != null && params.statuses!.length == 1) {
+          final status = _mapStatusToApi(params.statuses!.first);
+          if (status != null) {
+            return _ticketApi.getMyTicketsByStatus(status);
+          }
+        }
+        return _ticketApi.getMyTickets(
+          offset: params.offset,
+          limit: params.limit,
+        );
+      case TicketTabScope.unassigned:
+        return _ticketApi.getUnassignedTickets(
+          offset: params.offset,
+          limit: params.limit,
+        );
+      case TicketTabScope.all:
+        return _ticketApi.getAllTickets(
+          offset: params.offset,
+          limit: params.limit,
+          search: params.search,
+        );
+    }
+  }
+
+  List<Ticket> _mapTickets(List<dynamic> raw) {
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(TicketApiModel.fromJson)
+        .map((model) => model.toDomain())
+        .toList();
+  }
+
+  Ticket _mergeTicket(Ticket base, Ticket apiTicket) {
+    return base.copyWith(
+      id: apiTicket.id.isNotEmpty ? apiTicket.id : base.id,
+      title: apiTicket.title.isNotEmpty ? apiTicket.title : base.title,
+      status: apiTicket.status,
+      priority: apiTicket.priority,
+      source: apiTicket.source,
+      customerId: apiTicket.customerId.isNotEmpty
+          ? apiTicket.customerId
+          : base.customerId,
+      assignedAgentId: apiTicket.assignedAgentId,
+      chatRoomId: apiTicket.chatRoomId ?? base.chatRoomId,
+      createdAt: apiTicket.createdAt,
+      updatedAt: apiTicket.updatedAt,
+    );
+  }
+
+  String? _mapStatusToApi(TicketStatus status) {
+    switch (status) {
+      case TicketStatus.open:
+        return 'open';
+      case TicketStatus.pending:
+        return 'pending';
+      case TicketStatus.resolved:
+        return 'solved';
+      case TicketStatus.closed:
+        return 'closed';
+      case TicketStatus.inProgress:
+      case TicketStatus.processingByAI:
+        return null;
+    }
+  }
+
+  String _mapPriorityToApi(TicketPriority priority) {
+    switch (priority) {
+      case TicketPriority.low:
+        return 'low';
+      case TicketPriority.medium:
+        return 'medium';
+      case TicketPriority.high:
+        return 'high';
+      case TicketPriority.urgent:
+        return 'urgent';
+    }
+  }
 }

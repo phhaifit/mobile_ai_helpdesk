@@ -4,18 +4,21 @@ import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart'
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/fake_chat_room_api.dart';
 import '../helpers/fake_ticket_api.dart';
 import '../helpers/ticket_fixtures.dart';
 
 void main() {
   late FakeTicketApi fakeApi;
+  late FakeChatRoomApi fakeChatRoomApi;
   late TicketRepositoryImpl repo;
 
   setUp(() {
     fakeApi = FakeTicketApi();
+    fakeChatRoomApi = FakeChatRoomApi();
     final mockLocal = MockTicketLocalDataSource();
     final mockRepo = MockTicketRepositoryImpl(mockLocal);
-    repo = TicketRepositoryImpl(fakeApi, mockRepo);
+    repo = TicketRepositoryImpl(fakeApi, fakeChatRoomApi, mockRepo);
   });
 
   // ---------------------------------------------------------------------------
@@ -92,102 +95,87 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // getComments
+  // getComments — flows through chat-room (resolves chatRoomId from ticket)
   // ---------------------------------------------------------------------------
 
   group('getComments', () {
-    test('passes ticketId to API', () async {
-      fakeApi.commentsResponse = [];
+    const kChatRoomId = 'chatroom-001';
 
-      await repo.getComments(kTestTicketId);
-
-      expect(fakeApi.lastGetCommentsTicketId, kTestTicketId);
-    });
-
-    test('returns empty list when API returns nothing', () async {
-      fakeApi.commentsResponse = [];
+    test('returns empty list when ticket has no chatRoomId', () async {
+      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
 
       final result = await repo.getComments(kTestTicketId);
 
       expect(result, isEmpty);
     });
 
-    test('maps API JSON list to domain Comment list', () async {
-      fakeApi.commentsResponse = [kApiCommentJson];
-
-      final result = await repo.getComments(kTestTicketId);
-
-      expect(result.length, 1);
-      expect(result.first.id, 'cmt-001');
-      expect(result.first.content, 'Looking into this now.');
-      expect(result.first.authorName, 'Agent 1');
-      expect(result.first.type, CommentType.public);
-    });
-
-    test('maps multiple comments in order', () async {
-      final comment2Json = {
-        ...kApiCommentJson,
-        'id': 'cmt-002',
-        'content': 'Escalated',
+    test('resolves chatRoomId from ticket detail', () async {
+      fakeApi.ticketDetailResponse = {
+        'id': kTestTicketId,
+        'chatRoomId': kChatRoomId,
       };
-      fakeApi.commentsResponse = [kApiCommentJson, comment2Json];
+      fakeChatRoomApi.messagesResponse = [];
+
+      await repo.getComments(kTestTicketId);
+
+      expect(fakeApi.lastGetTicketDetailId, kTestTicketId);
+      expect(fakeChatRoomApi.lastGetMessagesChatRoomId, kChatRoomId);
+    });
+
+    test('returns empty list when chat-room has no messages', () async {
+      fakeApi.ticketDetailResponse = {
+        'id': kTestTicketId,
+        'chatRoomId': kChatRoomId,
+      };
+      fakeChatRoomApi.messagesResponse = [];
 
       final result = await repo.getComments(kTestTicketId);
 
-      expect(result.length, 2);
-      expect(result[0].id, 'cmt-001');
-      expect(result[1].id, 'cmt-002');
+      expect(result, isEmpty);
     });
 
-    test('ignores non-map items in API list', () async {
-      fakeApi.commentsResponse = [kApiCommentJson, 'bad-data'];
+    test('maps chat-room messages to Comment list', () async {
+      fakeApi.ticketDetailResponse = {
+        'id': kTestTicketId,
+        'chatRoomId': kChatRoomId,
+      };
+      fakeChatRoomApi.messagesResponse = [
+        {
+          'messageID': 'msg-001',
+          'chatRoomID': kChatRoomId,
+          'contentInfo': {'content': 'Hello'},
+          'sender': {'id': 'agent-1', 'name': 'Agent 1'},
+          'createdAt': '2024-06-01T10:00:00.000Z',
+        }
+      ];
 
       final result = await repo.getComments(kTestTicketId);
 
       expect(result.length, 1);
+      expect(result.first.id, 'msg-001');
+      expect(result.first.content, 'Hello');
+      expect(result.first.authorName, 'Agent 1');
+    });
+
+    test('returns empty list and swallows errors on API failure', () async {
+      // ticketDetailResponse is empty by default; getMessages will not be called.
+      final result = await repo.getComments(kTestTicketId);
+
+      expect(result, isEmpty);
     });
   });
 
   // ---------------------------------------------------------------------------
-  // addComment
+  // addComment — flows through chat-room (resolves chatRoomId + channelId)
   // ---------------------------------------------------------------------------
 
   group('addComment', () {
-    test('passes ticketId and content to API', () async {
-      fakeApi.addCommentResponse = kApiAddCommentResponse;
+    const kChatRoomId = 'chatroom-001';
+    const kChannelId = 'chan-001';
 
-      await repo.addComment(ticketId: kTestTicketId, comment: kTestComment);
+    test('returns optimistic comment when ticket has no chatRoomId', () async {
+      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
 
-      expect(fakeApi.lastAddCommentTicketId, kTestTicketId);
-      expect(fakeApi.lastAddCommentContent, kTestComment.content);
-    });
-
-    test('returns comment with server-assigned id when API returns id', () async {
-      fakeApi.addCommentResponse = kApiAddCommentResponse;
-
-      final result = await repo.addComment(
-        ticketId: kTestTicketId,
-        comment: kTestComment,
-      );
-
-      expect(result.id, 'cmt-server-001');
-    });
-
-    test('returns comment with server-assigned createdAt', () async {
-      fakeApi.addCommentResponse = kApiAddCommentResponse;
-
-      final result = await repo.addComment(
-        ticketId: kTestTicketId,
-        comment: kTestComment,
-      );
-
-      expect(result.createdAt, DateTime.utc(2024, 6, 1, 10, 0, 0));
-    });
-
-    test('returns optimistic comment with temp id when API returns empty map', () async {
-      fakeApi.addCommentResponse = {};
-
-      // kTestComment has id 'cmt-001' (non-empty), so it's returned as-is.
       final result = await repo.addComment(
         ticketId: kTestTicketId,
         comment: kTestComment,
@@ -197,8 +185,52 @@ void main() {
       expect(result.content, kTestComment.content);
     });
 
-    test('assigns tmp_xxx id when API returns empty and comment id is empty', () async {
-      fakeApi.addCommentResponse = {};
+    test('resolves chatRoomId then sends via chat-room API', () async {
+      fakeApi.ticketDetailResponse = {
+        'id': kTestTicketId,
+        'chatRoomId': kChatRoomId,
+      };
+      fakeChatRoomApi.chatRoomDetailResponse = {
+        'lastMessage': {'channelID': kChannelId, 'contactID': 'contact-1'},
+      };
+      fakeChatRoomApi.sendMessageResponse = {
+        'messageID': 'msg-server-001',
+        'chatRoomID': kChatRoomId,
+        'contentInfo': {'content': kTestComment.content},
+        'sender': {'id': 'agent-1', 'name': 'Agent 1'},
+        'createdAt': '2024-06-01T10:00:00.000Z',
+      };
+
+      final result = await repo.addComment(
+        ticketId: kTestTicketId,
+        comment: kTestComment,
+      );
+
+      expect(fakeChatRoomApi.lastSendMessageChatRoomId, kChatRoomId);
+      expect(fakeChatRoomApi.lastSendMessageChannelId, kChannelId);
+      expect(fakeChatRoomApi.lastSendMessageContent, kTestComment.content);
+      expect(result.id, 'msg-server-001');
+    });
+
+    test('returns optimistic comment when channelId is missing', () async {
+      fakeApi.ticketDetailResponse = {
+        'id': kTestTicketId,
+        'chatRoomId': kChatRoomId,
+      };
+      fakeChatRoomApi.chatRoomDetailResponse = {};
+
+      final result = await repo.addComment(
+        ticketId: kTestTicketId,
+        comment: kTestComment,
+      );
+
+      expect(result.id, kTestComment.id);
+      expect(result.content, kTestComment.content);
+    });
+
+    test('assigns tmp_xxx id when chatRoomId missing and comment id empty',
+        () async {
+      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
       final commentWithNoId = kTestComment.copyWith(id: '');
 
       final result = await repo.addComment(
@@ -209,8 +241,8 @@ void main() {
       expect(result.id, startsWith('tmp_'));
     });
 
-    test('preserves comment content from original when falling back', () async {
-      fakeApi.addCommentResponse = {};
+    test('preserves original content when falling back', () async {
+      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
 
       final result = await repo.addComment(
         ticketId: kTestTicketId,

@@ -42,7 +42,9 @@ class TicketWebSocketService {
   // ── Public API ─────────────────────────────────────────────────────────────
 
   Future<void> connect(String chatRoomId) async {
-    if (_connectedChatRoomId == chatRoomId && (_socket?.connected ?? false)) return;
+    if (_connectedChatRoomId == chatRoomId && (_socket?.connected ?? false)) {
+      return;
+    }
     await disconnect();
 
     final tenantId = await _getTenantId() ?? '';

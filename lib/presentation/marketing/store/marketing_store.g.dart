@@ -12,40 +12,48 @@ mixin _$MarketingStore on _MarketingStore, Store {
   Computed<bool>? _$isLoadingOverviewComputed;
 
   @override
-  bool get isLoadingOverview => (_$isLoadingOverviewComputed ??= Computed<bool>(
-    () => super.isLoadingOverview,
-    name: '_MarketingStore.isLoadingOverview',
-  )).value;
+  bool get isLoadingOverview =>
+      (_$isLoadingOverviewComputed ??= Computed<bool>(
+            () => super.isLoadingOverview,
+            name: '_MarketingStore.isLoadingOverview',
+          ))
+          .value;
   Computed<bool>? _$isSubmittingComputed;
 
   @override
-  bool get isSubmitting => (_$isSubmittingComputed ??= Computed<bool>(
-    () => super.isSubmitting,
-    name: '_MarketingStore.isSubmitting',
-  )).value;
+  bool get isSubmitting =>
+      (_$isSubmittingComputed ??= Computed<bool>(
+            () => super.isSubmitting,
+            name: '_MarketingStore.isSubmitting',
+          ))
+          .value;
   Computed<List<MarketingTemplate>>? _$filteredTemplatesComputed;
 
   @override
   List<MarketingTemplate> get filteredTemplates =>
       (_$filteredTemplatesComputed ??= Computed<List<MarketingTemplate>>(
-        () => super.filteredTemplates,
-        name: '_MarketingStore.filteredTemplates',
-      )).value;
+            () => super.filteredTemplates,
+            name: '_MarketingStore.filteredTemplates',
+          ))
+          .value;
   Computed<int>? _$runningCampaignCountComputed;
 
   @override
   int get runningCampaignCount =>
       (_$runningCampaignCountComputed ??= Computed<int>(
-        () => super.runningCampaignCount,
-        name: '_MarketingStore.runningCampaignCount',
-      )).value;
+            () => super.runningCampaignCount,
+            name: '_MarketingStore.runningCampaignCount',
+          ))
+          .value;
   Computed<int>? _$totalSentCountComputed;
 
   @override
-  int get totalSentCount => (_$totalSentCountComputed ??= Computed<int>(
-    () => super.totalSentCount,
-    name: '_MarketingStore.totalSentCount',
-  )).value;
+  int get totalSentCount =>
+      (_$totalSentCountComputed ??= Computed<int>(
+            () => super.totalSentCount,
+            name: '_MarketingStore.totalSentCount',
+          ))
+          .value;
 
   late final _$fetchOverviewFutureAtom = Atom(
     name: '_MarketingStore.fetchOverviewFuture',
@@ -317,21 +325,57 @@ mixin _$MarketingStore on _MarketingStore, Store {
     });
   }
 
-  late final _$draftEstimatedCountAtom = Atom(
-    name: '_MarketingStore.draftEstimatedCount',
+  late final _$draftBroadcastIdAtom = Atom(
+    name: '_MarketingStore.draftBroadcastId',
     context: context,
   );
 
   @override
-  int get draftEstimatedCount {
-    _$draftEstimatedCountAtom.reportRead();
-    return super.draftEstimatedCount;
+  String get draftBroadcastId {
+    _$draftBroadcastIdAtom.reportRead();
+    return super.draftBroadcastId;
   }
 
   @override
-  set draftEstimatedCount(int value) {
-    _$draftEstimatedCountAtom.reportWrite(value, super.draftEstimatedCount, () {
-      super.draftEstimatedCount = value;
+  set draftBroadcastId(String value) {
+    _$draftBroadcastIdAtom.reportWrite(value, super.draftBroadcastId, () {
+      super.draftBroadcastId = value;
+    });
+  }
+
+  late final _$draftAudienceTotalAtom = Atom(
+    name: '_MarketingStore.draftAudienceTotal',
+    context: context,
+  );
+
+  @override
+  int get draftAudienceTotal {
+    _$draftAudienceTotalAtom.reportRead();
+    return super.draftAudienceTotal;
+  }
+
+  @override
+  set draftAudienceTotal(int value) {
+    _$draftAudienceTotalAtom.reportWrite(value, super.draftAudienceTotal, () {
+      super.draftAudienceTotal = value;
+    });
+  }
+
+  late final _$draftAudienceSampleAtom = Atom(
+    name: '_MarketingStore.draftAudienceSample',
+    context: context,
+  );
+
+  @override
+  ObservableList<BroadcastRecipient> get draftAudienceSample {
+    _$draftAudienceSampleAtom.reportRead();
+    return super.draftAudienceSample;
+  }
+
+  @override
+  set draftAudienceSample(ObservableList<BroadcastRecipient> value) {
+    _$draftAudienceSampleAtom.reportWrite(value, super.draftAudienceSample, () {
+      super.draftAudienceSample = value;
     });
   }
 
@@ -583,36 +627,6 @@ mixin _$MarketingStore on _MarketingStore, Store {
     return _$fetchTemplatesAsyncAction.run(() => super.fetchTemplates());
   }
 
-  late final _$startCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.startCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> startCampaign(String id) {
-    return _$startCampaignAsyncAction.run(() => super.startCampaign(id));
-  }
-
-  late final _$stopCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.stopCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> stopCampaign(String id) {
-    return _$stopCampaignAsyncAction.run(() => super.stopCampaign(id));
-  }
-
-  late final _$resumeCampaignAsyncAction = AsyncAction(
-    '_MarketingStore.resumeCampaign',
-    context: context,
-  );
-
-  @override
-  Future<void> resumeCampaign(String id) {
-    return _$resumeCampaignAsyncAction.run(() => super.resumeCampaign(id));
-  }
-
   late final _$createCampaignAsyncAction = AsyncAction(
     '_MarketingStore.createCampaign',
     context: context,
@@ -643,14 +657,14 @@ mixin _$MarketingStore on _MarketingStore, Store {
     return _$deleteTemplateAsyncAction.run(() => super.deleteTemplate(id));
   }
 
-  late final _$estimateAudienceAsyncAction = AsyncAction(
-    '_MarketingStore.estimateAudience',
+  late final _$previewAudienceAsyncAction = AsyncAction(
+    '_MarketingStore.previewAudience',
     context: context,
   );
 
   @override
-  Future<void> estimateAudience() {
-    return _$estimateAudienceAsyncAction.run(() => super.estimateAudience());
+  Future<void> previewAudience() {
+    return _$previewAudienceAsyncAction.run(() => super.previewAudience());
   }
 
   late final _$connectFacebookAdminAsyncAction = AsyncAction(
@@ -940,7 +954,9 @@ draftFilterType: ${draftFilterType},
 draftTagValues: ${draftTagValues},
 draftSegmentValue: ${draftSegmentValue},
 draftChannelFilter: ${draftChannelFilter},
-draftEstimatedCount: ${draftEstimatedCount},
+draftBroadcastId: ${draftBroadcastId},
+draftAudienceTotal: ${draftAudienceTotal},
+draftAudienceSample: ${draftAudienceSample},
 draftTemplateName: ${draftTemplateName},
 draftTemplateContent: ${draftTemplateContent},
 draftTemplateCategory: ${draftTemplateCategory},

@@ -12,6 +12,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
 
   final List<Tenant> _tenants = [];
   int _nextId = 100;
+  String? _currentTenantId;
 
   static final List<Tenant> _seedTenants = [
     Tenant(
@@ -79,7 +80,26 @@ class MockTenantRepositoryImpl implements TenantRepository {
       createdAt: tenant.createdAt,
     );
     _tenants.add(created);
+    _currentTenantId = created.id;
     return created;
+  }
+
+  @override
+  Future<Tenant> createTenantOnFirstLogin({required String name}) async {
+    final now = DateTime.now();
+    return createTenant(
+      Tenant(
+        id: 'tn-${now.millisecondsSinceEpoch}',
+        name: name,
+        slug: name.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-'),
+        settings: const TenantSettings(
+          allowInvitations: true,
+          defaultRole: TeamRole.member,
+          enableAuditLog: false,
+        ),
+        createdAt: now,
+      ),
+    );
   }
 
   @override
@@ -101,6 +121,71 @@ class MockTenantRepositoryImpl implements TenantRepository {
       return false;
     }
     _tenants.removeAt(index);
+    if (_currentTenantId == id) {
+      _currentTenantId = null;
+    }
     return true;
+  }
+
+  @override
+  Future<TenantSettings> getTenantSettings(String tenantId) async {
+    await _delay(320);
+    final tenant = await getTenantById(tenantId);
+    if (tenant == null) {
+      throw StateError('Tenant not found: $tenantId');
+    }
+    return tenant.settings;
+  }
+
+  @override
+  Future<TenantSettings> updateTenantSettings({
+    required String tenantId,
+    required bool autoResolutionEnabled,
+    required int autoResolutionTimeoutHours,
+  }) async {
+    await _delay(420);
+    final index = _tenants.indexWhere((t) => t.id == tenantId);
+    if (index == -1) {
+      throw StateError('Tenant not found: $tenantId');
+    }
+
+    final tenant = _tenants[index];
+    final updatedSettings = TenantSettings(
+      allowInvitations: tenant.settings.allowInvitations,
+      defaultRole: tenant.settings.defaultRole,
+      enableAuditLog: tenant.settings.enableAuditLog,
+      autoResolutionEnabled: autoResolutionEnabled,
+      autoResolutionTimeoutHours: autoResolutionTimeoutHours,
+    );
+
+    _tenants[index] = Tenant(
+      id: tenant.id,
+      name: tenant.name,
+      slug: tenant.slug,
+      settings: updatedSettings,
+      createdAt: tenant.createdAt,
+    );
+
+    return updatedSettings;
+  }
+
+  @override
+  Future<String?> getCachedTenantId() async {
+    return _currentTenantId;
+  }
+
+  @override
+  Future<void> saveCachedTenantId(String? tenantId) async {
+    _currentTenantId = tenantId;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTenantJoinInfo() async {
+    await _delay(300);
+    final tenant = _tenants.isNotEmpty ? _tenants.first : null;
+    return <String, dynamic>{
+      'hasTenant': tenant != null,
+      'tenant': tenant?.toJson(),
+    };
   }
 }

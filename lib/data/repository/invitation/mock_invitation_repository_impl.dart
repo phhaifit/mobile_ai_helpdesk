@@ -180,4 +180,15 @@ class MockInvitationRepositoryImpl implements InvitationRepository {
     _invitations[index] = declined;
     return declined;
   }
+
+  @override
+  Future<bool> deleteInvitation(String invitationId) async {
+    await _delay(320);
+    final index = _invitations.indexWhere((i) => i.id == invitationId);
+    if (index == -1) {
+      return false;
+    }
+    _invitations.removeAt(index);
+    return true;
+  }
 }

@@ -12,31 +12,48 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   Computed<String>? _$currentAgentIdComputed;
 
   @override
-  String get currentAgentId => (_$currentAgentIdComputed ??= Computed<String>(
-    () => super.currentAgentId,
-    name: '_TicketTabStoreBase.currentAgentId',
-  )).value;
+  String get currentAgentId =>
+      (_$currentAgentIdComputed ??= Computed<String>(
+            () => super.currentAgentId,
+            name: '_TicketTabStoreBase.currentAgentId',
+          ))
+          .value;
   Computed<bool>? _$isLoadingComputed;
 
   @override
-  bool get isLoading => (_$isLoadingComputed ??= Computed<bool>(
-    () => super.isLoading,
-    name: '_TicketTabStoreBase.isLoading',
-  )).value;
+  bool get isLoading =>
+      (_$isLoadingComputed ??= Computed<bool>(
+            () => super.isLoading,
+            name: '_TicketTabStoreBase.isLoading',
+          ))
+          .value;
+  Computed<bool>? _$isLoadingMoreComputed;
+
+  @override
+  bool get isLoadingMore =>
+      (_$isLoadingMoreComputed ??= Computed<bool>(
+            () => super.isLoadingMore,
+            name: '_TicketTabStoreBase.isLoadingMore',
+          ))
+          .value;
   Computed<int>? _$ticketCountComputed;
 
   @override
-  int get ticketCount => (_$ticketCountComputed ??= Computed<int>(
-    () => super.ticketCount,
-    name: '_TicketTabStoreBase.ticketCount',
-  )).value;
+  int get ticketCount =>
+      (_$ticketCountComputed ??= Computed<int>(
+            () => super.ticketCount,
+            name: '_TicketTabStoreBase.ticketCount',
+          ))
+          .value;
   Computed<String>? _$tabTitleComputed;
 
   @override
-  String get tabTitle => (_$tabTitleComputed ??= Computed<String>(
-    () => super.tabTitle,
-    name: '_TicketTabStoreBase.tabTitle',
-  )).value;
+  String get tabTitle =>
+      (_$tabTitleComputed ??= Computed<String>(
+            () => super.tabTitle,
+            name: '_TicketTabStoreBase.tabTitle',
+          ))
+          .value;
 
   late final _$selectedTabIndexAtom = Atom(
     name: '_TicketTabStoreBase.selectedTabIndex',
@@ -164,6 +181,78 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
     });
   }
 
+  late final _$loadMoreFutureAtom = Atom(
+    name: '_TicketTabStoreBase.loadMoreFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<List<Ticket>> get loadMoreFuture {
+    _$loadMoreFutureAtom.reportRead();
+    return super.loadMoreFuture;
+  }
+
+  @override
+  set loadMoreFuture(ObservableFuture<List<Ticket>> value) {
+    _$loadMoreFutureAtom.reportWrite(value, super.loadMoreFuture, () {
+      super.loadMoreFuture = value;
+    });
+  }
+
+  late final _$offsetAtom = Atom(
+    name: '_TicketTabStoreBase.offset',
+    context: context,
+  );
+
+  @override
+  int get offset {
+    _$offsetAtom.reportRead();
+    return super.offset;
+  }
+
+  @override
+  set offset(int value) {
+    _$offsetAtom.reportWrite(value, super.offset, () {
+      super.offset = value;
+    });
+  }
+
+  late final _$limitAtom = Atom(
+    name: '_TicketTabStoreBase.limit',
+    context: context,
+  );
+
+  @override
+  int get limit {
+    _$limitAtom.reportRead();
+    return super.limit;
+  }
+
+  @override
+  set limit(int value) {
+    _$limitAtom.reportWrite(value, super.limit, () {
+      super.limit = value;
+    });
+  }
+
+  late final _$hasMoreAtom = Atom(
+    name: '_TicketTabStoreBase.hasMore',
+    context: context,
+  );
+
+  @override
+  bool get hasMore {
+    _$hasMoreAtom.reportRead();
+    return super.hasMore;
+  }
+
+  @override
+  set hasMore(bool value) {
+    _$hasMoreAtom.reportWrite(value, super.hasMore, () {
+      super.hasMore = value;
+    });
+  }
+
   late final _$errorMessageAtom = Atom(
     name: '_TicketTabStoreBase.errorMessage',
     context: context,
@@ -190,6 +279,16 @@ mixin _$TicketTabStore on _TicketTabStoreBase, Store {
   @override
   Future<void> loadTickets() {
     return _$loadTicketsAsyncAction.run(() => super.loadTickets());
+  }
+
+  late final _$loadMoreAsyncAction = AsyncAction(
+    '_TicketTabStoreBase.loadMore',
+    context: context,
+  );
+
+  @override
+  Future<void> loadMore() {
+    return _$loadMoreAsyncAction.run(() => super.loadMore());
   }
 
   late final _$acceptTicketAsyncAction = AsyncAction(
@@ -323,9 +422,14 @@ allTickets: ${allTickets},
 filteredTickets: ${filteredTickets},
 isCreateMode: ${isCreateMode},
 loadTicketsFuture: ${loadTicketsFuture},
+loadMoreFuture: ${loadMoreFuture},
+offset: ${offset},
+limit: ${limit},
+hasMore: ${hasMore},
 errorMessage: ${errorMessage},
 currentAgentId: ${currentAgentId},
 isLoading: ${isLoading},
+isLoadingMore: ${isLoadingMore},
 ticketCount: ${ticketCount},
 tabTitle: ${tabTitle}
     ''';
