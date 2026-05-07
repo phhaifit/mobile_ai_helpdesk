@@ -11,6 +11,9 @@ class UploadLocalFileUseCase extends UseCase<KnowledgeSource, File> {
 
   @override
   Future<KnowledgeSource> call({required File params}) {
-    return _repository.uploadLocalFile(params);
+    return _repository.importLocalFile(
+      file: params,
+      fileName: params.uri.pathSegments.last,
+    );
   }
 }

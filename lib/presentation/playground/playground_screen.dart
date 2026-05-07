@@ -105,8 +105,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     final uploadedUrls = <String>[];
     if (filesToUpload.isNotEmpty) {
       final uploadUseCase = getIt<UploadFileUseCase>();
-      final user = await _prefs.getUser();
-      final tenantId = user?.id ?? 'default_tenant';
+      final tenantId = await _prefs.tenantId ?? 'default_tenant';
       for (final file in filesToUpload) {
         try {
           final media = await uploadUseCase.call(
@@ -124,9 +123,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     _scrollToBottom();
 
     // Call Jarvis Agent for the AI response.
-    final user = await _prefs.getUser();
-    final tenantId = user?.id ?? 'default_tenant';
-    final userId = user?.id ?? 'anonymous';
+    final tenantId = await _prefs.tenantId ?? 'default_tenant';
+    final userId = tenantId;
     final response = await _jarvisStore.sendMessage(
       tenantId: tenantId,
       userId: userId,

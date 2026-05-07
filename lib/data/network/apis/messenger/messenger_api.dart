@@ -8,7 +8,7 @@ class MessengerApi {
   MessengerApi(this._dioClient);
 
   Future<List<MessengerPage>> getPages() async {
-    final response = await _dioClient.dio.get(Endpoints.messengerPages);
+    final response = await _dioClient.dio.get(Endpoints.messengerPages());
     final list = response.data as List<dynamic>;
     return list
         .map((e) => MessengerPage.fromJson(e as Map<String, dynamic>))
@@ -17,13 +17,13 @@ class MessengerApi {
 
   Future<void> connectPage(String pageId, String accessToken) async {
     await _dioClient.dio.post(
-      Endpoints.messengerConnectPage,
+      Endpoints.messengerConnectPage(),
       data: {'pageId': pageId, 'accessToken': accessToken},
     );
   }
 
   Future<void> disconnectPage(String channelId) async {
-    await _dioClient.dio.delete(Endpoints.messengerDisconnectPage(channelId));
+    await _dioClient.dio.delete(Endpoints.deleteMessengerPage(channelId));
   }
 
   Future<void> updatePageConfig({
@@ -32,7 +32,7 @@ class MessengerApi {
     required String greeting,
   }) async {
     await _dioClient.dio.post(
-      Endpoints.messengerUpdatePageConfig,
+      Endpoints.updateMessengerPageConfig(),
       data: {
         'channelId': channelId,
         'autoReply': autoReply,
@@ -43,14 +43,14 @@ class MessengerApi {
 
   Future<void> resyncPage(String channelId) async {
     await _dioClient.dio.post(
-      Endpoints.messengerResyncPage,
+      Endpoints.resyncMessengerPage(),
       data: {'channelId': channelId},
     );
   }
 
   Future<void> verifyAuthCode(String code) async {
     await _dioClient.dio.post(
-      Endpoints.messengerVerifyAuthCode,
+      Endpoints.verifyMessengerAuthCode(),
       data: {'code': code},
     );
   }
