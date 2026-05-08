@@ -69,13 +69,40 @@ class _TenantSwitcherState extends State<TenantSwitcher> {
   }
 
   Future<void> _openCreateTenantFlow(BuildContext context) async {
+    final tenantCountBeforeCreate = _tenantStore.tenantList.length;
     await Navigator.of(context, rootNavigator: true).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => const CreateTenantScreen(),
         fullscreenDialog: true,
       ),
     );
+    await _refreshTenantsAfterCreate(tenantCountBeforeCreate);
     await _loadAccountInvitations();
+  }
+
+  Future<void> _refreshTenantsAfterCreate(int previousCount) async {
+    if (_tenantStore.tenantList.length > previousCount) {
+      return;
+    }
+
+    const retryDelays = <Duration>[
+      Duration.zero,
+      Duration(milliseconds: 500),
+      Duration(milliseconds: 1200),
+    ];
+
+    for (var i = 0; i < retryDelays.length; i++) {
+      final delay = retryDelays[i];
+      if (delay != Duration.zero) {
+        await Future.delayed(delay);
+      }
+
+      await _tenantStore.loadTenants();
+
+      if (_tenantStore.tenantList.length > previousCount) {
+        return;
+      }
+    }
   }
 
   Future<void> _openInvitationResponseFlow(
@@ -147,8 +174,10 @@ class _TenantSwitcherState extends State<TenantSwitcher> {
         builder: (_) {
           final tenants = _tenantStore.tenantList;
           final selectedTenant = _tenantStore.currentTenant;
-          final selectedName =
-              selectedTenant?.name ?? l.translate('tenant_info_msg_no_org');
+            final selectedName =
+              selectedTenant?.name.trim().isNotEmpty == true
+              ? selectedTenant!.name
+              : l.translate('tenant_info_msg_no_org');
           final pendingInvitations = _pendingInvitations;
 
           return PopupMenuButton<String>(

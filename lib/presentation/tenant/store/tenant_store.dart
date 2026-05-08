@@ -25,6 +25,31 @@ abstract class _TenantStore with Store {
   @observable
   bool isLoading = false;
 
+  void _upsertTenant(Tenant tenant) {
+    final index = tenantList.indexWhere((item) => item.id == tenant.id);
+    if (index >= 0) {
+      tenantList[index] = tenant;
+      return;
+    }
+    tenantList.add(tenant);
+  }
+
+  Tenant _normalizeCreatedTenant(Tenant created, {required String fallbackName}) {
+    final normalizedName = created.name.trim().isEmpty
+        ? fallbackName.trim()
+        : created.name;
+    if (normalizedName == created.name) {
+      return created;
+    }
+    return Tenant(
+      id: created.id,
+      name: normalizedName,
+      slug: created.slug,
+      settings: created.settings,
+      createdAt: created.createdAt,
+    );
+  }
+
   void _syncCurrentTenant(Tenant tenant) {
     final index = tenantList.indexWhere((item) => item.id == tenant.id);
     if (index >= 0) {
@@ -81,9 +106,13 @@ abstract class _TenantStore with Store {
     isLoading = true;
     try {
       final created = await _tenantRepository.createTenant(tenant);
-      tenantList.add(created);
-      currentTenant = created;
-      await _tenantRepository.saveCachedTenantId(created.id);
+      final normalizedCreated = _normalizeCreatedTenant(
+        created,
+        fallbackName: tenant.name,
+      );
+      _upsertTenant(normalizedCreated);
+      currentTenant = normalizedCreated;
+      await _tenantRepository.saveCachedTenantId(normalizedCreated.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {
@@ -97,9 +126,13 @@ abstract class _TenantStore with Store {
       final created = await _tenantRepository.createTenantOnFirstLogin(
         name: name,
       );
-      tenantList.add(created);
-      currentTenant = created;
-      await _tenantRepository.saveCachedTenantId(created.id);
+      final normalizedCreated = _normalizeCreatedTenant(
+        created,
+        fallbackName: name,
+      );
+      _upsertTenant(normalizedCreated);
+      currentTenant = normalizedCreated;
+      await _tenantRepository.saveCachedTenantId(normalizedCreated.id);
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {

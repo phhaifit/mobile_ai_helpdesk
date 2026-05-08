@@ -19,7 +19,7 @@ class TenantApi {
   }
 
   Future<List<Tenant>> getTenants() async {
-    final response = await _dioClient.dio.get(Endpoints.tenants());
+    final response = await _dioClient.dio.get(Endpoints.accountTenants());
     final payload = ApiResponseParser.asMap(response.data);
     final tenantsValue = payload['tenants'];
     final items = tenantsValue is List
