@@ -27,15 +27,12 @@ abstract class _TeamStore with Store {
     ) {
       if (tenantId != null) {
         loadTeamData();
-        _startInvitationPolling();
       } else {
         _clearTeamData();
-        _stopInvitationPolling();
       }
     });
     if (_tenantStore.currentTenant != null) {
       loadTeamData();
-      _startInvitationPolling();
     }
   }
 
@@ -46,10 +43,6 @@ abstract class _TeamStore with Store {
   final ErrorStore _errorStore;
 
   late final ReactionDisposer _tenantReaction;
-
-  static const Duration _invitationPollingInterval = Duration(seconds: 20);
-  Timer? _invitationPollingTimer;
-  bool _isPollingInFlight = false;
 
   @observable
   ObservableList<TeamMember> teamMembers = ObservableList<TeamMember>();
@@ -64,44 +57,6 @@ abstract class _TeamStore with Store {
   void _clearTeamData() {
     teamMembers.clear();
     invitations.clear();
-  }
-
-  void _startInvitationPolling() {
-    _stopInvitationPolling();
-    _invitationPollingTimer = Timer.periodic(
-      _invitationPollingInterval,
-      (_) => _refreshInvitations(silent: true),
-    );
-  }
-
-  void _stopInvitationPolling() {
-    _invitationPollingTimer?.cancel();
-    _invitationPollingTimer = null;
-  }
-
-  Future<void> _refreshInvitations({required bool silent}) async {
-    if (_isPollingInFlight) {
-      return;
-    }
-    final tenantId = _tenantStore.currentTenant?.id;
-    if (tenantId == null) {
-      return;
-    }
-    _isPollingInFlight = true;
-    try {
-      final invs = await _invitationRepository.getInvitations(tenantId);
-      runInAction(() {
-        invitations
-          ..clear()
-          ..addAll(invs);
-      });
-    } catch (e) {
-      if (!silent) {
-        _errorStore.setErrorMessage(e.toString());
-      }
-    } finally {
-      _isPollingInFlight = false;
-    }
   }
 
   Future<void> _syncListsFromRepository() async {
@@ -376,7 +331,6 @@ abstract class _TeamStore with Store {
   }
 
   void dispose() {
-    _stopInvitationPolling();
     _tenantReaction();
   }
 }
