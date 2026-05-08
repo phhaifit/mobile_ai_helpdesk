@@ -9,6 +9,12 @@ class InvitationApi {
 
   final DioClient _dioClient;
 
+  Future<List<Invitation>> getAccountInvitations() async {
+    final response = await _dioClient.dio.get(Endpoints.invitations());
+    final items = ApiResponseParser.asMapList(response.data);
+    return items.map(Invitation.fromJson).toList(growable: false);
+  }
+
   Future<List<Invitation>> getInvitations(String tenantId) async {
     final response = await _dioClient.dio.get(Endpoints.tenantInvitations(tenantId));
     final items = ApiResponseParser.asMapList(response.data);

@@ -47,8 +47,9 @@ class TenantRepositoryImpl implements TenantRepository {
     return _tenantApi.updateTenantSettings(
       tenantId: tenantId,
       payload: {
-        'autoResolutionEnabled': autoResolutionEnabled,
-        'autoResolutionTimeoutHours': autoResolutionTimeoutHours,
+        'enabled': autoResolutionEnabled,
+        'resolveAfterHours': autoResolutionTimeoutHours,
+        'notifyCustomer': false,
       },
     );
   }

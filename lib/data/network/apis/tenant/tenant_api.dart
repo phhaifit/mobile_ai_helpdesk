@@ -20,7 +20,14 @@ class TenantApi {
 
   Future<List<Tenant>> getTenants() async {
     final response = await _dioClient.dio.get(Endpoints.tenants());
-    final items = ApiResponseParser.asMapList(response.data);
+    final payload = ApiResponseParser.asMap(response.data);
+    final tenantsValue = payload['tenants'];
+    final items = tenantsValue is List
+        ? tenantsValue
+            .whereType<Map<String, dynamic>>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList(growable: false)
+        : ApiResponseParser.asMapList(payload);
     return items.map(Tenant.fromJson).toList(growable: false);
   }
 
@@ -67,14 +74,11 @@ class TenantApi {
   }
 
   Future<Tenant> updateTenant(Tenant tenant) async {
-    final payload = <String, dynamic>{
-      'name': tenant.name,
-      'slug': tenant.slug,
-      'settings': tenant.settings.toJson(),
-    };
-    final response = await _dioClient.dio.patch(
+    final response = await _dioClient.dio.put(
       Endpoints.tenant(tenant.id),
-      data: payload,
+      data: <String, dynamic>{
+        'name': tenant.name,
+      },
     );
     return Tenant.fromJson(ApiResponseParser.asMap(response.data));
   }
@@ -93,8 +97,8 @@ class TenantApi {
     required String tenantId,
     required Map<String, dynamic> payload,
   }) async {
-    final response = await _dioClient.dio.patch(
-      Endpoints.tenantSettings(tenantId),
+    final response = await _dioClient.dio.put(
+      Endpoints.tenantAutoResolution(tenantId),
       data: payload,
     );
     return _parseTenantSettings(response.data);

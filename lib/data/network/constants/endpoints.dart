@@ -47,13 +47,15 @@ class Endpoints {
       '/api/playground/sessions/$sessionId/messages';
 
   // Tenant endpoints
-  static String tenants() => '/api/v1/tenants';
+  static String tenants() => '/api/v1/accounts/tenants';
     static String createTenantOnFirstLogin() => '/api/v1/tenants/create-first-login';
   static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
     static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
   static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
   static String tenantSettings(String tenantId) =>
       '/api/v1/tenants/$tenantId/settings';
+    static String tenantAutoResolution(String tenantId) =>
+            '/api/v1/tenants/$tenantId/auto-resolution';
 
   // Team member endpoints
   static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
@@ -63,6 +65,7 @@ class Endpoints {
       '/api/v1/tenants/$tenantId/members/$memberId/permissions';
 
   // Invitation endpoints
+    static String invitations() => '/api/v1/invitations';
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
   static String resendInvitation(String invitationId) =>

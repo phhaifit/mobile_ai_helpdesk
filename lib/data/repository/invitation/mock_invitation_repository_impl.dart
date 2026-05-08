@@ -57,6 +57,12 @@ class MockInvitationRepositoryImpl implements InvitationRepository {
   }
 
   @override
+  Future<List<Invitation>> getAccountInvitations() async {
+    await _delay(400);
+    return List<Invitation>.from(_invitations);
+  }
+
+  @override
   Future<List<Invitation>> getInvitations(String tenantId) async {
     await _delay(400);
     return _invitations.where((i) => i.tenantId == tenantId).toList();

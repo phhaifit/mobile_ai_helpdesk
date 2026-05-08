@@ -9,6 +9,11 @@ class InvitationRepositoryImpl implements InvitationRepository {
   final InvitationApi _invitationApi;
 
   @override
+  Future<List<Invitation>> getAccountInvitations() {
+    return _invitationApi.getAccountInvitations();
+  }
+
+  @override
   Future<List<Invitation>> getInvitations(String tenantId) {
     return _invitationApi.getInvitations(tenantId);
   }
