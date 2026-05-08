@@ -38,9 +38,8 @@ class MockTeamRepositoryImpl implements TeamRepository {
   ];
 
   static const Map<TeamRole, List<Permission>> _defaultPermissionsByRole = {
-    TeamRole.owner: _ownerPermissions,
     TeamRole.admin: _adminPermissions,
-    TeamRole.member: _memberPermissions,
+    TeamRole.customer_support: _memberPermissions,
   };
 
   static final List<TeamMember> _seedMembers = [
@@ -51,7 +50,7 @@ class MockTeamRepositoryImpl implements TeamRepository {
       displayName: 'Alice Owner',
       phoneNumber: '1234567890',
       avatarUrl: 'https://via.placeholder.com/150',
-      role: TeamRole.owner,
+      role: TeamRole.admin,
       permissions: _ownerPermissions,
       isActive: true,
       createdAt: DateTime(2025, 1, 10, 9, 0),
@@ -71,7 +70,7 @@ class MockTeamRepositoryImpl implements TeamRepository {
       tenantId: 'tn-001',
       email: 'carol.member@acme.example',
       displayName: 'Carol Member',
-      role: TeamRole.member,
+      role: TeamRole.customer_support,
       permissions: _memberPermissions,
       isActive: true,
       createdAt: DateTime(2025, 1, 20, 8, 15),
@@ -81,7 +80,7 @@ class MockTeamRepositoryImpl implements TeamRepository {
       tenantId: 'tn-002',
       email: 'dana.owner@beta.example',
       displayName: 'Dana Owner',
-      role: TeamRole.owner,
+      role: TeamRole.admin,
       permissions: _ownerPermissions,
       isActive: true,
       createdAt: DateTime(2025, 2, 3, 14, 30),
@@ -91,7 +90,7 @@ class MockTeamRepositoryImpl implements TeamRepository {
       tenantId: 'tn-002',
       email: 'eric.viewer@beta.example',
       displayName: 'Eric Viewer',
-      role: TeamRole.member,
+      role: TeamRole.customer_support,
       permissions: _viewerPermissions,
       isActive: false,
       createdAt: DateTime(2025, 2, 10, 16, 0),
@@ -113,12 +112,12 @@ class MockTeamRepositoryImpl implements TeamRepository {
 
   bool _canAssignOwnerRole(String tenantId, String memberId) {
     final existingOwner = _members.firstWhere(
-      (m) => m.tenantId == tenantId && m.role == TeamRole.owner,
+      (m) => m.tenantId == tenantId && m.role == TeamRole.admin,
       orElse: () => TeamMember(
         id: '',
         tenantId: '',
         email: '',
-        role: TeamRole.member,
+        role: TeamRole.customer_support,
         permissions: const <Permission>[],
         isActive: false,
         createdAt: DateTime(2000, 1, 1),
@@ -190,10 +189,10 @@ class MockTeamRepositoryImpl implements TeamRepository {
       return null;
     }
     final existing = _members[index];
-    if (existing.role == TeamRole.owner && member.role != TeamRole.owner) {
+    if (existing.role == TeamRole.admin && member.role != TeamRole.admin) {
       return null;
     }
-    if (member.role == TeamRole.owner &&
+    if (member.role == TeamRole.admin &&
         !_canAssignOwnerRole(member.tenantId, member.id)) {
       return null;
     }

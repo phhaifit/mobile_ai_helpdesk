@@ -28,11 +28,11 @@ class InvitationApi {
     required String invitedByMemberId,
   }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.tenantInvitations(tenantId),
+      Endpoints.sendTenantInvitation(),
       data: {
         'email': email,
-        'role': role.name,
-        'invitedByMemberId': invitedByMemberId,
+        'role': role.name.toUpperCase(),
+        'channelIDs': <String>[],
       },
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));

@@ -38,9 +38,8 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
     };
 
 const _$TeamRoleEnumMap = {
-  TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
-  TeamRole.member: 'member',
+  TeamRole.customer_support: 'customer_support',
 };
 
 const _$InvitationStatusEnumMap = {

@@ -30,7 +30,7 @@ class Tenant {
         ? TenantSettings.fromJson(Map<String, dynamic>.from(settingsJson))
         : const TenantSettings(
             allowInvitations: true,
-            defaultRole: TeamRole.member,
+            defaultRole: TeamRole.customer_support,
             enableAuditLog: false,
           );
 

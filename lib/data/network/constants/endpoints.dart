@@ -69,6 +69,7 @@ class Endpoints {
     static String invitations() => '/api/v1/invitations';
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
+  static String sendTenantInvitation() => '/api/v1/tenants/invitation';
   static String resendInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId/resend';
   static String acceptInvitation(String invitationId) =>

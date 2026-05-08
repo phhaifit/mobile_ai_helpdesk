@@ -21,7 +21,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
       slug: 'acme',
       settings: const TenantSettings(
         allowInvitations: true,
-        defaultRole: TeamRole.member,
+        defaultRole: TeamRole.customer_support,
         enableAuditLog: true,
       ),
       createdAt: DateTime(2025, 1, 10, 9, 0),
@@ -32,7 +32,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
       slug: 'beta-labs',
       settings: const TenantSettings(
         allowInvitations: false,
-        defaultRole: TeamRole.member,
+        defaultRole: TeamRole.customer_support,
         enableAuditLog: false,
       ),
       createdAt: DateTime(2025, 2, 3, 14, 30),
@@ -94,7 +94,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
         slug: name.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-'),
         settings: const TenantSettings(
           allowInvitations: true,
-          defaultRole: TeamRole.member,
+          defaultRole: TeamRole.customer_support,
           enableAuditLog: false,
         ),
         createdAt: now,

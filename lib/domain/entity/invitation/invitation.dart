@@ -89,14 +89,14 @@ class Invitation {
   }
 
   static TeamRole _parseTeamRole(String? roleString) {
-    if (roleString == null) return TeamRole.member;
+    if (roleString == null) return TeamRole.customer_support;
     try {
       return TeamRole.values.firstWhere(
         (role) => role.name.toUpperCase() == roleString.toUpperCase(),
-        orElse: () => TeamRole.member,
+        orElse: () => TeamRole.customer_support,
       );
     } catch (_) {
-      return TeamRole.member;
+      return TeamRole.customer_support;
     }
   }
 

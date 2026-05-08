@@ -80,16 +80,14 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   TeamRole _invitedRole(Invitation? inv) {
-    return inv?.role ?? TeamRole.member;
+    return inv?.role ?? TeamRole.customer_support;
   }
 
   String _inviteRoleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return l.translate('employee_role_owner');
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.member:
+      case TeamRole.customer_support:
         return l.translate('invite_response_role_member');
     }
   }

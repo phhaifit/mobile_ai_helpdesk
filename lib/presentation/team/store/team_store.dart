@@ -243,11 +243,9 @@ abstract class _TeamStore with Store {
 
   List<Permission> _permissionsForRole(TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return List<Permission>.from(_ownerPermissionSet);
       case TeamRole.admin:
         return List<Permission>.from(_adminPermissionSet);
-      case TeamRole.member:
+      case TeamRole.customer_support:
         return List<Permission>.from(_memberPermissionSet);
     }
   }

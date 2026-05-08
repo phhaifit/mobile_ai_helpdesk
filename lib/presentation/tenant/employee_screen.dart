@@ -35,7 +35,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   int _selectedTab = 0;
   TeamRole? _memberRoleFilter;
   InvitationStatus? _invitationStatusFilter;
-  TeamRole _inviteRole = TeamRole.member;
+  TeamRole _inviteRole = TeamRole.customer_support;
   bool _isSubmittingInvite = false;
 
   @override
@@ -689,11 +689,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
   String _roleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return l.translate('employee_role_owner');
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.member:
+      case TeamRole.customer_support:
         return l.translate('employee_role_staff');
     }
   }
@@ -732,7 +730,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     }
 
     _inviteEmailController.clear();
-    _inviteRole = TeamRole.member;
+    _inviteRole = TeamRole.customer_support;
 
     await showDialog<void>(
       context: context,
