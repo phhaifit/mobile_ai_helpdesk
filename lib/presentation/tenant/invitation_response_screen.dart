@@ -18,7 +18,7 @@ class InvitationResponseScreen extends StatefulWidget {
 
   final String invitationId;
 
-  /// Mock seed: invitation id → tenant id when invite is not in [TeamStore] yet.
+  /// Fallback seed: invitation id → tenant id when invite is not in [TeamStore] yet.
   static const Map<String, String> seedInviteTenantIds = {
     'inv-001': 'tn-001',
     'inv-002': 'tn-001',
@@ -42,8 +42,6 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   bool _finished = false;
   bool? _accepted;
   String? _errorMessage;
-  String? _joinInfoTenantName;
-  TeamRole? _joinInfoRole;
 
   @override
   void initState() {
@@ -51,46 +49,11 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
     _loadTenantJoinInfo();
   }
 
-  TeamRole? _parseTeamRole(dynamic value) {
-    if (value is! String) {
-      return null;
-    }
-    switch (value) {
-      case 'owner':
-        return TeamRole.owner;
-      case 'admin':
-        return TeamRole.admin;
-      case 'member':
-        return TeamRole.member;
-      default:
-        return null;
-    }
-  }
-
   Future<void> _loadTenantJoinInfo() async {
-    final data = await _tenantStore.getTenantJoinInfo();
-    if (!mounted || data == null) {
+    await _tenantStore.getTenantJoinInfo();
+    if (!mounted) {
       return;
     }
-
-    final tenant = data['tenant'];
-    final invitation = data['invitation'];
-
-    final tenantName = data['tenantName'] is String
-        ? data['tenantName'] as String
-        : tenant is Map<String, dynamic>
-        ? (tenant['name'] as String?)
-        : null;
-
-    final parsedRole = _parseTeamRole(
-      data['role'] ??
-          (invitation is Map<String, dynamic> ? invitation['role'] : null),
-    );
-
-    setState(() {
-      _joinInfoTenantName = tenantName;
-      _joinInfoRole = parsedRole;
-    });
   }
 
   Invitation? _findInvitation() {
@@ -103,9 +66,6 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   String _organizationName(AppLocalizations l, Invitation? inv) {
-    if (_joinInfoTenantName != null && _joinInfoTenantName!.trim().isNotEmpty) {
-      return _joinInfoTenantName!;
-    }
     final tenantId = inv?.tenantId ??
         InvitationResponseScreen.seedInviteTenantIds[widget.invitationId];
     if (tenantId == null) {
@@ -120,7 +80,7 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   TeamRole _invitedRole(Invitation? inv) {
-    return inv?.role ?? _joinInfoRole ?? TeamRole.member;
+    return inv?.role ?? TeamRole.member;
   }
 
   String _inviteRoleLabel(AppLocalizations l, TeamRole role) {

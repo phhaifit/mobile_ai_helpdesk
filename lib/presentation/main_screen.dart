@@ -18,10 +18,7 @@ import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
-import 'team/store/team_store.dart';
-import 'tenant/invitation_response_screen.dart';
 import '../../../di/service_locator.dart';
-import '../../../domain/entity/invitation/invitation.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
@@ -190,11 +187,6 @@ class _MainScreenState extends State<MainScreen> {
             onTap: () => _selectCategory('payment'),
           ),
           MenuItem(
-            id: 'mock_invitation_response',
-            title: 'Mock invitation response',
-            onTap: _openMockInvitationResponse,
-          ),
-          MenuItem(
             id: Routes.templateLibrary,
             title: 'Template',
             onTap: () => _selectCategory(Routes.templateLibrary),
@@ -267,25 +259,6 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _showSidebarMobile = !_showSidebarMobile;
     });
-  }
-
-  /// Opens the invitation response flow using a pending invite from the team store
-  /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
-  /// TODO: remove this after testing
-  void _openMockInvitationResponse() {
-    final teamStore = getIt<TeamStore>();
-    String invitationId = 'inv-001';
-    for (final inv in teamStore.invitations) {
-      if (inv.status == InvitationStatus.pending) {
-        invitationId = inv.id;
-        break;
-      }
-    }
-    Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) => InvitationResponseScreen(invitationId: invitationId),
-      ),
-    );
   }
 
   void _selectCategory(String category) {

@@ -180,12 +180,7 @@ class MockTenantRepositoryImpl implements TenantRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getTenantJoinInfo() async {
+  Future<void> getTenantJoinInfo() async {
     await _delay(300);
-    final tenant = _tenants.isNotEmpty ? _tenants.first : null;
-    return <String, dynamic>{
-      'hasTenant': tenant != null,
-      'tenant': tenant?.toJson(),
-    };
   }
 }

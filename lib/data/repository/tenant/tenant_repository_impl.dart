@@ -69,7 +69,7 @@ class TenantRepositoryImpl implements TenantRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getTenantJoinInfo() {
+  Future<void> getTenantJoinInfo() {
     return _tenantApi.getTenantJoinInfo();
   }
 }

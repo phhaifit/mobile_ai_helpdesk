@@ -66,11 +66,10 @@ class TenantApi {
     return Tenant.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Map<String, dynamic>> getTenantJoinInfo() async {
-    final response = await _dioClient.dio.get(
+  Future<void> getTenantJoinInfo() async {
+    await _dioClient.dio.get(
       Endpoints.tenantInvitationJoinInfo(),
     );
-    return ApiResponseParser.asMap(response.data);
   }
 
   Future<Tenant> updateTenant(Tenant tenant) async {

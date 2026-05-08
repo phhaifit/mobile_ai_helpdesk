@@ -26,5 +26,5 @@ abstract class TenantRepository {
 
   Future<void> saveCachedTenantId(String? tenantId);
 
-  Future<Map<String, dynamic>> getTenantJoinInfo();
+  Future<void> getTenantJoinInfo();
 }

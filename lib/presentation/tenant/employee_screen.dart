@@ -2,6 +2,7 @@ import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
 import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import 'package:ai_helpdesk/presentation/tenant/employee_detail_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
@@ -21,16 +22,52 @@ class EmployeeScreen extends StatefulWidget {
 class _EmployeeScreenState extends State<EmployeeScreen> {
   final TeamStore _teamStore = getIt<TeamStore>();
   final TenantStore _tenantStore = getIt<TenantStore>();
+  final InvitationRepository _invitationRepository =
+      getIt<InvitationRepository>();
   final TextEditingController _memberSearchController = TextEditingController();
   final TextEditingController _invitationSearchController =
       TextEditingController();
   final TextEditingController _inviteEmailController = TextEditingController();
+
+  List<Invitation> _accountInvitations = <Invitation>[];
+  bool _isLoadingInvitations = false;
 
   int _selectedTab = 0;
   TeamRole? _memberRoleFilter;
   InvitationStatus? _invitationStatusFilter;
   TeamRole _inviteRole = TeamRole.member;
   bool _isSubmittingInvite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccountInvitations();
+  }
+
+  Future<void> _loadAccountInvitations() async {
+    if (_isLoadingInvitations) {
+      return;
+    }
+    setState(() {
+      _isLoadingInvitations = true;
+    });
+    try {
+      final invitations = await _invitationRepository.getAccountInvitations();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _accountInvitations = invitations;
+      });
+    } finally {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isLoadingInvitations = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -82,6 +119,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         },
       ),
     );
+  }
+
+  List<Invitation> get _filteredAccountInvitations {
+    final query = _invitationSearchController.text.trim().toLowerCase();
+    return _accountInvitations.where((item) {
+      final hitQuery = query.isEmpty || item.email.toLowerCase().contains(query);
+      final hitStatus =
+          _invitationStatusFilter == null || item.status == _invitationStatusFilter;
+      return hitQuery && hitStatus;
+    }).toList();
   }
 
   Widget _buildTabs(AppLocalizations l) {
@@ -144,6 +191,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   Widget _buildInvitationContent(AppLocalizations l, List<Invitation> invitations, bool isMobile) {
+    if (_isLoadingInvitations && invitations.isEmpty) {
+      return _loadingInvitationsState(l, isMobile);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -157,6 +208,8 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         _panel(
           child: Column(
             children: [
+              if (_isLoadingInvitations) const LinearProgressIndicator(minHeight: 2),
+              if (_isLoadingInvitations) const SizedBox(height: 12),
               _invitationFilters(l, isMobile),
               const SizedBox(height: 12),
               if (isMobile)
@@ -166,6 +219,40 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             ],
           ),
         )
+      ],
+    );
+  }
+
+  Widget _loadingInvitationsState(AppLocalizations l, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(
+          l: l,
+          title: l.translate('employee_section_invitations'),
+          subtitle: l.translate('employee_total_invitations').replaceAll('{count}', '0'),
+          isMobile: isMobile,
+        ),
+        const SizedBox(height: 12),
+        _panel(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            child: Column(
+              children: [
+                const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l.translate('employee_tab_invitations'),
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -522,6 +609,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       case InvitationStatus.revoked:
         color = Colors.orange;
         break;
+      case InvitationStatus.declined:
+      case InvitationStatus.expired_declined:
+        color = Colors.red;
+        break;
     }
     return Text(
       _invitationStatusLabel(l, status),
@@ -586,15 +677,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   List<Invitation> _filteredInvitations() {
-    final query = _invitationSearchController.text.trim().toLowerCase();
-    return _teamStore.invitations.where((item) {
-      final hitQuery =
-          query.isEmpty || item.email.toLowerCase().contains(query);
-      final hitStatus =
-          _invitationStatusFilter == null ||
-          item.status == _invitationStatusFilter;
-      return hitQuery && hitStatus;
-    }).toList();
+    return _filteredAccountInvitations;
   }
 
   String _displayName(TeamMember member) {
@@ -625,6 +708,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         return l.translate('invitation_status_revoked');
       case InvitationStatus.expired:
         return l.translate('invitation_status_expired');
+      case InvitationStatus.declined:
+        return l.translate('invitation_status_declined');
+      case InvitationStatus.expired_declined:
+        return l.translate('invitation_status_expired_declined');
     }
   }
 
@@ -747,6 +834,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       role: _inviteRole,
       invitedByMemberId: invitedByMemberId,
     );
+    await _loadAccountInvitations();
 
     if (!mounted) {
       return;
@@ -761,7 +849,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   Future<void> _handleResend(String invitationId, AppLocalizations l) async {
-    await _teamStore.resendInvitation(invitationId);
+    await _invitationRepository.resendInvitation(invitationId);
+    await _teamStore.loadTeamData();
+    await _loadAccountInvitations();
     if (!mounted) {
       return;
     }
@@ -769,7 +859,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   Future<void> _handleDeleteInvitation(String invitationId, AppLocalizations l) async {
-    await _teamStore.deleteInvitation(invitationId);
+    await _invitationRepository.deleteInvitation(invitationId);
+    await _teamStore.loadTeamData();
+    await _loadAccountInvitations();
     if (!mounted) {
       return;
     }

@@ -261,12 +261,11 @@ abstract class _TenantStore with Store {
     }
   }
 
-  Future<Map<String, dynamic>?> getTenantJoinInfo() async {
+  Future<void> getTenantJoinInfo() async {
     try {
       return await _tenantRepository.getTenantJoinInfo();
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
-      return null;
     }
   }
 
