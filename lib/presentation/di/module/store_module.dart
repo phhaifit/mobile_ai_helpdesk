@@ -268,6 +268,7 @@ class StoreModule {
     getIt.registerSingleton<TeamStore>(
       TeamStore(
         getIt<TeamRepository>(),
+        getIt<AccountRepository>(),
         getIt<InvitationRepository>(),
         getIt<TenantStore>(),
         getIt<ErrorStore>(),

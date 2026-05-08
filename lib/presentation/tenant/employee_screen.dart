@@ -41,6 +41,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   @override
   void initState() {
     super.initState();
+    _teamStore.loadTeamData();
     _loadAccountInvitations();
   }
 

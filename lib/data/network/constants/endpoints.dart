@@ -30,6 +30,7 @@ class Endpoints {
 
   // ---- Helpdesk Account ---------------------------------------------------
   static const String accountSsoValidate = '/api/account/sso-validate';
+    static const String accountList = '/account';
   static const String accountMe = '/api/account/me';
   static const String accountAvatar = '/api/account/me/avatar';
 

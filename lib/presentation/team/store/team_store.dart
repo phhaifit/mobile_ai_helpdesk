@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/domain/entity/invitation/invitation.dart';
 import 'package:ai_helpdesk/domain/entity/permission/permission.dart';
 import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
+import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
@@ -16,6 +17,7 @@ class TeamStore = _TeamStore with _$TeamStore;
 abstract class _TeamStore with Store {
   _TeamStore(
     this._teamRepository,
+    this._accountRepository,
     this._invitationRepository,
     this._tenantStore,
     this._errorStore,
@@ -38,6 +40,7 @@ abstract class _TeamStore with Store {
   }
 
   final TeamRepository _teamRepository;
+  final AccountRepository _accountRepository;
   final InvitationRepository _invitationRepository;
   final TenantStore _tenantStore;
   final ErrorStore _errorStore;
@@ -110,12 +113,15 @@ abstract class _TeamStore with Store {
       });
       return;
     }
-    final members = await _teamRepository.getMembers(tenantId);
+    final membersResult = await _accountRepository.getTenantMembers();
     final invs = await _invitationRepository.getInvitations(tenantId);
     runInAction(() {
       teamMembers
-        ..clear()
-        ..addAll(members);
+        ..clear();
+      membersResult.fold(
+        (_) {},
+        (members) => teamMembers.addAll(members),
+      );
       invitations
         ..clear()
         ..addAll(invs);
