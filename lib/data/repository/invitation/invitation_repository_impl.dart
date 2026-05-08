@@ -34,18 +34,36 @@ class InvitationRepositoryImpl implements InvitationRepository {
   }
 
   @override
-  Future<Invitation?> resendInvitation(String invitationId) {
-    return _invitationApi.resendInvitation(invitationId);
+  Future<Invitation?> resendInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) {
+    return _invitationApi.resendInvitation(
+      invitationId,
+      tenantId: tenantId,
+    );
   }
 
   @override
-  Future<Invitation?> acceptInvitation(String invitationId) {
-    return _invitationApi.acceptInvitation(invitationId);
+  Future<Invitation?> acceptInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) {
+    return _invitationApi.acceptInvitation(
+      invitationId,
+      tenantId: tenantId,
+    );
   }
 
   @override
-  Future<Invitation?> declineInvitation(String invitationId) {
-    return _invitationApi.declineInvitation(invitationId);
+  Future<Invitation?> declineInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) {
+    return _invitationApi.declineInvitation(
+      invitationId,
+      tenantId: tenantId,
+    );
   }
 
   @override

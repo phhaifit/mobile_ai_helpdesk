@@ -3,11 +3,19 @@ import '/data/network/apis/api_response_parser.dart';
 import '/data/network/constants/endpoints.dart';
 import '/domain/entity/invitation/invitation.dart';
 import '/domain/entity/team_member/team_member.dart';
+import 'package:dio/dio.dart';
 
 class InvitationApi {
   InvitationApi(this._dioClient);
 
   final DioClient _dioClient;
+
+  Options _tenantOptions(String? tenantId) {
+    if (tenantId == null || tenantId.trim().isEmpty) {
+      return Options();
+    }
+    return Options(headers: <String, dynamic>{'tenantID': tenantId});
+  }
 
   Future<List<Invitation>> getAccountInvitations() async {
     final response = await _dioClient.dio.get(Endpoints.invitations());
@@ -38,23 +46,38 @@ class InvitationApi {
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> resendInvitation(String invitationId) async {
+  Future<Invitation> resendInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.resendInvitation(invitationId),
+      Endpoints.resendInvitation(),
+      options: _tenantOptions(tenantId),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> acceptInvitation(String invitationId) async {
+  Future<Invitation> acceptInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.acceptInvitation(invitationId),
+      Endpoints.acceptInvitation(),
+      options: _tenantOptions(tenantId),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> declineInvitation(String invitationId) async {
+  Future<Invitation> declineInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.declineInvitation(invitationId),
+      Endpoints.declineInvitation(),
+      options: _tenantOptions(tenantId),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }

@@ -175,7 +175,10 @@ abstract class _TeamStore with Store {
   Future<void> resendInvitation(String invitationId) async {
     isLoading = true;
     try {
-      await _invitationRepository.resendInvitation(invitationId);
+      await _invitationRepository.resendInvitation(
+        invitationId,
+        tenantId: _tenantStore.currentTenant?.id,
+      );
       await _syncListsFromRepository();
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
@@ -188,7 +191,10 @@ abstract class _TeamStore with Store {
   Future<void> acceptInvitation(String invitationId) async {
     isLoading = true;
     try {
-      await _invitationRepository.acceptInvitation(invitationId);
+      await _invitationRepository.acceptInvitation(
+        invitationId,
+        tenantId: _tenantStore.currentTenant?.id,
+      );
       await _syncListsFromRepository();
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());
@@ -201,7 +207,10 @@ abstract class _TeamStore with Store {
   Future<void> declineInvitation(String invitationId) async {
     isLoading = true;
     try {
-      await _invitationRepository.declineInvitation(invitationId);
+      await _invitationRepository.declineInvitation(
+        invitationId,
+        tenantId: _tenantStore.currentTenant?.id,
+      );
       await _syncListsFromRepository();
     } catch (e) {
       _errorStore.setErrorMessage(e.toString());

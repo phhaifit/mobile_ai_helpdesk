@@ -110,9 +110,19 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
       _errorMessage = null;
     });
 
+    final tenantId = _tenantStore.currentTenant?.id ??
+        _findInvitation()?.tenantId ??
+        InvitationResponseScreen.seedInviteTenantIds[widget.invitationId];
+
     final Invitation? result = accept
-        ? await _invitationRepository.acceptInvitation(widget.invitationId)
-        : await _invitationRepository.declineInvitation(widget.invitationId);
+        ? await _invitationRepository.acceptInvitation(
+            widget.invitationId,
+            tenantId: tenantId,
+          )
+        : await _invitationRepository.declineInvitation(
+            widget.invitationId,
+            tenantId: tenantId,
+          );
 
     await _teamStore.loadTeamData();
 

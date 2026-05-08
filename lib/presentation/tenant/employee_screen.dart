@@ -848,7 +848,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   Future<void> _handleResend(String invitationId, AppLocalizations l) async {
-    await _invitationRepository.resendInvitation(invitationId);
+    await _invitationRepository.resendInvitation(
+      invitationId,
+      tenantId: _tenantStore.currentTenant?.id,
+    );
     await _teamStore.loadTeamData();
     await _loadAccountInvitations();
     if (!mounted) {

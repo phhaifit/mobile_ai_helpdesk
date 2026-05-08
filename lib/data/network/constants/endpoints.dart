@@ -71,12 +71,9 @@ class Endpoints {
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
   static String sendTenantInvitation() => '/api/v1/tenants/invitation';
-  static String resendInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/resend';
-  static String acceptInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/accept';
-  static String declineInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/decline';
+  static String resendInvitation() => '/api/v1/invitations/resend';
+  static String acceptInvitation() => '/api/v1/invitations/accept';
+  static String declineInvitation() => '/api/v1/invitations/decline';
   static String deleteInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId';
   // Marketing/Broadcasting endpoints (Phase A contract baseline)
