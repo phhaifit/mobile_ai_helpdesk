@@ -156,13 +156,21 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
         apiInterval: interval.toApiInterval(),
         webImportType: type.toWebImportType(),
       );
-      return _fromApiOrFallback(
-        json,
-        fallbackName: url,
-        fallbackType: type,
-        fallbackInterval: interval,
-        fallbackConfig: {'url': url},
-      );
+      // Web import is fire-and-forget on the BE: response is
+      // `{ webUrl, taskId, status: "indexing" }` — no source id yet, since
+      // the source record is created asynchronously by the indexing job.
+      // Return a synthetic processing placeholder; the store reloads the
+      // list right after, which surfaces the real source with its real id.
+      if (json['id'] is! String) {
+        return _placeholderImport(
+          name: url,
+          type: type,
+          interval: interval,
+          taskId: json['taskId'] as String?,
+          config: {'url': url},
+        );
+      }
+      return _fromApiStrict(json, configFallback: {'url': url});
     });
   }
 
@@ -181,12 +189,9 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
         onSendProgress: onSendProgress,
       );
       final size = await file.length();
-      return _fromApiOrFallback(
+      return _fromApiStrict(
         json,
-        fallbackName: fileName,
-        fallbackType: KnowledgeSourceType.localFile,
-        fallbackInterval: CrawlInterval.once,
-        fallbackConfig: {'fileName': fileName, 'fileSize': size},
+        configFallback: {'fileName': fileName, 'fileSize': size},
       );
     });
   }
@@ -209,12 +214,19 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
         credentials: credentials.raw,
         apiInterval: interval.toApiInterval(),
       );
-      return _fromApiOrFallback(
+      // Drive import is fire-and-forget like web — see [importWebSource].
+      if (json['id'] is! String) {
+        return _placeholderImport(
+          name: name,
+          type: KnowledgeSourceType.googleDrive,
+          interval: interval,
+          taskId: json['taskId'] as String?,
+          config: {'includePaths': includePaths},
+        );
+      }
+      return _fromApiStrict(
         json,
-        fallbackName: name,
-        fallbackType: KnowledgeSourceType.googleDrive,
-        fallbackInterval: interval,
-        fallbackConfig: {'includePaths': includePaths},
+        configFallback: {'includePaths': includePaths},
       );
     });
   }
@@ -236,12 +248,23 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
         uri: uri,
         apiInterval: interval.toApiInterval(),
       );
-      return _fromApiOrFallback(
+      // DB import is fire-and-forget like web — see [importWebSource].
+      if (json['id'] is! String) {
+        return _placeholderImport(
+          name: name,
+          type: KnowledgeSourceType.databaseQuery,
+          interval: interval,
+          taskId: json['taskId'] as String?,
+          config: {
+            'query': query,
+            'uri': uri,
+            'dialect': dialect.name,
+          },
+        );
+      }
+      return _fromApiStrict(
         json,
-        fallbackName: name,
-        fallbackType: KnowledgeSourceType.databaseQuery,
-        fallbackInterval: interval,
-        fallbackConfig: {
+        configFallback: {
           'query': query,
           'uri': uri,
           'dialect': dialect.name,
@@ -286,7 +309,7 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
     final now = DateTime.now();
     return KnowledgeSource(
       id: (json['id'] as String?) ?? '',
-      name: (json['name'] as String?) ?? '',
+      name: _extractDisplayName(json),
       type: knowledgeSourceTypeFromApi(json['type'] as String?),
       status: knowledgeSourceStatusFromApi(json['status'] as String?),
       interval: crawlIntervalFromApi(json['interval'] as String?),
@@ -299,32 +322,88 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
     );
   }
 
-  KnowledgeSource _fromApiOrFallback(
-    Map<String, dynamic> json, {
-    required String fallbackName,
-    required KnowledgeSourceType fallbackType,
-    required CrawlInterval fallbackInterval,
-    required Map<String, dynamic> fallbackConfig,
-  }) {
-    if (json.isNotEmpty && json['id'] is String) {
-      final mapped = _fromApi(json);
-      // Backend usually doesn't return config — graft fallback for the UI.
-      if (mapped.config.isEmpty) {
-        return mapped.copyWith(config: fallbackConfig);
-      }
-      return mapped;
+  /// BE often returns `name: ""` for web-imported sources (the URL is the
+  /// only useful identifier).  Try a chain of likely fields and finally fall
+  /// back to a human-readable label so the list never shows blank rows.
+  String _extractDisplayName(Map<String, dynamic> json) {
+    final name = json['name'] as String?;
+    if (name != null && name.isNotEmpty) return name;
+
+    final webUrl = json['webUrl'] as String?;
+    if (webUrl != null && webUrl.isNotEmpty) return webUrl;
+
+    final path = json['path'] as String?;
+    if (path != null && path.isNotEmpty) {
+      // Strip leading directories so e.g. "data/knowledge/foo.docx" → "foo.docx".
+      final slash = path.lastIndexOf(RegExp(r'[/\\]'));
+      return slash >= 0 && slash < path.length - 1
+          ? path.substring(slash + 1)
+          : path;
     }
+
+    final cfg = json['config'];
+    if (cfg is Map) {
+      final cfgUrl = cfg['url'] ?? cfg['webUrl'] ?? cfg['fileName'];
+      if (cfgUrl is String && cfgUrl.isNotEmpty) return cfgUrl;
+    }
+
+    final type = (json['type'] as String?) ?? 'source';
+    final id = (json['id'] as String?) ?? '';
+    return id.isEmpty ? '($type)' : '($type $id)';
+  }
+
+  /// Synthetic source returned when BE accepts an import job but does not
+  /// echo the created source record (web/drive/database imports respond
+  /// with `{ taskId, status }` and create the source asynchronously).
+  ///
+  /// The store should immediately reload the source list; the placeholder
+  /// is replaced as soon as BE surfaces the real record.
+  KnowledgeSource _placeholderImport({
+    required String name,
+    required KnowledgeSourceType type,
+    required CrawlInterval interval,
+    required String? taskId,
+    required Map<String, dynamic> config,
+  }) {
     final now = DateTime.now();
     return KnowledgeSource(
-      id: (json['id'] as String?) ?? 'pending-${now.millisecondsSinceEpoch}',
-      name: (json['name'] as String?) ?? fallbackName,
-      type: fallbackType,
-      status: KnowledgeSourceStatus.pending,
-      interval: fallbackInterval,
+      id: taskId != null && taskId.isNotEmpty
+          ? 'task-$taskId'
+          : 'pending-${now.millisecondsSinceEpoch}',
+      name: name,
+      type: type,
+      status: KnowledgeSourceStatus.processing,
+      interval: interval,
       createdAt: now,
       updatedAt: now,
-      config: fallbackConfig,
+      config: {
+        ...config,
+        if (taskId != null) 'taskId': taskId,
+      },
     );
+  }
+
+  /// Strict mapper for import responses.
+  ///
+  /// Throws [KnowledgeException] if the BE response is empty or missing the
+  /// required `id` — never silently fabricates a fake source.  The
+  /// [configFallback] is grafted onto the mapped source only when BE omitted
+  /// `config` (typical — BE rarely echoes the user's input back).
+  KnowledgeSource _fromApiStrict(
+    Map<String, dynamic> json, {
+    required Map<String, dynamic> configFallback,
+  }) {
+    if (json.isEmpty || json['id'] is! String) {
+      throw const KnowledgeException(
+        'Máy chủ không trả về dữ liệu nguồn vừa tạo. Vui lòng thử lại.',
+        KnowledgeErrorCode.server,
+      );
+    }
+    final mapped = _fromApi(json);
+    if (mapped.config.isEmpty) {
+      return mapped.copyWith(config: configFallback);
+    }
+    return mapped;
   }
 
   Map<String, dynamic> _extractConfig(Map<String, dynamic> json) {

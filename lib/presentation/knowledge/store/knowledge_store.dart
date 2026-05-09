@@ -287,6 +287,11 @@ abstract class _KnowledgeStore with Store {
         params: ImportWebSourceParams(url: url, type: type, interval: interval),
       );
       _addOrUpdate(s);
+      // Web import is fire-and-forget on BE — the synthetic placeholder we
+      // just inserted carries a `task-` or `pending-` id, not the real source
+      // id.  Reload the list so the actual source record (created by the
+      // indexing job) replaces the placeholder.
+      unawaited(loadSources());
       _ensureLiveStatus();
       return s;
     });
@@ -342,6 +347,9 @@ abstract class _KnowledgeStore with Store {
         ),
       );
       _addOrUpdate(s);
+      // Drive import is fire-and-forget on BE — reload to replace the
+      // synthetic placeholder with the real source.
+      unawaited(loadSources());
       _ensureLiveStatus();
       return s;
     });
@@ -366,6 +374,9 @@ abstract class _KnowledgeStore with Store {
         ),
       );
       _addOrUpdate(s);
+      // DB import is fire-and-forget on BE — reload to replace the
+      // synthetic placeholder with the real source.
+      unawaited(loadSources());
       _ensureLiveStatus();
       return s;
     });
