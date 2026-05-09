@@ -49,14 +49,18 @@ extension KnowledgeSourceTypeApiX on KnowledgeSourceType {
 KnowledgeSourceType knowledgeSourceTypeFromApi(String? raw) {
   switch (raw) {
     case 'web':
+    case 'single_url':
       return KnowledgeSourceType.web;
     case 'whole_site':
       return KnowledgeSourceType.wholeSite;
     case 'local_file':
+    case 'file':
       return KnowledgeSourceType.localFile;
     case 'google_drive':
+    case 'drive':
       return KnowledgeSourceType.googleDrive;
     case 'database_query':
+    case 'database':
       return KnowledgeSourceType.databaseQuery;
     default:
       return KnowledgeSourceType.web;
@@ -85,12 +89,19 @@ extension KnowledgeSourceStatusApiX on KnowledgeSourceStatus {
 KnowledgeSourceStatus knowledgeSourceStatusFromApi(String? raw) {
   switch (raw) {
     case 'pending':
+    case 'queued':
       return KnowledgeSourceStatus.pending;
     case 'processing':
+    case 'indexing':
+    case 'crawling':
       return KnowledgeSourceStatus.processing;
     case 'completed':
+    case 'active':
+    case 'inactive':
+    case 'ready':
       return KnowledgeSourceStatus.completed;
     case 'failed':
+    case 'error':
       return KnowledgeSourceStatus.failed;
     default:
       return KnowledgeSourceStatus.pending;
