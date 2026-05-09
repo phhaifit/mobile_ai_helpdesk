@@ -18,6 +18,7 @@ import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -96,6 +97,7 @@ import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
 import '../../../domain/usecase/playground/create_session_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 
@@ -180,14 +182,19 @@ class StoreModule {
         getIt<AnalyticsService>(),
       ),
     );
-    getIt.registerFactory(
-      () => EditTicketStore(getIt<UpdateTicketUseCase>()),
-    );
+    getIt.registerFactory(() => EditTicketStore(getIt<UpdateTicketUseCase>()));
     getIt.registerFactory(
       () => CustomerHistoryStore(getIt<GetCustomerHistoryUseCase>()),
     );
 
     // --- Customer Store ---
+    getIt.registerFactory<CustomerDetailStore>(
+      () => CustomerDetailStore(
+        getIt<GetCustomerHistoryUseCase>(),
+        getIt<GetCustomerChatRoomsUseCase>(),
+      ),
+    );
+
     getIt.registerLazySingleton<CustomerStore>(
       () => CustomerStore(getIt<CustomerRepository>()),
     );

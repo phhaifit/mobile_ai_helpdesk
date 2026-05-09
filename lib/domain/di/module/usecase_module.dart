@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
@@ -14,6 +15,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/refresh_session_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/add_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -145,6 +147,11 @@ class UseCaseModule {
 
     getIt.registerSingleton<GetTicketHistoryUseCase>(
       GetTicketHistoryUseCase(getIt<TicketRepository>()),
+    );
+
+    // Customer Conversation Use Cases:----------------------------------------
+    getIt.registerSingleton<GetCustomerChatRoomsUseCase>(
+      GetCustomerChatRoomsUseCase(getIt<CustomerChatRoomRepository>()),
     );
 
     // Omnichannel Use Cases:---------------------------------------------------

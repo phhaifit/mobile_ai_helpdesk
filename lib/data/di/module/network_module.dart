@@ -18,6 +18,8 @@ import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
@@ -71,8 +73,7 @@ class NetworkModule {
         onRefreshFailed: () {
           getIt<EventBus>().fire(const AuthUnauthorizedEvent());
         },
-        dio: () =>
-            getIt<DioClient>(instanceName: helpdeskDioName).dio,
+        dio: () => getIt<DioClient>(instanceName: helpdeskDioName).dio,
       ),
     );
 
@@ -87,9 +88,9 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<StackHeadersInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     final helpdeskDio = DioClient(
       dioConfigs: DioConfigs(
@@ -98,12 +99,12 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     getIt.registerSingleton<DioClient>(authDio, instanceName: authDioName);
     getIt.registerSingleton<DioClient>(
@@ -120,6 +121,8 @@ class NetworkModule {
     );
     getIt.registerSingleton<CustomerApi>(CustomerApi(getIt<DioClient>()));
     getIt.registerSingleton<TagApi>(TagApi(getIt<DioClient>()));
+    getIt.registerSingleton<TicketApi>(TicketApi(getIt<DioClient>()));
+    getIt.registerSingleton<ChatRoomApi>(ChatRoomApi(getIt<DioClient>()));
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );

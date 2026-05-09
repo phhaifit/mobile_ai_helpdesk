@@ -72,11 +72,23 @@ class Endpoints {
   static String customerDetail(String id) => '/api/customer/$id';
   static String checkEmailAvailability() => '/api/customer/check-valid-email';
   static String createCustomer() => '/api/customer';
-  static String updateCustomer(String id) => '/api/customer/update-customer/$id';
+  static String updateCustomer(String id) =>
+      '/api/customer/update-customer/$id';
   static String addCustomerTag(String id) => '/api/customer/$id/tags';
-  static String removeCustomerTag(String customerId, String tagId) => '/api/customer/$customerId/tags/$tagId';
+  static String removeCustomerTag(String customerId, String tagId) =>
+      '/api/customer/$customerId/tags/$tagId';
   static String mergeCustomers() => '/api/customer/merge';
-  static String addCustomerContact(String id) => '/api/customer/add-customer-contact/$id';
-  static String deleteCustomerContact() => '/api/customer/delete-customer-contact';
+  static String addCustomerContact(String id) =>
+      '/api/customer/add-customer-contact/$id';
+  static String deleteCustomerContact() =>
+      '/api/customer/delete-customer-contact';
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
+
+  // Ticket
+  static String customerTickets() => '/api/ticket/customer-ticket';
+  static String ticketDetail(String id) => '/api/ticket/$id';
+
+  // Chat room
+  static String chatRoomDetail() => '/api/chat-room/detail';
+  static String chatRoomMessages() => '/api/chat-room/message';
 }

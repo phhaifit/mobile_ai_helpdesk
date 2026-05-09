@@ -4,9 +4,13 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
 import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
 import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
@@ -20,6 +24,7 @@ import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_im
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/chat_room/customer_chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/mock_invitation_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/knowledge/mock_knowledge_repository_impl.dart';
@@ -33,12 +38,14 @@ import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart
 import 'package:ai_helpdesk/data/repository/team/mock_team_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tenant/mock_tenant_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
@@ -81,10 +88,7 @@ class RepositoryModule {
 
     // --- Account (Helpdesk) ---
     getIt.registerSingleton<AccountRepository>(
-      AccountRepositoryImpl(
-        getIt<AccountApi>(),
-        getIt<AuthLocalDatasource>(),
-      ),
+      AccountRepositoryImpl(getIt<AccountApi>(), getIt<AuthLocalDatasource>()),
     );
 
     // --- Ticket Data Source & Repository ---
@@ -92,8 +96,24 @@ class RepositoryModule {
       MockTicketLocalDataSource(),
     );
 
-    getIt.registerSingleton<TicketRepository>(
+    getIt.registerSingleton<MockTicketRepositoryImpl>(
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
+    );
+
+    getIt.registerSingleton<TicketRepository>(
+      TicketRepositoryImpl(
+        getIt<TicketApi>(),
+        getIt<MockTicketRepositoryImpl>(),
+        getIt<MockTicketDataSource>(),
+      ),
+    );
+
+    // --- Customer Conversation Repository ---
+    getIt.registerSingleton<CustomerChatRoomRepository>(
+      CustomerChatRoomRepositoryImpl(
+        getIt<ChatRoomApi>(),
+        getIt<MockChatRoomDataSource>(),
+      ),
     );
 
     // --- Chat Repositories ---
@@ -111,11 +131,9 @@ class RepositoryModule {
         getIt<MockCustomerDataSource>(),
       ),
     );
-    
+
     getIt.registerSingleton<MockTagDataSource>(MockTagDataSource());
-    getIt.registerSingleton<TagRepository>(
-      TagRepositoryImpl(getIt<TagApi>()),
-    );
+    getIt.registerSingleton<TagRepository>(TagRepositoryImpl(getIt<TagApi>()));
 
     getIt.registerSingleton<OmnichannelApi>(OmnichannelApi(getIt<DioClient>()));
 
