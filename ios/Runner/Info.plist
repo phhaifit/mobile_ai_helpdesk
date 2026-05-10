@@ -24,6 +24,25 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- flutter_appauth: URL scheme the Google Drive OAuth redirect (Authorization
+	     Code + PKCE) comes back on. This is the *reversed* Google iOS OAuth client
+	     ID — the reversed form of `368520637250-YYY.apps.googleusercontent.com`.
+	     ⚠️ Placeholder: update to the real value when DevOps issues the iOS client
+	     ID, and keep in sync with `_iosClientId` in
+	     lib/presentation/knowledge/add_source/google_drive_oauth_service.dart. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>google-drive-oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.368520637250-YYY_IOS</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
