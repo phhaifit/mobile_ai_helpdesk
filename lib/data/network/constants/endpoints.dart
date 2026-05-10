@@ -54,23 +54,32 @@ class Endpoints {
   static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
     static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
   static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
-  static String tenantSettings(String tenantId) =>
-      '/api/v1/tenants/$tenantId/settings';
-    static String tenantAutoResolution(String tenantId) =>
-            '/api/v1/tenants/$tenantId/auto-resolution';
+  
+  // Tenant Auto-Resolution settings (GET to fetch, PUT to update)
+  static String tenantAutoResolution(String tenantId) =>
+      '/api/v1/tenants/$tenantId/auto-resolution';
 
   // Team member endpoints
+  // Legacy: with tenantId in path (deprecated — use members endpoints instead)
   static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
   static String tenantMember(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId';
   static String tenantMemberPermissions(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId/permissions';
+  
+  // New: tenantId injected via header interceptor (preferred)
+  static String members() => '/api/v1/members';
+  static String member(String memberId) => '/api/v1/members/$memberId';
 
     // Invitation endpoints
     static String invitations() => '/api/v1/invitations';
+  // Legacy: with tenantId in path (deprecated — use invitations endpoints instead)
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
   static String sendTenantInvitation() => '/api/v1/tenants/invitation';
+  
+  // New: tenantId injected via header interceptor (preferred)
+  static String sendInvitation() => '/api/v1/tenants/invitation';
   static String resendInvitation() => '/api/v1/invitations/resend';
   static String acceptInvitation() => '/api/v1/invitations/accept';
   static String declineInvitation() => '/api/v1/invitations/decline';

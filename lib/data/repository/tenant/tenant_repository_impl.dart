@@ -42,13 +42,15 @@ class TenantRepositoryImpl implements TenantRepository {
   Future<TenantSettings> updateTenantSettings({
     required String tenantId,
     required bool autoResolutionEnabled,
-    required int autoResolutionTimeoutHours,
+    required int? autoResolutionTimeoutHours,
   }) {
     return _tenantApi.updateTenantSettings(
       tenantId: tenantId,
       payload: {
         'enabled': autoResolutionEnabled,
-        'resolveAfterHours': autoResolutionTimeoutHours,
+        'autoResolveAfterHours': autoResolutionEnabled
+            ? autoResolutionTimeoutHours
+            : null,
         'notifyCustomer': false,
       },
     );

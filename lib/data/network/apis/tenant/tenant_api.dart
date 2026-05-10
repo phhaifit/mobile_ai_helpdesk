@@ -88,7 +88,9 @@ class TenantApi {
   }
 
   Future<TenantSettings> getTenantSettings(String tenantId) async {
-    final response = await _dioClient.dio.get(Endpoints.tenantSettings(tenantId));
+    final response = await _dioClient.dio.get(
+      Endpoints.tenantAutoResolution(tenantId),
+    );
     return _parseTenantSettings(response.data);
   }
 

@@ -19,7 +19,7 @@ abstract class TenantRepository {
   Future<TenantSettings> updateTenantSettings({
     required String tenantId,
     required bool autoResolutionEnabled,
-    required int autoResolutionTimeoutHours,
+    required int? autoResolutionTimeoutHours,
   });
 
   Future<String?> getCachedTenantId();
