@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../domain/entity/chat/chat_room.dart';
-import 'chatr_avatar.dart';
+import 'chat_avatar.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final ChatRoom room;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../../domain/entity/chat/chat_room.dart';
-import 'widgets/chatr_avatar.dart';
+import 'widgets/chat_avatar.dart';
 
 class ContactInfoPanel extends StatefulWidget {
   final ChatRoom room;
