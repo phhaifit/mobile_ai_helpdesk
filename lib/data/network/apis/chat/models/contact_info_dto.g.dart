@@ -15,7 +15,7 @@ _$MessengerContactInfoDtoImpl _$$MessengerContactInfoDtoImplFromJson(
   messengerAccountName: json['messengerAccountName'] as String? ?? '',
   messengerAccountAvatar: json['messengerAccountAvatar'] as String? ?? '',
   messengerPageId: json['messengerPageID'] as String? ?? '',
-  $type: json['runtimeType'] as String?,
+  $type: json['name'] as String?,
 );
 
 Map<String, dynamic> _$$MessengerContactInfoDtoImplToJson(
@@ -27,7 +27,7 @@ Map<String, dynamic> _$$MessengerContactInfoDtoImplToJson(
   'messengerAccountName': instance.messengerAccountName,
   'messengerAccountAvatar': instance.messengerAccountAvatar,
   'messengerPageID': instance.messengerPageId,
-  'runtimeType': instance.$type,
+  'name': instance.$type,
 };
 
 _$ZaloContactInfoDtoImpl _$$ZaloContactInfoDtoImplFromJson(
@@ -41,7 +41,7 @@ _$ZaloContactInfoDtoImpl _$$ZaloContactInfoDtoImplFromJson(
   zaloAccountAvatar: json['zaloAccountAvatar'] as String? ?? '',
   zaloAppId: json['zaloAppID'] as String? ?? '',
   channelId: json['channelID'] as String? ?? '',
-  $type: json['runtimeType'] as String?,
+  $type: json['name'] as String?,
 );
 
 Map<String, dynamic> _$$ZaloContactInfoDtoImplToJson(
@@ -55,7 +55,7 @@ Map<String, dynamic> _$$ZaloContactInfoDtoImplToJson(
   'zaloAccountAvatar': instance.zaloAccountAvatar,
   'zaloAppID': instance.zaloAppId,
   'channelID': instance.channelId,
-  'runtimeType': instance.$type,
+  'name': instance.$type,
 };
 
 _$PhoneContactInfoDtoImpl _$$PhoneContactInfoDtoImplFromJson(
@@ -65,7 +65,7 @@ _$PhoneContactInfoDtoImpl _$$PhoneContactInfoDtoImplFromJson(
   customerId: json['customerID'] as String? ?? '',
   phone: json['phone'] as String? ?? '',
   isSpam: json['isSpam'] as bool? ?? false,
-  $type: json['runtimeType'] as String?,
+  $type: json['name'] as String?,
 );
 
 Map<String, dynamic> _$$PhoneContactInfoDtoImplToJson(
@@ -75,13 +75,13 @@ Map<String, dynamic> _$$PhoneContactInfoDtoImplToJson(
   'customerID': instance.customerId,
   'phone': instance.phone,
   'isSpam': instance.isSpam,
-  'runtimeType': instance.$type,
+  'name': instance.$type,
 };
 
 _$UnknownContactInfoDtoImpl _$$UnknownContactInfoDtoImplFromJson(
   Map<String, dynamic> json,
-) => _$UnknownContactInfoDtoImpl($type: json['runtimeType'] as String?);
+) => _$UnknownContactInfoDtoImpl($type: json['name'] as String?);
 
 Map<String, dynamic> _$$UnknownContactInfoDtoImplToJson(
   _$UnknownContactInfoDtoImpl instance,
-) => <String, dynamic>{'runtimeType': instance.$type};
+) => <String, dynamic>{'name': instance.$type};

@@ -23,11 +23,13 @@ GroupInfoDto _$GroupInfoDtoFromJson(Map<String, dynamic> json) {
 mixin _$GroupInfoDto {
   @JsonKey(name: 'groupID')
   String get groupId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'type')
+  String get type => throw _privateConstructorUsedError;
   @JsonKey(name: 'displayName')
   String get displayName => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar')
   String get avatar => throw _privateConstructorUsedError;
-  List<MemberInfoDto> get members => throw _privateConstructorUsedError;
+  List<MemberInfoDto>? get members => throw _privateConstructorUsedError;
 
   /// Serializes this GroupInfoDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,9 +50,10 @@ abstract class $GroupInfoDtoCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: 'groupID') String groupId,
+    @JsonKey(name: 'type') String type,
     @JsonKey(name: 'displayName') String displayName,
     @JsonKey(name: 'avatar') String avatar,
-    List<MemberInfoDto> members,
+    List<MemberInfoDto>? members,
   });
 }
 
@@ -70,9 +73,10 @@ class _$GroupInfoDtoCopyWithImpl<$Res, $Val extends GroupInfoDto>
   @override
   $Res call({
     Object? groupId = null,
+    Object? type = null,
     Object? displayName = null,
     Object? avatar = null,
-    Object? members = null,
+    Object? members = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -80,6 +84,11 @@ class _$GroupInfoDtoCopyWithImpl<$Res, $Val extends GroupInfoDto>
                 null == groupId
                     ? _value.groupId
                     : groupId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            type:
+                null == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
                         as String,
             displayName:
                 null == displayName
@@ -92,10 +101,10 @@ class _$GroupInfoDtoCopyWithImpl<$Res, $Val extends GroupInfoDto>
                     : avatar // ignore: cast_nullable_to_non_nullable
                         as String,
             members:
-                null == members
+                freezed == members
                     ? _value.members
                     : members // ignore: cast_nullable_to_non_nullable
-                        as List<MemberInfoDto>,
+                        as List<MemberInfoDto>?,
           )
           as $Val,
     );
@@ -113,9 +122,10 @@ abstract class _$$GroupInfoDtoImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: 'groupID') String groupId,
+    @JsonKey(name: 'type') String type,
     @JsonKey(name: 'displayName') String displayName,
     @JsonKey(name: 'avatar') String avatar,
-    List<MemberInfoDto> members,
+    List<MemberInfoDto>? members,
   });
 }
 
@@ -134,9 +144,10 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? groupId = null,
+    Object? type = null,
     Object? displayName = null,
     Object? avatar = null,
-    Object? members = null,
+    Object? members = freezed,
   }) {
     return _then(
       _$GroupInfoDtoImpl(
@@ -144,6 +155,11 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
             null == groupId
                 ? _value.groupId
                 : groupId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        type:
+            null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
                     as String,
         displayName:
             null == displayName
@@ -156,10 +172,10 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
                 : avatar // ignore: cast_nullable_to_non_nullable
                     as String,
         members:
-            null == members
+            freezed == members
                 ? _value._members
                 : members // ignore: cast_nullable_to_non_nullable
-                    as List<MemberInfoDto>,
+                    as List<MemberInfoDto>?,
       ),
     );
   }
@@ -169,10 +185,11 @@ class __$$GroupInfoDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupInfoDtoImpl implements _GroupInfoDto {
   const _$GroupInfoDtoImpl({
-    @JsonKey(name: 'groupID') this.groupId = '',
-    @JsonKey(name: 'displayName') this.displayName = '',
-    @JsonKey(name: 'avatar') this.avatar = '',
-    final List<MemberInfoDto> members = const [],
+    @JsonKey(name: 'groupID') required this.groupId,
+    @JsonKey(name: 'type') required this.type,
+    @JsonKey(name: 'displayName') required this.displayName,
+    @JsonKey(name: 'avatar') required this.avatar,
+    final List<MemberInfoDto>? members,
   }) : _members = members;
 
   factory _$GroupInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -182,23 +199,27 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
   @JsonKey(name: 'groupID')
   final String groupId;
   @override
+  @JsonKey(name: 'type')
+  final String type;
+  @override
   @JsonKey(name: 'displayName')
   final String displayName;
   @override
   @JsonKey(name: 'avatar')
   final String avatar;
-  final List<MemberInfoDto> _members;
+  final List<MemberInfoDto>? _members;
   @override
-  @JsonKey()
-  List<MemberInfoDto> get members {
+  List<MemberInfoDto>? get members {
+    final value = _members;
+    if (value == null) return null;
     if (_members is EqualUnmodifiableListView) return _members;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_members);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
   String toString() {
-    return 'GroupInfoDto(groupId: $groupId, displayName: $displayName, avatar: $avatar, members: $members)';
+    return 'GroupInfoDto(groupId: $groupId, type: $type, displayName: $displayName, avatar: $avatar, members: $members)';
   }
 
   @override
@@ -207,6 +228,7 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
         (other.runtimeType == runtimeType &&
             other is _$GroupInfoDtoImpl &&
             (identical(other.groupId, groupId) || other.groupId == groupId) &&
+            (identical(other.type, type) || other.type == type) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.avatar, avatar) || other.avatar == avatar) &&
@@ -218,6 +240,7 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
   int get hashCode => Object.hash(
     runtimeType,
     groupId,
+    type,
     displayName,
     avatar,
     const DeepCollectionEquality().hash(_members),
@@ -239,10 +262,11 @@ class _$GroupInfoDtoImpl implements _GroupInfoDto {
 
 abstract class _GroupInfoDto implements GroupInfoDto {
   const factory _GroupInfoDto({
-    @JsonKey(name: 'groupID') final String groupId,
-    @JsonKey(name: 'displayName') final String displayName,
-    @JsonKey(name: 'avatar') final String avatar,
-    final List<MemberInfoDto> members,
+    @JsonKey(name: 'groupID') required final String groupId,
+    @JsonKey(name: 'type') required final String type,
+    @JsonKey(name: 'displayName') required final String displayName,
+    @JsonKey(name: 'avatar') required final String avatar,
+    final List<MemberInfoDto>? members,
   }) = _$GroupInfoDtoImpl;
 
   factory _GroupInfoDto.fromJson(Map<String, dynamic> json) =
@@ -252,13 +276,16 @@ abstract class _GroupInfoDto implements GroupInfoDto {
   @JsonKey(name: 'groupID')
   String get groupId;
   @override
+  @JsonKey(name: 'type')
+  String get type;
+  @override
   @JsonKey(name: 'displayName')
   String get displayName;
   @override
   @JsonKey(name: 'avatar')
   String get avatar;
   @override
-  List<MemberInfoDto> get members;
+  List<MemberInfoDto>? get members;
 
   /// Create a copy of GroupInfoDto
   /// with the given fields replaced by the non-null parameter values.
@@ -282,7 +309,7 @@ mixin _$MemberInfoDto {
   DateTime? get updatedAt => throw _privateConstructorUsedError;
   DateTime? get deletedAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer')
-  List<GroupCustomerInfoDto> get groupCustomerInfo =>
+  GroupCustomerInfoDto? get groupCustomerInfo =>
       throw _privateConstructorUsedError;
 
   /// Serializes this MemberInfoDto to a JSON map.
@@ -308,8 +335,10 @@ abstract class $MemberInfoDtoCopyWith<$Res> {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    @JsonKey(name: 'customer') List<GroupCustomerInfoDto> groupCustomerInfo,
+    @JsonKey(name: 'customer') GroupCustomerInfoDto? groupCustomerInfo,
   });
+
+  $GroupCustomerInfoDtoCopyWith<$Res>? get groupCustomerInfo;
 }
 
 /// @nodoc
@@ -332,7 +361,7 @@ class _$MemberInfoDtoCopyWithImpl<$Res, $Val extends MemberInfoDto>
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? deletedAt = freezed,
-    Object? groupCustomerInfo = null,
+    Object? groupCustomerInfo = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -362,13 +391,29 @@ class _$MemberInfoDtoCopyWithImpl<$Res, $Val extends MemberInfoDto>
                     : deletedAt // ignore: cast_nullable_to_non_nullable
                         as DateTime?,
             groupCustomerInfo:
-                null == groupCustomerInfo
+                freezed == groupCustomerInfo
                     ? _value.groupCustomerInfo
                     : groupCustomerInfo // ignore: cast_nullable_to_non_nullable
-                        as List<GroupCustomerInfoDto>,
+                        as GroupCustomerInfoDto?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of MemberInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $GroupCustomerInfoDtoCopyWith<$Res>? get groupCustomerInfo {
+    if (_value.groupCustomerInfo == null) {
+      return null;
+    }
+
+    return $GroupCustomerInfoDtoCopyWith<$Res>(_value.groupCustomerInfo!, (
+      value,
+    ) {
+      return _then(_value.copyWith(groupCustomerInfo: value) as $Val);
+    });
   }
 }
 
@@ -387,8 +432,11 @@ abstract class _$$MemberInfoDtoImplCopyWith<$Res>
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    @JsonKey(name: 'customer') List<GroupCustomerInfoDto> groupCustomerInfo,
+    @JsonKey(name: 'customer') GroupCustomerInfoDto? groupCustomerInfo,
   });
+
+  @override
+  $GroupCustomerInfoDtoCopyWith<$Res>? get groupCustomerInfo;
 }
 
 /// @nodoc
@@ -410,7 +458,7 @@ class __$$MemberInfoDtoImplCopyWithImpl<$Res>
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? deletedAt = freezed,
-    Object? groupCustomerInfo = null,
+    Object? groupCustomerInfo = freezed,
   }) {
     return _then(
       _$MemberInfoDtoImpl(
@@ -440,10 +488,10 @@ class __$$MemberInfoDtoImplCopyWithImpl<$Res>
                 : deletedAt // ignore: cast_nullable_to_non_nullable
                     as DateTime?,
         groupCustomerInfo:
-            null == groupCustomerInfo
-                ? _value._groupCustomerInfo
+            freezed == groupCustomerInfo
+                ? _value.groupCustomerInfo
                 : groupCustomerInfo // ignore: cast_nullable_to_non_nullable
-                    as List<GroupCustomerInfoDto>,
+                    as GroupCustomerInfoDto?,
       ),
     );
   }
@@ -458,9 +506,8 @@ class _$MemberInfoDtoImpl implements _MemberInfoDto {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-    @JsonKey(name: 'customer')
-    final List<GroupCustomerInfoDto> groupCustomerInfo = const [],
-  }) : _groupCustomerInfo = groupCustomerInfo;
+    @JsonKey(name: 'customer') this.groupCustomerInfo,
+  });
 
   factory _$MemberInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$MemberInfoDtoImplFromJson(json);
@@ -477,15 +524,9 @@ class _$MemberInfoDtoImpl implements _MemberInfoDto {
   final DateTime? updatedAt;
   @override
   final DateTime? deletedAt;
-  final List<GroupCustomerInfoDto> _groupCustomerInfo;
   @override
   @JsonKey(name: 'customer')
-  List<GroupCustomerInfoDto> get groupCustomerInfo {
-    if (_groupCustomerInfo is EqualUnmodifiableListView)
-      return _groupCustomerInfo;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_groupCustomerInfo);
-  }
+  final GroupCustomerInfoDto? groupCustomerInfo;
 
   @override
   String toString() {
@@ -506,10 +547,8 @@ class _$MemberInfoDtoImpl implements _MemberInfoDto {
                 other.updatedAt == updatedAt) &&
             (identical(other.deletedAt, deletedAt) ||
                 other.deletedAt == deletedAt) &&
-            const DeepCollectionEquality().equals(
-              other._groupCustomerInfo,
-              _groupCustomerInfo,
-            ));
+            (identical(other.groupCustomerInfo, groupCustomerInfo) ||
+                other.groupCustomerInfo == groupCustomerInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -521,7 +560,7 @@ class _$MemberInfoDtoImpl implements _MemberInfoDto {
     createdAt,
     updatedAt,
     deletedAt,
-    const DeepCollectionEquality().hash(_groupCustomerInfo),
+    groupCustomerInfo,
   );
 
   /// Create a copy of MemberInfoDto
@@ -545,8 +584,7 @@ abstract class _MemberInfoDto implements MemberInfoDto {
     final DateTime? createdAt,
     final DateTime? updatedAt,
     final DateTime? deletedAt,
-    @JsonKey(name: 'customer')
-    final List<GroupCustomerInfoDto> groupCustomerInfo,
+    @JsonKey(name: 'customer') final GroupCustomerInfoDto? groupCustomerInfo,
   }) = _$MemberInfoDtoImpl;
 
   factory _MemberInfoDto.fromJson(Map<String, dynamic> json) =
@@ -566,7 +604,7 @@ abstract class _MemberInfoDto implements MemberInfoDto {
   DateTime? get deletedAt;
   @override
   @JsonKey(name: 'customer')
-  List<GroupCustomerInfoDto> get groupCustomerInfo;
+  GroupCustomerInfoDto? get groupCustomerInfo;
 
   /// Create a copy of MemberInfoDto
   /// with the given fields replaced by the non-null parameter values.

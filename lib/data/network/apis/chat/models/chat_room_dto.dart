@@ -11,20 +11,20 @@ part 'chat_room_dto.g.dart';
 @freezed
 class ChatRoomDto with _$ChatRoomDto {
   const factory ChatRoomDto({
-    @JsonKey(name: 'chatRoomID') @Default('') String chatRoomId,
-    @JsonKey(name: 'customerID') @Default('') String customerId,
+    @JsonKey(name: 'chatRoomID') required String chatRoomId,
+    @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'groupID') String? groupId,
     @JsonKey(name: 'lastMessageID') String? lastMessageId,
     @Default(0) int totalMessage,
     @Default(0) int followupCount,
     required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? updatedAt,
     MessageDto? lastMessage,
     CustomerInfoDto? customerInfo,
     GroupInfoDto? groupInfo,
     Map<String, dynamic>? myCurrentTicket,
-    @Default([]) List<Map<String, dynamic>> tickets,
-    @Default([]) List<SeenInfoDto> seenInfo,
+    List<Map<String, dynamic>>? tickets,
+    SeenInfoDto? seenInfo,
     @Default(0) int seenMessageOrder,
     Map<String, dynamic>? defaultChannel,
   }) = _ChatRoomDto;

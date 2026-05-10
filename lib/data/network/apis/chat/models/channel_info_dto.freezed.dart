@@ -16,67 +16,30 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 ChannelInfoDto _$ChannelInfoDtoFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType']) {
-    case 'zalo':
-      return ZaloChannelInfoDto.fromJson(json);
-    case 'messenger':
-      return MessengerChannelInfoDto.fromJson(json);
-    case 'unknown':
-      return UnknownChannelInfoDto.fromJson(json);
-
-    default:
-      throw CheckedFromJsonException(
-        json,
-        'runtimeType',
-        'ChannelInfoDto',
-        'Invalid union type "${json['runtimeType']}"!',
-      );
-  }
+  return _ChannelInfoDto.fromJson(json);
 }
 
 /// @nodoc
 mixin _$ChannelInfoDto {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String zaloId, String? displayName) zalo,
-    required TResult Function(String messengerId, String? username) messenger,
-    required TResult Function() unknown,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String zaloId, String? displayName)? zalo,
-    TResult? Function(String messengerId, String? username)? messenger,
-    TResult? Function()? unknown,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String zaloId, String? displayName)? zalo,
-    TResult Function(String messengerId, String? username)? messenger,
-    TResult Function()? unknown,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ZaloChannelInfoDto value) zalo,
-    required TResult Function(MessengerChannelInfoDto value) messenger,
-    required TResult Function(UnknownChannelInfoDto value) unknown,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ZaloChannelInfoDto value)? zalo,
-    TResult? Function(MessengerChannelInfoDto value)? messenger,
-    TResult? Function(UnknownChannelInfoDto value)? unknown,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ZaloChannelInfoDto value)? zalo,
-    TResult Function(MessengerChannelInfoDto value)? messenger,
-    TResult Function(UnknownChannelInfoDto value)? unknown,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+  @JsonKey(name: 'appID')
+  String get appId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'channelID')
+  String get channelId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
+  String get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'config')
+  Map<String, dynamic> get config => throw _privateConstructorUsedError;
+  @JsonKey(name: 'appInfo')
+  Map<String, dynamic> get appInfo => throw _privateConstructorUsedError;
 
   /// Serializes this ChannelInfoDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChannelInfoDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ChannelInfoDtoCopyWith<ChannelInfoDto> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -85,6 +48,14 @@ abstract class $ChannelInfoDtoCopyWith<$Res> {
     ChannelInfoDto value,
     $Res Function(ChannelInfoDto) then,
   ) = _$ChannelInfoDtoCopyWithImpl<$Res, ChannelInfoDto>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'appID') String appId,
+    @JsonKey(name: 'channelID') String channelId,
+    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'config') Map<String, dynamic> config,
+    @JsonKey(name: 'appInfo') Map<String, dynamic> appInfo,
+  });
 }
 
 /// @nodoc
@@ -99,44 +70,113 @@ class _$ChannelInfoDtoCopyWithImpl<$Res, $Val extends ChannelInfoDto>
 
   /// Create a copy of ChannelInfoDto
   /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? appId = null,
+    Object? channelId = null,
+    Object? name = null,
+    Object? config = null,
+    Object? appInfo = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            appId:
+                null == appId
+                    ? _value.appId
+                    : appId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            channelId:
+                null == channelId
+                    ? _value.channelId
+                    : channelId // ignore: cast_nullable_to_non_nullable
+                        as String,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+            config:
+                null == config
+                    ? _value.config
+                    : config // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>,
+            appInfo:
+                null == appInfo
+                    ? _value.appInfo
+                    : appInfo // ignore: cast_nullable_to_non_nullable
+                        as Map<String, dynamic>,
+          )
+          as $Val,
+    );
+  }
 }
 
 /// @nodoc
-abstract class _$$ZaloChannelInfoDtoImplCopyWith<$Res> {
-  factory _$$ZaloChannelInfoDtoImplCopyWith(
-    _$ZaloChannelInfoDtoImpl value,
-    $Res Function(_$ZaloChannelInfoDtoImpl) then,
-  ) = __$$ZaloChannelInfoDtoImplCopyWithImpl<$Res>;
+abstract class _$$ChannelInfoDtoImplCopyWith<$Res>
+    implements $ChannelInfoDtoCopyWith<$Res> {
+  factory _$$ChannelInfoDtoImplCopyWith(
+    _$ChannelInfoDtoImpl value,
+    $Res Function(_$ChannelInfoDtoImpl) then,
+  ) = __$$ChannelInfoDtoImplCopyWithImpl<$Res>;
+  @override
   @useResult
-  $Res call({String zaloId, String? displayName});
+  $Res call({
+    @JsonKey(name: 'appID') String appId,
+    @JsonKey(name: 'channelID') String channelId,
+    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'config') Map<String, dynamic> config,
+    @JsonKey(name: 'appInfo') Map<String, dynamic> appInfo,
+  });
 }
 
 /// @nodoc
-class __$$ZaloChannelInfoDtoImplCopyWithImpl<$Res>
-    extends _$ChannelInfoDtoCopyWithImpl<$Res, _$ZaloChannelInfoDtoImpl>
-    implements _$$ZaloChannelInfoDtoImplCopyWith<$Res> {
-  __$$ZaloChannelInfoDtoImplCopyWithImpl(
-    _$ZaloChannelInfoDtoImpl _value,
-    $Res Function(_$ZaloChannelInfoDtoImpl) _then,
+class __$$ChannelInfoDtoImplCopyWithImpl<$Res>
+    extends _$ChannelInfoDtoCopyWithImpl<$Res, _$ChannelInfoDtoImpl>
+    implements _$$ChannelInfoDtoImplCopyWith<$Res> {
+  __$$ChannelInfoDtoImplCopyWithImpl(
+    _$ChannelInfoDtoImpl _value,
+    $Res Function(_$ChannelInfoDtoImpl) _then,
   ) : super(_value, _then);
 
   /// Create a copy of ChannelInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? zaloId = null, Object? displayName = freezed}) {
+  $Res call({
+    Object? appId = null,
+    Object? channelId = null,
+    Object? name = null,
+    Object? config = null,
+    Object? appInfo = null,
+  }) {
     return _then(
-      _$ZaloChannelInfoDtoImpl(
-        zaloId:
-            null == zaloId
-                ? _value.zaloId
-                : zaloId // ignore: cast_nullable_to_non_nullable
+      _$ChannelInfoDtoImpl(
+        appId:
+            null == appId
+                ? _value.appId
+                : appId // ignore: cast_nullable_to_non_nullable
                     as String,
-        displayName:
-            freezed == displayName
-                ? _value.displayName
-                : displayName // ignore: cast_nullable_to_non_nullable
-                    as String?,
+        channelId:
+            null == channelId
+                ? _value.channelId
+                : channelId // ignore: cast_nullable_to_non_nullable
+                    as String,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+        config:
+            null == config
+                ? _value._config
+                : config // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>,
+        appInfo:
+            null == appInfo
+                ? _value._appInfo
+                : appInfo // ignore: cast_nullable_to_non_nullable
+                    as Map<String, dynamic>,
       ),
     );
   }
@@ -144,457 +184,124 @@ class __$$ZaloChannelInfoDtoImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ZaloChannelInfoDtoImpl implements ZaloChannelInfoDto {
-  const _$ZaloChannelInfoDtoImpl({
-    required this.zaloId,
-    this.displayName,
-    final String? $type,
-  }) : $type = $type ?? 'zalo';
+class _$ChannelInfoDtoImpl implements _ChannelInfoDto {
+  const _$ChannelInfoDtoImpl({
+    @JsonKey(name: 'appID') required this.appId,
+    @JsonKey(name: 'channelID') required this.channelId,
+    @JsonKey(name: 'name') required this.name,
+    @JsonKey(name: 'config') required final Map<String, dynamic> config,
+    @JsonKey(name: 'appInfo') required final Map<String, dynamic> appInfo,
+  }) : _config = config,
+       _appInfo = appInfo;
 
-  factory _$ZaloChannelInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ZaloChannelInfoDtoImplFromJson(json);
+  factory _$ChannelInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ChannelInfoDtoImplFromJson(json);
 
   @override
-  final String zaloId;
+  @JsonKey(name: 'appID')
+  final String appId;
   @override
-  final String? displayName;
+  @JsonKey(name: 'channelID')
+  final String channelId;
+  @override
+  @JsonKey(name: 'name')
+  final String name;
+  final Map<String, dynamic> _config;
+  @override
+  @JsonKey(name: 'config')
+  Map<String, dynamic> get config {
+    if (_config is EqualUnmodifiableMapView) return _config;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_config);
+  }
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+  final Map<String, dynamic> _appInfo;
+  @override
+  @JsonKey(name: 'appInfo')
+  Map<String, dynamic> get appInfo {
+    if (_appInfo is EqualUnmodifiableMapView) return _appInfo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_appInfo);
+  }
 
   @override
   String toString() {
-    return 'ChannelInfoDto.zalo(zaloId: $zaloId, displayName: $displayName)';
+    return 'ChannelInfoDto(appId: $appId, channelId: $channelId, name: $name, config: $config, appInfo: $appInfo)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$ZaloChannelInfoDtoImpl &&
-            (identical(other.zaloId, zaloId) || other.zaloId == zaloId) &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName));
+            other is _$ChannelInfoDtoImpl &&
+            (identical(other.appId, appId) || other.appId == appId) &&
+            (identical(other.channelId, channelId) ||
+                other.channelId == channelId) &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other._config, _config) &&
+            const DeepCollectionEquality().equals(other._appInfo, _appInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, zaloId, displayName);
+  int get hashCode => Object.hash(
+    runtimeType,
+    appId,
+    channelId,
+    name,
+    const DeepCollectionEquality().hash(_config),
+    const DeepCollectionEquality().hash(_appInfo),
+  );
 
   /// Create a copy of ChannelInfoDto
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$ZaloChannelInfoDtoImplCopyWith<_$ZaloChannelInfoDtoImpl> get copyWith =>
-      __$$ZaloChannelInfoDtoImplCopyWithImpl<_$ZaloChannelInfoDtoImpl>(
+  _$$ChannelInfoDtoImplCopyWith<_$ChannelInfoDtoImpl> get copyWith =>
+      __$$ChannelInfoDtoImplCopyWithImpl<_$ChannelInfoDtoImpl>(
         this,
         _$identity,
       );
 
   @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String zaloId, String? displayName) zalo,
-    required TResult Function(String messengerId, String? username) messenger,
-    required TResult Function() unknown,
-  }) {
-    return zalo(zaloId, displayName);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String zaloId, String? displayName)? zalo,
-    TResult? Function(String messengerId, String? username)? messenger,
-    TResult? Function()? unknown,
-  }) {
-    return zalo?.call(zaloId, displayName);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String zaloId, String? displayName)? zalo,
-    TResult Function(String messengerId, String? username)? messenger,
-    TResult Function()? unknown,
-    required TResult orElse(),
-  }) {
-    if (zalo != null) {
-      return zalo(zaloId, displayName);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ZaloChannelInfoDto value) zalo,
-    required TResult Function(MessengerChannelInfoDto value) messenger,
-    required TResult Function(UnknownChannelInfoDto value) unknown,
-  }) {
-    return zalo(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ZaloChannelInfoDto value)? zalo,
-    TResult? Function(MessengerChannelInfoDto value)? messenger,
-    TResult? Function(UnknownChannelInfoDto value)? unknown,
-  }) {
-    return zalo?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ZaloChannelInfoDto value)? zalo,
-    TResult Function(MessengerChannelInfoDto value)? messenger,
-    TResult Function(UnknownChannelInfoDto value)? unknown,
-    required TResult orElse(),
-  }) {
-    if (zalo != null) {
-      return zalo(this);
-    }
-    return orElse();
-  }
-
-  @override
   Map<String, dynamic> toJson() {
-    return _$$ZaloChannelInfoDtoImplToJson(this);
+    return _$$ChannelInfoDtoImplToJson(this);
   }
 }
 
-abstract class ZaloChannelInfoDto implements ChannelInfoDto {
-  const factory ZaloChannelInfoDto({
-    required final String zaloId,
-    final String? displayName,
-  }) = _$ZaloChannelInfoDtoImpl;
+abstract class _ChannelInfoDto implements ChannelInfoDto {
+  const factory _ChannelInfoDto({
+    @JsonKey(name: 'appID') required final String appId,
+    @JsonKey(name: 'channelID') required final String channelId,
+    @JsonKey(name: 'name') required final String name,
+    @JsonKey(name: 'config') required final Map<String, dynamic> config,
+    @JsonKey(name: 'appInfo') required final Map<String, dynamic> appInfo,
+  }) = _$ChannelInfoDtoImpl;
 
-  factory ZaloChannelInfoDto.fromJson(Map<String, dynamic> json) =
-      _$ZaloChannelInfoDtoImpl.fromJson;
+  factory _ChannelInfoDto.fromJson(Map<String, dynamic> json) =
+      _$ChannelInfoDtoImpl.fromJson;
 
-  String get zaloId;
-  String? get displayName;
+  @override
+  @JsonKey(name: 'appID')
+  String get appId;
+  @override
+  @JsonKey(name: 'channelID')
+  String get channelId;
+  @override
+  @JsonKey(name: 'name')
+  String get name;
+  @override
+  @JsonKey(name: 'config')
+  Map<String, dynamic> get config;
+  @override
+  @JsonKey(name: 'appInfo')
+  Map<String, dynamic> get appInfo;
 
   /// Create a copy of ChannelInfoDto
   /// with the given fields replaced by the non-null parameter values.
+  @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ZaloChannelInfoDtoImplCopyWith<_$ZaloChannelInfoDtoImpl> get copyWith =>
+  _$$ChannelInfoDtoImplCopyWith<_$ChannelInfoDtoImpl> get copyWith =>
       throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$MessengerChannelInfoDtoImplCopyWith<$Res> {
-  factory _$$MessengerChannelInfoDtoImplCopyWith(
-    _$MessengerChannelInfoDtoImpl value,
-    $Res Function(_$MessengerChannelInfoDtoImpl) then,
-  ) = __$$MessengerChannelInfoDtoImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String messengerId, String? username});
-}
-
-/// @nodoc
-class __$$MessengerChannelInfoDtoImplCopyWithImpl<$Res>
-    extends _$ChannelInfoDtoCopyWithImpl<$Res, _$MessengerChannelInfoDtoImpl>
-    implements _$$MessengerChannelInfoDtoImplCopyWith<$Res> {
-  __$$MessengerChannelInfoDtoImplCopyWithImpl(
-    _$MessengerChannelInfoDtoImpl _value,
-    $Res Function(_$MessengerChannelInfoDtoImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ChannelInfoDto
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? messengerId = null, Object? username = freezed}) {
-    return _then(
-      _$MessengerChannelInfoDtoImpl(
-        messengerId:
-            null == messengerId
-                ? _value.messengerId
-                : messengerId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        username:
-            freezed == username
-                ? _value.username
-                : username // ignore: cast_nullable_to_non_nullable
-                    as String?,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$MessengerChannelInfoDtoImpl implements MessengerChannelInfoDto {
-  const _$MessengerChannelInfoDtoImpl({
-    required this.messengerId,
-    this.username,
-    final String? $type,
-  }) : $type = $type ?? 'messenger';
-
-  factory _$MessengerChannelInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MessengerChannelInfoDtoImplFromJson(json);
-
-  @override
-  final String messengerId;
-  @override
-  final String? username;
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  @override
-  String toString() {
-    return 'ChannelInfoDto.messenger(messengerId: $messengerId, username: $username)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MessengerChannelInfoDtoImpl &&
-            (identical(other.messengerId, messengerId) ||
-                other.messengerId == messengerId) &&
-            (identical(other.username, username) ||
-                other.username == username));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, messengerId, username);
-
-  /// Create a copy of ChannelInfoDto
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$MessengerChannelInfoDtoImplCopyWith<_$MessengerChannelInfoDtoImpl>
-  get copyWith => __$$MessengerChannelInfoDtoImplCopyWithImpl<
-    _$MessengerChannelInfoDtoImpl
-  >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String zaloId, String? displayName) zalo,
-    required TResult Function(String messengerId, String? username) messenger,
-    required TResult Function() unknown,
-  }) {
-    return messenger(messengerId, username);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String zaloId, String? displayName)? zalo,
-    TResult? Function(String messengerId, String? username)? messenger,
-    TResult? Function()? unknown,
-  }) {
-    return messenger?.call(messengerId, username);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String zaloId, String? displayName)? zalo,
-    TResult Function(String messengerId, String? username)? messenger,
-    TResult Function()? unknown,
-    required TResult orElse(),
-  }) {
-    if (messenger != null) {
-      return messenger(messengerId, username);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ZaloChannelInfoDto value) zalo,
-    required TResult Function(MessengerChannelInfoDto value) messenger,
-    required TResult Function(UnknownChannelInfoDto value) unknown,
-  }) {
-    return messenger(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ZaloChannelInfoDto value)? zalo,
-    TResult? Function(MessengerChannelInfoDto value)? messenger,
-    TResult? Function(UnknownChannelInfoDto value)? unknown,
-  }) {
-    return messenger?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ZaloChannelInfoDto value)? zalo,
-    TResult Function(MessengerChannelInfoDto value)? messenger,
-    TResult Function(UnknownChannelInfoDto value)? unknown,
-    required TResult orElse(),
-  }) {
-    if (messenger != null) {
-      return messenger(this);
-    }
-    return orElse();
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$MessengerChannelInfoDtoImplToJson(this);
-  }
-}
-
-abstract class MessengerChannelInfoDto implements ChannelInfoDto {
-  const factory MessengerChannelInfoDto({
-    required final String messengerId,
-    final String? username,
-  }) = _$MessengerChannelInfoDtoImpl;
-
-  factory MessengerChannelInfoDto.fromJson(Map<String, dynamic> json) =
-      _$MessengerChannelInfoDtoImpl.fromJson;
-
-  String get messengerId;
-  String? get username;
-
-  /// Create a copy of ChannelInfoDto
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MessengerChannelInfoDtoImplCopyWith<_$MessengerChannelInfoDtoImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$UnknownChannelInfoDtoImplCopyWith<$Res> {
-  factory _$$UnknownChannelInfoDtoImplCopyWith(
-    _$UnknownChannelInfoDtoImpl value,
-    $Res Function(_$UnknownChannelInfoDtoImpl) then,
-  ) = __$$UnknownChannelInfoDtoImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$UnknownChannelInfoDtoImplCopyWithImpl<$Res>
-    extends _$ChannelInfoDtoCopyWithImpl<$Res, _$UnknownChannelInfoDtoImpl>
-    implements _$$UnknownChannelInfoDtoImplCopyWith<$Res> {
-  __$$UnknownChannelInfoDtoImplCopyWithImpl(
-    _$UnknownChannelInfoDtoImpl _value,
-    $Res Function(_$UnknownChannelInfoDtoImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ChannelInfoDto
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$UnknownChannelInfoDtoImpl implements UnknownChannelInfoDto {
-  const _$UnknownChannelInfoDtoImpl({final String? $type})
-    : $type = $type ?? 'unknown';
-
-  factory _$UnknownChannelInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UnknownChannelInfoDtoImplFromJson(json);
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  @override
-  String toString() {
-    return 'ChannelInfoDto.unknown()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UnknownChannelInfoDtoImpl);
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String zaloId, String? displayName) zalo,
-    required TResult Function(String messengerId, String? username) messenger,
-    required TResult Function() unknown,
-  }) {
-    return unknown();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String zaloId, String? displayName)? zalo,
-    TResult? Function(String messengerId, String? username)? messenger,
-    TResult? Function()? unknown,
-  }) {
-    return unknown?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String zaloId, String? displayName)? zalo,
-    TResult Function(String messengerId, String? username)? messenger,
-    TResult Function()? unknown,
-    required TResult orElse(),
-  }) {
-    if (unknown != null) {
-      return unknown();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ZaloChannelInfoDto value) zalo,
-    required TResult Function(MessengerChannelInfoDto value) messenger,
-    required TResult Function(UnknownChannelInfoDto value) unknown,
-  }) {
-    return unknown(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ZaloChannelInfoDto value)? zalo,
-    TResult? Function(MessengerChannelInfoDto value)? messenger,
-    TResult? Function(UnknownChannelInfoDto value)? unknown,
-  }) {
-    return unknown?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ZaloChannelInfoDto value)? zalo,
-    TResult Function(MessengerChannelInfoDto value)? messenger,
-    TResult Function(UnknownChannelInfoDto value)? unknown,
-    required TResult orElse(),
-  }) {
-    if (unknown != null) {
-      return unknown(this);
-    }
-    return orElse();
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$UnknownChannelInfoDtoImplToJson(this);
-  }
-}
-
-abstract class UnknownChannelInfoDto implements ChannelInfoDto {
-  const factory UnknownChannelInfoDto() = _$UnknownChannelInfoDtoImpl;
-
-  factory UnknownChannelInfoDto.fromJson(Map<String, dynamic> json) =
-      _$UnknownChannelInfoDtoImpl.fromJson;
 }

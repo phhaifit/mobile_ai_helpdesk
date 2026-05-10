@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:ai_helpdesk/core/events/socket/server/ai/draft_response_sse_event.dart';
 import 'package:ai_helpdesk/data/realtime/sse/draft_response_sse_client.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
@@ -8,7 +7,6 @@ import '../../../di/service_locator.dart';
 import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/entity/chat/message.dart' show Message;
 import '../../../domain/entity/chat/reaction.dart';
-import '../../../domain/entity/chat/seen_info.dart' show SeenInfo;
 import '../../../domain/entity/chat/user.dart' show User;
 import '../../../domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
@@ -120,7 +118,7 @@ abstract class _ChatStore with Store {
         // Add user to existing reaction
         final existingReaction = message.reactions[reactionIndex];
         final updatedReaction = existingReaction.copyWith(
-          user: User(id: 'You', name: 'You', avatar: ''),
+          user: const User(id: 'You', name: 'You', avatar: ''),
         );
 
         final updatedReactions = message.reactions.toList();
@@ -130,7 +128,7 @@ abstract class _ChatStore with Store {
       } else {
         // Add new reaction
         messageList[index] = message.copyWith(
-          reactions: [...message.reactions, Reaction(id: '', user: User(id: 'You', name: 'You', avatar: ''), emoji: emoji, amount: 1)],
+          reactions: [...message.reactions, Reaction(id: '', user: const User(id: 'You', name: 'You', avatar: ''), emoji: emoji, amount: 1)],
         );
       }
     }

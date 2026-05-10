@@ -1,6 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'customer_info_dto.dart';
-import 'customer_support_info_dto.dart';
 
 part 'message_reaction_dto.freezed.dart';
 part 'message_reaction_dto.g.dart';

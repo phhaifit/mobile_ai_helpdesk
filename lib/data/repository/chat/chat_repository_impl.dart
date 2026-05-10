@@ -153,8 +153,8 @@ extension MessageMapper on MessageDto {
         // sender is the channel
         final channelInfo = entities?.channels[channelId];
         final channelName = channelInfo?['name'] as String;
-        final channelAvatarUrl = channelInfo?['config'][channelName == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String;
-        senderUser = User(id: channelId ?? '', name: channelName, avatar: channelAvatarUrl);
+        final channelAvatarUrl = channelInfo?['config'][channelName == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String?;
+        senderUser = User(id: channelId, name: channelName, avatar: channelAvatarUrl);
       } else {
         // sender is a customer
         senderUser = contactInfo.map(
@@ -206,6 +206,7 @@ AttachmentType _parseType(String mime, String fileName) {
   final lower = mime.toLowerCase();
 
   if (lower.startsWith('image/')) return AttachmentType.image;
+  if (lower.startsWith('sticker/')) return AttachmentType.sticker;
   if (lower.startsWith('video/')) return AttachmentType.video;
   if (lower.startsWith('audio/')) return AttachmentType.audio;
 

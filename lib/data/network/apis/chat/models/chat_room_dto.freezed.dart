@@ -24,7 +24,7 @@ mixin _$ChatRoomDto {
   @JsonKey(name: 'chatRoomID')
   String get chatRoomId => throw _privateConstructorUsedError;
   @JsonKey(name: 'customerID')
-  String get customerId => throw _privateConstructorUsedError;
+  String? get customerId => throw _privateConstructorUsedError;
   @JsonKey(name: 'groupID')
   String? get groupId => throw _privateConstructorUsedError;
   @JsonKey(name: 'lastMessageID')
@@ -32,14 +32,14 @@ mixin _$ChatRoomDto {
   int get totalMessage => throw _privateConstructorUsedError;
   int get followupCount => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
   MessageDto? get lastMessage => throw _privateConstructorUsedError;
   CustomerInfoDto? get customerInfo => throw _privateConstructorUsedError;
   GroupInfoDto? get groupInfo => throw _privateConstructorUsedError;
   Map<String, dynamic>? get myCurrentTicket =>
       throw _privateConstructorUsedError;
-  List<Map<String, dynamic>> get tickets => throw _privateConstructorUsedError;
-  List<SeenInfoDto> get seenInfo => throw _privateConstructorUsedError;
+  List<Map<String, dynamic>>? get tickets => throw _privateConstructorUsedError;
+  SeenInfoDto? get seenInfo => throw _privateConstructorUsedError;
   int get seenMessageOrder => throw _privateConstructorUsedError;
   Map<String, dynamic>? get defaultChannel =>
       throw _privateConstructorUsedError;
@@ -63,19 +63,19 @@ abstract class $ChatRoomDtoCopyWith<$Res> {
   @useResult
   $Res call({
     @JsonKey(name: 'chatRoomID') String chatRoomId,
-    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'groupID') String? groupId,
     @JsonKey(name: 'lastMessageID') String? lastMessageId,
     int totalMessage,
     int followupCount,
     DateTime createdAt,
-    DateTime updatedAt,
+    DateTime? updatedAt,
     MessageDto? lastMessage,
     CustomerInfoDto? customerInfo,
     GroupInfoDto? groupInfo,
     Map<String, dynamic>? myCurrentTicket,
-    List<Map<String, dynamic>> tickets,
-    List<SeenInfoDto> seenInfo,
+    List<Map<String, dynamic>>? tickets,
+    SeenInfoDto? seenInfo,
     int seenMessageOrder,
     Map<String, dynamic>? defaultChannel,
   });
@@ -83,6 +83,7 @@ abstract class $ChatRoomDtoCopyWith<$Res> {
   $MessageDtoCopyWith<$Res>? get lastMessage;
   $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
   $GroupInfoDtoCopyWith<$Res>? get groupInfo;
+  $SeenInfoDtoCopyWith<$Res>? get seenInfo;
 }
 
 /// @nodoc
@@ -101,19 +102,19 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
   @override
   $Res call({
     Object? chatRoomId = null,
-    Object? customerId = null,
+    Object? customerId = freezed,
     Object? groupId = freezed,
     Object? lastMessageId = freezed,
     Object? totalMessage = null,
     Object? followupCount = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
     Object? lastMessage = freezed,
     Object? customerInfo = freezed,
     Object? groupInfo = freezed,
     Object? myCurrentTicket = freezed,
-    Object? tickets = null,
-    Object? seenInfo = null,
+    Object? tickets = freezed,
+    Object? seenInfo = freezed,
     Object? seenMessageOrder = null,
     Object? defaultChannel = freezed,
   }) {
@@ -125,10 +126,10 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
                     : chatRoomId // ignore: cast_nullable_to_non_nullable
                         as String,
             customerId:
-                null == customerId
+                freezed == customerId
                     ? _value.customerId
                     : customerId // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             groupId:
                 freezed == groupId
                     ? _value.groupId
@@ -155,10 +156,10 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime,
             updatedAt:
-                null == updatedAt
+                freezed == updatedAt
                     ? _value.updatedAt
                     : updatedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
+                        as DateTime?,
             lastMessage:
                 freezed == lastMessage
                     ? _value.lastMessage
@@ -180,15 +181,15 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
                     : myCurrentTicket // ignore: cast_nullable_to_non_nullable
                         as Map<String, dynamic>?,
             tickets:
-                null == tickets
+                freezed == tickets
                     ? _value.tickets
                     : tickets // ignore: cast_nullable_to_non_nullable
-                        as List<Map<String, dynamic>>,
+                        as List<Map<String, dynamic>>?,
             seenInfo:
-                null == seenInfo
+                freezed == seenInfo
                     ? _value.seenInfo
                     : seenInfo // ignore: cast_nullable_to_non_nullable
-                        as List<SeenInfoDto>,
+                        as SeenInfoDto?,
             seenMessageOrder:
                 null == seenMessageOrder
                     ? _value.seenMessageOrder
@@ -245,6 +246,20 @@ class _$ChatRoomDtoCopyWithImpl<$Res, $Val extends ChatRoomDto>
       return _then(_value.copyWith(groupInfo: value) as $Val);
     });
   }
+
+  /// Create a copy of ChatRoomDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $SeenInfoDtoCopyWith<$Res>? get seenInfo {
+    if (_value.seenInfo == null) {
+      return null;
+    }
+
+    return $SeenInfoDtoCopyWith<$Res>(_value.seenInfo!, (value) {
+      return _then(_value.copyWith(seenInfo: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -258,19 +273,19 @@ abstract class _$$ChatRoomDtoImplCopyWith<$Res>
   @useResult
   $Res call({
     @JsonKey(name: 'chatRoomID') String chatRoomId,
-    @JsonKey(name: 'customerID') String customerId,
+    @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'groupID') String? groupId,
     @JsonKey(name: 'lastMessageID') String? lastMessageId,
     int totalMessage,
     int followupCount,
     DateTime createdAt,
-    DateTime updatedAt,
+    DateTime? updatedAt,
     MessageDto? lastMessage,
     CustomerInfoDto? customerInfo,
     GroupInfoDto? groupInfo,
     Map<String, dynamic>? myCurrentTicket,
-    List<Map<String, dynamic>> tickets,
-    List<SeenInfoDto> seenInfo,
+    List<Map<String, dynamic>>? tickets,
+    SeenInfoDto? seenInfo,
     int seenMessageOrder,
     Map<String, dynamic>? defaultChannel,
   });
@@ -281,6 +296,8 @@ abstract class _$$ChatRoomDtoImplCopyWith<$Res>
   $CustomerInfoDtoCopyWith<$Res>? get customerInfo;
   @override
   $GroupInfoDtoCopyWith<$Res>? get groupInfo;
+  @override
+  $SeenInfoDtoCopyWith<$Res>? get seenInfo;
 }
 
 /// @nodoc
@@ -298,19 +315,19 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? chatRoomId = null,
-    Object? customerId = null,
+    Object? customerId = freezed,
     Object? groupId = freezed,
     Object? lastMessageId = freezed,
     Object? totalMessage = null,
     Object? followupCount = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
     Object? lastMessage = freezed,
     Object? customerInfo = freezed,
     Object? groupInfo = freezed,
     Object? myCurrentTicket = freezed,
-    Object? tickets = null,
-    Object? seenInfo = null,
+    Object? tickets = freezed,
+    Object? seenInfo = freezed,
     Object? seenMessageOrder = null,
     Object? defaultChannel = freezed,
   }) {
@@ -322,10 +339,10 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
                 : chatRoomId // ignore: cast_nullable_to_non_nullable
                     as String,
         customerId:
-            null == customerId
+            freezed == customerId
                 ? _value.customerId
                 : customerId // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         groupId:
             freezed == groupId
                 ? _value.groupId
@@ -352,10 +369,10 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime,
         updatedAt:
-            null == updatedAt
+            freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
+                    as DateTime?,
         lastMessage:
             freezed == lastMessage
                 ? _value.lastMessage
@@ -377,15 +394,15 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
                 : myCurrentTicket // ignore: cast_nullable_to_non_nullable
                     as Map<String, dynamic>?,
         tickets:
-            null == tickets
+            freezed == tickets
                 ? _value._tickets
                 : tickets // ignore: cast_nullable_to_non_nullable
-                    as List<Map<String, dynamic>>,
+                    as List<Map<String, dynamic>>?,
         seenInfo:
-            null == seenInfo
-                ? _value._seenInfo
+            freezed == seenInfo
+                ? _value.seenInfo
                 : seenInfo // ignore: cast_nullable_to_non_nullable
-                    as List<SeenInfoDto>,
+                    as SeenInfoDto?,
         seenMessageOrder:
             null == seenMessageOrder
                 ? _value.seenMessageOrder
@@ -405,25 +422,24 @@ class __$$ChatRoomDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ChatRoomDtoImpl implements _ChatRoomDto {
   const _$ChatRoomDtoImpl({
-    @JsonKey(name: 'chatRoomID') this.chatRoomId = '',
-    @JsonKey(name: 'customerID') this.customerId = '',
+    @JsonKey(name: 'chatRoomID') required this.chatRoomId,
+    @JsonKey(name: 'customerID') this.customerId,
     @JsonKey(name: 'groupID') this.groupId,
     @JsonKey(name: 'lastMessageID') this.lastMessageId,
     this.totalMessage = 0,
     this.followupCount = 0,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.lastMessage,
     this.customerInfo,
     this.groupInfo,
     final Map<String, dynamic>? myCurrentTicket,
-    final List<Map<String, dynamic>> tickets = const [],
-    final List<SeenInfoDto> seenInfo = const [],
+    final List<Map<String, dynamic>>? tickets,
+    this.seenInfo,
     this.seenMessageOrder = 0,
     final Map<String, dynamic>? defaultChannel,
   }) : _myCurrentTicket = myCurrentTicket,
        _tickets = tickets,
-       _seenInfo = seenInfo,
        _defaultChannel = defaultChannel;
 
   factory _$ChatRoomDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -434,7 +450,7 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
   final String chatRoomId;
   @override
   @JsonKey(name: 'customerID')
-  final String customerId;
+  final String? customerId;
   @override
   @JsonKey(name: 'groupID')
   final String? groupId;
@@ -450,7 +466,7 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
   @override
   final DateTime createdAt;
   @override
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   @override
   final MessageDto? lastMessage;
   @override
@@ -467,24 +483,18 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
     return EqualUnmodifiableMapView(value);
   }
 
-  final List<Map<String, dynamic>> _tickets;
+  final List<Map<String, dynamic>>? _tickets;
   @override
-  @JsonKey()
-  List<Map<String, dynamic>> get tickets {
+  List<Map<String, dynamic>>? get tickets {
+    final value = _tickets;
+    if (value == null) return null;
     if (_tickets is EqualUnmodifiableListView) return _tickets;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tickets);
+    return EqualUnmodifiableListView(value);
   }
 
-  final List<SeenInfoDto> _seenInfo;
   @override
-  @JsonKey()
-  List<SeenInfoDto> get seenInfo {
-    if (_seenInfo is EqualUnmodifiableListView) return _seenInfo;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_seenInfo);
-  }
-
+  final SeenInfoDto? seenInfo;
   @override
   @JsonKey()
   final int seenMessageOrder;
@@ -534,7 +544,8 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
               _myCurrentTicket,
             ) &&
             const DeepCollectionEquality().equals(other._tickets, _tickets) &&
-            const DeepCollectionEquality().equals(other._seenInfo, _seenInfo) &&
+            (identical(other.seenInfo, seenInfo) ||
+                other.seenInfo == seenInfo) &&
             (identical(other.seenMessageOrder, seenMessageOrder) ||
                 other.seenMessageOrder == seenMessageOrder) &&
             const DeepCollectionEquality().equals(
@@ -560,7 +571,7 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
     groupInfo,
     const DeepCollectionEquality().hash(_myCurrentTicket),
     const DeepCollectionEquality().hash(_tickets),
-    const DeepCollectionEquality().hash(_seenInfo),
+    seenInfo,
     seenMessageOrder,
     const DeepCollectionEquality().hash(_defaultChannel),
   );
@@ -581,20 +592,20 @@ class _$ChatRoomDtoImpl implements _ChatRoomDto {
 
 abstract class _ChatRoomDto implements ChatRoomDto {
   const factory _ChatRoomDto({
-    @JsonKey(name: 'chatRoomID') final String chatRoomId,
-    @JsonKey(name: 'customerID') final String customerId,
+    @JsonKey(name: 'chatRoomID') required final String chatRoomId,
+    @JsonKey(name: 'customerID') final String? customerId,
     @JsonKey(name: 'groupID') final String? groupId,
     @JsonKey(name: 'lastMessageID') final String? lastMessageId,
     final int totalMessage,
     final int followupCount,
     required final DateTime createdAt,
-    required final DateTime updatedAt,
+    final DateTime? updatedAt,
     final MessageDto? lastMessage,
     final CustomerInfoDto? customerInfo,
     final GroupInfoDto? groupInfo,
     final Map<String, dynamic>? myCurrentTicket,
-    final List<Map<String, dynamic>> tickets,
-    final List<SeenInfoDto> seenInfo,
+    final List<Map<String, dynamic>>? tickets,
+    final SeenInfoDto? seenInfo,
     final int seenMessageOrder,
     final Map<String, dynamic>? defaultChannel,
   }) = _$ChatRoomDtoImpl;
@@ -607,7 +618,7 @@ abstract class _ChatRoomDto implements ChatRoomDto {
   String get chatRoomId;
   @override
   @JsonKey(name: 'customerID')
-  String get customerId;
+  String? get customerId;
   @override
   @JsonKey(name: 'groupID')
   String? get groupId;
@@ -621,7 +632,7 @@ abstract class _ChatRoomDto implements ChatRoomDto {
   @override
   DateTime get createdAt;
   @override
-  DateTime get updatedAt;
+  DateTime? get updatedAt;
   @override
   MessageDto? get lastMessage;
   @override
@@ -631,9 +642,9 @@ abstract class _ChatRoomDto implements ChatRoomDto {
   @override
   Map<String, dynamic>? get myCurrentTicket;
   @override
-  List<Map<String, dynamic>> get tickets;
+  List<Map<String, dynamic>>? get tickets;
   @override
-  List<SeenInfoDto> get seenInfo;
+  SeenInfoDto? get seenInfo;
   @override
   int get seenMessageOrder;
   @override

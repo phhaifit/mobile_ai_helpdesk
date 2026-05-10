@@ -17,7 +17,13 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
   replyMessageId: json['replyMessageID'] as String?,
   messageOrder: (json['messageOrder'] as num?)?.toInt() ?? 0,
   messageType: json['messageType'] as String? ?? '',
-  channelId: json['channelID'] as String?,
+  channelId: json['channelID'] as String,
+  channelInfo:
+      json['channelInfo'] == null
+          ? null
+          : ChannelInfoDto.fromJson(
+            json['channelInfo'] as Map<String, dynamic>,
+          ),
   zaloCliMsgId: json['zaloCliMsgID'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt:
@@ -65,6 +71,7 @@ Map<String, dynamic> _$$MessageDtoImplToJson(_$MessageDtoImpl instance) =>
       'messageOrder': instance.messageOrder,
       'messageType': instance.messageType,
       'channelID': instance.channelId,
+      'channelInfo': instance.channelInfo,
       'zaloCliMsgID': instance.zaloCliMsgId,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),

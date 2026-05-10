@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../domain/entity/chat/chat_room.dart';
+import 'chatr_avatar.dart';
 
 class ChatRoomTile extends StatelessWidget {
   final ChatRoom room;
@@ -14,13 +15,13 @@ class ChatRoomTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      splashColor: AppColors.messengerBlue.withOpacity(0.08),
+      splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
             // Avatar with online indicator
-            _buildAvatar(),
+            ChatAvatar(name: room.name, avatarUrl: room.avatarUrl, appAvatarUrl: room.appAvatarUrl),
             const SizedBox(width: 12),
             // Name + last message
             Expanded(
@@ -78,52 +79,6 @@ class ChatRoomTile extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: room.isAI
-                  ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
-                  : [const Color(0xFF6BC5F8), AppColors.messengerBlue],
-            ),
-          ),
-          child: Center(
-            child: Text(
-              room.avatarInitials,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-        if (room.isActive)
-          Positioned(
-            right: 1,
-            bottom: 1,
-            child: Container(
-              width: 15,
-              height: 15,
-              decoration: BoxDecoration(
-                color: AppColors.onlineGreen,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2.5),
-              ),
-            ),
-          ),
-      ],
     );
   }
 

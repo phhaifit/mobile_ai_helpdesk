@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../constants/colors.dart';
-import '../../di/service_locator.dart';
-import '../../domain/entity/chat/message.dart';
-import '../../domain/entity/chat/chat_room.dart';
-import '../../domain/entity/prompt/prompt.dart';
-import '../prompt/store/prompt_store.dart';
 import '../../data/realtime/socket/socket_service.dart';
+import '../../di/service_locator.dart';
+import '../../domain/entity/chat/chat_room.dart';
+import '../../domain/entity/chat/message.dart';
+import '../../domain/entity/prompt/prompt.dart';
+import '../playground/widgets/draft_response_panel.dart';
+import '../prompt/store/prompt_store.dart';
 import 'slash_prompt_picker_overlay.dart';
 import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/typing_indicator.dart';
-import '../playground/widgets/draft_response_panel.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom? room;
@@ -236,10 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: ChatAppBar(
-        name: widget.room!.name,
-        avatarInitials: widget.room!.avatarInitials,
-        isActive: widget.room!.isActive,
-        room: widget.room,
+        room: widget.room!,
         onInfoTap: widget.onInfoTap,
         onAIAnalysisTap: () {
           final roomId = widget.room?.id;

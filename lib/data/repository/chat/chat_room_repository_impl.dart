@@ -1,7 +1,11 @@
+import 'dart:developer' as developer;
+
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/models/content_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/customer_info_dto.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/models/message_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/seen_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/fetch_chat_rooms_params.dart';
 import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
@@ -124,29 +128,62 @@ FetchChatRoomsParams mapQuery(ChatRoomListQuery q) {
 extension ChatRoomMapper on ChatRoomDto {
   ChatRoom toDomain() {
     final bool isGroup = groupId != null;
-    final String name = isGroup ? groupInfo?.displayName ?? '' : customerInfo?.name ?? '';
-    final String avatarUrl = isGroup ? groupInfo?.avatar ?? '' : _avatarUrlFromCustomer(customerInfo);
-    final String appName = (defaultChannel?['appInfo']['type'] as String).contains('MESSENGER') ? 'MESSENGER' : 'ZALO';
+
+    String name, avatarUrl, appName;
+
+    if (isGroup) {
+      name = groupInfo!.displayName;
+      avatarUrl = groupInfo!.avatar;
+      appName = _getAppName(groupInfo!.type);
+    } else {
+      name = customerInfo!.name;
+      avatarUrl = _avatarUrlFromCustomer(customerInfo);
+      appName = _getAppName(lastMessage?.channelInfo?.appInfo['type'] as String);
+    }
     final String appAvatarUrl = appName == 'MESSENGER' ? 'https://helpdesk.jarvis.cx/images/messenger_colored.png' : 'https://helpdesk.jarvis.cx/images/zalo_colored.png';
     
-    final channelId = defaultChannel?['channelID'] as String;
-    final channelName = defaultChannel?['name'] as String;
-    final channelAvatarUrl = defaultChannel?['config'][appName == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String;
+    final contentInfoDto = ContentInfoDtoMapper.fromJson(lastMessage?.contentInfo ?? {}, appName);
+
+    assert(() {
+      developer.log(
+        'ChatRoomMapper.toDomain chatRoomId=$chatRoomId isGroup=$isGroup '
+        'customerId=$customerId totalMessage=$totalMessage seenMessageOrder=$seenMessageOrder '
+        'updatedAt=$updatedAt channelId=${lastMessage!.channelId}',
+        name: 'ChatRoomMapper',
+      );
+      return true;
+    }());
 
     return ChatRoom(
       id: chatRoomId,
       name: name,
       avatarUrl: avatarUrl,
       appAvatarUrl: appAvatarUrl,
-      lastMessage: lastMessage?.contentInfo['content'] as String? ?? '',
-      lastMessageIsMe: lastMessage?.sender == customerId,
+      lastMessage: contentInfoDto.map(
+        messenger: (m) => m.content,
+        zalo: (z) => z.content,
+        unknown: (u) => 'Unknown',
+      ),
+      lastMessageIsMe: true,
       lastMessageTime: lastMessage?.createdAt ?? DateTime.now(),
       unreadCount: totalMessage - seenMessageOrder,
-      channel: Channel(id: channelId, name: channelName, avatarUrl: channelAvatarUrl),
-      isActive: true,
+      channel: _parseChannelFromMessage(lastMessage!),
       isAI: false,
     );
   }
+}
+
+String _getAppName(String message) {
+  if (message.contains('MESSENGER')) return 'MESSENGER';
+  if (message.contains('ZALO')) return 'ZALO';
+  return 'UNKNOWN';
+}
+
+Channel _parseChannelFromMessage(MessageDto message) {
+  final channelId = message.channelInfo!.channelId;
+  final channelName = message.channelInfo?.name ?? 'Unknown';
+  final channelAvatarUrl = message.channelInfo?.config[_getAppName(message.channelInfo?.appInfo['type'] as String) == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String?;
+  return Channel(id: channelId, name: channelName, avatarUrl: channelAvatarUrl);
 }
 
 String _avatarUrlFromCustomer(CustomerInfoDto? customerInfo) {

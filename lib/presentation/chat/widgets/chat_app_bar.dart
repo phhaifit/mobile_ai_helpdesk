@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../constants/colors.dart';
 import '../../../domain/entity/chat/chat_room.dart';
+import 'chatr_avatar.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String name;
-  final String avatarInitials;
-  final bool isActive;
-  final ChatRoom? room;
+  final ChatRoom room;
   final VoidCallback? onAIAnalysisTap;
   final VoidCallback? onBack;
   final VoidCallback? onInfoTap;
@@ -14,10 +12,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const ChatAppBar({
     super.key,
-    this.name = 'Jarvis AI',
-    this.avatarInitials = 'AI',
-    this.isActive = true,
-    this.room,
+    required this.room,
     this.onAIAnalysisTap,
     this.onBack,
     this.onInfoTap,
@@ -41,27 +36,33 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Row(
         children: [
-          _buildAvatarWithStatus(),
+          ChatAvatar(name: room.name, avatarUrl: room.avatarUrl, appAvatarUrl: room.appAvatarUrl, size: 36),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                name,
+                room.name,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              Text(
-                isActive ? 'Active now' : 'Offline',
-                style: TextStyle(
-                  color: isActive ? AppColors.onlineGreen : Colors.grey,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+              const SizedBox(height: 4),
+              Row(
+                spacing: 4,
+                children: [
+                  ChatAvatar(name: room.channel.name, avatarUrl: room.channel.avatarUrl, size: 16),
+                  Text(
+                    room.channel.name,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ],
@@ -83,40 +84,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         preferredSize: const Size.fromHeight(1),
         child: Container(color: AppColors.dividerColor, height: 1),
       ),
-    );
-  }
-
-  Widget _buildAvatarWithStatus() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: AppColors.messengerBlue,
-          child: Text(
-            avatarInitials,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        if (isActive)
-          Positioned(
-            right: -1,
-            bottom: -1,
-            child: Container(
-              width: 13,
-              height: 13,
-              decoration: BoxDecoration(
-                color: AppColors.onlineGreen,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }

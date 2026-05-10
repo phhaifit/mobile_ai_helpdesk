@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'channel_info_dto.dart';
 import 'contact_info_dto.dart';
 import 'customer_support_info_dto.dart';
 import 'file_attachment_dto.dart';
@@ -19,7 +20,8 @@ class MessageDto with _$MessageDto {
     @JsonKey(name: 'replyMessageID') String? replyMessageId,
     @Default(0) int messageOrder,
     @Default('') String messageType,
-    @JsonKey(name: 'channelID') String? channelId,
+    @JsonKey(name: 'channelID') required String channelId,
+    ChannelInfoDto? channelInfo,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     required DateTime createdAt,
     DateTime? updatedAt,

@@ -8,19 +8,20 @@ part of 'group_info_dto.dart';
 
 _$GroupInfoDtoImpl _$$GroupInfoDtoImplFromJson(Map<String, dynamic> json) =>
     _$GroupInfoDtoImpl(
-      groupId: json['groupID'] as String? ?? '',
-      displayName: json['displayName'] as String? ?? '',
-      avatar: json['avatar'] as String? ?? '',
+      groupId: json['groupID'] as String,
+      type: json['type'] as String,
+      displayName: json['displayName'] as String,
+      avatar: json['avatar'] as String,
       members:
           (json['members'] as List<dynamic>?)
               ?.map((e) => MemberInfoDto.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+              .toList(),
     );
 
 Map<String, dynamic> _$$GroupInfoDtoImplToJson(_$GroupInfoDtoImpl instance) =>
     <String, dynamic>{
       'groupID': instance.groupId,
+      'type': instance.type,
       'displayName': instance.displayName,
       'avatar': instance.avatar,
       'members': instance.members,
@@ -43,12 +44,11 @@ _$MemberInfoDtoImpl _$$MemberInfoDtoImplFromJson(Map<String, dynamic> json) =>
               ? null
               : DateTime.parse(json['deletedAt'] as String),
       groupCustomerInfo:
-          (json['customer'] as List<dynamic>?)
-              ?.map(
-                (e) => GroupCustomerInfoDto.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          const [],
+          json['customer'] == null
+              ? null
+              : GroupCustomerInfoDto.fromJson(
+                json['customer'] as Map<String, dynamic>,
+              ),
     );
 
 Map<String, dynamic> _$$MemberInfoDtoImplToJson(_$MemberInfoDtoImpl instance) =>

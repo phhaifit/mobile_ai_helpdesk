@@ -9,14 +9,17 @@ part of 'chat_room_dto.dart';
 _$ChatRoomDtoImpl _$$ChatRoomDtoImplFromJson(
   Map<String, dynamic> json,
 ) => _$ChatRoomDtoImpl(
-  chatRoomId: json['chatRoomID'] as String? ?? '',
-  customerId: json['customerID'] as String? ?? '',
+  chatRoomId: json['chatRoomID'] as String,
+  customerId: json['customerID'] as String?,
   groupId: json['groupID'] as String?,
   lastMessageId: json['lastMessageID'] as String?,
   totalMessage: (json['totalMessage'] as num?)?.toInt() ?? 0,
   followupCount: (json['followupCount'] as num?)?.toInt() ?? 0,
   createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  updatedAt:
+      json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
   lastMessage:
       json['lastMessage'] == null
           ? null
@@ -35,13 +38,11 @@ _$ChatRoomDtoImpl _$$ChatRoomDtoImplFromJson(
   tickets:
       (json['tickets'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
-          .toList() ??
-      const [],
+          .toList(),
   seenInfo:
-      (json['seenInfo'] as List<dynamic>?)
-          ?.map((e) => SeenInfoDto.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
+      json['seenInfo'] == null
+          ? null
+          : SeenInfoDto.fromJson(json['seenInfo'] as Map<String, dynamic>),
   seenMessageOrder: (json['seenMessageOrder'] as num?)?.toInt() ?? 0,
   defaultChannel: json['defaultChannel'] as Map<String, dynamic>?,
 );
@@ -55,7 +56,7 @@ Map<String, dynamic> _$$ChatRoomDtoImplToJson(_$ChatRoomDtoImpl instance) =>
       'totalMessage': instance.totalMessage,
       'followupCount': instance.followupCount,
       'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastMessage': instance.lastMessage,
       'customerInfo': instance.customerInfo,
       'groupInfo': instance.groupInfo,

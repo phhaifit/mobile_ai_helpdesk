@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../../domain/entity/chat/chat_room.dart';
+import 'widgets/chatr_avatar.dart';
 
 class ContactInfoPanel extends StatefulWidget {
   final ChatRoom room;
@@ -51,33 +52,12 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Avatar lớn
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: widget.room.isAI
-                            ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
-                            : [
-                                const Color(0xFF6BC5F8),
-                                AppColors.messengerBlue,
-                              ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        widget.room.avatarInitials,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  // Large Avatar
+                  ChatAvatar(
+                    name: widget.room.name,
+                    avatarUrl: widget.room.avatarUrl,
+                    appAvatarUrl: widget.room.appAvatarUrl,
+                    size: 80,
                   ),
                   const SizedBox(height: 12),
                   // Tên
@@ -88,34 +68,6 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  // Trạng thái online
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: widget.room.isActive
-                              ? AppColors.onlineGreen
-                              : Colors.grey,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        widget.room.isActive ? 'Đang hoạt động' : 'Ngoại tuyến',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: widget.room.isActive
-                              ? AppColors.onlineGreen
-                              : Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

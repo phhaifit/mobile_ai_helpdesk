@@ -3,8 +3,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'contact_info_dto.freezed.dart';
 part 'contact_info_dto.g.dart';
 
-@freezed
+@Freezed(unionKey: 'name')
 class ContactInfoDto with _$ContactInfoDto {
+  @FreezedUnionValue('MESSENGER')
   const factory ContactInfoDto.messenger({
     @JsonKey(name: 'contactID') @Default('') String contactId,
     @JsonKey(name: 'customerID') @Default('') String customerId,
@@ -14,6 +15,7 @@ class ContactInfoDto with _$ContactInfoDto {
     @JsonKey(name: 'messengerPageID') @Default('') String messengerPageId,
   }) = MessengerContactInfoDto;
 
+  @FreezedUnionValue('ZALO_PERSONAL')
   const factory ContactInfoDto.zalo({
     @JsonKey(name: 'contactID') @Default('') String contactId,
     @JsonKey(name: 'customerID') @Default('') String customerId,
@@ -25,6 +27,7 @@ class ContactInfoDto with _$ContactInfoDto {
     @JsonKey(name: 'channelID') @Default('') String channelId,
   }) = ZaloContactInfoDto;
 
+  @FreezedUnionValue('PHONE')
   const factory ContactInfoDto.phone({
     @JsonKey(name: 'contactID') @Default('') String contactId,
     @JsonKey(name: 'customerID') @Default('') String customerId,
@@ -32,48 +35,9 @@ class ContactInfoDto with _$ContactInfoDto {
     @JsonKey(name: 'isSpam') @Default(false) bool isSpam,
   }) = PhoneContactInfoDto;
 
+  @FreezedUnionValue('UNKNOWN')
   const factory ContactInfoDto.unknown() = UnknownContactInfoDto;
 
-  factory ContactInfoDto.fromJson(Map<String, dynamic> json) => 
+  factory ContactInfoDto.fromJson(Map<String, dynamic> json) =>
       _$ContactInfoDtoFromJson(json);
-}
-
-extension ContactInfoDtoMapper on ContactInfoDto {
-  static ContactInfoDto fromJson(Map<String, dynamic> json) {
-    final type = json['name'];
-
-    switch (type) {
-      case 'MESSENGER':
-        return ContactInfoDto.messenger(
-          contactId: json['contactID'] as String,
-          customerId: json['customerID'] as String,
-          messengerAccountId: json['messengerAccountID'] as String,
-          messengerAccountName: json['messengerAccountName'] as String,
-          messengerAccountAvatar: json['messengerAccountAvatar'] as String,
-          messengerPageId: json['messengerPageID'] as String,
-        );
-
-      case 'ZALO_PERSONAL':
-        return ContactInfoDto.zalo(
-          contactId: json['contactID'] as String,
-          customerId: json['customerID'] as String,
-          zaloAccountId: json['zaloAccountID'] as String,
-          zaloAccountName: json['zaloAccountName'] as String,
-          zaloAccountAvatar: json['zaloAccountAvatar'] as String,
-          zaloPhone: json['zalophone'] as String,
-          channelId: json['channelID'] as String,
-        );
-
-      case 'PHONE':
-        return ContactInfoDto.phone(
-          contactId: json['contactID'] as String,
-          customerId: json['customerID'] as String,
-          phone: json['phone'] as String,
-          isSpam: json['isSpam'] as bool,
-        );
-
-      default:
-        return const ContactInfoDto.unknown();
-    }
-  }
 }

@@ -16,22 +16,22 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 ContactInfoDto _$ContactInfoDtoFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType']) {
-    case 'messenger':
+  switch (json['name']) {
+    case 'MESSENGER':
       return MessengerContactInfoDto.fromJson(json);
-    case 'zalo':
+    case 'ZALO_PERSONAL':
       return ZaloContactInfoDto.fromJson(json);
-    case 'phone':
+    case 'PHONE':
       return PhoneContactInfoDto.fromJson(json);
-    case 'unknown':
+    case 'UNKNOWN':
       return UnknownContactInfoDto.fromJson(json);
 
     default:
       throw CheckedFromJsonException(
         json,
-        'runtimeType',
+        'name',
         'ContactInfoDto',
-        'Invalid union type "${json['runtimeType']}"!',
+        'Invalid union type "${json['name']}"!',
       );
   }
 }
@@ -267,7 +267,7 @@ class _$MessengerContactInfoDtoImpl implements MessengerContactInfoDto {
     @JsonKey(name: 'messengerAccountAvatar') this.messengerAccountAvatar = '',
     @JsonKey(name: 'messengerPageID') this.messengerPageId = '',
     final String? $type,
-  }) : $type = $type ?? 'messenger';
+  }) : $type = $type ?? 'MESSENGER';
 
   factory _$MessengerContactInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$MessengerContactInfoDtoImplFromJson(json);
@@ -291,7 +291,7 @@ class _$MessengerContactInfoDtoImpl implements MessengerContactInfoDto {
   @JsonKey(name: 'messengerPageID')
   final String messengerPageId;
 
-  @JsonKey(name: 'runtimeType')
+  @JsonKey(name: 'name')
   final String $type;
 
   @override
@@ -649,7 +649,7 @@ class _$ZaloContactInfoDtoImpl implements ZaloContactInfoDto {
     @JsonKey(name: 'zaloAppID') this.zaloAppId = '',
     @JsonKey(name: 'channelID') this.channelId = '',
     final String? $type,
-  }) : $type = $type ?? 'zalo';
+  }) : $type = $type ?? 'ZALO_PERSONAL';
 
   factory _$ZaloContactInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ZaloContactInfoDtoImplFromJson(json);
@@ -679,7 +679,7 @@ class _$ZaloContactInfoDtoImpl implements ZaloContactInfoDto {
   @JsonKey(name: 'channelID')
   final String channelId;
 
-  @JsonKey(name: 'runtimeType')
+  @JsonKey(name: 'name')
   final String $type;
 
   @override
@@ -1023,7 +1023,7 @@ class _$PhoneContactInfoDtoImpl implements PhoneContactInfoDto {
     @JsonKey(name: 'phone') this.phone = '',
     @JsonKey(name: 'isSpam') this.isSpam = false,
     final String? $type,
-  }) : $type = $type ?? 'phone';
+  }) : $type = $type ?? 'PHONE';
 
   factory _$PhoneContactInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$PhoneContactInfoDtoImplFromJson(json);
@@ -1041,7 +1041,7 @@ class _$PhoneContactInfoDtoImpl implements PhoneContactInfoDto {
   @JsonKey(name: 'isSpam')
   final bool isSpam;
 
-  @JsonKey(name: 'runtimeType')
+  @JsonKey(name: 'name')
   final String $type;
 
   @override
@@ -1282,12 +1282,12 @@ class __$$UnknownContactInfoDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UnknownContactInfoDtoImpl implements UnknownContactInfoDto {
   const _$UnknownContactInfoDtoImpl({final String? $type})
-    : $type = $type ?? 'unknown';
+    : $type = $type ?? 'UNKNOWN';
 
   factory _$UnknownContactInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$UnknownContactInfoDtoImplFromJson(json);
 
-  @JsonKey(name: 'runtimeType')
+  @JsonKey(name: 'name')
   final String $type;
 
   @override

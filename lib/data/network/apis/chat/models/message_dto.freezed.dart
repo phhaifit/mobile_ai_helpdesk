@@ -35,7 +35,8 @@ mixin _$MessageDto {
   int get messageOrder => throw _privateConstructorUsedError;
   String get messageType => throw _privateConstructorUsedError;
   @JsonKey(name: 'channelID')
-  String? get channelId => throw _privateConstructorUsedError;
+  String get channelId => throw _privateConstructorUsedError;
+  ChannelInfoDto? get channelInfo => throw _privateConstructorUsedError;
   @JsonKey(name: 'zaloCliMsgID')
   String? get zaloCliMsgId => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -79,7 +80,8 @@ abstract class $MessageDtoCopyWith<$Res> {
     @JsonKey(name: 'replyMessageID') String? replyMessageId,
     int messageOrder,
     String messageType,
-    @JsonKey(name: 'channelID') String? channelId,
+    @JsonKey(name: 'channelID') String channelId,
+    ChannelInfoDto? channelInfo,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -95,6 +97,7 @@ abstract class $MessageDtoCopyWith<$Res> {
     @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
   });
 
+  $ChannelInfoDtoCopyWith<$Res>? get channelInfo;
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
   $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo;
 }
@@ -122,7 +125,8 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
     Object? replyMessageId = freezed,
     Object? messageOrder = null,
     Object? messageType = null,
-    Object? channelId = freezed,
+    Object? channelId = null,
+    Object? channelInfo = freezed,
     Object? zaloCliMsgId = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -180,10 +184,15 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
                     : messageType // ignore: cast_nullable_to_non_nullable
                         as String,
             channelId:
-                freezed == channelId
+                null == channelId
                     ? _value.channelId
                     : channelId // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as String,
+            channelInfo:
+                freezed == channelInfo
+                    ? _value.channelInfo
+                    : channelInfo // ignore: cast_nullable_to_non_nullable
+                        as ChannelInfoDto?,
             zaloCliMsgId:
                 freezed == zaloCliMsgId
                     ? _value.zaloCliMsgId
@@ -258,6 +267,20 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $ChannelInfoDtoCopyWith<$Res>? get channelInfo {
+    if (_value.channelInfo == null) {
+      return null;
+    }
+
+    return $ChannelInfoDtoCopyWith<$Res>(_value.channelInfo!, (value) {
+      return _then(_value.copyWith(channelInfo: value) as $Val);
+    });
+  }
+
+  /// Create a copy of MessageDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $ContactInfoDtoCopyWith<$Res> get contactInfo {
     return $ContactInfoDtoCopyWith<$Res>(_value.contactInfo, (value) {
       return _then(_value.copyWith(contactInfo: value) as $Val);
@@ -297,7 +320,8 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     @JsonKey(name: 'replyMessageID') String? replyMessageId,
     int messageOrder,
     String messageType,
-    @JsonKey(name: 'channelID') String? channelId,
+    @JsonKey(name: 'channelID') String channelId,
+    ChannelInfoDto? channelInfo,
     @JsonKey(name: 'zaloCliMsgID') String? zaloCliMsgId,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -313,6 +337,8 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
   });
 
+  @override
+  $ChannelInfoDtoCopyWith<$Res>? get channelInfo;
   @override
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
   @override
@@ -341,7 +367,8 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
     Object? replyMessageId = freezed,
     Object? messageOrder = null,
     Object? messageType = null,
-    Object? channelId = freezed,
+    Object? channelId = null,
+    Object? channelInfo = freezed,
     Object? zaloCliMsgId = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -399,10 +426,15 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
                 : messageType // ignore: cast_nullable_to_non_nullable
                     as String,
         channelId:
-            freezed == channelId
+            null == channelId
                 ? _value.channelId
                 : channelId // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as String,
+        channelInfo:
+            freezed == channelInfo
+                ? _value.channelInfo
+                : channelInfo // ignore: cast_nullable_to_non_nullable
+                    as ChannelInfoDto?,
         zaloCliMsgId:
             freezed == zaloCliMsgId
                 ? _value.zaloCliMsgId
@@ -485,7 +517,8 @@ class _$MessageDtoImpl implements _MessageDto {
     @JsonKey(name: 'replyMessageID') this.replyMessageId,
     this.messageOrder = 0,
     this.messageType = '',
-    @JsonKey(name: 'channelID') this.channelId,
+    @JsonKey(name: 'channelID') required this.channelId,
+    this.channelInfo,
     @JsonKey(name: 'zaloCliMsgID') this.zaloCliMsgId,
     required this.createdAt,
     this.updatedAt,
@@ -535,7 +568,9 @@ class _$MessageDtoImpl implements _MessageDto {
   final String messageType;
   @override
   @JsonKey(name: 'channelID')
-  final String? channelId;
+  final String channelId;
+  @override
+  final ChannelInfoDto? channelInfo;
   @override
   @JsonKey(name: 'zaloCliMsgID')
   final String? zaloCliMsgId;
@@ -616,7 +651,7 @@ class _$MessageDtoImpl implements _MessageDto {
 
   @override
   String toString() {
-    return 'MessageDto(messageId: $messageId, chatRoomId: $chatRoomId, contactId: $contactId, ticketId: $ticketId, sender: $sender, replyMessageId: $replyMessageId, messageOrder: $messageOrder, messageType: $messageType, channelId: $channelId, zaloCliMsgId: $zaloCliMsgId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, contactInfo: $contactInfo, contentInfo: $contentInfo, ticketInfo: $ticketInfo, files: $files, reaction: $reaction, replyMessage: $replyMessage, slackMessage: $slackMessage, zohoDeskMessage: $zohoDeskMessage, senderInfo: $senderInfo)';
+    return 'MessageDto(messageId: $messageId, chatRoomId: $chatRoomId, contactId: $contactId, ticketId: $ticketId, sender: $sender, replyMessageId: $replyMessageId, messageOrder: $messageOrder, messageType: $messageType, channelId: $channelId, channelInfo: $channelInfo, zaloCliMsgId: $zaloCliMsgId, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, contactInfo: $contactInfo, contentInfo: $contentInfo, ticketInfo: $ticketInfo, files: $files, reaction: $reaction, replyMessage: $replyMessage, slackMessage: $slackMessage, zohoDeskMessage: $zohoDeskMessage, senderInfo: $senderInfo)';
   }
 
   @override
@@ -641,6 +676,8 @@ class _$MessageDtoImpl implements _MessageDto {
                 other.messageType == messageType) &&
             (identical(other.channelId, channelId) ||
                 other.channelId == channelId) &&
+            (identical(other.channelInfo, channelInfo) ||
+                other.channelInfo == channelInfo) &&
             (identical(other.zaloCliMsgId, zaloCliMsgId) ||
                 other.zaloCliMsgId == zaloCliMsgId) &&
             (identical(other.createdAt, createdAt) ||
@@ -690,6 +727,7 @@ class _$MessageDtoImpl implements _MessageDto {
     messageOrder,
     messageType,
     channelId,
+    channelInfo,
     zaloCliMsgId,
     createdAt,
     updatedAt,
@@ -729,7 +767,8 @@ abstract class _MessageDto implements MessageDto {
     @JsonKey(name: 'replyMessageID') final String? replyMessageId,
     final int messageOrder,
     final String messageType,
-    @JsonKey(name: 'channelID') final String? channelId,
+    @JsonKey(name: 'channelID') required final String channelId,
+    final ChannelInfoDto? channelInfo,
     @JsonKey(name: 'zaloCliMsgID') final String? zaloCliMsgId,
     required final DateTime createdAt,
     final DateTime? updatedAt,
@@ -771,7 +810,9 @@ abstract class _MessageDto implements MessageDto {
   String get messageType;
   @override
   @JsonKey(name: 'channelID')
-  String? get channelId;
+  String get channelId;
+  @override
+  ChannelInfoDto? get channelInfo;
   @override
   @JsonKey(name: 'zaloCliMsgID')
   String? get zaloCliMsgId;

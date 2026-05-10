@@ -1,5 +1,6 @@
 enum AttachmentType {
   image,
+  sticker,
   video,
   audio,
   pdf,

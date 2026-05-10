@@ -6,10 +6,11 @@ part 'group_info_dto.g.dart';
 @freezed
 class GroupInfoDto with _$GroupInfoDto {
   const factory GroupInfoDto({
-    @JsonKey(name: 'groupID') @Default('') String groupId,
-    @JsonKey(name: 'displayName') @Default('') String displayName,
-    @JsonKey(name: 'avatar') @Default('') String avatar,
-    @Default([]) List<MemberInfoDto> members,
+    @JsonKey(name: 'groupID') required String groupId,
+    @JsonKey(name: 'type') required String type,
+    @JsonKey(name: 'displayName') required String displayName,
+    @JsonKey(name: 'avatar') required String avatar,
+    List<MemberInfoDto>? members,
   }) = _GroupInfoDto;
 
   factory GroupInfoDto.fromJson(Map<String, dynamic> json) =>
@@ -23,7 +24,7 @@ class MemberInfoDto with _$MemberInfoDto {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    @JsonKey(name: 'customer') @Default([]) List<GroupCustomerInfoDto> groupCustomerInfo,
+    @JsonKey(name: 'customer') GroupCustomerInfoDto? groupCustomerInfo,
   }) = _MemberInfoDto;
 
   factory MemberInfoDto.fromJson(Map<String, dynamic> json) => 
