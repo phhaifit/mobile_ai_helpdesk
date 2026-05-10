@@ -44,7 +44,7 @@ mixin _$MessageDto {
   DateTime? get deletedAt => throw _privateConstructorUsedError;
   ContactInfoDto get contactInfo => throw _privateConstructorUsedError;
   Map<String, dynamic> get contentInfo => throw _privateConstructorUsedError;
-  Map<String, dynamic> get ticketInfo => throw _privateConstructorUsedError;
+  TicketInfoDto? get ticketInfo => throw _privateConstructorUsedError;
   List<FileAttachmentDto> get files => throw _privateConstructorUsedError;
   List<MessageReactionDto> get reaction => throw _privateConstructorUsedError;
   Map<String, dynamic> get replyMessage => throw _privateConstructorUsedError;
@@ -88,7 +88,7 @@ abstract class $MessageDtoCopyWith<$Res> {
     DateTime? deletedAt,
     ContactInfoDto contactInfo,
     Map<String, dynamic> contentInfo,
-    Map<String, dynamic> ticketInfo,
+    TicketInfoDto? ticketInfo,
     List<FileAttachmentDto> files,
     List<MessageReactionDto> reaction,
     Map<String, dynamic> replyMessage,
@@ -99,6 +99,7 @@ abstract class $MessageDtoCopyWith<$Res> {
 
   $ChannelInfoDtoCopyWith<$Res>? get channelInfo;
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
+  $TicketInfoDtoCopyWith<$Res>? get ticketInfo;
   $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo;
 }
 
@@ -133,7 +134,7 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
     Object? deletedAt = freezed,
     Object? contactInfo = null,
     Object? contentInfo = null,
-    Object? ticketInfo = null,
+    Object? ticketInfo = freezed,
     Object? files = null,
     Object? reaction = null,
     Object? replyMessage = null,
@@ -224,10 +225,10 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
                     : contentInfo // ignore: cast_nullable_to_non_nullable
                         as Map<String, dynamic>,
             ticketInfo:
-                null == ticketInfo
+                freezed == ticketInfo
                     ? _value.ticketInfo
                     : ticketInfo // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
+                        as TicketInfoDto?,
             files:
                 null == files
                     ? _value.files
@@ -291,6 +292,20 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $TicketInfoDtoCopyWith<$Res>? get ticketInfo {
+    if (_value.ticketInfo == null) {
+      return null;
+    }
+
+    return $TicketInfoDtoCopyWith<$Res>(_value.ticketInfo!, (value) {
+      return _then(_value.copyWith(ticketInfo: value) as $Val);
+    });
+  }
+
+  /// Create a copy of MessageDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo {
     if (_value.senderInfo == null) {
       return null;
@@ -328,7 +343,7 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     DateTime? deletedAt,
     ContactInfoDto contactInfo,
     Map<String, dynamic> contentInfo,
-    Map<String, dynamic> ticketInfo,
+    TicketInfoDto? ticketInfo,
     List<FileAttachmentDto> files,
     List<MessageReactionDto> reaction,
     Map<String, dynamic> replyMessage,
@@ -341,6 +356,8 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
   $ChannelInfoDtoCopyWith<$Res>? get channelInfo;
   @override
   $ContactInfoDtoCopyWith<$Res> get contactInfo;
+  @override
+  $TicketInfoDtoCopyWith<$Res>? get ticketInfo;
   @override
   $CustomerSupportInfoDtoCopyWith<$Res>? get senderInfo;
 }
@@ -375,7 +392,7 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
     Object? deletedAt = freezed,
     Object? contactInfo = null,
     Object? contentInfo = null,
-    Object? ticketInfo = null,
+    Object? ticketInfo = freezed,
     Object? files = null,
     Object? reaction = null,
     Object? replyMessage = null,
@@ -466,10 +483,10 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
                 : contentInfo // ignore: cast_nullable_to_non_nullable
                     as Map<String, dynamic>,
         ticketInfo:
-            null == ticketInfo
-                ? _value._ticketInfo
+            freezed == ticketInfo
+                ? _value.ticketInfo
                 : ticketInfo // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
+                    as TicketInfoDto?,
         files:
             null == files
                 ? _value._files
@@ -511,7 +528,7 @@ class _$MessageDtoImpl implements _MessageDto {
   const _$MessageDtoImpl({
     @JsonKey(name: 'messageID') this.messageId = '',
     @JsonKey(name: 'chatRoomID') this.chatRoomId = '',
-    @JsonKey(name: 'contactID') this.contactId = '',
+    @JsonKey(name: 'contactID') required this.contactId,
     @JsonKey(name: 'ticketID') this.ticketId,
     this.sender,
     @JsonKey(name: 'replyMessageID') this.replyMessageId,
@@ -525,7 +542,7 @@ class _$MessageDtoImpl implements _MessageDto {
     this.deletedAt,
     required this.contactInfo,
     final Map<String, dynamic> contentInfo = const {},
-    final Map<String, dynamic> ticketInfo = const {},
+    required this.ticketInfo,
     final List<FileAttachmentDto> files = const [],
     final List<MessageReactionDto> reaction = const [],
     final Map<String, dynamic> replyMessage = const {},
@@ -533,7 +550,6 @@ class _$MessageDtoImpl implements _MessageDto {
     final Map<String, dynamic> zohoDeskMessage = const {},
     @JsonKey(name: 'senderInfo') this.senderInfo,
   }) : _contentInfo = contentInfo,
-       _ticketInfo = ticketInfo,
        _files = files,
        _reaction = reaction,
        _replyMessage = replyMessage,
@@ -591,15 +607,8 @@ class _$MessageDtoImpl implements _MessageDto {
     return EqualUnmodifiableMapView(_contentInfo);
   }
 
-  final Map<String, dynamic> _ticketInfo;
   @override
-  @JsonKey()
-  Map<String, dynamic> get ticketInfo {
-    if (_ticketInfo is EqualUnmodifiableMapView) return _ticketInfo;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_ticketInfo);
-  }
-
+  final TicketInfoDto? ticketInfo;
   final List<FileAttachmentDto> _files;
   @override
   @JsonKey()
@@ -692,10 +701,8 @@ class _$MessageDtoImpl implements _MessageDto {
               other._contentInfo,
               _contentInfo,
             ) &&
-            const DeepCollectionEquality().equals(
-              other._ticketInfo,
-              _ticketInfo,
-            ) &&
+            (identical(other.ticketInfo, ticketInfo) ||
+                other.ticketInfo == ticketInfo) &&
             const DeepCollectionEquality().equals(other._files, _files) &&
             const DeepCollectionEquality().equals(other._reaction, _reaction) &&
             const DeepCollectionEquality().equals(
@@ -734,7 +741,7 @@ class _$MessageDtoImpl implements _MessageDto {
     deletedAt,
     contactInfo,
     const DeepCollectionEquality().hash(_contentInfo),
-    const DeepCollectionEquality().hash(_ticketInfo),
+    ticketInfo,
     const DeepCollectionEquality().hash(_files),
     const DeepCollectionEquality().hash(_reaction),
     const DeepCollectionEquality().hash(_replyMessage),
@@ -761,7 +768,7 @@ abstract class _MessageDto implements MessageDto {
   const factory _MessageDto({
     @JsonKey(name: 'messageID') final String messageId,
     @JsonKey(name: 'chatRoomID') final String chatRoomId,
-    @JsonKey(name: 'contactID') final String contactId,
+    @JsonKey(name: 'contactID') required final String contactId,
     @JsonKey(name: 'ticketID') final String? ticketId,
     final String? sender,
     @JsonKey(name: 'replyMessageID') final String? replyMessageId,
@@ -775,7 +782,7 @@ abstract class _MessageDto implements MessageDto {
     final DateTime? deletedAt,
     required final ContactInfoDto contactInfo,
     final Map<String, dynamic> contentInfo,
-    final Map<String, dynamic> ticketInfo,
+    required final TicketInfoDto? ticketInfo,
     final List<FileAttachmentDto> files,
     final List<MessageReactionDto> reaction,
     final Map<String, dynamic> replyMessage,
@@ -827,7 +834,7 @@ abstract class _MessageDto implements MessageDto {
   @override
   Map<String, dynamic> get contentInfo;
   @override
-  Map<String, dynamic> get ticketInfo;
+  TicketInfoDto? get ticketInfo;
   @override
   List<FileAttachmentDto> get files;
   @override

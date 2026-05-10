@@ -8,13 +8,19 @@ class GetChatMessagesUseCase extends UseCase<List<Message>, GetChatMessagesParam
   GetChatMessagesUseCase(this._repository);
 
   @override
-  Future<List<Message>> call({required GetChatMessagesParams params}) {
-    return _repository.getMessages(
+  Future<List<Message>> call({required GetChatMessagesParams params}) async {
+    final messages = await _repository.getMessages(
       chatRoomId: params.chatRoomId,
       customerId: params.customerId,
       lastMessageId: params.lastMessageId,
       limit: params.limit,
     );
+
+    messages.sort(
+      (a, b) => a.order.compareTo(b.order),
+    );
+
+    return messages;
   }
 }
 

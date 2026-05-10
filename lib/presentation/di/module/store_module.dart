@@ -114,6 +114,7 @@ import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
@@ -232,10 +233,12 @@ class StoreModule {
     getIt.registerSingleton<ChatStore>(
       ChatStore(
         getIt<GetChatMessagesUseCase>(),
+        getIt<GetNewerChatMessagesUseCase>(),
         getIt<SendMessageFromAgentToCustomerUseCase>(),
         getIt<ReactToMessageUseCase>(),
         getIt<UnreactToMessageUseCase>(),
         getIt<AnalyticsService>(),
+        getIt<ErrorStore>(),
       ),
     );
     getIt.registerSingleton<ChatRoomStore>(

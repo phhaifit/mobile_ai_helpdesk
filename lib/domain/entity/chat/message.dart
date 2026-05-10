@@ -4,8 +4,8 @@ import 'user.dart';
 
 class Message {
   final String id;
-  final String? externalAccountId;
   final String conversationId;
+  final int order;
   final User sender;
   final bool isMe;
   final String content;
@@ -20,6 +20,7 @@ class Message {
   const Message({
     required this.id,
     required this.conversationId,
+    required this.order,
     required this.sender,
     required this.isMe,
     required this.content,
@@ -27,13 +28,12 @@ class Message {
     required this.timestamp,
     required this.replyMessageId,
     required this.reactions,
-    this.externalAccountId,
   });
 
   Message copyWith({
     String? id,
-    String? externalAccountId,
     String? conversationId,
+    int? order,
     User? sender,
     bool? isMe,
     String? content,
@@ -44,8 +44,8 @@ class Message {
   }) {
     return Message(
       id: id ?? this.id,
-      externalAccountId: externalAccountId ?? this.externalAccountId,
       conversationId: conversationId ?? this.conversationId,
+      order: order ?? this.order,
       sender: sender ?? this.sender,
       isMe: isMe ?? this.isMe,
       content: content ?? this.content,

@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
@@ -142,23 +140,15 @@ extension ChatRoomMapper on ChatRoomDto {
     }
     final String appAvatarUrl = appName == 'MESSENGER' ? 'https://helpdesk.jarvis.cx/images/messenger_colored.png' : 'https://helpdesk.jarvis.cx/images/zalo_colored.png';
     
-    final contentInfoDto = ContentInfoDtoMapper.fromJson(lastMessage?.contentInfo ?? {}, appName);
-
-    assert(() {
-      developer.log(
-        'ChatRoomMapper.toDomain chatRoomId=$chatRoomId isGroup=$isGroup '
-        'customerId=$customerId totalMessage=$totalMessage seenMessageOrder=$seenMessageOrder '
-        'updatedAt=$updatedAt channelId=${lastMessage!.channelId}',
-        name: 'ChatRoomMapper',
-      );
-      return true;
-    }());
+    final contentInfoDto = ContentInfoDtoMapper.fromJson(lastMessage!.contentInfo, appName);
 
     return ChatRoom(
       id: chatRoomId,
       name: name,
       avatarUrl: avatarUrl,
       appAvatarUrl: appAvatarUrl,
+      ticketId: ticketId,
+      contactId: lastMessage!.contactId,
       lastMessage: contentInfoDto.map(
         messenger: (m) => m.content,
         zalo: (z) => z.content,

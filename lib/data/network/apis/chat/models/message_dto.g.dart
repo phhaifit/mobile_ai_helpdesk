@@ -11,7 +11,7 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
 ) => _$MessageDtoImpl(
   messageId: json['messageID'] as String? ?? '',
   chatRoomId: json['chatRoomID'] as String? ?? '',
-  contactId: json['contactID'] as String? ?? '',
+  contactId: json['contactID'] as String,
   ticketId: json['ticketID'] as String?,
   sender: json['sender'] as String?,
   replyMessageId: json['replyMessageID'] as String?,
@@ -38,7 +38,10 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
     json['contactInfo'] as Map<String, dynamic>,
   ),
   contentInfo: json['contentInfo'] as Map<String, dynamic>? ?? const {},
-  ticketInfo: json['ticketInfo'] as Map<String, dynamic>? ?? const {},
+  ticketInfo:
+      json['ticketInfo'] == null
+          ? null
+          : TicketInfoDto.fromJson(json['ticketInfo'] as Map<String, dynamic>),
   files:
       (json['files'] as List<dynamic>?)
           ?.map((e) => FileAttachmentDto.fromJson(e as Map<String, dynamic>))

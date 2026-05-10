@@ -7,6 +7,7 @@ import 'package:ai_helpdesk/data/network/apis/chat/models/message_group_dto.dart
 import 'package:ai_helpdesk/data/network/apis/chat/models/message_reaction_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/react_message_params.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/send_cs_message_to_customer_params.dart';
+import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
 import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
 import 'package:ai_helpdesk/domain/entity/chat/message_group.dart';
@@ -15,6 +16,7 @@ import 'package:ai_helpdesk/domain/entity/chat/user.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:dio/dio.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatApi _chatApi;
@@ -28,13 +30,17 @@ class ChatRepositoryImpl implements ChatRepository {
     String? lastMessageId,
     int limit = 20,
   }) async {
-    final dto = await _chatApi.getMessageList(
-      chatRoomId: chatRoomId,
-      customerId: customerId,
-      lastMessageId: lastMessageId,
-      limit: limit,
-    );
-    return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    try {
+      final dto = await _chatApi.getMessageList(
+        chatRoomId: chatRoomId,
+        customerId: customerId,
+        lastMessageId: lastMessageId,
+        limit: limit,
+      );
+      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
@@ -43,40 +49,58 @@ class ChatRepositoryImpl implements ChatRepository {
     String? lastMessageId,
     int limit = 20,
   }) async {
-    final dto = await _chatApi.getNewerMessages(
-      chatRoomId: chatRoomId,
-      lastMessageId: lastMessageId,
-      limit: limit,
-    );
-    return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    try {
+      final dto = await _chatApi.getNewerMessages(
+        chatRoomId: chatRoomId,
+        lastMessageId: lastMessageId,
+        limit: limit,
+      );
+      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
   Future<Message> sendMessageFromAgentToCustomer({
     required SendAgentToCustomerMessageParams params,
   }) async {
-    final dto = await _chatApi.sendMessageFromAgentToCustomer(
-      params: SendCsMessageToCustomerParams(
-        chatRoomId: params.chatRoomId ?? '',
-        channelId: params.channelId,
-        contactId: params.contactId,
-        content: params.content,
-        replyMessageId: params.replyMessageId,
-        socketId: params.socketId,
-      ),
-    );
-    return dto.toDomain(null);
+    try {
+      final dto = await _chatApi.sendMessageFromAgentToCustomer(
+        params: SendCsMessageToCustomerParams(
+          chatRoomId: params.chatRoomId,
+          channelId: params.channelId,
+          contactId: params.contactId,
+          ticketId: params.ticketId,
+          content: params.content,
+          groupId: params.groupId,
+          replyMessageId: params.replyMessageId,
+          socketId: params.socketId,
+        ),
+      );
+      return dto.toDomain(null);
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
   Future<Reaction> reactToMessage(ReactToMessageRequest request) async {
-    final dto = await _chatApi.reactToMessage(params: _mapReactParams(request));
-    return dto.toDomain();
+    try {
+      final dto = await _chatApi.reactToMessage(params: _mapReactParams(request));
+      return dto.toDomain();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
   Future<bool> unreactToMessage(ReactToMessageRequest request) async {
-    return _chatApi.unreactMessage(params: _mapReactParams(request));
+    try {
+      return await _chatApi.unreactMessage(params: _mapReactParams(request));
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
@@ -84,20 +108,28 @@ class ChatRepositoryImpl implements ChatRepository {
     required String chatRoomId,
     required String keyword,
   }) async {
-    return _chatApi.countSearchResultsInChatRoom(
-      chatRoomId: chatRoomId,
-      keyword: keyword,
-    );
+    try {
+      return await _chatApi.countSearchResultsInChatRoom(
+        chatRoomId: chatRoomId,
+        keyword: keyword,
+      );
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
   Future<List<MessageGroup>> searchMessagesGroupedByChatRoom({
     required String keyword,
   }) async {
-    final groups = await _chatApi.searchMessagesGroupedByChatRoom(
-      keyword: keyword,
-    );
-    return groups.map((e) => e.toDomain()).toList();
+    try {
+      final groups = await _chatApi.searchMessagesGroupedByChatRoom(
+        keyword: keyword,
+      );
+      return groups.map((e) => e.toDomain()).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
@@ -105,11 +137,15 @@ class ChatRepositoryImpl implements ChatRepository {
     required String keyword,
     String? chatRoomId,
   }) async {
-    final dto = await _chatApi.flatSearchMessageList(
-      keyword: keyword,
-      chatRoomId: chatRoomId,
-    );
-    return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    try {
+      final dto = await _chatApi.flatSearchMessageList(
+        keyword: keyword,
+        chatRoomId: chatRoomId,
+      );
+      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
@@ -117,10 +153,14 @@ class ChatRepositoryImpl implements ChatRepository {
     required String chatRoomId,
     String? ticketId,
   }) async {
-    return _chatApi.analyzeTicketInChatRoomAi(
-      chatRoomId: chatRoomId,
-      ticketId: ticketId,
-    );
+    try {
+      return await _chatApi.analyzeTicketInChatRoomAi(
+        chatRoomId: chatRoomId,
+        ticketId: ticketId,
+      );
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 
   @override
@@ -128,10 +168,14 @@ class ChatRepositoryImpl implements ChatRepository {
     required String chatRoomId,
     String? ticketId,
   }) async {
-    return _chatApi.generateAiDraftResponse(
-      chatRoomId: chatRoomId,
-      ticketId: ticketId,
-    );
+    try {
+      return await _chatApi.generateAiDraftResponse(
+        chatRoomId: chatRoomId,
+        ticketId: ticketId,
+      );
+    } on DioException catch (e) {
+      throw HelpdeskErrorMapper.map(e);
+    }
   }
 }
 
@@ -169,6 +213,7 @@ extension MessageMapper on MessageDto {
     return Message(
       id: messageId,
       conversationId: chatRoomId,
+      order: messageOrder,
       sender: senderUser,
       isMe: isMe,
       content: contentInfoDto.map(

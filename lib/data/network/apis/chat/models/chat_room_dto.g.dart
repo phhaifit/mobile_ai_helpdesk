@@ -12,9 +12,10 @@ _$ChatRoomDtoImpl _$$ChatRoomDtoImplFromJson(
   chatRoomId: json['chatRoomID'] as String,
   customerId: json['customerID'] as String?,
   groupId: json['groupID'] as String?,
-  lastMessageId: json['lastMessageID'] as String?,
+  lastMessageId: json['lastMessageID'] as String,
   totalMessage: (json['totalMessage'] as num?)?.toInt() ?? 0,
   followupCount: (json['followupCount'] as num?)?.toInt() ?? 0,
+  ticketId: json['ticketID'] as String,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt:
       json['updatedAt'] == null
@@ -37,7 +38,7 @@ _$ChatRoomDtoImpl _$$ChatRoomDtoImplFromJson(
   myCurrentTicket: json['myCurrentTicket'] as Map<String, dynamic>?,
   tickets:
       (json['tickets'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
+          ?.map((e) => TicketInfoDto.fromJson(e as Map<String, dynamic>))
           .toList(),
   seenInfo:
       json['seenInfo'] == null
@@ -55,6 +56,7 @@ Map<String, dynamic> _$$ChatRoomDtoImplToJson(_$ChatRoomDtoImpl instance) =>
       'lastMessageID': instance.lastMessageId,
       'totalMessage': instance.totalMessage,
       'followupCount': instance.followupCount,
+      'ticketID': instance.ticketId,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastMessage': instance.lastMessage,

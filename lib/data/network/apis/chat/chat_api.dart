@@ -118,7 +118,7 @@ class ChatApi {
       Endpoints.csToCustomer(),
       data: params.toJson(),
     );
-    return MessageDto.fromJson(res.data['data'] as Map<String, dynamic>);
+    return MessageDto.fromJson((res.data['data'] as List)[0] as Map<String, dynamic>);
   }
 
   /// Marks a chat room as read up to a specific message.

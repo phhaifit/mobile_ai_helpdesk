@@ -251,7 +251,7 @@ class SocketService {
 
     return Message(
       id: p.messageId,
-      externalAccountId: '',
+      order: p.order,
       conversationId: p.chatRoomId,
       sender: User(id: p.sender ?? '', name: p.sender ?? '', avatar: ''),
       content: p.displayContent,

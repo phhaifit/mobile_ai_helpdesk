@@ -16,24 +16,24 @@ class SendMessageFromAgentToCustomerUseCase
 }
 
 class SendAgentToCustomerMessageParams {
-  final String? chatRoomId;
-  final String? groupId;
+  final String chatRoomId;
   final String channelId;
   final String contactId;
   final String ticketId;
   final String content;
   final List<Attachment>? attachments;
+  final String? groupId;
   final String? replyMessageId;
   final String? socketId;
 
   const SendAgentToCustomerMessageParams({
-    this.chatRoomId,
-    this.groupId,
+    required this.chatRoomId,
     required this.channelId,
     required this.contactId,
     required this.ticketId,
     required this.content,
     this.attachments,
+    this.groupId,
     this.replyMessageId,
     this.socketId,
   });

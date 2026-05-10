@@ -3,6 +3,7 @@ class SocketMessagePayload {
   final String chatRoomId;
   final String? sender;
   final String? content;
+  final int order;
   final String? channelId;
   final Map<String, dynamic>? contentInfo;
   final DateTime? createdAt;
@@ -13,6 +14,7 @@ class SocketMessagePayload {
     required this.sender,
     required this.content,
     required this.channelId,
+    required this.order,
     required this.contentInfo,
     required this.createdAt,
   });
@@ -23,6 +25,7 @@ class SocketMessagePayload {
       chatRoomId: (json['chatRoomID'] ?? '').toString(),
       sender: json['sender']?.toString(),
       content: json['content']?.toString(),
+      order: (json['messageOrder'] as num?)?.toInt() ?? 0,
       channelId: json['channelID']?.toString(),
       contentInfo: json['contentInfo'] is Map
           ? (json['contentInfo'] as Map).cast<String, dynamic>()

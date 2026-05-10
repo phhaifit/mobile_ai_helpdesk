@@ -6,6 +6,8 @@ class ChatRoom {
   final String? avatarUrl;
   final String? appAvatarUrl;
   final Channel channel;
+  final String ticketId;
+  final String contactId;
   final bool isAI;
   final String lastMessage;
   final bool lastMessageIsMe;
@@ -23,6 +25,8 @@ class ChatRoom {
     required this.unreadCount,
     required this.isAI,
     required this.channel,
+    required this.ticketId,
+    required this.contactId,
   });
 
   ChatRoom copyWith({
@@ -33,6 +37,8 @@ class ChatRoom {
     bool? isAI,
     Channel? channel,
     String? appAvatarUrl,
+    String? ticketId,
+    String? contactId,
   }) {
     return ChatRoom(
       id: id,
@@ -45,6 +51,8 @@ class ChatRoom {
       unreadCount: unreadCount ?? this.unreadCount,
       isAI: isAI ?? this.isAI,
       channel: channel ?? this.channel,
+      ticketId: ticketId ?? this.ticketId,
+      contactId: contactId ?? this.contactId,
     );
   }
 }

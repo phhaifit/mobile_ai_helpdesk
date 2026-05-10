@@ -61,7 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _socketService = getIt<SocketService>();
     final roomId = widget.room?.id;
     if (roomId != null) {
-      _chatStore.getMessages(roomId);
+      _chatStore.openRoom(roomId);
       _bindSocket(roomId);
     }
 
@@ -154,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    final messages = _chatStore.messageList;
+    final messages = _chatStore.currentMessages;
     final results = <String>[];
 
     for (final message in messages) {
@@ -197,7 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToMessage(String messageId) {
-    final messages = _chatStore.messageList;
+    final messages = _chatStore.currentMessages;
     final messageIndex = messages.indexWhere((m) => m.id == messageId);
 
     if (messageIndex != -1) {
@@ -342,7 +342,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final messages = _chatStore.messageList;
+                final messages = _chatStore.currentMessages;
 
                 if (messages.isEmpty) {
                   return Center(
@@ -440,7 +440,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 return;
               }
               setState(() => _slashMode = false);
-              _chatStore.sendMessage(text);
+              _chatStore.sendMessage(widget.room!.id, widget.room!.channel.id, widget.room!.contactId, widget.room!.ticketId, text, null);
               _textController.clear();
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _scrollToBottom();

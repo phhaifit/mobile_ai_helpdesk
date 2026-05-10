@@ -5,6 +5,7 @@ import 'contact_info_dto.dart';
 import 'customer_support_info_dto.dart';
 import 'file_attachment_dto.dart';
 import 'message_reaction_dto.dart';
+import 'ticket_info_dto.dart';
 
 part 'message_dto.freezed.dart';
 part 'message_dto.g.dart';
@@ -14,7 +15,7 @@ class MessageDto with _$MessageDto {
   const factory MessageDto({
     @JsonKey(name: 'messageID') @Default('') String messageId,
     @JsonKey(name: 'chatRoomID') @Default('') String chatRoomId,
-    @JsonKey(name: 'contactID') @Default('') String contactId,
+    @JsonKey(name: 'contactID') required String contactId,
     @JsonKey(name: 'ticketID') String? ticketId,
     String? sender,
     @JsonKey(name: 'replyMessageID') String? replyMessageId,
@@ -28,7 +29,7 @@ class MessageDto with _$MessageDto {
     DateTime? deletedAt,
     required ContactInfoDto contactInfo,
     @Default({}) Map<String, dynamic> contentInfo,
-    @Default({}) Map<String, dynamic> ticketInfo,
+    required TicketInfoDto? ticketInfo,
     @Default([]) List<FileAttachmentDto> files,
     @Default([]) List<MessageReactionDto> reaction,
     @Default({}) Map<String, dynamic> replyMessage,

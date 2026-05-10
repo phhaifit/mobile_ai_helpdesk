@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/core/events/socket/server/ai/draft_response_sse_event.dart';
+import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/data/realtime/sse/draft_response_sse_client.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
 import '../../../constants/analytics_events.dart';
 import '../../../di/service_locator.dart';
 import '../../../domain/analytics/analytics_service.dart';
+import '../../../domain/entity/chat/attachment.dart';
 import '../../../domain/entity/chat/message.dart' show Message;
 import '../../../domain/entity/chat/reaction.dart';
 import '../../../domain/entity/chat/user.dart' show User;
@@ -18,13 +22,27 @@ part 'chat_store.g.dart';
 class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
-  final Map<String, List<Message>> _messageCache = {};
+  final ObservableMap<String, ObservableList<Message>> _messageCache = ObservableMap();
+
+  @computed
+  ObservableList<Message> get currentMessages {
+    final roomId = currentChatRoomId;
+
+    if (roomId == null) return ObservableList();
+
+    return _messageCache.putIfAbsent(
+      roomId,
+      () => ObservableList<Message>(),
+    );
+  }
 
   final GetChatMessagesUseCase _getChatMessages;
+  final GetNewerChatMessagesUseCase _getNewerChatMessages;
   final SendMessageFromAgentToCustomerUseCase _sendMessage;
   final ReactToMessageUseCase _reactToMessage;
   final UnreactToMessageUseCase _unreactToMessage;
   final AnalyticsService _analyticsService;
+  final ErrorStore _errorStore;
 
   // Canned responses for auto-reply simulation
   static const List<String> _defaultResponses = [
@@ -40,11 +58,16 @@ abstract class _ChatStore with Store {
 
   _ChatStore(
     this._getChatMessages,
+    this._getNewerChatMessages,
     this._sendMessage,
     this._reactToMessage,
     this._unreactToMessage,
     this._analyticsService,
+    this._errorStore,
   );
+
+  @observable
+  String? currentChatRoomId;
 
   @observable
   ObservableList<Message> messageList = ObservableList<Message>();
@@ -82,19 +105,102 @@ abstract class _ChatStore with Store {
   void setSearchQuery(String query) => searchQuery = query;
 
   @action
-  Future<void> getMessages(String chatRoomId) async {
+  Future<void> openRoom(String chatRoomId) async {
+    currentChatRoomId = chatRoomId;
+
+    final existing = _messageCache[chatRoomId];
+
+    // Already cached
+    if (existing != null && existing.isNotEmpty) {
+      await _syncNewerMessages(chatRoomId);
+      return;
+    }
+
     isLoading = true;
-    messageList.clear(); // Clear sebelum load pesan baru
-    final messages = await _getChatMessages.call(
-      params: GetChatMessagesParams(chatRoomId: chatRoomId),
+
+    final messages = await _getChatMessages(
+      params: GetChatMessagesParams(
+        chatRoomId: chatRoomId,
+      ),
     );
-    messageList.addAll(messages);
+
+    _messageCache[chatRoomId] =
+        ObservableList.of(messages);
+
     isLoading = false;
   }
 
   @action
-  void sendMessage(String text) {
-    if (text.trim().isEmpty) return;
+  Future<void> _syncNewerMessages(String roomId) async {
+    final messages = _messageCache[roomId];
+
+    if (messages == null || messages.isEmpty) return;
+
+    final latestId = messages.last.id;
+
+    final newer = await _getNewerChatMessages(
+      params: GetNewerChatMessagesParams(
+        chatRoomId: roomId,
+        lastMessageId: latestId,
+      ),
+    );
+
+    for (final msg in newer) {
+      _mergeMessage(roomId, msg);
+    }
+  }
+
+  @action
+  void _mergeMessage(String roomId, Message message) {
+    final list = _messageCache.putIfAbsent(
+      roomId,
+      () => ObservableList<Message>(),
+    );
+
+    final index = list.indexWhere((m) => m.id == message.id);
+
+    if (index >= 0) {
+      list[index] = message;
+    } else {
+      list.add(message);
+
+      list.sort((a, b) => a.order.compareTo(b.order));
+    }
+  }
+
+  @action
+  Future<void> sendMessage(String chatRoomId, String channelId, String contactId, String ticketId, String text, List<Attachment>? attachments) async {
+    if (text.trim().isEmpty && (attachments?.isEmpty ?? true)) return;
+
+    try {
+      final newMessage = await _sendMessage.call(
+        params: SendAgentToCustomerMessageParams(
+          chatRoomId: chatRoomId,
+          channelId: channelId,
+          contactId: contactId,
+          ticketId: ticketId,
+          content: text,
+          attachments: attachments,
+        ),
+      );
+
+      messageList.add(newMessage);
+    } on Failure catch (e) {
+      _errorStore.setErrorMessage(e.message);
+
+      messageList.add(Message(
+        id: '',
+        conversationId: chatRoomId,
+        order: messageList.last.order,
+        sender: const User(id: '', name: '', avatar: ''),
+        isMe: true,
+        content: e.message,
+        attachments: attachments ?? [],
+        timestamp: DateTime.now(),
+        replyMessageId: null,
+        reactions: [],
+      ));
+    }
 
     // Track message sent event
     _analyticsService.trackEvent(
@@ -137,12 +243,7 @@ abstract class _ChatStore with Store {
   @action
   void onSocketMessage(Message message) {
     // Merge by id to avoid duplicates.
-    final index = messageList.indexWhere((m) => m.id == message.id);
-    if (index >= 0) {
-      messageList[index] = message;
-    } else {
-      messageList.add(message);
-    }
+    _mergeMessage(currentChatRoomId!, message);
   }
 
   @action

@@ -29,10 +29,10 @@ mixin _$SendCsMessageToCustomerParams {
   String get contactId => throw _privateConstructorUsedError;
   @JsonKey(name: 'channelID')
   String get channelId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'ticketID')
+  String get ticketId => throw _privateConstructorUsedError;
   @JsonKey(includeIfNull: false)
   String? get groupId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'ticketID', includeIfNull: false)
-  String? get ticketId => throw _privateConstructorUsedError;
   @JsonKey(includeIfNull: false)
   String? get content => throw _privateConstructorUsedError;
   @JsonKey(includeIfNull: false)
@@ -75,8 +75,8 @@ abstract class $SendCsMessageToCustomerParamsCopyWith<$Res> {
     @JsonKey(name: 'chatRoomID') String chatRoomId,
     @JsonKey(name: 'contactID') String contactId,
     @JsonKey(name: 'channelID') String channelId,
+    @JsonKey(name: 'ticketID') String ticketId,
     @JsonKey(includeIfNull: false) String? groupId,
-    @JsonKey(name: 'ticketID', includeIfNull: false) String? ticketId,
     @JsonKey(includeIfNull: false) String? content,
     @JsonKey(includeIfNull: false) String? title,
     @JsonKey(name: 'replyMessageID', includeIfNull: false)
@@ -110,8 +110,8 @@ class _$SendCsMessageToCustomerParamsCopyWithImpl<
     Object? chatRoomId = null,
     Object? contactId = null,
     Object? channelId = null,
+    Object? ticketId = null,
     Object? groupId = freezed,
-    Object? ticketId = freezed,
     Object? content = freezed,
     Object? title = freezed,
     Object? replyMessageId = freezed,
@@ -138,15 +138,15 @@ class _$SendCsMessageToCustomerParamsCopyWithImpl<
                     ? _value.channelId
                     : channelId // ignore: cast_nullable_to_non_nullable
                         as String,
+            ticketId:
+                null == ticketId
+                    ? _value.ticketId
+                    : ticketId // ignore: cast_nullable_to_non_nullable
+                        as String,
             groupId:
                 freezed == groupId
                     ? _value.groupId
                     : groupId // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            ticketId:
-                freezed == ticketId
-                    ? _value.ticketId
-                    : ticketId // ignore: cast_nullable_to_non_nullable
                         as String?,
             content:
                 freezed == content
@@ -207,8 +207,8 @@ abstract class _$$SendCsMessageToCustomerParamsImplCopyWith<$Res>
     @JsonKey(name: 'chatRoomID') String chatRoomId,
     @JsonKey(name: 'contactID') String contactId,
     @JsonKey(name: 'channelID') String channelId,
+    @JsonKey(name: 'ticketID') String ticketId,
     @JsonKey(includeIfNull: false) String? groupId,
-    @JsonKey(name: 'ticketID', includeIfNull: false) String? ticketId,
     @JsonKey(includeIfNull: false) String? content,
     @JsonKey(includeIfNull: false) String? title,
     @JsonKey(name: 'replyMessageID', includeIfNull: false)
@@ -242,8 +242,8 @@ class __$$SendCsMessageToCustomerParamsImplCopyWithImpl<$Res>
     Object? chatRoomId = null,
     Object? contactId = null,
     Object? channelId = null,
+    Object? ticketId = null,
     Object? groupId = freezed,
-    Object? ticketId = freezed,
     Object? content = freezed,
     Object? title = freezed,
     Object? replyMessageId = freezed,
@@ -270,15 +270,15 @@ class __$$SendCsMessageToCustomerParamsImplCopyWithImpl<$Res>
                 ? _value.channelId
                 : channelId // ignore: cast_nullable_to_non_nullable
                     as String,
+        ticketId:
+            null == ticketId
+                ? _value.ticketId
+                : ticketId // ignore: cast_nullable_to_non_nullable
+                    as String,
         groupId:
             freezed == groupId
                 ? _value.groupId
                 : groupId // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        ticketId:
-            freezed == ticketId
-                ? _value.ticketId
-                : ticketId // ignore: cast_nullable_to_non_nullable
                     as String?,
         content:
             freezed == content
@@ -333,8 +333,8 @@ class _$SendCsMessageToCustomerParamsImpl
     @JsonKey(name: 'chatRoomID') required this.chatRoomId,
     @JsonKey(name: 'contactID') required this.contactId,
     @JsonKey(name: 'channelID') required this.channelId,
+    @JsonKey(name: 'ticketID') required this.ticketId,
     @JsonKey(includeIfNull: false) this.groupId,
-    @JsonKey(name: 'ticketID', includeIfNull: false) this.ticketId,
     @JsonKey(includeIfNull: false) this.content,
     @JsonKey(includeIfNull: false) this.title,
     @JsonKey(name: 'replyMessageID', includeIfNull: false) this.replyMessageId,
@@ -359,11 +359,11 @@ class _$SendCsMessageToCustomerParamsImpl
   @JsonKey(name: 'channelID')
   final String channelId;
   @override
+  @JsonKey(name: 'ticketID')
+  final String ticketId;
+  @override
   @JsonKey(includeIfNull: false)
   final String? groupId;
-  @override
-  @JsonKey(name: 'ticketID', includeIfNull: false)
-  final String? ticketId;
   @override
   @JsonKey(includeIfNull: false)
   final String? content;
@@ -399,7 +399,7 @@ class _$SendCsMessageToCustomerParamsImpl
 
   @override
   String toString() {
-    return 'SendCsMessageToCustomerParams(chatRoomId: $chatRoomId, contactId: $contactId, channelId: $channelId, groupId: $groupId, ticketId: $ticketId, content: $content, title: $title, replyMessageId: $replyMessageId, socketId: $socketId, files: $files, isAutoReply: $isAutoReply, messageTag: $messageTag, mentionReply: $mentionReply)';
+    return 'SendCsMessageToCustomerParams(chatRoomId: $chatRoomId, contactId: $contactId, channelId: $channelId, ticketId: $ticketId, groupId: $groupId, content: $content, title: $title, replyMessageId: $replyMessageId, socketId: $socketId, files: $files, isAutoReply: $isAutoReply, messageTag: $messageTag, mentionReply: $mentionReply)';
   }
 
   @override
@@ -413,9 +413,9 @@ class _$SendCsMessageToCustomerParamsImpl
                 other.contactId == contactId) &&
             (identical(other.channelId, channelId) ||
                 other.channelId == channelId) &&
-            (identical(other.groupId, groupId) || other.groupId == groupId) &&
             (identical(other.ticketId, ticketId) ||
                 other.ticketId == ticketId) &&
+            (identical(other.groupId, groupId) || other.groupId == groupId) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.replyMessageId, replyMessageId) ||
@@ -438,8 +438,8 @@ class _$SendCsMessageToCustomerParamsImpl
     chatRoomId,
     contactId,
     channelId,
-    groupId,
     ticketId,
+    groupId,
     content,
     title,
     replyMessageId,
@@ -474,8 +474,8 @@ abstract class _SendCsMessageToCustomerParams
     @JsonKey(name: 'chatRoomID') required final String chatRoomId,
     @JsonKey(name: 'contactID') required final String contactId,
     @JsonKey(name: 'channelID') required final String channelId,
+    @JsonKey(name: 'ticketID') required final String ticketId,
     @JsonKey(includeIfNull: false) final String? groupId,
-    @JsonKey(name: 'ticketID', includeIfNull: false) final String? ticketId,
     @JsonKey(includeIfNull: false) final String? content,
     @JsonKey(includeIfNull: false) final String? title,
     @JsonKey(name: 'replyMessageID', includeIfNull: false)
@@ -500,11 +500,11 @@ abstract class _SendCsMessageToCustomerParams
   @JsonKey(name: 'channelID')
   String get channelId;
   @override
+  @JsonKey(name: 'ticketID')
+  String get ticketId;
+  @override
   @JsonKey(includeIfNull: false)
   String? get groupId;
-  @override
-  @JsonKey(name: 'ticketID', includeIfNull: false)
-  String? get ticketId;
   @override
   @JsonKey(includeIfNull: false)
   String? get content;

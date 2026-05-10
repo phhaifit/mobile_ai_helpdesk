@@ -9,6 +9,15 @@ part of 'chat_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$ChatStore on _ChatStore, Store {
+  Computed<ObservableList<Message>>? _$currentMessagesComputed;
+
+  @override
+  ObservableList<Message> get currentMessages =>
+      (_$currentMessagesComputed ??= Computed<ObservableList<Message>>(
+            () => super.currentMessages,
+            name: '_ChatStore.currentMessages',
+          ))
+          .value;
   Computed<List<Message>>? _$filteredMessagesComputed;
 
   @override
@@ -18,6 +27,24 @@ mixin _$ChatStore on _ChatStore, Store {
             name: '_ChatStore.filteredMessages',
           ))
           .value;
+
+  late final _$currentChatRoomIdAtom = Atom(
+    name: '_ChatStore.currentChatRoomId',
+    context: context,
+  );
+
+  @override
+  String? get currentChatRoomId {
+    _$currentChatRoomIdAtom.reportRead();
+    return super.currentChatRoomId;
+  }
+
+  @override
+  set currentChatRoomId(String? value) {
+    _$currentChatRoomIdAtom.reportWrite(value, super.currentChatRoomId, () {
+      super.currentChatRoomId = value;
+    });
+  }
 
   late final _$messageListAtom = Atom(
     name: '_ChatStore.messageList',
@@ -127,14 +154,52 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
-  late final _$getMessagesAsyncAction = AsyncAction(
-    '_ChatStore.getMessages',
+  late final _$openRoomAsyncAction = AsyncAction(
+    '_ChatStore.openRoom',
     context: context,
   );
 
   @override
-  Future<void> getMessages(String chatRoomId) {
-    return _$getMessagesAsyncAction.run(() => super.getMessages(chatRoomId));
+  Future<void> openRoom(String chatRoomId) {
+    return _$openRoomAsyncAction.run(() => super.openRoom(chatRoomId));
+  }
+
+  late final _$_syncNewerMessagesAsyncAction = AsyncAction(
+    '_ChatStore._syncNewerMessages',
+    context: context,
+  );
+
+  @override
+  Future<void> _syncNewerMessages(String roomId) {
+    return _$_syncNewerMessagesAsyncAction.run(
+      () => super._syncNewerMessages(roomId),
+    );
+  }
+
+  late final _$sendMessageAsyncAction = AsyncAction(
+    '_ChatStore.sendMessage',
+    context: context,
+  );
+
+  @override
+  Future<void> sendMessage(
+    String chatRoomId,
+    String channelId,
+    String contactId,
+    String ticketId,
+    String text,
+    List<Attachment>? attachments,
+  ) {
+    return _$sendMessageAsyncAction.run(
+      () => super.sendMessage(
+        chatRoomId,
+        channelId,
+        contactId,
+        ticketId,
+        text,
+        attachments,
+      ),
+    );
   }
 
   late final _$generateDraftResponsesAsyncAction = AsyncAction(
@@ -167,12 +232,12 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void sendMessage(String text) {
+  void _mergeMessage(String roomId, Message message) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore.sendMessage',
+      name: '_ChatStore._mergeMessage',
     );
     try {
-      return super.sendMessage(text);
+      return super._mergeMessage(roomId, message);
     } finally {
       _$_ChatStoreActionController.endAction(_$actionInfo);
     }
@@ -217,12 +282,14 @@ mixin _$ChatStore on _ChatStore, Store {
   @override
   String toString() {
     return '''
+currentChatRoomId: ${currentChatRoomId},
 messageList: ${messageList},
 isLoading: ${isLoading},
 isTyping: ${isTyping},
 draftResponses: ${draftResponses},
 isDraftLoading: ${isDraftLoading},
 searchQuery: ${searchQuery},
+currentMessages: ${currentMessages},
 filteredMessages: ${filteredMessages}
     ''';
   }
