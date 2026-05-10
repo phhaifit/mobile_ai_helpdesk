@@ -190,15 +190,6 @@ abstract class _TeamStore with Store {
     }
   }
 
-  static const List<Permission> _ownerPermissionSet = [
-    Permission(
-      code: 'tenant:settings:write',
-      description: 'Edit tenant settings',
-    ),
-    Permission(code: 'tenant:members:manage'),
-    Permission(code: 'tickets:read'),
-    Permission(code: 'tickets:write'),
-  ];
 
   static const List<Permission> _adminPermissionSet = [
     Permission(code: 'tenant:members:invite'),

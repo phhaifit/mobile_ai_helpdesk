@@ -18,7 +18,6 @@ import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
-import '../../../di/service_locator.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
