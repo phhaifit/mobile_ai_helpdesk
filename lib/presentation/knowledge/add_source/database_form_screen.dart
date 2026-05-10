@@ -434,9 +434,6 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
 
   Widget _bottomBar() {
     final isStep1 = _step == 1;
-    final canSubmit = isStep1
-        ? !_saving
-        : !_saving && widget.store.lastDbPreview != null;
     return Container(
       padding: EdgeInsets.fromLTRB(
           16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
@@ -463,8 +460,13 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Observer(
-              builder: (_) => ElevatedButton(
-                onPressed: canSubmit ? (isStep1 ? _toStep2 : _submit) : null,
+              builder: (_) {
+                // Recompute inside Observer so MobX tracks lastDbPreview.
+                final canSubmit = isStep1
+                    ? !_saving
+                    : !_saving && widget.store.lastDbPreview != null;
+                return ElevatedButton(
+                  onPressed: canSubmit ? (isStep1 ? _toStep2 : _submit) : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _accent,
                   foregroundColor: Colors.white,
@@ -475,18 +477,20 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
-                      )
-                    : Text(
-                        isStep1 ? 'Tiếp theo' : 'Xác nhận',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-              ),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          isStep1 ? 'Tiếp theo' : 'Xác nhận',
+                          style:
+                              const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                );
+              },
             ),
           ),
         ],

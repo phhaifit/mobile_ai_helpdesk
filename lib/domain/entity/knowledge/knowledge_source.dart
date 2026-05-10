@@ -52,14 +52,18 @@ KnowledgeSourceType knowledgeSourceTypeFromApi(String? raw) {
     case 'single_url':
       return KnowledgeSourceType.web;
     case 'whole_site':
+    case 'whole-site':
       return KnowledgeSourceType.wholeSite;
     case 'local_file':
+    case 'local-file':
     case 'file':
       return KnowledgeSourceType.localFile;
     case 'google_drive':
+    case 'google-drive':
     case 'drive':
       return KnowledgeSourceType.googleDrive;
     case 'database_query':
+    case 'database-query':
     case 'database':
       return KnowledgeSourceType.databaseQuery;
     default:
