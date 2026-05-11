@@ -42,13 +42,16 @@ class TenantRepositoryImpl implements TenantRepository {
   Future<TenantSettings> updateTenantSettings({
     required String tenantId,
     required bool autoResolutionEnabled,
-    required int autoResolutionTimeoutHours,
+    required int? autoResolutionTimeoutHours,
   }) {
     return _tenantApi.updateTenantSettings(
       tenantId: tenantId,
       payload: {
-        'autoResolutionEnabled': autoResolutionEnabled,
-        'autoResolutionTimeoutHours': autoResolutionTimeoutHours,
+        'enabled': autoResolutionEnabled,
+        'autoResolveAfterHours': autoResolutionEnabled
+            ? autoResolutionTimeoutHours
+            : null,
+        'notifyCustomer': false,
       },
     );
   }
@@ -68,7 +71,7 @@ class TenantRepositoryImpl implements TenantRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getTenantJoinInfo() {
+  Future<void> getTenantJoinInfo() {
     return _tenantApi.getTenantJoinInfo();
   }
 }

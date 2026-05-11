@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/domain/entity/account/account.dart';
+import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
 import 'package:dartz/dartz.dart';
 
 class AccountUpdateParams {
@@ -31,6 +32,9 @@ class AccountUpdateParams {
 abstract class AccountRepository {
   /// Fetch the current account via `/account/sso-validate`. Caches on success.
   Future<Either<Failure, Account>> getCurrent();
+
+  /// Fetch the tenant-scoped employee list via `/api/account`.
+  Future<Either<Failure, List<TeamMember>>> getTenantMembers();
 
   /// Patch profile fields.
   Future<Either<Failure, void>> update(AccountUpdateParams params);

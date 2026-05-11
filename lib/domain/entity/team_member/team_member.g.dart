@@ -37,7 +37,6 @@ Map<String, dynamic> _$TeamMemberToJson(TeamMember instance) =>
     };
 
 const _$TeamRoleEnumMap = {
-  TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
-  TeamRole.member: 'member',
+  TeamRole.customer_support: 'customer_support',
 };

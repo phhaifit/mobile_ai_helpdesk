@@ -127,7 +127,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         slug: _slugFromName(name).isEmpty ? null : _slugFromName(name),
         settings: const TenantSettings(
           allowInvitations: true,
-          defaultRole: TeamRole.member,
+          defaultRole: TeamRole.customer_support,
           enableAuditLog: false,
         ),
         createdAt: now,
