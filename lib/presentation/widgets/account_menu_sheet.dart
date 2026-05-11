@@ -30,11 +30,6 @@ class AccountMenuSheet extends StatelessWidget {
     await Navigator.of(context).pushNamed(Routes.profile);
   }
 
-  Future<void> _openEdit(BuildContext context) async {
-    Navigator.pop(context);
-    await Navigator.of(context).pushNamed(Routes.editProfile);
-  }
-
   Future<void> _uploadAvatar(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context);
@@ -154,11 +149,6 @@ class AccountMenuSheet extends StatelessWidget {
             leading: const Icon(Icons.account_circle_outlined),
             title: Text(l.translate('profile_menu_view')),
             onTap: () => _openProfile(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.edit_outlined),
-            title: Text(l.translate('profile_menu_edit')),
-            onTap: () => _openEdit(context),
           ),
           ListTile(
             leading: const Icon(Icons.camera_alt_outlined),

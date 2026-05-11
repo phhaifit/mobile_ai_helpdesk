@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'edit_profile_store.dart';
+part of 'profile_store.dart';
 
 // **************************************************************************
 // StoreGenerator
@@ -8,14 +8,32 @@ part of 'edit_profile_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$EditProfileStore on _EditProfileStoreBase, Store {
+mixin _$ProfileStore on _ProfileStoreBase, Store {
+  Computed<Account?>? _$accountComputed;
+
+  @override
+  Account? get account =>
+      (_$accountComputed ??= Computed<Account?>(
+            () => super.account,
+            name: '_ProfileStoreBase.account',
+          ))
+          .value;
   Computed<bool>? _$isSavingComputed;
 
   @override
   bool get isSaving =>
       (_$isSavingComputed ??= Computed<bool>(
             () => super.isSaving,
-            name: '_EditProfileStoreBase.isSaving',
+            name: '_ProfileStoreBase.isSaving',
+          ))
+          .value;
+  Computed<bool>? _$isUploadingAvatarComputed;
+
+  @override
+  bool get isUploadingAvatar =>
+      (_$isUploadingAvatarComputed ??= Computed<bool>(
+            () => super.isUploadingAvatar,
+            name: '_ProfileStoreBase.isUploadingAvatar',
           ))
           .value;
   Computed<bool>? _$isDirtyComputed;
@@ -24,7 +42,7 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   bool get isDirty =>
       (_$isDirtyComputed ??= Computed<bool>(
             () => super.isDirty,
-            name: '_EditProfileStoreBase.isDirty',
+            name: '_ProfileStoreBase.isDirty',
           ))
           .value;
   Computed<bool>? _$canSubmitComputed;
@@ -33,12 +51,12 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   bool get canSubmit =>
       (_$canSubmitComputed ??= Computed<bool>(
             () => super.canSubmit,
-            name: '_EditProfileStoreBase.canSubmit',
+            name: '_ProfileStoreBase.canSubmit',
           ))
           .value;
 
   late final _$fullnameAtom = Atom(
-    name: '_EditProfileStoreBase.fullname',
+    name: '_ProfileStoreBase.fullname',
     context: context,
   );
 
@@ -55,26 +73,8 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
     });
   }
 
-  late final _$usernameAtom = Atom(
-    name: '_EditProfileStoreBase.username',
-    context: context,
-  );
-
-  @override
-  String get username {
-    _$usernameAtom.reportRead();
-    return super.username;
-  }
-
-  @override
-  set username(String value) {
-    _$usernameAtom.reportWrite(value, super.username, () {
-      super.username = value;
-    });
-  }
-
   late final _$phoneNumberAtom = Atom(
-    name: '_EditProfileStoreBase.phoneNumber',
+    name: '_ProfileStoreBase.phoneNumber',
     context: context,
   );
 
@@ -92,7 +92,7 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   }
 
   late final _$errorKeyAtom = Atom(
-    name: '_EditProfileStoreBase.errorKey',
+    name: '_ProfileStoreBase.errorKey',
     context: context,
   );
 
@@ -110,7 +110,7 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   }
 
   late final _$savedSuccessfullyAtom = Atom(
-    name: '_EditProfileStoreBase.savedSuccessfully',
+    name: '_ProfileStoreBase.savedSuccessfully',
     context: context,
   );
 
@@ -128,7 +128,7 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   }
 
   late final _$_saveFutureAtom = Atom(
-    name: '_EditProfileStoreBase._saveFuture',
+    name: '_ProfileStoreBase._saveFuture',
     context: context,
   );
 
@@ -145,8 +145,26 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
     });
   }
 
+  late final _$_avatarFutureAtom = Atom(
+    name: '_ProfileStoreBase._avatarFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<bool>? get _avatarFuture {
+    _$_avatarFutureAtom.reportRead();
+    return super._avatarFuture;
+  }
+
+  @override
+  set _avatarFuture(ObservableFuture<bool>? value) {
+    _$_avatarFutureAtom.reportWrite(value, super._avatarFuture, () {
+      super._avatarFuture = value;
+    });
+  }
+
   late final _$saveAsyncAction = AsyncAction(
-    '_EditProfileStoreBase.save',
+    '_ProfileStoreBase.save',
     context: context,
   );
 
@@ -155,56 +173,56 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
     return _$saveAsyncAction.run(() => super.save());
   }
 
-  late final _$_EditProfileStoreBaseActionController = ActionController(
-    name: '_EditProfileStoreBase',
+  late final _$_ProfileStoreBaseActionController = ActionController(
+    name: '_ProfileStoreBase',
     context: context,
   );
 
   @override
   void seedFrom(Account account) {
-    final _$actionInfo = _$_EditProfileStoreBaseActionController.startAction(
-      name: '_EditProfileStoreBase.seedFrom',
+    final _$actionInfo = _$_ProfileStoreBaseActionController.startAction(
+      name: '_ProfileStoreBase.seedFrom',
     );
     try {
       return super.seedFrom(account);
     } finally {
-      _$_EditProfileStoreBaseActionController.endAction(_$actionInfo);
+      _$_ProfileStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setFullname(String value) {
-    final _$actionInfo = _$_EditProfileStoreBaseActionController.startAction(
-      name: '_EditProfileStoreBase.setFullname',
+    final _$actionInfo = _$_ProfileStoreBaseActionController.startAction(
+      name: '_ProfileStoreBase.setFullname',
     );
     try {
       return super.setFullname(value);
     } finally {
-      _$_EditProfileStoreBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setUsername(String value) {
-    final _$actionInfo = _$_EditProfileStoreBaseActionController.startAction(
-      name: '_EditProfileStoreBase.setUsername',
-    );
-    try {
-      return super.setUsername(value);
-    } finally {
-      _$_EditProfileStoreBaseActionController.endAction(_$actionInfo);
+      _$_ProfileStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setPhoneNumber(String value) {
-    final _$actionInfo = _$_EditProfileStoreBaseActionController.startAction(
-      name: '_EditProfileStoreBase.setPhoneNumber',
+    final _$actionInfo = _$_ProfileStoreBaseActionController.startAction(
+      name: '_ProfileStoreBase.setPhoneNumber',
     );
     try {
       return super.setPhoneNumber(value);
     } finally {
-      _$_EditProfileStoreBaseActionController.endAction(_$actionInfo);
+      _$_ProfileStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  Future<bool> uploadAvatar(File file) {
+    final _$actionInfo = _$_ProfileStoreBaseActionController.startAction(
+      name: '_ProfileStoreBase.uploadAvatar',
+    );
+    try {
+      return super.uploadAvatar(file);
+    } finally {
+      _$_ProfileStoreBaseActionController.endAction(_$actionInfo);
     }
   }
 
@@ -212,11 +230,12 @@ mixin _$EditProfileStore on _EditProfileStoreBase, Store {
   String toString() {
     return '''
 fullname: ${fullname},
-username: ${username},
 phoneNumber: ${phoneNumber},
 errorKey: ${errorKey},
 savedSuccessfully: ${savedSuccessfully},
+account: ${account},
 isSaving: ${isSaving},
+isUploadingAvatar: ${isUploadingAvatar},
 isDirty: ${isDirty},
 canSubmit: ${canSubmit}
     ''';
