@@ -48,6 +48,7 @@
   "profile_btn_logout": "Sign out",
   "profile_menu_view": "View profile",
   "profile_menu_change_avatar": "Change avatar",
+  "profile_menu_language": "Language",
   "profile_avatar_upload_success": "Avatar updated.",
   "profile_avatar_upload_failed": "Couldn't update avatar. Please try again.",
   "profile_update_success": "Profile updated.",

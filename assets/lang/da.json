@@ -33,6 +33,7 @@
   "profile_btn_logout": "Log ud",
   "profile_menu_view": "Vis profil",
   "profile_menu_change_avatar": "Skift profilbillede",
+  "profile_menu_language": "Sprog",
   "profile_avatar_upload_success": "Profilbillede opdateret.",
   "profile_avatar_upload_failed": "Kunne ikke opdatere profilbilledet.",
   "profile_update_success": "Profil opdateret.",

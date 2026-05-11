@@ -33,6 +33,7 @@
   "profile_btn_logout": "Cerrar sesión",
   "profile_menu_view": "Ver perfil",
   "profile_menu_change_avatar": "Cambiar avatar",
+  "profile_menu_language": "Idioma",
   "profile_avatar_upload_success": "Avatar actualizado.",
   "profile_avatar_upload_failed": "No se pudo actualizar el avatar.",
   "profile_update_success": "Perfil actualizado.",
