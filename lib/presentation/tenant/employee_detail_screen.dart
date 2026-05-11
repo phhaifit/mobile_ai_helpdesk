@@ -58,11 +58,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
 
   String _roleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return l.translate('employee_role_owner');
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.member:
+      case TeamRole.customer_support:
         return l.translate('employee_role_staff');
     }
   }

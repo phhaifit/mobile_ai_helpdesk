@@ -337,6 +337,8 @@
   "invitation_status_accepted": "Đã chấp nhận",
   "invitation_status_revoked": "Đã xóa",
   "invitation_status_expired": "Hết hạn",
+  "invitation_status_declined": "Từ chối",
+  "invitation_status_expired_declined": "Hết hạn",
   "employee_dialog_add_title": "Thêm nhân viên",
   "employee_field_email": "Email",
   "employee_field_role": "Vai trò",
