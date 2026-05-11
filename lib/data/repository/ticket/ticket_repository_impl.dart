@@ -56,7 +56,7 @@ class TicketRepositoryImpl implements TicketRepository {
 
     // If the server returned a populated object, use the server-assigned id and
     // timestamp; otherwise fall back to the optimistic comment from the store.
-    if (data.isNotEmpty && (data['id'] as String?)?.isNotEmpty == true) {
+    if (data.isNotEmpty && ((data['id'] as String?)?.isNotEmpty ?? false)) {
       final apiModel = CommentApiModel.fromJson(data);
       return comment.copyWith(id: apiModel.id, createdAt: apiModel.createdAt);
     }
@@ -95,7 +95,7 @@ class TicketRepositoryImpl implements TicketRepository {
       priority: _mapPriorityToApi(ticket.priority),
     );
 
-    if (data.isEmpty || (data['id'] as String?)?.isEmpty == true) {
+    if (data.isEmpty || ((data['id'] as String?)?.isEmpty ?? false)) {
       return _mock.createTicket(ticket);
     }
 

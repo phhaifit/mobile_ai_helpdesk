@@ -14,7 +14,7 @@ class ChatRoomTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      splashColor: AppColors.messengerBlue.withOpacity(0.08),
+      splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -45,12 +45,10 @@ class ChatRoomTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 13,
-                            color: hasUnread
-                                ? AppColors.textPrimary
-                                : Colors.grey,
-                            fontWeight: hasUnread
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                            color:
+                                hasUnread ? AppColors.textPrimary : Colors.grey,
+                            fontWeight:
+                                hasUnread ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -59,12 +57,10 @@ class ChatRoomTile extends StatelessWidget {
                         _formatTime(room.lastMessageTime),
                         style: TextStyle(
                           fontSize: 12,
-                          color: hasUnread
-                              ? AppColors.messengerBlue
-                              : Colors.grey,
-                          fontWeight: hasUnread
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          color:
+                              hasUnread ? AppColors.messengerBlue : Colors.grey,
+                          fontWeight:
+                              hasUnread ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -93,9 +89,10 @@ class ChatRoomTile extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: room.isAI
-                  ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
-                  : [const Color(0xFF6BC5F8), AppColors.messengerBlue],
+              colors:
+                  room.isAI
+                      ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
+                      : [const Color(0xFF6BC5F8), AppColors.messengerBlue],
             ),
           ),
           child: Center(

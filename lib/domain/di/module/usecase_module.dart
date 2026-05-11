@@ -70,7 +70,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -179,9 +178,6 @@ class UseCaseModule {
     // Omnichannel Use Cases:---------------------------------------------------
     getIt.registerSingleton<GetOmnichannelOverviewUseCase>(
       GetOmnichannelOverviewUseCase(getIt<OmnichannelRepository>()),
-    );
-    getIt.registerSingleton<ConnectMessengerUseCase>(
-      ConnectMessengerUseCase(getIt<OmnichannelRepository>()),
     );
     getIt.registerSingleton<DisconnectMessengerUseCase>(
       DisconnectMessengerUseCase(getIt<OmnichannelRepository>()),

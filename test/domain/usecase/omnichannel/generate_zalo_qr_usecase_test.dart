@@ -6,10 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 class MockOmnichannelRepository implements OmnichannelRepository {
   @override
   Future<ZaloQr> generateZaloQr() async {
-    return const ZaloQr(
-      code: 'test_qr_code_data',
-      url: 'test_url',
-    );
+    return const ZaloQr(code: 'test_qr_code_data', url: 'test_url');
   }
 
   @override
@@ -20,9 +17,6 @@ class MockOmnichannelRepository implements OmnichannelRepository {
       throw UnimplementedError();
   @override
   Future<OmnichannelOverview> getOverview() async => throw UnimplementedError();
-  @override
-  Future<ActionFeedback> connectMessenger({String? authCode}) async =>
-      throw UnimplementedError();
   @override
   Future<ActionFeedback> disconnectMessenger({String? channelId}) async =>
       throw UnimplementedError();

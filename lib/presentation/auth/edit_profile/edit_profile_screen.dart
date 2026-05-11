@@ -56,20 +56,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final l = AppLocalizations.of(context);
     final discard = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l.translate('profile_edit_discard_title')),
-        content: Text(l.translate('profile_edit_discard_message')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l.translate('logout_confirm_no')),
+      builder:
+          (dialogContext) => AlertDialog(
+            title: Text(l.translate('profile_edit_discard_title')),
+            content: Text(l.translate('profile_edit_discard_message')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(l.translate('logout_confirm_no')),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: Text(l.translate('profile_edit_discard_confirm')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(l.translate('profile_edit_discard_confirm')),
-          ),
-        ],
-      ),
     );
     return discard ?? false;
   }
@@ -81,9 +82,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (await _confirmDiscardIfNeeded()) {
-          if (mounted) Navigator.of(context).pop(false);
-        }
+        final navigator = Navigator.of(context);
+        final shouldDiscard = await _confirmDiscardIfNeeded();
+        if (!mounted) return;
+        if (shouldDiscard) navigator.pop(false);
       },
       child: Scaffold(
         appBar: AppBar(title: Text(l.translate('profile_edit_title'))),
@@ -145,8 +147,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         labelText: l.translate('profile_tv_email'),
                         prefixIcon: const Icon(Icons.email_outlined),
                         border: const OutlineInputBorder(),
-                        helperText:
-                            l.translate('profile_edit_email_readonly_hint'),
+                        helperText: l.translate(
+                          'profile_edit_email_readonly_hint',
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -161,21 +164,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     Observer(
-                      builder: (_) => FilledButton(
-                        onPressed: _store.canSubmit ? _handleSave : null,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: _store.isSaving
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(l.translate('profile_edit_save')),
-                        ),
-                      ),
+                      builder:
+                          (_) => FilledButton(
+                            onPressed: _store.canSubmit ? _handleSave : null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child:
+                                  _store.isSaving
+                                      ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : Text(l.translate('profile_edit_save')),
+                            ),
+                          ),
                     ),
                   ],
                 ),
