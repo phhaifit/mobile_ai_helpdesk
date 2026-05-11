@@ -284,13 +284,18 @@ class StoreModule {
 
     // --- Tenant Store ---
     getIt.registerSingleton<TenantStore>(
-      TenantStore(getIt<TenantRepository>(), getIt<ErrorStore>()),
+      TenantStore(
+        getIt<TenantRepository>(),
+        getIt<AuthStore>(),
+        getIt<ErrorStore>(),
+      ),
     );
 
     // --- Team Store ---
     getIt.registerSingleton<TeamStore>(
       TeamStore(
         getIt<TeamRepository>(),
+        getIt<AccountRepository>(),
         getIt<InvitationRepository>(),
         getIt<TenantStore>(),
         getIt<ErrorStore>(),

@@ -26,7 +26,6 @@ Map<String, dynamic> _$TenantSettingsToJson(TenantSettings instance) =>
     };
 
 const _$TeamRoleEnumMap = {
-  TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
-  TeamRole.member: 'member',
+  TeamRole.customer_support: 'customer_support',
 };
