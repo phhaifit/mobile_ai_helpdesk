@@ -128,6 +128,22 @@ abstract class _ChatStore with Store {
   @action
   void setSearchQuery(String query) => searchQuery = query;
 
+  /// Clears cached threads and UI state when the workspace ([Tenant]) changes.
+  @action
+  void resetAfterTenantSwitch() {
+    _draftSub?.cancel();
+    _draftSub = null;
+    _messageCache.clear();
+    _hasMoreOlderByRoom.clear();
+    currentChatRoomId = null;
+    isLoading = false;
+    isLoadingOlderMessages = false;
+    isTyping = false;
+    searchQuery = '';
+    draftResponses.clear();
+    isDraftLoading = false;
+  }
+
   /// Silently load the most recent [_pageSize] messages for each room so
   /// opening a room from the inbox feels instant. Failures are swallowed
   /// per-room. This does **not** mark rooms as seen.

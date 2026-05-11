@@ -2,6 +2,7 @@ import 'package:ai_helpdesk/core/data/network/exceptions/network_exceptions.dart
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:dio/dio.dart';
+import 'dart:developer';
 
 /// Maps Helpdesk API `DioException`s into typed [Failure]s using the backend
 /// error contract documented in `API_Error_Response`.
@@ -13,6 +14,9 @@ class HelpdeskErrorMapper {
   const HelpdeskErrorMapper._();
 
   static Failure map(DioException err) {
+    log('HelpdeskErrorMapper: ${err.toString()}');
+    log('HelpdeskErrorMapper: ${err.response?.data}');
+    log('HelpdeskErrorMapper: ${err.response?.statusCode}');
     // Non-HTTP / connectivity errors: keep existing mapping.
     if (err.type != DioExceptionType.badResponse) {
       return NetworkExceptions.getDioException(err);

@@ -81,6 +81,18 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   );
 
   @override
+  void clearRooms() {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore.clearRooms',
+    );
+    try {
+      return super.clearRooms();
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void updateLastMessage(String roomId, String message, {bool isMe = true}) {
     final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
       name: '_ChatRoomStore.updateLastMessage',

@@ -255,6 +255,18 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
+  void resetAfterTenantSwitch() {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.resetAfterTenantSwitch',
+    );
+    try {
+      return super.resetAfterTenantSwitch();
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void _mergeMessage(String roomId, Message message) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore._mergeMessage',

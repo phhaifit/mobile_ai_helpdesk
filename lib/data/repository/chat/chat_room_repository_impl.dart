@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
@@ -28,7 +29,11 @@ class ChatRoomRepositoryImpl implements ChatRoomRepository {
 
       return dto.map((e) => e.toDomain()).toList();
     } on DioException catch (e) {
-      throw HelpdeskErrorMapper.map(e);
+      final failure = HelpdeskErrorMapper.map(e);
+      if (failure is ApiFailure && failure.kind == ApiErrorKind.notFound) {
+        return [];
+      }
+      throw failure;
     }
   }
 

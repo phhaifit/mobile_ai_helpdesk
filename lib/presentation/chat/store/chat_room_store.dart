@@ -39,6 +39,11 @@ abstract class _ChatRoomStore with Store {
   }
 
   @action
+  void clearRooms() {
+    chatRooms.clear();
+  }
+
+  @action
   Future<void> markAsRead(ChatRoom room) async {
       try {
         final index = chatRooms.indexWhere((r) => r.id == room.id);

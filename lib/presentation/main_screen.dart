@@ -3,11 +3,15 @@ import 'dart:developer' as developer;
 
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
 import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
+import 'package:ai_helpdesk/di/service_locator.dart';
+import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
-
+import 'package:mobx/mobx.dart';
 import '../constants/colors.dart';
 import 'ai_agent/agent_list_screen.dart';
 import 'chat/store/chat_store.dart';
@@ -46,11 +50,63 @@ class _MainScreenState extends State<MainScreen> {
   final ChatStore _chatStore = getIt<ChatStore>();
   final AuthStore _authStore = getIt<AuthStore>();
 
+  /// Last tenant id used for chat socket + inbox sync (avoids duplicate work when
+  /// [TenantStore.currentTenant] matches the initial connect).
+  String? _chatRealtimeTenantId;
+
+  late final ReactionDisposer _tenantChatReaction;
+
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+    _tenantChatReaction = reaction(
+      (_) => getIt<TenantStore>().currentTenant?.id,
+      (String? tenantId) {
+        if (!_authStore.isAuthenticated) {
+          return;
+        }
+        if (tenantId == _chatRealtimeTenantId) {
+          return;
+        }
+        unawaited(_onTenantContextChanged(tenantId));
+      },
+    );
     unawaited(_initRealtime());
+  }
+
+  /// Refetch rooms, clear message cache, and move the socket to the new
+  /// tenant namespace when the selected tenant changes.
+  Future<void> _onTenantContextChanged(String? tenantId) async {
+    final ChatRoomStore chatRoomStore = getIt<ChatRoomStore>();
+    if (tenantId == null || tenantId.isEmpty) {
+      await _socketService.disconnect();
+      await _chatStore.unbindSocket();
+      _chatStore.resetAfterTenantSwitch();
+      chatRoomStore.clearRooms();
+      _chatRealtimeTenantId = null;
+      return;
+    }
+
+    await _socketService.disconnect();
+    await _chatStore.unbindSocket();
+    _chatStore.resetAfterTenantSwitch();
+    await chatRoomStore.fetchChatRooms();
+    try {
+      await _socketService.connect(tenantId: tenantId);
+      _chatStore.bindSocket();
+    } catch (e, s) {
+      developer.log(
+        'Socket connect failed after tenant change',
+        name: 'MainScreen',
+        error: e,
+        stackTrace: s,
+      );
+    }
+    final Iterable<String> roomIds =
+        chatRoomStore.chatRooms.map((room) => room.id);
+    await _chatStore.prefetchMessagesForRooms(roomIds);
+    _chatRealtimeTenantId = tenantId;
   }
 
   /// Establish the tenant-scoped socket connection and route inbound chat
@@ -59,8 +115,7 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _initRealtime() async {
     if (!_authStore.isAuthenticated) return;
 
-    final String tenantId =
-        _authStore.account?.tenantId ?? SentryService.defaultTenantId;
+    final String tenantId = await _resolveInitialRealtimeTenantId();
 
     _chatStore.bindSocket();
 
@@ -74,6 +129,27 @@ class _MainScreenState extends State<MainScreen> {
         stackTrace: s,
       );
     }
+    _chatRealtimeTenantId = tenantId;
+  }
+
+  /// Matches HTTP ([TenantHeaderInterceptor]): prefer in-memory selection, then
+  /// persisted last workspace ([TenantRepository.getCachedTenantId]), then
+  /// account default — [TenantStore.currentTenant] is often still null on cold
+  /// start before [TenantStore.loadTenants] completes.
+  Future<String> _resolveInitialRealtimeTenantId() async {
+    final TenantStore tenantStore = getIt<TenantStore>();
+    final String? fromStore = tenantStore.currentTenant?.id;
+    if (fromStore != null && fromStore.isNotEmpty) {
+      return fromStore;
+    }
+
+    final String? cached =
+        await getIt<TenantRepository>().getCachedTenantId();
+    if (cached != null && cached.isNotEmpty) {
+      return cached;
+    }
+
+    return _authStore.account?.tenantId ?? SentryService.defaultTenantId;
   }
 
   @override
@@ -603,6 +679,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    _tenantChatReaction();
     unawaited(_chatStore.unbindSocket());
     unawaited(_socketService.disconnect());
     super.dispose();
