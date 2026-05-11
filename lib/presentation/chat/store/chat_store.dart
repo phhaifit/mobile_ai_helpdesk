@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/core/events/socket/server/ai/draft_response_sse_event.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
 import 'package:ai_helpdesk/data/realtime/sse/draft_response_sse_client.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
 import '../../../constants/analytics_events.dart';
 import '../../../di/service_locator.dart';
@@ -16,6 +17,7 @@ import '../../../domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart'
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
+import '../../../domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 
 part 'chat_store.g.dart';
 
@@ -26,23 +28,37 @@ abstract class _ChatStore with Store {
 
   @computed
   ObservableList<Message> get currentMessages {
-    final roomId = currentChatRoomId;
+    final String? roomId = currentChatRoomId;
 
-    if (roomId == null) return ObservableList();
+    if (roomId == null) return ObservableList<Message>();
 
-    return _messageCache.putIfAbsent(
-      roomId,
-      () => ObservableList<Message>(),
-    );
+    // Do not [putIfAbsent] here — a read during open would insert an empty
+    // list into [_messageCache] and fight with the real fetch assignment.
+    final ObservableList<Message>? list = _messageCache[roomId];
+    return list ?? ObservableList<Message>();
   }
 
   final GetChatMessagesUseCase _getChatMessages;
-  final GetNewerChatMessagesUseCase _getNewerChatMessages;
   final SendMessageFromAgentToCustomerUseCase _sendMessage;
+  final FlatSearchMessageListUseCase _flatSearchMessageList;
   final ReactToMessageUseCase _reactToMessage;
   final UnreactToMessageUseCase _unreactToMessage;
   final AnalyticsService _analyticsService;
   final ErrorStore _errorStore;
+  final SocketService _socketService;
+
+  /// Page size used for both initial open and scroll-up pagination.
+  static const int _pageSize = 30;
+
+  /// Maximum number of concurrent prefetch requests so the inbox prefetch
+  /// does not overwhelm the API when there are many rooms.
+  static const int _prefetchConcurrency = 4;
+
+  /// Per-room flag — false once an older-message page returns fewer than
+  /// [_pageSize] items (no more history).
+  final Map<String, bool> _hasMoreOlderByRoom = <String, bool>{};
+
+  StreamSubscription<Message>? _socketMessageSub;
 
   // Canned responses for auto-reply simulation
   static const List<String> _defaultResponses = [
@@ -58,25 +74,33 @@ abstract class _ChatStore with Store {
 
   _ChatStore(
     this._getChatMessages,
-    this._getNewerChatMessages,
     this._sendMessage,
+    this._flatSearchMessageList,
     this._reactToMessage,
     this._unreactToMessage,
     this._analyticsService,
     this._errorStore,
+    this._socketService,
   );
 
   @observable
   String? currentChatRoomId;
 
   @observable
-  ObservableList<Message> messageList = ObservableList<Message>();
-
-  @observable
   bool isLoading = false;
 
   @observable
+  bool isLoadingOlderMessages = false;
+
+  @observable
   bool isTyping = false;
+
+  @computed
+  bool get hasMoreOlderMessages {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return false;
+    return _hasMoreOlderByRoom[roomId] ?? true;
+  }
 
   @observable
   ObservableList<String> draftResponses = ObservableList<String>();
@@ -91,9 +115,9 @@ abstract class _ChatStore with Store {
 
   @computed
   List<Message> get filteredMessages {
-    if (searchQuery.isEmpty) return messageList.toList();
+    if (searchQuery.isEmpty) return currentMessages.toList();
 
-    return messageList
+    return currentMessages
         .where(
           (msg) =>
               msg.content.toLowerCase().contains(searchQuery.toLowerCase()),
@@ -104,49 +128,84 @@ abstract class _ChatStore with Store {
   @action
   void setSearchQuery(String query) => searchQuery = query;
 
+  /// Silently load the most recent [_pageSize] messages for each room so
+  /// opening a room from the inbox feels instant. Failures are swallowed
+  /// per-room. This does **not** mark rooms as seen.
   @action
-  Future<void> openRoom(String chatRoomId) async {
-    currentChatRoomId = chatRoomId;
+  Future<void> prefetchMessagesForRooms(Iterable<String> roomIds) async {
+    final List<String> pending = roomIds.where((String id) {
+      final ObservableList<Message>? cached = _messageCache[id];
+      return cached == null || cached.isEmpty;
+    }).toList(growable: false);
 
-    final existing = _messageCache[chatRoomId];
-
-    // Already cached
-    if (existing != null && existing.isNotEmpty) {
-      await _syncNewerMessages(chatRoomId);
-      return;
+    for (int i = 0; i < pending.length; i += _prefetchConcurrency) {
+      final int end = (i + _prefetchConcurrency).clamp(0, pending.length);
+      await Future.wait(
+        pending.sublist(i, end).map(_prefetchSingleRoom),
+        eagerError: false,
+      );
     }
-
-    isLoading = true;
-
-    final messages = await _getChatMessages(
-      params: GetChatMessagesParams(
-        chatRoomId: chatRoomId,
-      ),
-    );
-
-    _messageCache[chatRoomId] =
-        ObservableList.of(messages);
-
-    isLoading = false;
   }
 
+  Future<void> _prefetchSingleRoom(String roomId) async {
+    try {
+      final List<Message> messages = await _getChatMessages(
+        params: GetChatMessagesParams(
+          chatRoomId: roomId,
+          limit: _pageSize,
+        ),
+      );
+      _messageCache[roomId] = ObservableList<Message>.of(messages);
+      _hasMoreOlderByRoom[roomId] = messages.length >= _pageSize;
+    } catch (_) {
+      // Best-effort prefetch: a single failure must not block other rooms.
+    }
+  }
+
+  /// Load the next older page (above the oldest cached message) for the
+  /// currently open room. Prepends results in ascending order.
   @action
-  Future<void> _syncNewerMessages(String roomId) async {
-    final messages = _messageCache[roomId];
+  Future<void> loadOlderMessages() async {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return;
+    if (isLoadingOlderMessages) return;
+    if (!(_hasMoreOlderByRoom[roomId] ?? true)) return;
 
-    if (messages == null || messages.isEmpty) return;
+    final ObservableList<Message>? list = _messageCache[roomId];
+    if (list == null || list.isEmpty) return;
 
-    final latestId = messages.last.id;
+    final String oldestId = list.first.id;
 
-    final newer = await _getNewerChatMessages(
-      params: GetNewerChatMessagesParams(
-        chatRoomId: roomId,
-        lastMessageId: latestId,
-      ),
-    );
+    try {
+      isLoadingOlderMessages = true;
 
-    for (final msg in newer) {
-      _mergeMessage(roomId, msg);
+      final List<Message> older = await _getChatMessages(
+        params: GetChatMessagesParams(
+          chatRoomId: roomId,
+          lastMessageId: oldestId,
+          limit: _pageSize,
+        ),
+      );
+
+      if (older.isEmpty) {
+        _hasMoreOlderByRoom[roomId] = false;
+        return;
+      }
+
+      final Set<String> existingIds = list.map((Message m) => m.id).toSet();
+      final List<Message> deduped = older
+          .where((Message m) => !existingIds.contains(m.id))
+          .toList(growable: false);
+
+      if (deduped.isNotEmpty) {
+        list.insertAll(0, deduped);
+      }
+
+      _hasMoreOlderByRoom[roomId] = older.length >= _pageSize;
+    } on ApiFailure catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+    } finally {
+      isLoadingOlderMessages = false;
     }
   }
 
@@ -157,15 +216,24 @@ abstract class _ChatStore with Store {
       () => ObservableList<Message>(),
     );
 
-    final index = list.indexWhere((m) => m.id == message.id);
-
-    if (index >= 0) {
-      list[index] = message;
-    } else {
+    if (list.isEmpty || message.order > list.last.order) {
       list.add(message);
+    } else {
+      final existingIndex = list.indexWhere((m) => m.id == message.id);
 
-      list.sort((a, b) => a.order.compareTo(b.order));
-    }
+      if (existingIndex >= 0) {
+        list[existingIndex] = message;
+      } else {
+        final insertIndex =
+            list.indexWhere((m) => m.order > message.order);
+
+        if (insertIndex == -1) {
+          list.add(message);
+        } else {
+          list.insert(insertIndex, message);
+        }
+      }
+}
   }
 
   @action
@@ -184,14 +252,14 @@ abstract class _ChatStore with Store {
         ),
       );
 
-      messageList.add(newMessage);
+      currentMessages.add(newMessage);
     } on Failure catch (e) {
       _errorStore.setErrorMessage(e.message);
 
-      messageList.add(Message(
+      currentMessages.add(Message(
         id: '',
         conversationId: chatRoomId,
-        order: messageList.last.order,
+        order: currentMessages.last.order,
         sender: const User(id: '', name: '', avatar: ''),
         isMe: true,
         content: e.message,
@@ -210,10 +278,23 @@ abstract class _ChatStore with Store {
   }
 
   @action
+  Future<List<Message>> searchMessages(String keyword) async {
+    if (currentChatRoomId == null) return [];
+
+    final messages = await _flatSearchMessageList(
+      params: FlatSearchMessageListParams(
+        chatRoomId: currentChatRoomId!,
+        keyword: keyword,
+      ),
+    );
+
+    return messages;
+  }
+
   void addReactionToMessage(String messageId, String emoji) {
-    final index = messageList.indexWhere((m) => m.id == messageId);
+    final index = currentMessages.indexWhere((m) => m.id == messageId);
     if (index != -1) {
-      final message = messageList[index];
+      final message = currentMessages[index];
 
       // Check if emoji reaction already exists
       final reactionIndex = message.reactions.indexWhere(
@@ -230,10 +311,10 @@ abstract class _ChatStore with Store {
         final updatedReactions = message.reactions.toList();
         updatedReactions[reactionIndex] = updatedReaction;
 
-        messageList[index] = message.copyWith(reactions: updatedReactions);
+        currentMessages[index] = message.copyWith(reactions: updatedReactions);
       } else {
         // Add new reaction
-        messageList[index] = message.copyWith(
+        currentMessages[index] = message.copyWith(
           reactions: [...message.reactions, Reaction(id: '', user: const User(id: 'You', name: 'You', avatar: ''), emoji: emoji, amount: 1)],
         );
       }
@@ -243,7 +324,20 @@ abstract class _ChatStore with Store {
   @action
   void onSocketMessage(Message message) {
     // Merge by id to avoid duplicates.
-    _mergeMessage(currentChatRoomId!, message);
+    _mergeMessage(message.conversationId, message);
+  }
+
+  /// Subscribe to the underlying [SocketService.messages] stream so any
+  /// inbound chat message reaches [_mergeMessage]. Idempotent.
+  void bindSocket() {
+    if (_socketMessageSub != null) return;
+    _socketMessageSub = _socketService.messages.listen(onSocketMessage);
+  }
+
+  /// Cancel the socket subscription. Safe to call multiple times.
+  Future<void> unbindSocket() async {
+    await _socketMessageSub?.cancel();
+    _socketMessageSub = null;
   }
 
   @action
@@ -253,7 +347,7 @@ abstract class _ChatStore with Store {
 
   @action
   Future<void> generateDraftResponses({required String chatRoomId}) async {
-    _draftSub?.cancel();
+    await _draftSub?.cancel();
     draftResponses.clear();
     isDraftLoading = true;
     final client = getIt<DraftResponseSseClient>();
@@ -291,6 +385,7 @@ abstract class _ChatStore with Store {
 
   void dispose() {
     _draftSub?.cancel();
+    _socketMessageSub?.cancel();
   }
 
 }

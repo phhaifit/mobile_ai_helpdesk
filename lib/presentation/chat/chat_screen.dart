@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../constants/colors.dart';
-import '../../data/realtime/socket/socket_service.dart';
 import '../../di/service_locator.dart';
 import '../../domain/entity/chat/chat_room.dart';
 import '../../domain/entity/chat/message.dart';
@@ -18,15 +15,22 @@ import 'widgets/chat_input_bar.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/typing_indicator.dart';
 
+bool _sameSender(Message a, Message b) {
+  final String idA = a.sender.id;
+  final String idB = b.sender.id;
+  if (idA.isNotEmpty && idB.isNotEmpty) {
+    return idA == idB;
+  }
+  return a.sender.name == b.sender.name;
+}
+
 class ChatScreen extends StatefulWidget {
   final ChatRoom? room;
-  final String? scrollToMessageId;
   final VoidCallback? onInfoTap;
 
   const ChatScreen({
     super.key,
     this.room,
-    this.scrollToMessageId,
     this.onInfoTap,
   });
 
@@ -37,14 +41,11 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late final ChatStore _chatStore;
   late final PromptStore _promptStore;
-  late final SocketService _socketService;
-  StreamSubscription<Message>? _socketMessageSub;
-  StreamSubscription<String>? _socketTypingSub;
-  StreamSubscription<String>? _socketStopTypingSub;
-  final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
+  final ItemScrollController _itemScrollController =  ItemScrollController();
+  final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
 
   int _previousItemCount = 0;
   bool _slashMode = false;
@@ -58,45 +59,35 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _chatStore = getIt<ChatStore>();
     _promptStore = getIt<PromptStore>();
-    _socketService = getIt<SocketService>();
-    final roomId = widget.room?.id;
-    if (roomId != null) {
-      _chatStore.openRoom(roomId);
-      _bindSocket(roomId);
-    }
+
+    _chatStore.currentChatRoomId = widget.room?.id;
 
     _textController.addListener(_onComposerChanged);
     if (_promptStore.prompts.isEmpty) {
       _promptStore.loadPrompts(useNetworkDelay: false);
     }
 
-    _scrollController.addListener(_onScrollPositionChanged);
     _inputFocusNode.addListener(_onInputFocusChanged);
+    _itemPositionsListener.itemPositions.addListener(_onItemPositionsChanged);
   }
 
-  void _bindSocket(String chatRoomId) {
-    _socketMessageSub?.cancel();
-    _socketTypingSub?.cancel();
-    _socketStopTypingSub?.cancel();
+  void _onItemPositionsChanged() {
+    final Iterable<ItemPosition> positions =
+        _itemPositionsListener.itemPositions.value;
+    if (positions.isEmpty) return;
 
-    _socketMessageSub = _socketService.messages.listen((msg) {
-      // Only apply messages for this chat room.
-      // (We’ll update inbox list via ChatRoomStore separately.)
-      if (msg.chatRoomId == chatRoomId) {
-        _chatStore.onSocketMessage(msg);
-      }
-    });
+    // Smallest index currently visible — when the user scrolls toward the
+    // top of the list, this approaches 0. Trigger an older-page fetch a
+    // few items before the very top so the new batch lands seamlessly.
+    final int topVisible = positions
+        .map((ItemPosition p) => p.index)
+        .reduce((int a, int b) => a < b ? a : b);
 
-    _socketTypingSub = _socketService.typing.listen((roomId) {
-      if (roomId == chatRoomId) {
-        _chatStore.onSocketTyping(typing: true);
-      }
-    });
-    _socketStopTypingSub = _socketService.stopTyping.listen((roomId) {
-      if (roomId == chatRoomId) {
-        _chatStore.onSocketTyping(typing: false);
-      }
-    });
+    if (topVisible <= 2 &&
+        _chatStore.hasMoreOlderMessages &&
+        !_chatStore.isLoadingOlderMessages) {
+      _chatStore.loadOlderMessages();
+    }
   }
 
   void _onComposerChanged() {
@@ -122,11 +113,8 @@ class _ChatScreenState extends State<ChatScreen> {
     _promptStore.incrementUsage(p.id);
   }
 
-  void _onScrollPositionChanged() {
-    // Implementation for scroll position change
-  }
-
   void _onInputFocusChanged() {
+    // Scroll to bottom when input is focused
     if (_inputFocusNode.hasFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToBottom();
@@ -135,45 +123,28 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _itemScrollController.scrollTo(
+        index: _chatStore.currentMessages.length - 1,
         duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+        curve: Curves.easeInOut,
       );
-    }
+    });
   }
 
-  void _performSearch(String query) {
+  Future<void> _performSearch(String query) async {
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
         _currentSearchIndex = -1;
         _highlightedMessageId = null;
       });
-      return;
     }
 
-    final messages = _chatStore.currentMessages;
-    final results = <String>[];
-
-    for (final message in messages) {
-      if (message.content.toLowerCase().contains(query.toLowerCase())) {
-        results.add(message.id);
-      }
-    }
-
-    // Reverse so newest messages come first
-    results.sort((a, b) {
-      final messageA = messages.firstWhere((m) => m.id == a);
-      final messageB = messages.firstWhere((m) => m.id == b);
-      return messageB.timestamp.compareTo(
-        messageA.timestamp,
-      ); // Descending order
-    });
+    final results = await _chatStore.searchMessages(query);
 
     setState(() {
-      _searchResults = results;
+      _searchResults = results.map((e) => e.id).toList();
       _currentSearchIndex = -1;
       _highlightedMessageId = null;
     });
@@ -201,17 +172,14 @@ class _ChatScreenState extends State<ChatScreen> {
     final messageIndex = messages.indexWhere((m) => m.id == messageId);
 
     if (messageIndex != -1) {
-      // Calculate scroll position
+      final int olderLoaderCount = _chatStore.isLoadingOlderMessages ? 1 : 0;
+      final int scrollIndex = olderLoaderCount + messageIndex;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          // Simple scroll with estimated item height (~80px per message)
-          final estimatedOffset = messageIndex * 100.0;
-          _scrollController.animateTo(
-            estimatedOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
+        _itemScrollController.scrollTo(
+          index: scrollIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       });
     }
   }
@@ -378,7 +346,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
 
-                final itemCount = messages.length + (_chatStore.isTyping ? 1 : 0);
+                final bool showOlderLoader = _chatStore.isLoadingOlderMessages;
+                final int olderLoaderCount = showOlderLoader ? 1 : 0;
+                final int typingCount = _chatStore.isTyping ? 1 : 0;
+                final int itemCount = olderLoaderCount + messages.length + typingCount;
 
                 if (itemCount > _previousItemCount) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -387,25 +358,41 @@ class _ChatScreenState extends State<ChatScreen> {
                   _previousItemCount = itemCount;
                 }
 
-                return ListView.builder(
-                  controller: _scrollController,
+                return ScrollablePositionedList.builder(
+                  itemScrollController: _itemScrollController,
+                  itemPositionsListener: _itemPositionsListener,
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
                     horizontal: 12,
                   ),
                   itemCount: itemCount,
                   itemBuilder: (context, index) {
-                    if (index == messages.length) {
+                    if (showOlderLoader && index == 0) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final int messageIndex = index - olderLoaderCount;
+
+                    if (messageIndex == messages.length) {
                       return const TypingIndicator(senderName: 'AI Assistant');
                     }
 
-                    final message = messages[index];
+                    final message = messages[messageIndex];
                     final isGroupStart =
-                        index == 0 ||
-                        messages[index - 1].sender.name != message.sender.name;
+                        messageIndex == 0 ||
+                        !_sameSender(messages[messageIndex - 1], message);
                     final isGroupEnd =
-                        index == messages.length - 1 ||
-                        messages[index + 1].sender.name != message.sender.name;
+                        messageIndex == messages.length - 1 ||
+                        !_sameSender(message, messages[messageIndex + 1]);
 
                     return MessageBubble(
                       message: message,
@@ -434,17 +421,15 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ChatInputBar(
             controller: _textController,
-            onSend: () {
+            onSend: () async {
               final text = _textController.text.trim();
               if (text.isEmpty) {
                 return;
               }
               setState(() => _slashMode = false);
-              _chatStore.sendMessage(widget.room!.id, widget.room!.channel.id, widget.room!.contactId, widget.room!.ticketId, text, null);
+              await _chatStore.sendMessage(widget.room!.id, widget.room!.channel.id, widget.room!.contactId, widget.room!.ticketId, text, null);
               _textController.clear();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _scrollToBottom();
-              });
+              _scrollToBottom();
             },
             focusNode: _inputFocusNode,
           ),
@@ -455,12 +440,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _itemPositionsListener.itemPositions.removeListener(_onItemPositionsChanged);
     _textController.removeListener(_onComposerChanged);
-    _socketMessageSub?.cancel();
-    _socketTypingSub?.cancel();
-    _socketStopTypingSub?.cancel();
-    _chatStore.dispose();
-    _scrollController.dispose();
     _textController.dispose();
     _searchController.dispose();
     _inputFocusNode.dispose();

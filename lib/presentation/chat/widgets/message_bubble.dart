@@ -1,7 +1,29 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../constants/colors.dart';
+import '../../../constants/dimens.dart';
+import '../../../domain/entity/chat/attachment.dart';
 import '../../../domain/entity/chat/message.dart';
+import 'chat_avatar.dart';
 import 'reaction_picker.dart';
+
+double _bubbleMaxWidth(BuildContext context) {
+  return math.min(
+    Dimens.chatBubbleAbsoluteMaxWidth,
+    MediaQuery.sizeOf(context).width * Dimens.chatBubbleMaxWidthFactor,
+  );
+}
+
+Future<void> _openAttachmentUrl(String url) async {
+  final Uri? uri = Uri.tryParse(url);
+  if (uri == null) {
+    return;
+  }
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
+}
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -79,10 +101,7 @@ class MessageBubble extends StatelessWidget {
                   children: [
                     if (!isMe) ...[
                       // Show avatar or spacer
-                      if (showAvatar)
-                        _buildAvatar()
-                      else
-                        const SizedBox(width: 30),
+                      if (showAvatar) ChatAvatar(name: message.sender.name, avatarUrl: message.sender.avatar, size: 28) else const SizedBox(width: 30),
                       const SizedBox(width: 6),
                     ],
 
@@ -112,26 +131,14 @@ class MessageBubble extends StatelessWidget {
                             boxShadow: isHighlighted
                                 ? [
                                     BoxShadow(
-                                      color: AppColors.textPrimary.withOpacity(
-                                        0.4,
-                                      ),
+                                      color: AppColors.textPrimary.withValues(alpha: 0.4),
                                       blurRadius: 8,
                                       spreadRadius: 1,
                                     ),
                                   ]
                                 : null,
                           ),
-                          child: Text(
-                            message.content,
-                            style: TextStyle(
-                              color: isMe
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
-                              fontSize: 15,
-                            ),
-                            softWrap: true,
-                            maxLines: null,
-                          ),
+                          child: _buildBubbleChild(context, isMe),
                         ),
                       ),
                     ),
@@ -178,27 +185,130 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatarSlot() {
-    // Reserve space so bubbles align even when no avatar is shown
-    return const SizedBox(width: 0);
+  Widget _buildBubbleChild(BuildContext context, bool isMe) {
+    final double maxW = _bubbleMaxWidth(context);
+
+    if (message.attachments.isNotEmpty) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxW),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            for (int i = 0; i < message.attachments.length; i++) ...<Widget>[
+              if (i > 0) const SizedBox(height: Dimens.spacingS),
+              _buildAttachmentBody(message.attachments[i], isMe, maxW),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxW),
+      child: Text(
+        message.content,
+        style: TextStyle(
+          color: isMe ? Colors.white : AppColors.textPrimary,
+          fontSize: 15,
+        ),
+        softWrap: true,
+        maxLines: null,
+      ),
+    );
   }
 
-  Widget _buildAvatar() {
-    final initial = message.sender.name.isNotEmpty
-        ? message.sender.name[0].toUpperCase()
-        : '?';
-    return CircleAvatar(
-      radius: 15,
-      backgroundColor: AppColors.messengerBlue,
-      child: Text(
-        initial,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
+  Widget _buildAttachmentBody(
+    Attachment attachment,
+    bool isMe,
+    double maxWidth,
+  ) {
+    final bool asImage =
+        attachment.type == AttachmentType.image ||
+        attachment.type == AttachmentType.sticker;
+
+    if (asImage) {
+      return GestureDetector(
+        onTap: () => _openAttachmentUrl(attachment.url),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Dimens.cardBorderRadius),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: maxWidth,
+              maxHeight: Dimens.chatBubbleImageMaxHeight,
+            ),
+            child: Image.network(
+              attachment.url,
+              fit: BoxFit.contain,
+              errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
+                return Container(
+                  padding: const EdgeInsets.all(Dimens.spacingM),
+                  color: Colors.grey.shade300,
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: isMe ? Colors.white70 : AppColors.textPrimary,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: () => _openAttachmentUrl(attachment.url),
+      borderRadius: BorderRadius.circular(Dimens.cardBorderRadius),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              _iconForAttachmentType(attachment.type),
+              size: Dimens.iconMedium,
+              color: isMe ? Colors.white : AppColors.textPrimary,
+            ),
+            const SizedBox(width: Dimens.spacingS),
+            Expanded(
+              child: Text(
+                attachment.name,
+                style: TextStyle(
+                  color: isMe ? Colors.white : AppColors.textPrimary,
+                  fontSize: 15,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  IconData _iconForAttachmentType(AttachmentType type) {
+    switch (type) {
+      case AttachmentType.video:
+        return Icons.videocam_outlined;
+      case AttachmentType.audio:
+        return Icons.audiotrack_outlined;
+      case AttachmentType.pdf:
+        return Icons.picture_as_pdf_outlined;
+      case AttachmentType.document:
+        return Icons.description_outlined;
+      case AttachmentType.archive:
+        return Icons.folder_zip_outlined;
+      case AttachmentType.image:
+      case AttachmentType.sticker:
+        return Icons.image_outlined;
+      case AttachmentType.unknown:
+        return Icons.insert_drive_file_outlined;
+    }
+  }
+
+  Widget _buildAvatarSlot() {
+    // Reserve space so bubbles align even when no avatar is shown
+    return const SizedBox(width: 0);
   }
 
   BorderRadius _buildBorderRadius(
@@ -227,13 +337,13 @@ class MessageBubble extends StatelessWidget {
   }
 
   String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final msgDay = DateTime(time.year, time.month, time.day);
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime msgDay = DateTime(time.year, time.month, time.day);
 
-    final h = time.hour.toString().padLeft(2, '0');
-    final m = time.minute.toString().padLeft(2, '0');
-    final timeStr = '$h:$m';
+    final String h = time.hour.toString().padLeft(2, '0');
+    final String m = time.minute.toString().padLeft(2, '0');
+    final String timeStr = '$h:$m';
 
     if (msgDay == today) return timeStr;
     return '${time.day}/${time.month} $timeStr';
@@ -302,10 +412,10 @@ class MessageBubble extends StatelessWidget {
         offset.dx + renderBox.size.width,
         offset.dy + renderBox.size.height,
       ),
-      items: [
+      items: <PopupMenuEntry<String>>[
         PopupMenuItem<String>(
           child: ReactionPicker(
-            onReactionSelected: (emoji) {
+            onReactionSelected: (String emoji) {
               onReactionAdded?.call(emoji);
               Navigator.of(context).pop();
             },

@@ -114,9 +114,11 @@ import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
+import '../../../data/realtime/socket/socket_service.dart';
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
+import '../../../domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
+import '../../../domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
 import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
@@ -233,17 +235,20 @@ class StoreModule {
     getIt.registerSingleton<ChatStore>(
       ChatStore(
         getIt<GetChatMessagesUseCase>(),
-        getIt<GetNewerChatMessagesUseCase>(),
         getIt<SendMessageFromAgentToCustomerUseCase>(),
+        getIt<FlatSearchMessageListUseCase>(),
         getIt<ReactToMessageUseCase>(),
         getIt<UnreactToMessageUseCase>(),
         getIt<AnalyticsService>(),
         getIt<ErrorStore>(),
+        getIt<SocketService>(),
       ),
     );
+    
     getIt.registerSingleton<ChatRoomStore>(
-      ChatRoomStore(getIt<GetChatRoomsUseCase>()),
-    );
+      ChatRoomStore(getIt<GetChatRoomsUseCase>(),
+      getIt<MarkChatRoomAsSeenUseCase>(),
+    ));
 
     // --- Theme & Language ---
     getIt.registerSingleton<ThemeStore>(

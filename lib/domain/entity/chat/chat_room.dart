@@ -1,4 +1,5 @@
 import 'channel.dart';
+import 'message.dart';
 
 class ChatRoom {
   final String id;
@@ -9,8 +10,7 @@ class ChatRoom {
   final String ticketId;
   final String contactId;
   final bool isAI;
-  final String lastMessage;
-  final bool lastMessageIsMe;
+  final Message lastMessage;
   final DateTime lastMessageTime;
   final int unreadCount;
 
@@ -20,7 +20,6 @@ class ChatRoom {
     required this.avatarUrl,
     required this.appAvatarUrl,
     required this.lastMessage,
-    required this.lastMessageIsMe,
     required this.lastMessageTime,
     required this.unreadCount,
     required this.isAI,
@@ -31,8 +30,7 @@ class ChatRoom {
 
   ChatRoom copyWith({
     int? unreadCount,
-    String? lastMessage,
-    bool? lastMessageIsMe,
+    Message? lastMessage,
     DateTime? lastMessageTime,
     bool? isAI,
     Channel? channel,
@@ -46,7 +44,6 @@ class ChatRoom {
       avatarUrl: avatarUrl,
       appAvatarUrl: appAvatarUrl ?? this.appAvatarUrl,
       lastMessage: lastMessage ?? this.lastMessage,
-      lastMessageIsMe: lastMessageIsMe ?? this.lastMessageIsMe,
       lastMessageTime: lastMessageTime ?? this.lastMessageTime,
       unreadCount: unreadCount ?? this.unreadCount,
       isAI: isAI ?? this.isAI,

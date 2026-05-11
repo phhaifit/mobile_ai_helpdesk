@@ -108,6 +108,7 @@ import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_room_detail_u
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/open_chat_room_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/search/search_messages_grouped_by_chat_room_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
@@ -427,6 +428,12 @@ class UseCaseModule {
     );
     getIt.registerSingleton<MarkChatRoomAsSeenUseCase>(
       MarkChatRoomAsSeenUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<OpenChatRoomUseCase>(
+      OpenChatRoomUseCase(
+        getIt<GetChatMessagesUseCase>(),
+        getIt<MarkChatRoomAsSeenUseCase>(),
+      ),
     );
     getIt.registerSingleton<ReactToMessageUseCase>(
       ReactToMessageUseCase(getIt<ChatRepository>()),

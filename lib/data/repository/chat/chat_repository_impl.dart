@@ -37,7 +37,7 @@ class ChatRepositoryImpl implements ChatRepository {
         lastMessageId: lastMessageId,
         limit: limit,
       );
-      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+      return dto.messages.map((e) => e.toDomain(dto.entities)).whereType<Message>().toList();
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
     }
@@ -55,7 +55,7 @@ class ChatRepositoryImpl implements ChatRepository {
         lastMessageId: lastMessageId,
         limit: limit,
       );
-      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+      return dto.messages.map((e) => e.toDomain(dto.entities)).whereType<Message>().toList();
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
     }
@@ -78,7 +78,7 @@ class ChatRepositoryImpl implements ChatRepository {
           socketId: params.socketId,
         ),
       );
-      return dto.toDomain(null);
+      return dto.toDomain(null)!;
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
     }
@@ -134,15 +134,15 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Future<List<Message>> flatSearchMessageList({
+    required String chatRoomId,
     required String keyword,
-    String? chatRoomId,
   }) async {
     try {
-      final dto = await _chatApi.flatSearchMessageList(
-        keyword: keyword,
+      final messages = await _chatApi.flatSearchMessageList(
         chatRoomId: chatRoomId,
+        keyword: keyword,
       );
-      return dto.messages.map((e) => e.toDomain(dto.entities)).toList();
+      return messages.map((e) => e.toDomain(null)).whereType<Message>().toList();
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
     }
@@ -180,24 +180,37 @@ class ChatRepositoryImpl implements ChatRepository {
 }
 
 extension MessageMapper on MessageDto {
-  Message toDomain(MessageEntitiesDto? entities) {
+  Message? toDomain(MessageEntitiesDto? entities) {
+    if (contentInfo.isEmpty) {
+      return null;
+    }
     final isMe = isMeFromMessageType(messageType);
     final channelName = getChannelName(messageType);
     final contentInfoDto = ContentInfoDtoMapper.fromJson(contentInfo, channelName);
+
+    final messageContent = files.isNotEmpty ? (isMeFromMessageType(messageType) ? 'Sent an attachment' : 'Received an attachment') : contentInfoDto.map(
+      messenger: (m) => m.content,
+      zalo: (z) => z.content,
+      unknown: (u) => 'Unknown',
+    );
   
     User senderUser;
 
     if (sender != null) {
       // sender is a customer support
-      final senderUserInfo = entities?.senders[sender];
-      senderUser = User(id: senderUserInfo?.customerSupportId ?? '', name: senderUserInfo?.fullname ?? '', avatar: senderUserInfo?.avatar ?? '');
+      final senderUserInfo = entities?.senders[sender!] ?? senderInfo;
+      if (senderUserInfo == null) {
+        senderUser = const User(id: '', name: 'Unknown', avatar: '');
+      } else {
+        senderUser = User(id: senderUserInfo.customerSupportId, name: senderUserInfo.fullname, avatar: senderUserInfo.avatar ?? senderUserInfo.profilePicture);
+      }
     } else {
       // sender is a customer or the channel
       if (isMe) {
         // sender is the channel
-        final channelInfo = entities?.channels[channelId];
-        final channelName = channelInfo?['name'] as String;
-        final channelAvatarUrl = channelInfo?['config'][channelName == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String?;
+        final channelInfo = entities?.channels[channelId] ?? this.channelInfo;
+        final channelName = channelInfo!.name;
+        final channelAvatarUrl = channelInfo.config[channelName == 'MESSENGER' ? 'MESSENGER_FANPAGE_IMAGE' : 'ZALO_PROFILE_AVATAR'] as String?;
         senderUser = User(id: channelId, name: channelName, avatar: channelAvatarUrl);
       } else {
         // sender is a customer
@@ -216,13 +229,9 @@ extension MessageMapper on MessageDto {
       order: messageOrder,
       sender: senderUser,
       isMe: isMe,
-      content: contentInfoDto.map(
-        messenger: (m) => m.content,
-        zalo: (z) => z.content,
-        unknown: (u) => '',
-      ),
+      content: messageContent,
       attachments: files.map((e) => e.toDomain()).toList(),
-      timestamp: createdAt,
+      timestamp: createdAt.toLocal(),
       replyMessageId: replyMessageId,
       reactions: reaction.map((e) => e.toDomain()).toList(),
     );
@@ -250,10 +259,10 @@ extension AttachmentMapper on FileAttachmentDto {
 AttachmentType _parseType(String mime, String fileName) {
   final lower = mime.toLowerCase();
 
-  if (lower.startsWith('image/')) return AttachmentType.image;
-  if (lower.startsWith('sticker/')) return AttachmentType.sticker;
-  if (lower.startsWith('video/')) return AttachmentType.video;
-  if (lower.startsWith('audio/')) return AttachmentType.audio;
+  if (lower.startsWith('image')) return AttachmentType.image;
+  if (lower.startsWith('sticker')) return AttachmentType.sticker;
+  if (lower.startsWith('video')) return AttachmentType.video;
+  if (lower.startsWith('audio')) return AttachmentType.audio;
 
   if (lower == 'application/pdf') return AttachmentType.pdf;
 
@@ -306,7 +315,7 @@ extension MessageGroupMapper on MessageGroupDto {
   MessageGroup toDomain() {
     return MessageGroup(
       date: date,
-      messages: messages.map((m) => m.toDomain(null)).toList(),
+      messages: messages.map((m) => m.toDomain(null)).whereType<Message>().toList(),
     );
   }
 }

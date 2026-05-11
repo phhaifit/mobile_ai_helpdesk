@@ -1,12 +1,12 @@
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
-import 'package:ai_helpdesk/data/network/apis/chat/models/content_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/customer_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/message_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/seen_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/fetch_chat_rooms_params.dart';
 import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
+import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/chat/channel.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room_counter.dart';
@@ -140,8 +140,6 @@ extension ChatRoomMapper on ChatRoomDto {
     }
     final String appAvatarUrl = appName == 'MESSENGER' ? 'https://helpdesk.jarvis.cx/images/messenger_colored.png' : 'https://helpdesk.jarvis.cx/images/zalo_colored.png';
     
-    final contentInfoDto = ContentInfoDtoMapper.fromJson(lastMessage!.contentInfo, appName);
-
     return ChatRoom(
       id: chatRoomId,
       name: name,
@@ -149,13 +147,8 @@ extension ChatRoomMapper on ChatRoomDto {
       appAvatarUrl: appAvatarUrl,
       ticketId: ticketId,
       contactId: lastMessage!.contactId,
-      lastMessage: contentInfoDto.map(
-        messenger: (m) => m.content,
-        zalo: (z) => z.content,
-        unknown: (u) => 'Unknown',
-      ),
-      lastMessageIsMe: true,
-      lastMessageTime: lastMessage?.createdAt ?? DateTime.now(),
+      lastMessage: lastMessage!.toDomain(null)!,
+      lastMessageTime: lastMessage?.createdAt.toLocal() ?? DateTime.now(),
       unreadCount: totalMessage - seenMessageOrder,
       channel: _parseChannelFromMessage(lastMessage!),
       isAI: false,

@@ -1,9 +1,16 @@
+import 'dart:async';
+import 'dart:developer' as developer;
+
+import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
 import 'ai_agent/agent_list_screen.dart';
+import 'chat/store/chat_store.dart';
 import 'chat/support_inbox_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
@@ -39,10 +46,38 @@ class _MainScreenState extends State<MainScreen> {
   List<MenuCategory> _categories = const [];
   bool _categoriesInitialized = false;
 
+  final SocketService _socketService = getIt<SocketService>();
+  final ChatStore _chatStore = getIt<ChatStore>();
+  final AuthStore _authStore = getIt<AuthStore>();
+
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+    unawaited(_initRealtime());
+  }
+
+  /// Establish the tenant-scoped socket connection and route inbound chat
+  /// messages into [ChatStore]. Called once after the authenticated shell
+  /// mounts; safe against missing tenant id and against double-connect.
+  Future<void> _initRealtime() async {
+    if (!_authStore.isAuthenticated) return;
+
+    final String tenantId =
+        _authStore.account?.tenantId ?? SentryService.defaultTenantId;
+
+    _chatStore.bindSocket();
+
+    try {
+      await _socketService.connect(tenantId: tenantId);
+    } catch (e, s) {
+      developer.log(
+        'Socket connect failed',
+        name: 'MainScreen',
+        error: e,
+        stackTrace: s,
+      );
+    }
   }
 
   @override
@@ -596,6 +631,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    unawaited(_chatStore.unbindSocket());
+    unawaited(_socketService.disconnect());
     super.dispose();
   }
 }

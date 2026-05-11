@@ -9,7 +9,12 @@ part of 'message_entities_dto.dart';
 _$MessageEntitiesDtoImpl _$$MessageEntitiesDtoImplFromJson(
   Map<String, dynamic> json,
 ) => _$MessageEntitiesDtoImpl(
-  channels: json['channels'] as Map<String, dynamic>? ?? const {},
+  channels:
+      (json['channels'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, ChannelInfoDto.fromJson(e as Map<String, dynamic>)),
+      ) ??
+      const {},
   senders:
       (json['senders'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(

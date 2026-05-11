@@ -18,6 +18,15 @@ mixin _$ChatStore on _ChatStore, Store {
             name: '_ChatStore.currentMessages',
           ))
           .value;
+  Computed<bool>? _$hasMoreOlderMessagesComputed;
+
+  @override
+  bool get hasMoreOlderMessages =>
+      (_$hasMoreOlderMessagesComputed ??= Computed<bool>(
+            () => super.hasMoreOlderMessages,
+            name: '_ChatStore.hasMoreOlderMessages',
+          ))
+          .value;
   Computed<List<Message>>? _$filteredMessagesComputed;
 
   @override
@@ -46,24 +55,6 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
-  late final _$messageListAtom = Atom(
-    name: '_ChatStore.messageList',
-    context: context,
-  );
-
-  @override
-  ObservableList<Message> get messageList {
-    _$messageListAtom.reportRead();
-    return super.messageList;
-  }
-
-  @override
-  set messageList(ObservableList<Message> value) {
-    _$messageListAtom.reportWrite(value, super.messageList, () {
-      super.messageList = value;
-    });
-  }
-
   late final _$isLoadingAtom = Atom(
     name: '_ChatStore.isLoading',
     context: context,
@@ -80,6 +71,28 @@ mixin _$ChatStore on _ChatStore, Store {
     _$isLoadingAtom.reportWrite(value, super.isLoading, () {
       super.isLoading = value;
     });
+  }
+
+  late final _$isLoadingOlderMessagesAtom = Atom(
+    name: '_ChatStore.isLoadingOlderMessages',
+    context: context,
+  );
+
+  @override
+  bool get isLoadingOlderMessages {
+    _$isLoadingOlderMessagesAtom.reportRead();
+    return super.isLoadingOlderMessages;
+  }
+
+  @override
+  set isLoadingOlderMessages(bool value) {
+    _$isLoadingOlderMessagesAtom.reportWrite(
+      value,
+      super.isLoadingOlderMessages,
+      () {
+        super.isLoadingOlderMessages = value;
+      },
+    );
   }
 
   late final _$isTypingAtom = Atom(
@@ -154,26 +167,26 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
-  late final _$openRoomAsyncAction = AsyncAction(
-    '_ChatStore.openRoom',
+  late final _$prefetchMessagesForRoomsAsyncAction = AsyncAction(
+    '_ChatStore.prefetchMessagesForRooms',
     context: context,
   );
 
   @override
-  Future<void> openRoom(String chatRoomId) {
-    return _$openRoomAsyncAction.run(() => super.openRoom(chatRoomId));
+  Future<void> prefetchMessagesForRooms(Iterable<String> roomIds) {
+    return _$prefetchMessagesForRoomsAsyncAction.run(
+      () => super.prefetchMessagesForRooms(roomIds),
+    );
   }
 
-  late final _$_syncNewerMessagesAsyncAction = AsyncAction(
-    '_ChatStore._syncNewerMessages',
+  late final _$loadOlderMessagesAsyncAction = AsyncAction(
+    '_ChatStore.loadOlderMessages',
     context: context,
   );
 
   @override
-  Future<void> _syncNewerMessages(String roomId) {
-    return _$_syncNewerMessagesAsyncAction.run(
-      () => super._syncNewerMessages(roomId),
-    );
+  Future<void> loadOlderMessages() {
+    return _$loadOlderMessagesAsyncAction.run(() => super.loadOlderMessages());
   }
 
   late final _$sendMessageAsyncAction = AsyncAction(
@@ -200,6 +213,16 @@ mixin _$ChatStore on _ChatStore, Store {
         attachments,
       ),
     );
+  }
+
+  late final _$searchMessagesAsyncAction = AsyncAction(
+    '_ChatStore.searchMessages',
+    context: context,
+  );
+
+  @override
+  Future<List<Message>> searchMessages(String keyword) {
+    return _$searchMessagesAsyncAction.run(() => super.searchMessages(keyword));
   }
 
   late final _$generateDraftResponsesAsyncAction = AsyncAction(
@@ -244,18 +267,6 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void addReactionToMessage(String messageId, String emoji) {
-    final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore.addReactionToMessage',
-    );
-    try {
-      return super.addReactionToMessage(messageId, emoji);
-    } finally {
-      _$_ChatStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void onSocketMessage(Message message) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
       name: '_ChatStore.onSocketMessage',
@@ -283,13 +294,14 @@ mixin _$ChatStore on _ChatStore, Store {
   String toString() {
     return '''
 currentChatRoomId: ${currentChatRoomId},
-messageList: ${messageList},
 isLoading: ${isLoading},
+isLoadingOlderMessages: ${isLoadingOlderMessages},
 isTyping: ${isTyping},
 draftResponses: ${draftResponses},
 isDraftLoading: ${isDraftLoading},
 searchQuery: ${searchQuery},
 currentMessages: ${currentMessages},
+hasMoreOlderMessages: ${hasMoreOlderMessages},
 filteredMessages: ${filteredMessages}
     ''';
   }

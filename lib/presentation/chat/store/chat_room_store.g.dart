@@ -65,22 +65,20 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
     return _$fetchChatRoomsAsyncAction.run(() => super.fetchChatRooms());
   }
 
-  late final _$_ChatRoomStoreActionController = ActionController(
-    name: '_ChatRoomStore',
+  late final _$markAsReadAsyncAction = AsyncAction(
+    '_ChatRoomStore.markAsRead',
     context: context,
   );
 
   @override
-  void markAsRead(String roomId) {
-    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
-      name: '_ChatRoomStore.markAsRead',
-    );
-    try {
-      return super.markAsRead(roomId);
-    } finally {
-      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
-    }
+  Future<void> markAsRead(ChatRoom room) {
+    return _$markAsReadAsyncAction.run(() => super.markAsRead(room));
   }
+
+  late final _$_ChatRoomStoreActionController = ActionController(
+    name: '_ChatRoomStore',
+    context: context,
+  );
 
   @override
   void updateLastMessage(String roomId, String message, {bool isMe = true}) {

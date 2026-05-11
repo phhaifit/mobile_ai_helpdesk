@@ -6,9 +6,10 @@ part 'customer_support_info_dto.g.dart';
 @freezed
 class CustomerSupportInfoDto with _$CustomerSupportInfoDto {
   const factory CustomerSupportInfoDto({
-    @JsonKey(name: 'customerSupportID') @Default('') String customerSupportId,
-    @JsonKey(name: 'fullname') @Default('') String fullname,
-    @JsonKey(name: 'avatar') @Default('') String avatar,
+    @JsonKey(name: 'customerSupportID') required String customerSupportId,
+    @JsonKey(name: 'fullname') required String fullname,
+    @JsonKey(name: 'avatar') String? avatar,
+    @JsonKey(name: 'profilePicture') String? profilePicture,
   }) = _CustomerSupportInfoDto;
 
   factory CustomerSupportInfoDto.fromJson(Map<String, dynamic> json) => 

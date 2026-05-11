@@ -28,7 +28,9 @@ mixin _$CustomerSupportInfoDto {
   @JsonKey(name: 'fullname')
   String get fullname => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar')
-  String get avatar => throw _privateConstructorUsedError;
+  String? get avatar => throw _privateConstructorUsedError;
+  @JsonKey(name: 'profilePicture')
+  String? get profilePicture => throw _privateConstructorUsedError;
 
   /// Serializes this CustomerSupportInfoDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,7 +52,8 @@ abstract class $CustomerSupportInfoDtoCopyWith<$Res> {
   $Res call({
     @JsonKey(name: 'customerSupportID') String customerSupportId,
     @JsonKey(name: 'fullname') String fullname,
-    @JsonKey(name: 'avatar') String avatar,
+    @JsonKey(name: 'avatar') String? avatar,
+    @JsonKey(name: 'profilePicture') String? profilePicture,
   });
 }
 
@@ -74,7 +77,8 @@ class _$CustomerSupportInfoDtoCopyWithImpl<
   $Res call({
     Object? customerSupportId = null,
     Object? fullname = null,
-    Object? avatar = null,
+    Object? avatar = freezed,
+    Object? profilePicture = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -89,10 +93,15 @@ class _$CustomerSupportInfoDtoCopyWithImpl<
                     : fullname // ignore: cast_nullable_to_non_nullable
                         as String,
             avatar:
-                null == avatar
+                freezed == avatar
                     ? _value.avatar
                     : avatar // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
+            profilePicture:
+                freezed == profilePicture
+                    ? _value.profilePicture
+                    : profilePicture // ignore: cast_nullable_to_non_nullable
+                        as String?,
           )
           as $Val,
     );
@@ -111,7 +120,8 @@ abstract class _$$CustomerSupportInfoDtoImplCopyWith<$Res>
   $Res call({
     @JsonKey(name: 'customerSupportID') String customerSupportId,
     @JsonKey(name: 'fullname') String fullname,
-    @JsonKey(name: 'avatar') String avatar,
+    @JsonKey(name: 'avatar') String? avatar,
+    @JsonKey(name: 'profilePicture') String? profilePicture,
   });
 }
 
@@ -132,7 +142,8 @@ class __$$CustomerSupportInfoDtoImplCopyWithImpl<$Res>
   $Res call({
     Object? customerSupportId = null,
     Object? fullname = null,
-    Object? avatar = null,
+    Object? avatar = freezed,
+    Object? profilePicture = freezed,
   }) {
     return _then(
       _$CustomerSupportInfoDtoImpl(
@@ -147,10 +158,15 @@ class __$$CustomerSupportInfoDtoImplCopyWithImpl<$Res>
                 : fullname // ignore: cast_nullable_to_non_nullable
                     as String,
         avatar:
-            null == avatar
+            freezed == avatar
                 ? _value.avatar
                 : avatar // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
+        profilePicture:
+            freezed == profilePicture
+                ? _value.profilePicture
+                : profilePicture // ignore: cast_nullable_to_non_nullable
+                    as String?,
       ),
     );
   }
@@ -160,9 +176,10 @@ class __$$CustomerSupportInfoDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CustomerSupportInfoDtoImpl implements _CustomerSupportInfoDto {
   const _$CustomerSupportInfoDtoImpl({
-    @JsonKey(name: 'customerSupportID') this.customerSupportId = '',
-    @JsonKey(name: 'fullname') this.fullname = '',
-    @JsonKey(name: 'avatar') this.avatar = '',
+    @JsonKey(name: 'customerSupportID') required this.customerSupportId,
+    @JsonKey(name: 'fullname') required this.fullname,
+    @JsonKey(name: 'avatar') this.avatar,
+    @JsonKey(name: 'profilePicture') this.profilePicture,
   });
 
   factory _$CustomerSupportInfoDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -176,11 +193,14 @@ class _$CustomerSupportInfoDtoImpl implements _CustomerSupportInfoDto {
   final String fullname;
   @override
   @JsonKey(name: 'avatar')
-  final String avatar;
+  final String? avatar;
+  @override
+  @JsonKey(name: 'profilePicture')
+  final String? profilePicture;
 
   @override
   String toString() {
-    return 'CustomerSupportInfoDto(customerSupportId: $customerSupportId, fullname: $fullname, avatar: $avatar)';
+    return 'CustomerSupportInfoDto(customerSupportId: $customerSupportId, fullname: $fullname, avatar: $avatar, profilePicture: $profilePicture)';
   }
 
   @override
@@ -192,13 +212,20 @@ class _$CustomerSupportInfoDtoImpl implements _CustomerSupportInfoDto {
                 other.customerSupportId == customerSupportId) &&
             (identical(other.fullname, fullname) ||
                 other.fullname == fullname) &&
-            (identical(other.avatar, avatar) || other.avatar == avatar));
+            (identical(other.avatar, avatar) || other.avatar == avatar) &&
+            (identical(other.profilePicture, profilePicture) ||
+                other.profilePicture == profilePicture));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, customerSupportId, fullname, avatar);
+  int get hashCode => Object.hash(
+    runtimeType,
+    customerSupportId,
+    fullname,
+    avatar,
+    profilePicture,
+  );
 
   /// Create a copy of CustomerSupportInfoDto
   /// with the given fields replaced by the non-null parameter values.
@@ -220,9 +247,10 @@ class _$CustomerSupportInfoDtoImpl implements _CustomerSupportInfoDto {
 
 abstract class _CustomerSupportInfoDto implements CustomerSupportInfoDto {
   const factory _CustomerSupportInfoDto({
-    @JsonKey(name: 'customerSupportID') final String customerSupportId,
-    @JsonKey(name: 'fullname') final String fullname,
-    @JsonKey(name: 'avatar') final String avatar,
+    @JsonKey(name: 'customerSupportID') required final String customerSupportId,
+    @JsonKey(name: 'fullname') required final String fullname,
+    @JsonKey(name: 'avatar') final String? avatar,
+    @JsonKey(name: 'profilePicture') final String? profilePicture,
   }) = _$CustomerSupportInfoDtoImpl;
 
   factory _CustomerSupportInfoDto.fromJson(Map<String, dynamic> json) =
@@ -236,7 +264,10 @@ abstract class _CustomerSupportInfoDto implements CustomerSupportInfoDto {
   String get fullname;
   @override
   @JsonKey(name: 'avatar')
-  String get avatar;
+  String? get avatar;
+  @override
+  @JsonKey(name: 'profilePicture')
+  String? get profilePicture;
 
   /// Create a copy of CustomerSupportInfoDto
   /// with the given fields replaced by the non-null parameter values.

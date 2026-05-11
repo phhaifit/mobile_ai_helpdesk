@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../constants/colors.dart';
@@ -6,6 +8,7 @@ import '../../domain/entity/chat/chat_room.dart';
 import 'chat_screen.dart';
 import 'contact_info_panel.dart';
 import 'store/chat_room_store.dart';
+import 'store/chat_store.dart';
 import 'widgets/chat_room_tile.dart';
 
 class SupportInboxScreen extends StatefulWidget {
@@ -19,6 +22,7 @@ class SupportInboxScreen extends StatefulWidget {
 
 class _SupportInboxScreenState extends State<SupportInboxScreen> {
   final ChatRoomStore _store = getIt<ChatRoomStore>();
+  final ChatStore _chatStore = getIt<ChatStore>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   ChatRoom? _selectedRoom;
@@ -27,10 +31,18 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   @override
   void initState() {
     super.initState();
-    _store.fetchChatRooms();
+    _loadRoomsAndPrefetch();
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
+  }
+
+  Future<void> _loadRoomsAndPrefetch() async {
+    await _store.fetchChatRooms();
+    // Silently warm the message cache for every room so opening a chat
+    // feels instant. Failures are swallowed inside the store per-room.
+    final Iterable<String> roomIds = _store.chatRooms.map((ChatRoom r) => r.id);
+    _chatStore.prefetchMessagesForRooms(roomIds);
   }
 
   @override
@@ -42,7 +54,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   void _selectRoom(ChatRoom room) {
     setState(() {
       _selectedRoom = room;
-      _store.markAsRead(room.id);
+      _store.markAsRead(room);
     });
   }
 

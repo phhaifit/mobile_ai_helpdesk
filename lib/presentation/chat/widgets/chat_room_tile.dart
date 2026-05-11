@@ -41,7 +41,7 @@ class ChatRoomTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          room.lastMessage,
+                          room.lastMessage.content,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

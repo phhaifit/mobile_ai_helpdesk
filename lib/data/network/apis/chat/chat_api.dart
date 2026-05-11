@@ -198,18 +198,18 @@ class ChatApi {
   }
 
   /// Returns a flat list of messages matching the keyword, optionally scoped to a chat room.
-  Future<MessageListDto> flatSearchMessageList({
+  Future<List<MessageDto>> flatSearchMessageList({
+    required String chatRoomId,
     required String keyword,
-    String? chatRoomId,
   }) async {
     final res = await _dioClient.dio.get(
       Endpoints.flatSearchMessageList(),
       queryParameters: {
+        'chatRoomID': chatRoomId,
         'keyword': keyword,
-        if (chatRoomId != null) 'chatRoomId': chatRoomId,
       },
     );
-    return MessageListDto.fromJson(res.data['data'] as Map<String, dynamic>);
+    return (res.data['data'] as List).map((e) => MessageDto.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// BE proxy to AI-Services.
@@ -220,7 +220,7 @@ class ChatApi {
     final res = await _dioClient.dio.post(
       Endpoints.chatRoomAnalyzeTicket(),
       data: {
-        'chatRoomId': chatRoomId,
+        'chatRoomID': chatRoomId,
         if (ticketId != null) 'ticketId': ticketId,
       },
     );
@@ -237,7 +237,7 @@ class ChatApi {
     final res = await _dioClient.dio.post(
       Endpoints.draftResponse(),
       data: {
-        'chatRoomId': chatRoomId,
+        'chatRoomID': chatRoomId,
         if (ticketId != null) 'ticketId': ticketId,
       },
     );

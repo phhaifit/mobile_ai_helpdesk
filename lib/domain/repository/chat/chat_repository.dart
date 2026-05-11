@@ -36,8 +36,8 @@ abstract class ChatRepository {
   });
 
   Future<List<Message>> flatSearchMessageList({
+    required String chatRoomId,
     required String keyword,
-    String? chatRoomId,
   });
 
   Future<Map<String, dynamic>> analyzeTicketInChatRoomAi({

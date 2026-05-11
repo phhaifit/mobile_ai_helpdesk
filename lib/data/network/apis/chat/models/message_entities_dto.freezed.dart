@@ -21,7 +21,8 @@ MessageEntitiesDto _$MessageEntitiesDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MessageEntitiesDto {
-  Map<String, dynamic> get channels => throw _privateConstructorUsedError;
+  Map<String, ChannelInfoDto> get channels =>
+      throw _privateConstructorUsedError;
   Map<String, CustomerSupportInfoDto> get senders =>
       throw _privateConstructorUsedError;
   Map<String, dynamic> get tickets => throw _privateConstructorUsedError;
@@ -44,7 +45,7 @@ abstract class $MessageEntitiesDtoCopyWith<$Res> {
   ) = _$MessageEntitiesDtoCopyWithImpl<$Res, MessageEntitiesDto>;
   @useResult
   $Res call({
-    Map<String, dynamic> channels,
+    Map<String, ChannelInfoDto> channels,
     Map<String, CustomerSupportInfoDto> senders,
     Map<String, dynamic> tickets,
   });
@@ -75,7 +76,7 @@ class _$MessageEntitiesDtoCopyWithImpl<$Res, $Val extends MessageEntitiesDto>
                 null == channels
                     ? _value.channels
                     : channels // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
+                        as Map<String, ChannelInfoDto>,
             senders:
                 null == senders
                     ? _value.senders
@@ -102,7 +103,7 @@ abstract class _$$MessageEntitiesDtoImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    Map<String, dynamic> channels,
+    Map<String, ChannelInfoDto> channels,
     Map<String, CustomerSupportInfoDto> senders,
     Map<String, dynamic> tickets,
   });
@@ -132,7 +133,7 @@ class __$$MessageEntitiesDtoImplCopyWithImpl<$Res>
             null == channels
                 ? _value._channels
                 : channels // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
+                    as Map<String, ChannelInfoDto>,
         senders:
             null == senders
                 ? _value._senders
@@ -152,7 +153,7 @@ class __$$MessageEntitiesDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MessageEntitiesDtoImpl implements _MessageEntitiesDto {
   const _$MessageEntitiesDtoImpl({
-    final Map<String, dynamic> channels = const {},
+    final Map<String, ChannelInfoDto> channels = const {},
     final Map<String, CustomerSupportInfoDto> senders = const {},
     final Map<String, dynamic> tickets = const {},
   }) : _channels = channels,
@@ -162,10 +163,10 @@ class _$MessageEntitiesDtoImpl implements _MessageEntitiesDto {
   factory _$MessageEntitiesDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$MessageEntitiesDtoImplFromJson(json);
 
-  final Map<String, dynamic> _channels;
+  final Map<String, ChannelInfoDto> _channels;
   @override
   @JsonKey()
-  Map<String, dynamic> get channels {
+  Map<String, ChannelInfoDto> get channels {
     if (_channels is EqualUnmodifiableMapView) return _channels;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_channels);
@@ -232,7 +233,7 @@ class _$MessageEntitiesDtoImpl implements _MessageEntitiesDto {
 
 abstract class _MessageEntitiesDto implements MessageEntitiesDto {
   const factory _MessageEntitiesDto({
-    final Map<String, dynamic> channels,
+    final Map<String, ChannelInfoDto> channels,
     final Map<String, CustomerSupportInfoDto> senders,
     final Map<String, dynamic> tickets,
   }) = _$MessageEntitiesDtoImpl;
@@ -241,7 +242,7 @@ abstract class _MessageEntitiesDto implements MessageEntitiesDto {
       _$MessageEntitiesDtoImpl.fromJson;
 
   @override
-  Map<String, dynamic> get channels;
+  Map<String, ChannelInfoDto> get channels;
   @override
   Map<String, CustomerSupportInfoDto> get senders;
   @override

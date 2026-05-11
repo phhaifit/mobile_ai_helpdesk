@@ -46,7 +46,7 @@ class ContentInfoDtoMapper {
 
       case 'ZALO':
         return ContentInfoDto.zalo(
-          messageId: json['messageID'] as String,
+          messageId: json['messageID'] as String? ?? '',
           zaloMessageId: json['zaloMessageID'] as String,
           content: json['content'] as String,
           createdAt: _parseDate(json['createdAt']),
