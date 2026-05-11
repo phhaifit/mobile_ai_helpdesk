@@ -331,6 +331,8 @@
   "invitation_status_accepted": "Accepted",
   "invitation_status_revoked": "Deleted",
   "invitation_status_expired": "Expired",
+  "invitation_status_declined": "Declined",
+  "invitation_status_expired_declined": "Expired",
   "employee_dialog_add_title": "Add employee",
   "employee_field_email": "Email",
   "employee_field_role": "Role",

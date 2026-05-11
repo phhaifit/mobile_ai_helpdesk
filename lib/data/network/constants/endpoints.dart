@@ -29,6 +29,7 @@ class Endpoints {
 
   // ---- Helpdesk Account ---------------------------------------------------
   static const String accountSsoValidate = '/api/account/sso-validate';
+  static const String accountList = '/account';
   static const String accountMe = '/api/account/me';
   static const String accountAvatar = '/api/account/me/avatar';
 
@@ -46,6 +47,7 @@ class Endpoints {
       '/api/playground/sessions/$sessionId/messages';
 
   // Tenant endpoints
+  static String accountTenants() => '/api/v1/accounts/tenants';
   static String tenants() => '/api/v1/tenants';
   static String createTenantOnFirstLogin() =>
       '/api/v1/tenants/create-first-login';
@@ -53,10 +55,13 @@ class Endpoints {
   static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
   static String switchTenant(String tenantId) =>
       '/api/v1/tenants/$tenantId/switch';
-  static String tenantSettings(String tenantId) =>
-      '/api/v1/tenants/$tenantId/settings';
+
+  // Tenant Auto-Resolution settings (GET to fetch, PUT to update)
+  static String tenantAutoResolution(String tenantId) =>
+      '/api/v1/tenants/$tenantId/auto-resolution';
 
   // Team member endpoints
+  // Legacy: with tenantId in path (deprecated — use members endpoints instead)
   static String tenantMembers(String tenantId) =>
       '/api/v1/tenants/$tenantId/members';
   static String tenantMember(String tenantId, String memberId) =>
@@ -64,17 +69,25 @@ class Endpoints {
   static String tenantMemberPermissions(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId/permissions';
 
+  // New: tenantId injected via header interceptor (preferred)
+  static String members() => '/api/v1/members';
+  static String member(String memberId) => '/api/v1/members/$memberId';
+
   // Invitation endpoints
+  static String invitations() => '/api/v1/invitations';
+  // Legacy: with tenantId in path (deprecated — use invitations endpoints instead)
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
-  static String resendInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/resend';
-  static String acceptInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/accept';
-  static String declineInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/decline';
+  static String sendTenantInvitation() => '/api/v1/tenants/invitation';
+
+  // New: tenantId injected via header interceptor (preferred)
+  static String sendInvitation() => '/api/v1/tenants/invitation';
+  static String resendInvitation() => '/api/v1/invitations/resend';
+  static String acceptInvitation() => '/api/v1/invitations/accept';
+  static String declineInvitation() => '/api/v1/invitations/decline';
   static String deleteInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId';
+
   // Marketing/Broadcasting endpoints (Phase A contract baseline)
   // Templates
   static String marketingTemplates() => '/api/marketing/templates';
@@ -185,6 +198,7 @@ class Endpoints {
   static String deleteMessengerPage(String channelId) =>
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';
+
   // Omnichannel: Zalo endpoints
   static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';

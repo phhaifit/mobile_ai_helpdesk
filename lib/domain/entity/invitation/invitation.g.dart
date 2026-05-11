@@ -19,6 +19,8 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
       json['acceptedAt'] == null
           ? null
           : DateTime.parse(json['acceptedAt'] as String),
+  channelIds:
+      (json['channelIds'] as List<dynamic>?)?.map((e) => e as String).toList(),
 );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
@@ -32,12 +34,12 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
       'createdAt': instance.createdAt.toIso8601String(),
       'expiresAt': instance.expiresAt.toIso8601String(),
       'acceptedAt': instance.acceptedAt?.toIso8601String(),
+      'channelIds': instance.channelIds,
     };
 
 const _$TeamRoleEnumMap = {
-  TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
-  TeamRole.member: 'member',
+  TeamRole.customer_support: 'customer_support',
 };
 
 const _$InvitationStatusEnumMap = {
@@ -45,4 +47,6 @@ const _$InvitationStatusEnumMap = {
   InvitationStatus.accepted: 'accepted',
   InvitationStatus.revoked: 'revoked',
   InvitationStatus.expired: 'expired',
+  InvitationStatus.declined: 'declined',
+  InvitationStatus.expired_declined: 'expired_declined',
 };
