@@ -59,8 +59,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _handleChangeAvatar() async {
-    if (_store.isUploadingAvatar) return;
+  /// Tapping the avatar (or its camera badge): when a photo is already set we
+  /// offer a choice (view full size / replace / remove); otherwise we go
+  /// straight to the picker since "choose a photo" is the only sensible action.
+  Future<void> _handleAvatarTap() async {
+    if (_store.isAvatarBusy) return;
+    final currentUrl = _store.account?.profilePicture;
+    final hasAvatar =
+        _store.hasAvatar && currentUrl != null && currentUrl.isNotEmpty;
+    if (!hasAvatar) {
+      await _pickAndUploadAvatar();
+      return;
+    }
+    final l = AppLocalizations.of(context);
+    final action = await showModalBottomSheet<_AvatarAction>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.visibility_outlined),
+              title: Text(l.translate('profile_avatar_action_view')),
+              onTap: () => Navigator.pop(sheetContext, _AvatarAction.view),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(l.translate('profile_avatar_action_change')),
+              onTap: () =>
+                  Navigator.pop(sheetContext, _AvatarAction.change),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_outline,
+                color: Theme.of(sheetContext).colorScheme.error,
+              ),
+              title: Text(
+                l.translate('profile_avatar_action_remove'),
+                style: TextStyle(
+                  color: Theme.of(sheetContext).colorScheme.error,
+                ),
+              ),
+              onTap: () =>
+                  Navigator.pop(sheetContext, _AvatarAction.remove),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case _AvatarAction.view:
+        await _viewAvatar(currentUrl);
+      case _AvatarAction.change:
+        await _pickAndUploadAvatar();
+      case _AvatarAction.remove:
+        await _confirmAndRemoveAvatar();
+    }
+  }
+
+  /// Full-screen, pinch-to-zoom viewer for the current avatar.
+  Future<void> _viewAvatar(String url) async {
+    final l = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      barrierColor: Colors.black,
+      builder: (dialogContext) => Dialog.fullscreen(
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                minScale: 0.8,
+                maxScale: 4,
+                child: Center(
+                  child: Image.network(
+                    url,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, progress) =>
+                        progress == null
+                            ? child
+                            : const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                    errorBuilder: (context, error, stackTrace) => const Center(
+                      child: Icon(
+                        Icons.broken_image_outlined,
+                        color: Colors.white54,
+                        size: 56,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              left: 8,
+              child: SafeArea(
+                child: IconButton(
+                  tooltip: l.translate('common_back'),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(dialogContext),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndUploadAvatar() async {
     final l = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final pick = await FilePicker.platform.pickFiles(type: FileType.image);
@@ -74,6 +188,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Text(
           l.translate(
             ok ? 'profile_avatar_upload_success' : 'profile_avatar_upload_failed',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmAndRemoveAvatar() async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.translate('profile_avatar_remove_confirm_title')),
+        content: Text(l.translate('profile_avatar_remove_confirm_message')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l.translate('common_cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l.translate('profile_avatar_remove_confirm_yes')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final ok = await _store.removeAvatar();
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          l.translate(
+            ok ? 'profile_avatar_remove_success' : 'profile_avatar_remove_failed',
           ),
         ),
       ),
@@ -253,25 +404,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
     final hasAvatar = account.profilePicture != null &&
         account.profilePicture!.isNotEmpty;
+    final busy = _store.isAvatarBusy;
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        CircleAvatar(
-          radius: 44,
-          backgroundColor: theme.colorScheme.primary,
-          backgroundImage:
-              hasAvatar ? NetworkImage(account.profilePicture!) : null,
-          child: hasAvatar
-              ? null
-              : Text(
-                  account.initial,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+        GestureDetector(
+          onTap: busy ? null : _handleAvatarTap,
+          child: CircleAvatar(
+            radius: 44,
+            backgroundColor: theme.colorScheme.primary,
+            backgroundImage:
+                hasAvatar ? NetworkImage(account.profilePicture!) : null,
+            child: hasAvatar
+                ? null
+                : Text(
+                    account.initial,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+        ),
+        if (busy)
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: 0.35),
+              ),
+              child: const Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
                     color: Colors.white,
                   ),
                 ),
-        ),
+              ),
+            ),
+          ),
         Positioned(
           bottom: -2,
           right: -2,
@@ -281,23 +455,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             elevation: 2,
             child: InkWell(
               customBorder: const CircleBorder(),
-              onTap: _store.isUploadingAvatar ? null : _handleChangeAvatar,
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: _store.isUploadingAvatar
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.camera_alt,
-                        size: 16,
-                        color: Colors.white,
-                      ),
+              onTap: busy ? null : _handleAvatarTap,
+              child: const Padding(
+                padding: EdgeInsets.all(6),
+                child: Icon(
+                  Icons.camera_alt,
+                  size: 16,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -306,6 +471,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+enum _AvatarAction { view, change, remove }
 
 /// A form row: label (with optional red `*`) stacked above its input field.
 class _LabeledField extends StatelessWidget {

@@ -14,6 +14,7 @@ import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
@@ -177,6 +178,7 @@ class StoreModule {
       () => ProfileStore(
         updateAccountUseCase: getIt<UpdateAccountUseCase>(),
         uploadAvatarUseCase: getIt<UploadAvatarUseCase>(),
+        deleteAvatarUseCase: getIt<DeleteAvatarUseCase>(),
         authStore: getIt<AuthStore>(),
       ),
     );

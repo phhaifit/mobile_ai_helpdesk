@@ -27,13 +27,22 @@ mixin _$ProfileStore on _ProfileStoreBase, Store {
             name: '_ProfileStoreBase.isSaving',
           ))
           .value;
-  Computed<bool>? _$isUploadingAvatarComputed;
+  Computed<bool>? _$isAvatarBusyComputed;
 
   @override
-  bool get isUploadingAvatar =>
-      (_$isUploadingAvatarComputed ??= Computed<bool>(
-            () => super.isUploadingAvatar,
-            name: '_ProfileStoreBase.isUploadingAvatar',
+  bool get isAvatarBusy =>
+      (_$isAvatarBusyComputed ??= Computed<bool>(
+            () => super.isAvatarBusy,
+            name: '_ProfileStoreBase.isAvatarBusy',
+          ))
+          .value;
+  Computed<bool>? _$hasAvatarComputed;
+
+  @override
+  bool get hasAvatar =>
+      (_$hasAvatarComputed ??= Computed<bool>(
+            () => super.hasAvatar,
+            name: '_ProfileStoreBase.hasAvatar',
           ))
           .value;
   Computed<bool>? _$isDirtyComputed;
@@ -227,6 +236,18 @@ mixin _$ProfileStore on _ProfileStoreBase, Store {
   }
 
   @override
+  Future<bool> removeAvatar() {
+    final _$actionInfo = _$_ProfileStoreBaseActionController.startAction(
+      name: '_ProfileStoreBase.removeAvatar',
+    );
+    try {
+      return super.removeAvatar();
+    } finally {
+      _$_ProfileStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 fullname: ${fullname},
@@ -235,7 +256,8 @@ errorKey: ${errorKey},
 savedSuccessfully: ${savedSuccessfully},
 account: ${account},
 isSaving: ${isSaving},
-isUploadingAvatar: ${isUploadingAvatar},
+isAvatarBusy: ${isAvatarBusy},
+hasAvatar: ${hasAvatar},
 isDirty: ${isDirty},
 canSubmit: ${canSubmit}
     ''';

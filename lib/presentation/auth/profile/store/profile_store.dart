@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/domain/entity/account/account.dart';
 import 'package:ai_helpdesk/domain/entity/auth/auth_failure.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
@@ -22,14 +23,17 @@ class ProfileStore = _ProfileStoreBase with _$ProfileStore;
 abstract class _ProfileStoreBase with Store {
   final UpdateAccountUseCase _updateAccountUseCase;
   final UploadAvatarUseCase _uploadAvatarUseCase;
+  final DeleteAvatarUseCase _deleteAvatarUseCase;
   final AuthStore _authStore;
 
   _ProfileStoreBase({
     required UpdateAccountUseCase updateAccountUseCase,
     required UploadAvatarUseCase uploadAvatarUseCase,
+    required DeleteAvatarUseCase deleteAvatarUseCase,
     required AuthStore authStore,
   })  : _updateAccountUseCase = updateAccountUseCase,
         _uploadAvatarUseCase = uploadAvatarUseCase,
+        _deleteAvatarUseCase = deleteAvatarUseCase,
         _authStore = authStore;
 
   @observable
@@ -47,6 +51,7 @@ abstract class _ProfileStoreBase with Store {
   @observable
   ObservableFuture<void>? _saveFuture;
 
+  /// One in-flight avatar mutation at a time — either an upload or a removal.
   @observable
   ObservableFuture<bool>? _avatarFuture;
 
@@ -56,8 +61,15 @@ abstract class _ProfileStoreBase with Store {
   @computed
   bool get isSaving => _saveFuture?.status == FutureStatus.pending;
 
+  /// True while an avatar upload or removal is in progress.
   @computed
-  bool get isUploadingAvatar => _avatarFuture?.status == FutureStatus.pending;
+  bool get isAvatarBusy => _avatarFuture?.status == FutureStatus.pending;
+
+  @computed
+  bool get hasAvatar {
+    final picture = account?.profilePicture;
+    return picture != null && picture.isNotEmpty;
+  }
 
   @computed
   bool get isDirty {
@@ -134,6 +146,7 @@ abstract class _ProfileStoreBase with Store {
 
   @action
   Future<bool> uploadAvatar(File file) {
+    if (isAvatarBusy) return Future<bool>.value(false);
     final future = ObservableFuture<bool>(_performAvatarUpload(file));
     _avatarFuture = future;
     return future;
@@ -141,6 +154,25 @@ abstract class _ProfileStoreBase with Store {
 
   Future<bool> _performAvatarUpload(File file) async {
     final result = await _uploadAvatarUseCase.call(params: file);
+    return result.fold<Future<bool>>(
+      (_) async => false,
+      (_) async {
+        await _authStore.refreshAccount();
+        return true;
+      },
+    );
+  }
+
+  @action
+  Future<bool> removeAvatar() {
+    if (isAvatarBusy || !hasAvatar) return Future<bool>.value(false);
+    final future = ObservableFuture<bool>(_performAvatarRemoval());
+    _avatarFuture = future;
+    return future;
+  }
+
+  Future<bool> _performAvatarRemoval() async {
+    final result = await _deleteAvatarUseCase.call(params: null);
     return result.fold<Future<bool>>(
       (_) async => false,
       (_) async {
