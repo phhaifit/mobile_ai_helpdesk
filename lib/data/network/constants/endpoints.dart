@@ -13,8 +13,7 @@ class Endpoints {
 
   // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
   // media. Separate from BE Helpdesk.
-  static String get aiServiceBaseUrl =>
-      EnvConfig.instance.aiServiceApiBaseUrl;
+  static String get aiServiceBaseUrl => EnvConfig.instance.aiServiceApiBaseUrl;
 
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
@@ -31,6 +30,7 @@ class Endpoints {
 
   // ---- Helpdesk Account ---------------------------------------------------
   static const String accountSsoValidate = '/api/account/sso-validate';
+    static const String accountList = '/account';
   static const String accountMe = '/api/account/me';
   static const String accountAvatar = '/api/account/me/avatar';
 
@@ -59,31 +59,42 @@ class Endpoints {
   static String playgroundMessages(String sessionId) =>
       '/api/playground/sessions/$sessionId/messages';
 
-  // Tenant endpoints
-  static String tenants() => '/api/v1/tenants';
+    // Tenant endpoints
+    static String accountTenants() => '/api/v1/accounts/tenants';
+    static String tenants() => '/api/v1/tenants';
     static String createTenantOnFirstLogin() => '/api/v1/tenants/create-first-login';
   static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
     static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
   static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
-  static String tenantSettings(String tenantId) =>
-      '/api/v1/tenants/$tenantId/settings';
+  
+  // Tenant Auto-Resolution settings (GET to fetch, PUT to update)
+  static String tenantAutoResolution(String tenantId) =>
+      '/api/v1/tenants/$tenantId/auto-resolution';
 
   // Team member endpoints
+  // Legacy: with tenantId in path (deprecated — use members endpoints instead)
   static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
   static String tenantMember(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId';
   static String tenantMemberPermissions(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId/permissions';
+  
+  // New: tenantId injected via header interceptor (preferred)
+  static String members() => '/api/v1/members';
+  static String member(String memberId) => '/api/v1/members/$memberId';
 
-  // Invitation endpoints
+    // Invitation endpoints
+    static String invitations() => '/api/v1/invitations';
+  // Legacy: with tenantId in path (deprecated — use invitations endpoints instead)
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
-  static String resendInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/resend';
-  static String acceptInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/accept';
-  static String declineInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/decline';
+  static String sendTenantInvitation() => '/api/v1/tenants/invitation';
+  
+  // New: tenantId injected via header interceptor (preferred)
+  static String sendInvitation() => '/api/v1/tenants/invitation';
+  static String resendInvitation() => '/api/v1/invitations/resend';
+  static String acceptInvitation() => '/api/v1/invitations/accept';
+  static String declineInvitation() => '/api/v1/invitations/decline';
   static String deleteInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId';
   // Marketing/Broadcasting endpoints (Phase A contract baseline)
@@ -232,6 +243,15 @@ class Endpoints {
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 
   // Ticket endpoints
+  static const String ticketAll = '/api/ticket/all';
+  static const String ticketMy = '/api/ticket/my-ticket';
+  static const String ticketMyByStatus = '/api/ticket/mine-by-status';
+  static const String ticketUnassigned = '/api/ticket/unassigned';
+  static String ticketDetail(String ticketId) => '/api/ticket/$ticketId';
+  static const String ticketUpdateStatus = '/api/ticket/update-status';
+  static const String ticketCreate = '/api/ticket/new';
+  static String ticketUpdateDetail(String ticketId) =>
+      '/api/ticket/my-ticket/$ticketId/detail';
   static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
   static String ticketComments(String ticketId) =>
       '/api/ticket/comment/get-comment/$ticketId';
@@ -262,8 +282,10 @@ class Endpoints {
       '/api/v1/knowledges/$tenantId/google-drive';
   static String knowledgeImportDatabaseQuery(String tenantId) =>
       '/api/v1/knowledges/$tenantId/database-query';
-  static String knowledgeUpdateDatabaseQuery(String tenantId, String sourceId) =>
-      '/api/v1/knowledges/$tenantId/database-query/$sourceId';
+  static String knowledgeUpdateDatabaseQuery(
+    String tenantId,
+    String sourceId,
+  ) => '/api/v1/knowledges/$tenantId/database-query/$sourceId';
 
   static const String knowledgeTestDatabaseQuery =
       '/api/v1/knowledges/test-database-query';

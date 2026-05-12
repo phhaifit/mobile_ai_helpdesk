@@ -70,10 +70,11 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 // Tab bar - Only show on desktop
                 if (!isMobile)
                   Observer(
-                    builder: (_) => TicketTabBarWidget(
-                      selectedTabIndex: _store.selectedTabIndex,
-                      onTabChanged: _store.setSelectedTab,
-                    ),
+                    builder:
+                        (_) => TicketTabBarWidget(
+                          selectedTabIndex: _store.selectedTabIndex,
+                          onTabChanged: _store.setSelectedTab,
+                        ),
                   ),
 
                 // Mobile tab selector - Only show on mobile
@@ -81,62 +82,72 @@ class _TicketListScreenState extends State<TicketListScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Observer(
-                      builder: (_) => SizedBox(
-                        height: 40,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            final tabTitles = [
-                              'Phiếu của tôi',
-                              'Chưa tiếp nhận',
-                              'Tất cả phiếu',
-                            ];
-                            final isSelected = _store.selectedTabIndex == index;
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: ElevatedButton(
-                                onPressed: () => _store.setSelectedTab(index),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isSelected
-                                      ? AppColors.primaryBlue
-                                      : AppColors.inputBackground,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
+                      builder:
+                          (_) => SizedBox(
+                            height: 40,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 3,
+                              itemBuilder: (context, index) {
+                                final tabTitles = [
+                                  'Phiếu của tôi',
+                                  'Chưa tiếp nhận',
+                                  'Tất cả phiếu',
+                                ];
+                                final isSelected =
+                                    _store.selectedTabIndex == index;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        () => _store.setSelectedTab(index),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          isSelected
+                                              ? AppColors.primaryBlue
+                                              : AppColors.inputBackground,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      tabTitles[index],
+                                      style: TextStyle(
+                                        color:
+                                            isSelected
+                                                ? Colors.white
+                                                : AppColors.textPrimary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  tabTitles[index],
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppColors.textPrimary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                                );
+                              },
+                            ),
+                          ),
                     ),
                   ),
 
                 // Header with title and action buttons
                 Observer(
-                  builder: (_) => TicketHeaderWidget(
-                    tabTitle: _store.tabTitle,
-                    ticketCount: _store.ticketCount,
-                    onExportPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Xuất Excel: Tính năng đang phát triển')),
-                      );
-                    },
-                    onAddTicketPressed: _store.openCreateMode,
-                  ),
+                  builder:
+                      (_) => TicketHeaderWidget(
+                        tabTitle: _store.tabTitle,
+                        ticketCount: _store.ticketCount,
+                        onExportPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Xuất Excel: Tính năng đang phát triển',
+                              ),
+                            ),
+                          );
+                        },
+                        onAddTicketPressed: _store.openCreateMode,
+                      ),
                 ),
 
                 // Search and filter + Table with tickets (grouped)
@@ -157,67 +168,75 @@ class _TicketListScreenState extends State<TicketListScreen> {
                           searchController: _searchController,
                           onSearchChanged: _store.setSearchQuery,
                           hasActiveFilter: !_store.activeFilter.isEmpty,
-                          activeFilterCount: _store.activeFilter.activeFilterCount,
+                          activeFilterCount:
+                              _store.activeFilter.activeFilterCount,
                           onFilterPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) => TicketFilterDialog(
-                                initialFilter: _store.activeFilter,
-                                allTickets: _store.allTickets,
-                                onFilterChanged: (newFilter) {
-                                  _store.setFilter(newFilter);
-                                },
-                                onFilterCleared: () {
-                                  _store.clearFilter();
-                                },
-                              ),
+                              builder:
+                                  (context) => TicketFilterDialog(
+                                    initialFilter: _store.activeFilter,
+                                    allTickets: _store.allTickets,
+                                    onFilterChanged: (newFilter) {
+                                      _store.setFilter(newFilter);
+                                    },
+                                    onFilterCleared: () {
+                                      _store.clearFilter();
+                                    },
+                                  ),
                             );
                           },
                         ),
 
                         // Divider
-                        Container(
-                          height: 1,
-                          color: AppColors.dividerColor,
-                        ),
+                        Container(height: 1, color: AppColors.dividerColor),
 
                         // Table with tickets
                         Expanded(
                           child: Observer(
-                            builder: (_) => TicketTableWidget(
-                              tickets: _store.filteredTickets,
-                              selectedTabIndex: _store.selectedTabIndex,
-                              currentAgentId: _store.currentAgentId,
-                              onAcceptTicket: (ticket) {
-                                _store.acceptTicket(ticket);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Tiếp nhận phiếu: ${ticket.id}'),
-                                  ),
-                                );
-                              },
-                              onCancelTicket: (ticket) async {
-                                final isSuccess = await _store.cancelTicket(ticket);
-                                final message = isSuccess
-                                    ? l.translate('ticketCancelSuccess')
-                                    : l.translate('ticketCancelFailed');
+                            builder:
+                                (_) => TicketTableWidget(
+                                  tickets: _store.filteredTickets,
+                                  selectedTabIndex: _store.selectedTabIndex,
+                                  currentAgentId: _store.currentAgentId,
+                                  onLoadMore: _store.loadMore,
+                                  isLoadingMore: _store.isLoadingMore,
+                                  hasMore: _store.hasMore,
+                                  onAcceptTicket: (ticket) {
+                                    _store.acceptTicket(ticket);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Tiếp nhận phiếu: ${ticket.id}',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  onCancelTicket: (ticket) async {
+                                    final isSuccess = await _store.cancelTicket(
+                                      ticket,
+                                    );
+                                    final message =
+                                        isSuccess
+                                            ? l.translate('ticketCancelSuccess')
+                                            : l.translate('ticketCancelFailed');
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('$message ${ticket.id}'),
-                                  ),
-                                );
-                              },
-                              onViewDetails: (ticket) {
-                                Navigator.pushNamed(
-                                  context,
-                                  Routes.ticketDetail,
-                                  arguments: ticket.id,
-                                ).then((result) {
-                                  _store.loadTickets();
-                                });
-                              },
-                            ),
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('$message ${ticket.id}'),
+                                      ),
+                                    );
+                                  },
+                                  onViewDetails: (ticket) {
+                                    Navigator.pushNamed(
+                                      context,
+                                      Routes.ticketDetail,
+                                      arguments: ticket.id,
+                                    ).then((result) {
+                                      _store.loadTickets();
+                                    });
+                                  },
+                                ),
                           ),
                         ),
                       ],

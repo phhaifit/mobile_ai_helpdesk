@@ -9,12 +9,23 @@ class InvitationApi {
 
   final DioClient _dioClient;
 
-  Future<List<Invitation>> getInvitations(String tenantId) async {
-    final response = await _dioClient.dio.get(Endpoints.tenantInvitations(tenantId));
+  /// Fetches invitations for the current user account (not tenant-specific).
+  Future<List<Invitation>> getAccountInvitations() async {
+    final response = await _dioClient.dio.get(Endpoints.invitations());
     final items = ApiResponseParser.asMapList(response.data);
     return items.map(Invitation.fromJson).toList(growable: false);
   }
 
+  /// Fetches invitations for the current tenant.
+  /// tenantId is injected via TenantHeaderInterceptor.
+  Future<List<Invitation>> getInvitations(String tenantId) async {
+    final response = await _dioClient.dio.get(Endpoints.invitations());
+    final items = ApiResponseParser.asMapList(response.data);
+    return items.map(Invitation.fromJson).toList(growable: false);
+  }
+
+  /// Sends an invitation to a new team member.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<Invitation> inviteMember({
     required String tenantId,
     required String email,
@@ -22,37 +33,56 @@ class InvitationApi {
     required String invitedByMemberId,
   }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.tenantInvitations(tenantId),
+      Endpoints.sendInvitation(),
       data: {
         'email': email,
-        'role': role.name,
-        'invitedByMemberId': invitedByMemberId,
+        'role': role.name.toUpperCase(),
+        'channelIDs': <String>[],
       },
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> resendInvitation(String invitationId) async {
+  /// Resends an invitation.
+  /// tenantId is injected via TenantHeaderInterceptor (optional parameter kept for compatibility).
+  Future<Invitation> resendInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.resendInvitation(invitationId),
+      Endpoints.resendInvitation(),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> acceptInvitation(String invitationId) async {
+  /// Accepts an invitation.
+  /// tenantId is injected via TenantHeaderInterceptor (optional parameter kept for compatibility).
+  Future<Invitation> acceptInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.acceptInvitation(invitationId),
+      Endpoints.acceptInvitation(),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
-  Future<Invitation> declineInvitation(String invitationId) async {
+  /// Declines an invitation.
+  /// tenantId is injected via TenantHeaderInterceptor (optional parameter kept for compatibility).
+  Future<Invitation> declineInvitation(
+    String invitationId, {
+    String? tenantId,
+  }) async {
     final response = await _dioClient.dio.post(
-      Endpoints.declineInvitation(invitationId),
+      Endpoints.declineInvitation(),
+      data: <String, dynamic>{'invitationID': invitationId},
     );
     return Invitation.fromJson(ApiResponseParser.asMap(response.data));
   }
 
+  /// Deletes an invitation.
   Future<bool> deleteInvitation(String invitationId) async {
     final response = await _dioClient.dio.delete(
       Endpoints.deleteInvitation(invitationId),

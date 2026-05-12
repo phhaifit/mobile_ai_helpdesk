@@ -252,20 +252,9 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
 
   @override
   Future<void> refreshTenantFromAccount() {
-    return _$refreshTenantFromAccountAsyncAction
-        .run(() => super.refreshTenantFromAccount());
-  }
-
-  @override
-  void setTypeFilter(KnowledgeSourceType? type) {
-    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
-      name: '_KnowledgeStore.setTypeFilter',
+    return _$refreshTenantFromAccountAsyncAction.run(
+      () => super.refreshTenantFromAccount(),
     );
-    try {
-      return super.setTypeFilter(type);
-    } finally {
-      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
-    }
   }
 
   late final _$reindexAsyncAction = AsyncAction(
@@ -423,6 +412,18 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   );
 
   @override
+  void setTypeFilter(KnowledgeSourceType? type) {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.setTypeFilter',
+    );
+    try {
+      return super.setTypeFilter(type);
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void resetDbTest() {
     final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
       name: '_KnowledgeStore.resetDbTest',
@@ -462,10 +463,10 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   String toString() {
     return '''
 sources: ${sources},
-tenantMissing: ${tenantMissing},
 typeFilter: ${typeFilter},
 loadFuture: ${loadFuture},
 errorMessage: ${errorMessage},
+tenantMissing: ${tenantMissing},
 busySourceIds: ${busySourceIds},
 isTestingDb: ${isTestingDb},
 lastDbPreview: ${lastDbPreview},
