@@ -227,4 +227,16 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
       messageKey: 'omnichannel_zalo_assignment_saved',
     );
   }
+
+  @override
+  Future<ActionFeedback> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    return const ActionFeedback(
+      isSuccess: true,
+      messageKey: 'omnichannel_zalo_message_send_success',
+    );
+  }
 }
