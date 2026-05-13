@@ -18,6 +18,9 @@ class TicketTableListWidget extends StatelessWidget {
   final Function(Ticket)? onCancelTicket;
   final Function(Ticket)? onViewDetails;
   final VoidCallback? onFilterPressed;
+  final VoidCallback? onLoadMore;
+  final bool isLoadingMore;
+  final bool hasMore;
 
   const TicketTableListWidget({
     super.key,
@@ -29,6 +32,9 @@ class TicketTableListWidget extends StatelessWidget {
     this.onCancelTicket,
     this.onViewDetails,
     this.onFilterPressed,
+    this.onLoadMore,
+    this.isLoadingMore = false,
+    this.hasMore = true,
   });
 
   @override
@@ -52,20 +58,42 @@ class TicketTableListWidget extends StatelessWidget {
                   onFilterPressed: onFilterPressed,
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: tickets.length,
-                    itemBuilder: (context, index) {
-                      final ticket = tickets[index];
-                      return TicketTableRowWidget(
-                        ticket: ticket,
-                        selectedTabIndex: selectedTabIndex,
-                        currentAgentId: currentAgentId,
-                        visibleColumns: visibleColumns,
-                        onAcceptPressed: () => onAcceptTicket?.call(ticket),
-                        onCancelPressed: () => onCancelTicket?.call(ticket),
-                        onDetailPressed: () => onViewDetails?.call(ticket),
-                      );
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (onLoadMore == null || !hasMore || isLoadingMore) {
+                        return false;
+                      }
+
+                      if (notification.metrics.axis != Axis.vertical) {
+                        return false;
+                      }
+
+                      if (notification.metrics.pixels >=
+                          notification.metrics.maxScrollExtent - 200) {
+                        onLoadMore?.call();
+                      }
+
+                      return false;
                     },
+                    child: ListView.builder(
+                      itemCount: tickets.length + (isLoadingMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index >= tickets.length) {
+                          return _buildLoadingRow();
+                        }
+
+                        final ticket = tickets[index];
+                        return TicketTableRowWidget(
+                          ticket: ticket,
+                          selectedTabIndex: selectedTabIndex,
+                          currentAgentId: currentAgentId,
+                          visibleColumns: visibleColumns,
+                          onAcceptPressed: () => onAcceptTicket?.call(ticket),
+                          onCancelPressed: () => onCancelTicket?.call(ticket),
+                          onDetailPressed: () => onViewDetails?.call(ticket),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -73,6 +101,19 @@ class TicketTableListWidget extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLoadingRow() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
     );
   }
 }

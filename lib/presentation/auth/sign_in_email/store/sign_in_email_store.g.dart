@@ -18,6 +18,24 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
             name: '_SignInEmailStoreBase.isLoading',
           ))
           .value;
+  Computed<bool>? _$isGoogleSignInLoadingComputed;
+
+  @override
+  bool get isGoogleSignInLoading =>
+      (_$isGoogleSignInLoadingComputed ??= Computed<bool>(
+            () => super.isGoogleSignInLoading,
+            name: '_SignInEmailStoreBase.isGoogleSignInLoading',
+          ))
+          .value;
+  Computed<bool>? _$isAnyFlowInFlightComputed;
+
+  @override
+  bool get isAnyFlowInFlight =>
+      (_$isAnyFlowInFlightComputed ??= Computed<bool>(
+            () => super.isAnyFlowInFlight,
+            name: '_SignInEmailStoreBase.isAnyFlowInFlight',
+          ))
+          .value;
   Computed<bool>? _$canSubmitComputed;
 
   @override
@@ -25,6 +43,15 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
       (_$canSubmitComputed ??= Computed<bool>(
             () => super.canSubmit,
             name: '_SignInEmailStoreBase.canSubmit',
+          ))
+          .value;
+  Computed<bool>? _$canStartGoogleSignInComputed;
+
+  @override
+  bool get canStartGoogleSignIn =>
+      (_$canStartGoogleSignInComputed ??= Computed<bool>(
+            () => super.canStartGoogleSignIn,
+            name: '_SignInEmailStoreBase.canStartGoogleSignIn',
           ))
           .value;
 
@@ -64,6 +91,24 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
     });
   }
 
+  late final _$_googleFutureAtom = Atom(
+    name: '_SignInEmailStoreBase._googleFuture',
+    context: context,
+  );
+
+  @override
+  ObservableFuture<void>? get _googleFuture {
+    _$_googleFutureAtom.reportRead();
+    return super._googleFuture;
+  }
+
+  @override
+  set _googleFuture(ObservableFuture<void>? value) {
+    _$_googleFutureAtom.reportWrite(value, super._googleFuture, () {
+      super._googleFuture = value;
+    });
+  }
+
   late final _$errorKeyAtom = Atom(
     name: '_SignInEmailStoreBase.errorKey',
     context: context,
@@ -100,6 +145,28 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
     });
   }
 
+  late final _$googleSignInSucceededAtom = Atom(
+    name: '_SignInEmailStoreBase.googleSignInSucceeded',
+    context: context,
+  );
+
+  @override
+  bool get googleSignInSucceeded {
+    _$googleSignInSucceededAtom.reportRead();
+    return super.googleSignInSucceeded;
+  }
+
+  @override
+  set googleSignInSucceeded(bool value) {
+    _$googleSignInSucceededAtom.reportWrite(
+      value,
+      super.googleSignInSucceeded,
+      () {
+        super.googleSignInSucceeded = value;
+      },
+    );
+  }
+
   late final _$sendOtpAsyncAction = AsyncAction(
     '_SignInEmailStoreBase.sendOtp',
     context: context,
@@ -108,6 +175,18 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
   @override
   Future<String?> sendOtp() {
     return _$sendOtpAsyncAction.run(() => super.sendOtp());
+  }
+
+  late final _$signInWithGoogleAsyncAction = AsyncAction(
+    '_SignInEmailStoreBase.signInWithGoogle',
+    context: context,
+  );
+
+  @override
+  Future<bool> signInWithGoogle({bool forceAccountChooser = false}) {
+    return _$signInWithGoogleAsyncAction.run(
+      () => super.signInWithGoogle(forceAccountChooser: forceAccountChooser),
+    );
   }
 
   late final _$_SignInEmailStoreBaseActionController = ActionController(
@@ -133,8 +212,12 @@ mixin _$SignInEmailStore on _SignInEmailStoreBase, Store {
 email: ${email},
 errorKey: ${errorKey},
 issuedNonce: ${issuedNonce},
+googleSignInSucceeded: ${googleSignInSucceeded},
 isLoading: ${isLoading},
-canSubmit: ${canSubmit}
+isGoogleSignInLoading: ${isGoogleSignInLoading},
+isAnyFlowInFlight: ${isAnyFlowInFlight},
+canSubmit: ${canSubmit},
+canStartGoogleSignIn: ${canStartGoogleSignIn}
     ''';
   }
 }

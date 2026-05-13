@@ -5,6 +5,7 @@ import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/stack_error_mapper.dart';
 import 'package:ai_helpdesk/domain/entity/account/account.dart';
+import 'package:ai_helpdesk/domain/entity/team_member/team_member.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -34,6 +35,18 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   @override
+  Future<Either<Failure, List<TeamMember>>> getTenantMembers() async {
+    try {
+      final members = await _api.getTenantMembers();
+      return Right(members);
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> update(AccountUpdateParams params) async {
     try {
       await _api.updateMe(params.toJson());
@@ -49,6 +62,18 @@ class AccountRepositoryImpl implements AccountRepository {
   Future<Either<Failure, void>> uploadAvatar(File file) async {
     try {
       await _api.uploadAvatar(file);
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAvatar() async {
+    try {
+      await _api.deleteAvatar();
       return const Right(null);
     } on DioException catch (e) {
       return Left(StackErrorMapper.map(e));

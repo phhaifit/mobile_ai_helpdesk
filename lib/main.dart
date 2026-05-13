@@ -12,15 +12,22 @@ import 'package:ai_helpdesk/presentation/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 // import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment configuration from .env file
+  await dotenv.load(fileName: '.env');
+  log('✓ Loaded .env configuration');
+
   await setPreferredOrientations();
 
   final env = EnvConfig.instance;
-  log('Running in ${env.environment.name} mode — ${env.baseUrl}');
+  final resolvedUrl = EnvConfig.getResolvedBaseUrl();
+  log('Running in ${env.environment.name} mode — $resolvedUrl');
 
   // Initialize Firebase
   try {

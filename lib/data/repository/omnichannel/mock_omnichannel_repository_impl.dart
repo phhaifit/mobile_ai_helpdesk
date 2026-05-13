@@ -49,22 +49,6 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
   }
 
   @override
-  Future<ActionFeedback> connectMessenger({String? authCode}) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    _state = _state.copyWith(
-      messenger: _state.messenger.copyWith(
-        connectionStatus: IntegrationConnectionStatus.connected,
-        oauthState: OAuthState.verified,
-        lastSyncAt: DateTime.now(),
-      ),
-    );
-    return const ActionFeedback(
-      isSuccess: true,
-      messageKey: 'omnichannel_messenger_connect_success',
-    );
-  }
-
-  @override
   Future<ActionFeedback> disconnectMessenger({String? channelId}) async {
     await Future.delayed(const Duration(milliseconds: 500));
     _state = _state.copyWith(
@@ -92,9 +76,7 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
     }
 
     _state = _state.copyWith(
-      messenger: _state.messenger.copyWith(
-        lastSyncAt: DateTime.now(),
-      ),
+      messenger: _state.messenger.copyWith(lastSyncAt: DateTime.now()),
     );
 
     return const ActionFeedback(
@@ -135,7 +117,8 @@ class MockOmnichannelRepositoryImpl implements OmnichannelRepository {
     await Future.delayed(const Duration(milliseconds: 600));
     return ZaloQr(
       code: 'code_${_random.nextInt(10000)}',
-      url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=MockZaloAuth',
+      url:
+          'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=MockZaloAuth',
     );
   }
 

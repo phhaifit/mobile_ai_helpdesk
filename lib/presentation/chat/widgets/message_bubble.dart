@@ -41,9 +41,8 @@ class MessageBubble extends StatelessWidget {
         bottom: isGroupEnd ? 8 : 0, // Extra space for reactions
       ),
       child: Row(
-        mainAxisAlignment: isMe
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Avatar placeholder for non-me messages
@@ -52,9 +51,8 @@ class MessageBubble extends StatelessWidget {
           // Bubble + metadata column
           Flexible(
             child: Column(
-              crossAxisAlignment: isMe
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 // Sender name (only for first bubble in group, others only)
                 if (!isMe && isGroupStart)
@@ -72,9 +70,8 @@ class MessageBubble extends StatelessWidget {
 
                 // Bubble row (avatar + bubble)
                 Row(
-                  mainAxisAlignment: isMe
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
+                  mainAxisAlignment:
+                      isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (!isMe) ...[
@@ -95,38 +92,40 @@ class MessageBubble extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: isMe
-                                ? AppColors.messengerBlue
-                                : AppColors.bubbleGray,
+                            color:
+                                isMe
+                                    ? AppColors.messengerBlue
+                                    : AppColors.bubbleGray,
                             borderRadius: _buildBorderRadius(
                               isMe,
                               isGroupStart,
                               isGroupEnd,
                             ),
-                            border: isHighlighted
-                                ? Border.all(
-                                    color: AppColors.textPrimary,
-                                    width: 2.5,
-                                  )
-                                : null,
-                            boxShadow: isHighlighted
-                                ? [
-                                    BoxShadow(
-                                      color: AppColors.textPrimary.withOpacity(
-                                        0.4,
+                            border:
+                                isHighlighted
+                                    ? Border.all(
+                                      color: AppColors.textPrimary,
+                                      width: 2.5,
+                                    )
+                                    : null,
+                            boxShadow:
+                                isHighlighted
+                                    ? [
+                                      BoxShadow(
+                                        color: AppColors.textPrimary.withValues(
+                                          alpha: 0.4,
+                                        ),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
                                       ),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ]
-                                : null,
+                                    ]
+                                    : null,
                           ),
                           child: Text(
                             message.content,
                             style: TextStyle(
-                              color: isMe
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
+                              color:
+                                  isMe ? Colors.white : AppColors.textPrimary,
                               fontSize: 15,
                             ),
                             softWrap: true,
@@ -152,9 +151,10 @@ class MessageBubble extends StatelessWidget {
                       right: isMe ? 8 : 0,
                     ),
                     child: Row(
-                      mainAxisAlignment: isMe
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.start,
+                      mainAxisAlignment:
+                          isMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                       children: [
                         Text(
                           _formatTime(message.timestamp),
@@ -184,9 +184,10 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    final initial = message.senderName.isNotEmpty
-        ? message.senderName[0].toUpperCase()
-        : '?';
+    final initial =
+        message.senderName.isNotEmpty
+            ? message.senderName[0].toUpperCase()
+            : '?';
     return CircleAvatar(
       radius: 15,
       backgroundColor: AppColors.messengerBlue,
@@ -268,22 +269,26 @@ class MessageBubble extends StatelessWidget {
       ),
       child: Wrap(
         spacing: 4,
-        children: message.reactions.map((reaction) {
-          return GestureDetector(
-            onTap: () => onReactionAdded?.call(reaction.emoji),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${reaction.emoji} ${reaction.userNames.length}',
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          );
-        }).toList(),
+        children:
+            message.reactions.map((reaction) {
+              return GestureDetector(
+                onTap: () => onReactionAdded?.call(reaction.emoji),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${reaction.emoji} ${reaction.userNames.length}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              );
+            }).toList(),
       ),
     );
   }

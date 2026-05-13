@@ -7,13 +7,11 @@ class UpdateTicketStatusParams {
   final String ticketId;
   final TicketStatus newStatus;
 
-  UpdateTicketStatusParams({
-    required this.ticketId,
-    required this.newStatus,
-  });
+  UpdateTicketStatusParams({required this.ticketId, required this.newStatus});
 }
 
-class UpdateTicketStatusUseCase extends UseCase<Ticket, UpdateTicketStatusParams> {
+class UpdateTicketStatusUseCase
+    extends UseCase<Ticket, UpdateTicketStatusParams> {
   final TicketRepository _repository;
 
   UpdateTicketStatusUseCase(this._repository);
@@ -27,9 +25,10 @@ class UpdateTicketStatusUseCase extends UseCase<Ticket, UpdateTicketStatusParams
 
     final updatedTicket = ticket.copyWith(
       status: params.newStatus,
-      resolvedAt: params.newStatus == TicketStatus.resolved
-          ? DateTime.now()
-          : ticket.resolvedAt,
+      resolvedAt:
+          params.newStatus == TicketStatus.resolved
+              ? DateTime.now()
+              : ticket.resolvedAt,
     );
     return _repository.updateTicket(updatedTicket);
   }

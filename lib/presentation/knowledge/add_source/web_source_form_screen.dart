@@ -3,10 +3,12 @@ import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/crawl_interval_grid.dart';
 import 'package:flutter/material.dart';
 
+/// Web import form — single page or whole site.  Submits via the real
+/// `POST /web` endpoint and pops with the new source on success.
 class WebSourceFormScreen extends StatefulWidget {
   final KnowledgeStore store;
 
-  const WebSourceFormScreen({super.key, required this.store});
+  const WebSourceFormScreen({required this.store, super.key});
 
   @override
   State<WebSourceFormScreen> createState() => _WebSourceFormScreenState();
@@ -15,9 +17,12 @@ class WebSourceFormScreen extends StatefulWidget {
 class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _urlController = TextEditingController();
-  bool _fullSite = false;
-  CrawlInterval _crawlInterval = CrawlInterval.manual;
-  bool _isSaving = false;
+  bool _wholeSite = false;
+  CrawlInterval _interval = CrawlInterval.once;
+  bool _saving = false;
+  String? _submitError;
+
+  static const _accent = Color(0xFF1A73E8);
 
   @override
   void dispose() {
@@ -34,17 +39,13 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: _saving ? null : () => Navigator.pop(context),
         ),
-        title: const Text('Web',
-            style: TextStyle(
-                color: Colors.black87, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.grey),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
+        title: const Text(
+          'Web',
+          style:
+              TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -57,152 +58,129 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildLabel('URL', required: true),
+                    _label('URL', required: true),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _urlController,
-                      decoration: _inputDecoration(
-                          'Địa chỉ URL của nguồn tri thức'),
+                      enabled: !_saving,
                       keyboardType: TextInputType.url,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Vui lòng nhập URL';
-                        if (!v.startsWith('http')) {
-                          return 'URL phải bắt đầu bằng http(s)';
-                        }
-                        return null;
-                      },
+                      autocorrect: false,
+                      decoration: _decoration('https://example.com/article'),
+                      validator: _validateUrl,
                     ),
                     const SizedBox(height: 20),
-                    _buildLabel('Loại'),
+                    _label('Loại'),
                     const SizedBox(height: 10),
-                    _buildTypeToggle(),
+                    _typeToggle(),
                     const SizedBox(height: 12),
-                    _buildInfoBox(),
+                    _infoBox(),
                     const SizedBox(height: 24),
-                    _buildLabel(
-                        'Tự động kích hoạt làm mới nguồn tri thức theo khoảng thời gian định kỳ.'),
+                    _label(
+                      'Tự động kích hoạt làm mới nguồn tri thức theo khoảng thời gian định kỳ.',
+                    ),
                     const SizedBox(height: 10),
                     CrawlIntervalGrid(
-                      selected: _crawlInterval,
-                      onSelected: (v) => setState(() => _crawlInterval = v),
+                      selected: _interval,
+                      onSelected: _saving
+                          ? (_) {}
+                          : (v) => setState(() => _interval = v),
                     ),
+                    if (_submitError != null) ...[
+                      const SizedBox(height: 16),
+                      _errorBanner(_submitError!),
+                    ],
                   ],
                 ),
               ),
             ),
-            _buildBottomBar(),
+            _bottomBar(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLabel(String text, {bool required = false}) {
-    return RichText(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(
-            fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black87),
-        children: required
-            ? const [
-                TextSpan(
-                    text: ' *',
-                    style: TextStyle(color: Colors.red, fontSize: 13))
-              ]
-            : [],
-      ),
-    );
+  // ---------------------------------------------------------------------------
+
+  String? _validateUrl(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Vui lòng nhập URL';
+    final uri = Uri.tryParse(v);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      return 'URL không hợp lệ';
+    }
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
+      return 'URL phải bắt đầu bằng http(s)';
+    }
+    return null;
   }
 
-  Widget _buildTypeToggle() {
+  Widget _typeToggle() {
     return Row(
       children: [
         Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => _fullSite = false),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: !_fullSite
-                      ? const Color(0xFF1A73E8)
-                      : Colors.grey[200]!,
-                  width: !_fullSite ? 1.5 : 1,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                color: !_fullSite
-                    ? const Color(0xFF1A73E8).withOpacity(0.05)
-                    : Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Một trang',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: !_fullSite
-                            ? const Color(0xFF1A73E8)
-                            : Colors.black87,
-                      )),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Chỉ lấy nội dung từ trang web với URL trên',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
+          child: _toggleCard(
+            selected: !_wholeSite,
+            title: 'Một trang',
+            subtitle: 'Chỉ lấy nội dung từ URL trên',
+            onTap: () => setState(() => _wholeSite = false),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => _fullSite = true),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _fullSite
-                      ? const Color(0xFF1A73E8)
-                      : Colors.grey[200]!,
-                  width: _fullSite ? 1.5 : 1,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                color: _fullSite
-                    ? const Color(0xFF1A73E8).withOpacity(0.05)
-                    : Colors.white,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Toàn bộ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: _fullSite
-                            ? const Color(0xFF1A73E8)
-                            : Colors.black87,
-                      )),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Lấy nội dung của các trang liên quan.',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
+          child: _toggleCard(
+            selected: _wholeSite,
+            title: 'Toàn bộ',
+            subtitle: 'Lấy nội dung của các trang liên quan',
+            onTap: () => setState(() => _wholeSite = true),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInfoBox() {
+  Widget _toggleCard({
+    required bool selected,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: _saving ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: selected ? _accent : Colors.grey[200]!,
+            width: selected ? 1.5 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          color: selected ? _accent.withValues(alpha: 0.05) : Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: selected ? _accent : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoBox() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -210,36 +188,47 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFBFDBFE)),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Giới hạn hiện tại:',
-              style:
-                  TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-          const SizedBox(height: 8),
-          _buildBullet(
-              'Việc nhập toàn bộ trang web có thể mất một thời gian để hoàn thành. Bạn có thể tải tối đa 100 trang cùng lúc'),
-          const SizedBox(height: 4),
-          _buildBullet('Cần thêm? hello@jarvis.cx'),
+          Text(
+            'Lưu ý:',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
+          SizedBox(height: 8),
+          _Bullet('Việc nhập toàn bộ trang có thể mất một thời gian.'),
+          _Bullet('Tối đa 100 trang mỗi lần crawl.'),
         ],
       ),
     );
   }
 
-  Widget _buildBullet(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('• ', style: TextStyle(fontSize: 13)),
-        Expanded(
-            child: Text(text,
-                style:
-                    const TextStyle(fontSize: 12, color: Colors.black87))),
-      ],
+  Widget _errorBanner(String msg) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFFEE2E2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline,
+              color: Color(0xFFDC2626), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              msg,
+              style: const TextStyle(color: Color(0xFFDC2626), fontSize: 13),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _bottomBar() {
     return Container(
       padding: EdgeInsets.fromLTRB(
           16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
@@ -251,12 +240,13 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: _saving ? null : () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 side: BorderSide(color: Colors.grey[300]!),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: const Text('Đóng',
                   style: TextStyle(color: Colors.black87)),
@@ -265,24 +255,27 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton(
-              onPressed: _isSaving ? null : _submit,
+              onPressed: _saving ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A73E8),
+                backgroundColor: _accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 elevation: 0,
               ),
-              child: _isSaving
+              child: _saving
                   ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2),
                     )
-                  : const Text('Xác nhận',
-                      style: TextStyle(fontWeight: FontWeight.w600)),
+                  : const Text(
+                      'Xác nhận',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
         ],
@@ -290,7 +283,28 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  Widget _label(String text, {bool required = false}) {
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+        children: required
+            ? const [
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: Colors.red, fontSize: 13),
+                ),
+              ]
+            : const [],
+      ),
+    );
+  }
+
+  InputDecoration _decoration(String hint) {
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -306,30 +320,59 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF1A73E8)),
+        borderSide: const BorderSide(color: _accent),
       ),
     );
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isSaving = true);
-    final source = KnowledgeSource(
-      id: '',
-      name: _urlController.text.trim(),
-      type: _fullSite
-          ? KnowledgeSourceType.webFull
-          : KnowledgeSourceType.webSingle,
-      status: KnowledgeSourceStatus.indexing,
-      lastSyncAt: DateTime.now(),
-      crawlInterval: _crawlInterval,
-      config: {
-        'url': _urlController.text.trim(),
-        'fullSite': _fullSite,
-      },
+    setState(() {
+      _saving = true;
+      _submitError = null;
+    });
+    final result = await widget.store
+        .importWeb(
+          url: _urlController.text.trim(),
+          type: _wholeSite
+              ? KnowledgeSourceType.wholeSite
+              : KnowledgeSourceType.web,
+          interval: _interval,
+        )
+        .catchError((Object _) => null);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (result != null) {
+      Navigator.pop(context);
+    } else {
+      setState(() {
+        _submitError =
+            widget.store.errorMessage ?? 'Không thể tạo nguồn web. Vui lòng thử lại.';
+      });
+    }
+  }
+}
+
+class _Bullet extends StatelessWidget {
+  final String text;
+  const _Bullet(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontSize: 13)),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
     );
-    await widget.store.addSource(source);
-    setState(() => _isSaving = false);
-    if (mounted) Navigator.pop(context);
   }
 }

@@ -16,10 +16,10 @@ class PlaygroundSession {
 
   const PlaygroundSession({
     required this.id,
-    this.agentId,
     required this.contextType,
     required this.messages,
     required this.createdAt,
+    this.agentId,
   });
 
   factory PlaygroundSession.fromJson(Map<String, dynamic> json) =>
@@ -33,12 +33,11 @@ class PlaygroundSession {
     PlaygroundContextType? contextType,
     List<PlaygroundMessage>? messages,
     DateTime? createdAt,
-  }) =>
-      PlaygroundSession(
-        id: id ?? this.id,
-        agentId: agentId ?? this.agentId,
-        contextType: contextType ?? this.contextType,
-        messages: messages ?? this.messages,
-        createdAt: createdAt ?? this.createdAt,
-      );
+  }) => PlaygroundSession(
+    id: id ?? this.id,
+    agentId: agentId ?? this.agentId,
+    contextType: contextType ?? this.contextType,
+    messages: messages ?? this.messages,
+    createdAt: createdAt ?? this.createdAt,
+  );
 }

@@ -5,42 +5,42 @@ import 'package:ai_helpdesk/presentation/knowledge/add_source/web_source_form_sc
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:flutter/material.dart';
 
+/// Bottom-sheet picker shown when the user taps "Thêm nguồn".  Each option
+/// pushes the matching form screen as a full-page route.
 class AddSourceTypeScreen extends StatefulWidget {
   final KnowledgeStore store;
 
-  const AddSourceTypeScreen({super.key, required this.store});
+  const AddSourceTypeScreen({required this.store, super.key});
 
   @override
   State<AddSourceTypeScreen> createState() => _AddSourceTypeScreenState();
 }
 
 class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
+  static const _accent = Color(0xFF1A73E8);
+
   int _selectedIndex = 0;
 
-  static const _sourceTypes = [
-    (
-      Icons.insert_drive_file_outlined,
-      'Tệp tin',
-      'Tải lên tệp tin với các định dạng pdf, txt, docx, doc,...',
-      Color(0xFF1A73E8),
+  static const _options = <_SourceOption>[
+    _SourceOption(
+      icon: Icons.insert_drive_file_outlined,
+      title: 'Tệp tin',
+      subtitle: 'Tải lên PDF, DOCX, TXT, CSV, XLSX',
     ),
-    (
-      Icons.language,
-      'Web',
-      'Kết nối đến trang web để lấy và xử lý dữ liệu',
-      Color(0xFF1A73E8),
+    _SourceOption(
+      icon: Icons.language,
+      title: 'Web',
+      subtitle: 'Crawl một URL hoặc toàn bộ website',
     ),
-    (
-      Icons.add_to_drive,
-      'Google Drive',
-      'Kết nối đến Google Drive để lấy và xử lý dữ liệu',
-      Color(0xFF1A73E8),
+    _SourceOption(
+      icon: Icons.add_to_drive,
+      title: 'Google Drive',
+      subtitle: 'Đồng bộ folder/file từ Drive qua OAuth',
     ),
-    (
-      Icons.storage_outlined,
-      'Truy vấn CSDL',
-      'Kết nối đến cơ sở dữ liệu để truy vấn và xử lý dữ liệu',
-      Color(0xFF1A73E8),
+    _SourceOption(
+      icon: Icons.storage_outlined,
+      title: 'Truy vấn CSDL',
+      subtitle: 'PostgreSQL hoặc SQL Server',
     ),
   ];
 
@@ -72,9 +72,9 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.grey),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
@@ -83,10 +83,11 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: _sourceTypes.length,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: _options.length,
               itemBuilder: (context, index) {
-                final (icon, title, subtitle, color) = _sourceTypes[index];
+                final option = _options[index];
                 final isSelected = _selectedIndex == index;
                 return GestureDetector(
                   onTap: () => setState(() => _selectedIndex = index),
@@ -96,12 +97,12 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: isSelected ? color : Colors.grey[200]!,
+                        color: isSelected ? _accent : Colors.grey[200]!,
                         width: isSelected ? 1.5 : 1,
                       ),
                       borderRadius: BorderRadius.circular(10),
                       color: isSelected
-                          ? color.withOpacity(0.05)
+                          ? _accent.withValues(alpha: 0.05)
                           : Colors.white,
                     ),
                     child: Row(
@@ -111,13 +112,15 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
                           height: 38,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? color.withOpacity(0.12)
+                                ? _accent.withValues(alpha: 0.12)
                                 : Colors.grey[100],
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(icon,
-                              size: 20,
-                              color: isSelected ? color : Colors.grey[600]),
+                          child: Icon(
+                            option.icon,
+                            size: 20,
+                            color: isSelected ? _accent : Colors.grey[600],
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -125,16 +128,18 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                title,
+                                option.title,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 15,
-                                  color: isSelected ? color : Colors.black87,
+                                  color: isSelected
+                                      ? _accent
+                                      : Colors.black87,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                subtitle,
+                                option.subtitle,
                                 style: TextStyle(
                                     fontSize: 12, color: Colors.grey[600]),
                               ),
@@ -171,7 +176,7 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
                   child: ElevatedButton(
                     onPressed: _goNext,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A73E8),
+                      backgroundColor: _accent,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 13),
                       shape: RoundedRectangleBorder(
@@ -193,6 +198,7 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
 
   void _goNext() {
     Navigator.pop(context);
+    final navigator = Navigator.of(context, rootNavigator: false);
     Widget form;
     switch (_selectedIndex) {
       case 0:
@@ -210,7 +216,17 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
       default:
         return;
     }
-    Navigator.push(
-        context, MaterialPageRoute(builder: (_) => form));
+    navigator.push(MaterialPageRoute<void>(builder: (_) => form));
   }
+}
+
+class _SourceOption {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  const _SourceOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
 }
