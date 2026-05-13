@@ -46,4 +46,9 @@ abstract class OmnichannelRepository {
   Future<ActionFeedback> updateZaloAssignments(
     List<ZaloAssignmentUpdate> updates,
   );
+
+  Future<ActionFeedback> sendZaloMessage({
+    required String recipient,
+    required String message,
+  });
 }

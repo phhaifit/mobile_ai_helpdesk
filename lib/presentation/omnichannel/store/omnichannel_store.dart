@@ -9,6 +9,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
@@ -27,6 +28,7 @@ abstract class _OmnichannelStore with Store {
   final DisconnectZaloUseCase _disconnectZaloUseCase;
   final RetryZaloSyncUseCase _retryZaloSyncUseCase;
   final UpdateZaloAssignmentsUseCase _updateZaloAssignmentsUseCase;
+  final SendZaloMessageUseCase _sendZaloMessageUseCase;
   final GenerateZaloQrUseCase _generateZaloQrUseCase;
   final GetZaloQrStatusUseCase _getZaloQrStatusUseCase;
   final ConnectZaloUseCase _connectZaloUseCase;
@@ -39,6 +41,7 @@ abstract class _OmnichannelStore with Store {
     this._disconnectZaloUseCase,
     this._retryZaloSyncUseCase,
     this._updateZaloAssignmentsUseCase,
+    this._sendZaloMessageUseCase,
     this._generateZaloQrUseCase,
     this._getZaloQrStatusUseCase,
     this._connectZaloUseCase,
@@ -180,6 +183,18 @@ abstract class _OmnichannelStore with Store {
   @action
   Future<void> updateZaloAssignments(List<ZaloAssignmentUpdate> updates) async {
     await _runAction(() => _updateZaloAssignmentsUseCase.call(params: updates));
+  }
+
+  @action
+  Future<void> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) async {
+    await _runAction(
+      () => _sendZaloMessageUseCase.call(
+        params: SendZaloMessageParams(recipient: recipient, message: message),
+      ),
+    );
   }
 
   @action
