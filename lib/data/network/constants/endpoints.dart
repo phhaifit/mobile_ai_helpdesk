@@ -302,9 +302,6 @@ class Endpoints {
   // Media endpoints
   static String uploadFile(String tenantId) => '/api/v1/media/$tenantId/upload';
 
-  // Account
-  static String accountTenants() => '/api/account/tenants';
-
   // WebSocket
   static String ticketWebSocket(String ticketId) {
     final wsBase = baseUrl
