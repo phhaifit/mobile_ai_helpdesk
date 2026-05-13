@@ -4,6 +4,7 @@ import '../../../domain/repository/chat/chat_room_repository.dart';
 
 part 'chat_room_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class ChatRoomStore = _ChatRoomStore with _$ChatRoomStore;
 
 abstract class _ChatRoomStore with Store {

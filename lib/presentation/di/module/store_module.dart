@@ -63,7 +63,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -249,7 +248,6 @@ class StoreModule {
     getIt.registerFactory<OmnichannelStore>(
       () => OmnichannelStore(
         getIt<GetOmnichannelOverviewUseCase>(),
-        getIt<ConnectMessengerUseCase>(),
         getIt<DisconnectMessengerUseCase>(),
         getIt<SyncMessengerDataUseCase>(),
         getIt<UpdateMessengerSettingsUseCase>(),
@@ -334,9 +332,7 @@ class StoreModule {
     );
 
     getIt.registerFactory<AudienceSelectionStore>(
-      () => AudienceSelectionStore(
-        getIt<GetBroadcastRecipientsUseCase>(),
-      ),
+      () => AudienceSelectionStore(getIt<GetBroadcastRecipientsUseCase>()),
     );
 
     // --- AI Agent Store ---

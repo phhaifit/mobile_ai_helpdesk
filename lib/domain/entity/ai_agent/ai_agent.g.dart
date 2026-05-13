@@ -10,14 +10,14 @@ AiAgent _$AiAgentFromJson(Map<String, dynamic> json) => AiAgent(
   id: json['id'] as String,
   name: json['name'] as String,
   description: json['description'] as String,
-  avatarUrl: json['avatarUrl'] as String?,
   mode: $enumDecode(_$AgentModeEnumMap, json['mode']),
   platforms:
       (json['platforms'] as List<dynamic>).map((e) => e as String).toList(),
   workflows:
       (json['workflows'] as List<dynamic>).map((e) => e as String).toList(),
-  teamId: json['teamId'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
+  avatarUrl: json['avatarUrl'] as String?,
+  teamId: json['teamId'] as String?,
 );
 
 Map<String, dynamic> _$AiAgentToJson(AiAgent instance) => <String, dynamic>{

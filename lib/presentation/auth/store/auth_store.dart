@@ -39,12 +39,12 @@ abstract class _AuthStoreBase with Store {
     required EventBus eventBus,
     required AnalyticsService analyticsService,
     required SentryService sentryService,
-  })  : _authRepository = authRepository,
-        _accountRepository = accountRepository,
-        _signOutUseCase = signOutUseCase,
-        _eventBus = eventBus,
-        _analyticsService = analyticsService,
-        _sentryService = sentryService {
+  }) : _authRepository = authRepository,
+       _accountRepository = accountRepository,
+       _signOutUseCase = signOutUseCase,
+       _eventBus = eventBus,
+       _analyticsService = analyticsService,
+       _sentryService = sentryService {
     _unauthorizedSub = _eventBus.on<AuthUnauthorizedEvent>().listen((event) {
       onSignedOut(reason: event.reason);
     });
@@ -122,7 +122,7 @@ abstract class _AuthStoreBase with Store {
     isSigningOut = true;
     try {
       await _signOutUseCase.call(params: null);
-      _analyticsService.trackEvent(AnalyticsEvents.userLogout);
+      unawaited(_analyticsService.trackEvent(AnalyticsEvents.userLogout));
     } catch (e, s) {
       debugPrint('[AuthStore] signOut error: $e\n$s');
     } finally {

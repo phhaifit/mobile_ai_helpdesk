@@ -47,10 +47,10 @@ class Ticket {
     required this.customerEmail,
     required this.createdByID,
     required this.createdByName,
-    this.assignedAgentId,
-    this.assignedAgentName,
     required this.createdAt,
     required this.updatedAt,
+    this.assignedAgentId,
+    this.assignedAgentName,
     this.resolvedAt,
     this.notes,
     this.attachments = const [],
@@ -100,12 +100,14 @@ class Ticket {
       customerEmail: customerEmail ?? this.customerEmail,
       createdByID: createdByID ?? this.createdByID,
       createdByName: createdByName ?? this.createdByName,
-      assignedAgentId: identical(assignedAgentId, _ticketFieldUnset)
-          ? this.assignedAgentId
-          : assignedAgentId as String?,
-      assignedAgentName: identical(assignedAgentName, _ticketFieldUnset)
-          ? this.assignedAgentName
-          : assignedAgentName as String?,
+      assignedAgentId:
+          identical(assignedAgentId, _ticketFieldUnset)
+              ? this.assignedAgentId
+              : assignedAgentId as String?,
+      assignedAgentName:
+          identical(assignedAgentName, _ticketFieldUnset)
+              ? this.assignedAgentName
+              : assignedAgentName as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,

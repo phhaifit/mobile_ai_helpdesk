@@ -68,15 +68,16 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => Scaffold(
-              appBar: AppBar(
-                title: const Text('Thông tin liên hệ'),
-                centerTitle: true,
-                backgroundColor: Colors.white,
-                foregroundColor: AppColors.textPrimary,
-              ),
-              body: ContactInfoPanel(room: _selectedRoom!),
-            ),
+            builder:
+                (_) => Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Thông tin liên hệ'),
+                    centerTitle: true,
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.textPrimary,
+                  ),
+                  body: ContactInfoPanel(room: _selectedRoom!),
+                ),
           ),
         );
       }
@@ -123,9 +124,13 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             Container(width: 1, color: AppColors.dividerColor),
             // Chat (70% chiều rộng)
             Expanded(
-              child: _selectedRoom != null
-                  ? ChatScreen(room: _selectedRoom, onInfoTap: _handleInfoTap)
-                  : _buildEmptyChat(),
+              child:
+                  _selectedRoom != null
+                      ? ChatScreen(
+                        room: _selectedRoom,
+                        onInfoTap: _handleInfoTap,
+                      )
+                      : _buildEmptyChat(),
             ),
           ],
         ),
@@ -141,10 +146,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             width: screenWidth * 0.25,
             color: Colors.white,
             child: Column(
-              children: [
-                _buildSearchBar(),
-                Expanded(child: _buildRoomList()),
-              ],
+              children: [_buildSearchBar(), Expanded(child: _buildRoomList())],
             ),
           ),
           // Divider
@@ -153,9 +155,10 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           // Chat (dynamic width - 50% if info showing, else wider)
           Expanded(
             flex: _showContactInfo ? 2 : 3,
-            child: _selectedRoom != null
-                ? ChatScreen(room: _selectedRoom, onInfoTap: _handleInfoTap)
-                : _buildEmptyChat(),
+            child:
+                _selectedRoom != null
+                    ? ChatScreen(room: _selectedRoom, onInfoTap: _handleInfoTap)
+                    : _buildEmptyChat(),
           ),
 
           // Divider (only show when ContactInfoPanel is visible)
@@ -167,18 +170,18 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             _selectedRoom != null
                 ? ContactInfoPanel(room: _selectedRoom!)
                 : Container(
-                    width: screenWidth * 0.25,
-                    color: Colors.white,
-                    child: Center(
-                      child: Text(
-                        'Chọn một phòng chat để xem thông tin',
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 13,
-                        ),
+                  width: screenWidth * 0.25,
+                  color: Colors.white,
+                  child: Center(
+                    child: Text(
+                      'Chọn một phòng chat để xem thông tin',
+                      style: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 13,
                       ),
                     ),
                   ),
+                ),
         ],
       ),
     );
@@ -189,36 +192,40 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
       backgroundColor: Colors.white,
       elevation: 0,
       title: Observer(
-        builder: (_) => Row(
-          children: [
-            const Text(
-              'Hộp thư hỗ trợ',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            if (_store.totalUnread > 0) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: const BoxDecoration(
-                  color: AppColors.messengerBlue,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Text(
-                  '${_store.totalUnread}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+        builder:
+            (_) => Row(
+              children: [
+                const Text(
+                  'Hộp thư hỗ trợ',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ),
-            ],
-          ],
-        ),
+                if (_store.totalUnread > 0) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: AppColors.messengerBlue,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: Text(
+                      '${_store.totalUnread}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
       ),
       leading: IconButton(
         icon: const Icon(Icons.menu, color: Color(0xFF333333)),
@@ -236,15 +243,16 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           hintText: 'Tìm kiếm khách hàng',
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
           prefixIcon: const Icon(Icons.search, color: AppColors.messengerBlue),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() => _searchQuery = '');
-                  },
-                )
-              : null,
+          suffixIcon:
+              _searchController.text.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => _searchQuery = '');
+                    },
+                  )
+                  : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(24),
             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -275,9 +283,10 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final rooms = _store.chatRooms
-            .where((r) => r.name.toLowerCase().contains(_searchQuery))
-            .toList();
+        final rooms =
+            _store.chatRooms
+                .where((r) => r.name.toLowerCase().contains(_searchQuery))
+                .toList();
 
         if (rooms.isEmpty) {
           return Center(
@@ -301,15 +310,17 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
 
         return ListView.builder(
           itemCount: rooms.length,
-          itemBuilder: (context, index) => ColoredBox(
-            color: _selectedRoom?.id == rooms[index].id
-                ? AppColors.backgroundGrey
-                : Colors.transparent,
-            child: ChatRoomTile(
-              room: rooms[index],
-              onTap: () => _openRoom(rooms[index]),
-            ),
-          ),
+          itemBuilder:
+              (context, index) => ColoredBox(
+                color:
+                    _selectedRoom?.id == rooms[index].id
+                        ? AppColors.backgroundGrey
+                        : Colors.transparent,
+                child: ChatRoomTile(
+                  room: rooms[index],
+                  onTap: () => _openRoom(rooms[index]),
+                ),
+              ),
         );
       },
     );
@@ -325,7 +336,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
             Icon(
               Icons.mail_outline_rounded,
               size: 80,
-              color: AppColors.messengerBlue.withOpacity(0.2),
+              color: AppColors.messengerBlue.withValues(alpha: 0.2),
             ),
             const SizedBox(height: 16),
             const Text(

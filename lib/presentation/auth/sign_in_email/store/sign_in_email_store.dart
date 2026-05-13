@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
@@ -26,11 +28,11 @@ abstract class _SignInEmailStoreBase with Store {
     required GetCurrentAccountUseCase getCurrentAccountUseCase,
     required AuthStore authStore,
     required AnalyticsService analyticsService,
-  })  : _sendOtpUseCase = sendOtpUseCase,
-        _signInWithGoogleUseCase = signInWithGoogleUseCase,
-        _getCurrentAccountUseCase = getCurrentAccountUseCase,
-        _authStore = authStore,
-        _analyticsService = analyticsService;
+  }) : _sendOtpUseCase = sendOtpUseCase,
+       _signInWithGoogleUseCase = signInWithGoogleUseCase,
+       _getCurrentAccountUseCase = getCurrentAccountUseCase,
+       _authStore = authStore,
+       _analyticsService = analyticsService;
 
   @observable
   String email = '';
@@ -93,14 +95,16 @@ abstract class _SignInEmailStoreBase with Store {
     result.fold(
       (failure) {
         errorKey = _messageKeyFor(failure);
-        _analyticsService.trackEvent(
-          AnalyticsEvents.userLogin,
-          parameters: {
-            'method': 'otp',
-            'success': 'false',
-            'stage': 'send_code',
-            'error_code': errorKey ?? 'unknown',
-          },
+        unawaited(
+          _analyticsService.trackEvent(
+            AnalyticsEvents.userLogin,
+            parameters: {
+              'method': 'otp',
+              'success': 'false',
+              'stage': 'send_code',
+              'error_code': errorKey ?? 'unknown',
+            },
+          ),
         );
       },
       (otp) {
@@ -129,9 +133,7 @@ abstract class _SignInEmailStoreBase with Store {
 
   Future<void> _performGoogleSignIn({required bool forceAccountChooser}) async {
     final result = await _signInWithGoogleUseCase.call(
-      params: SignInWithGoogleParams(
-        forceAccountChooser: forceAccountChooser,
-      ),
+      params: SignInWithGoogleParams(forceAccountChooser: forceAccountChooser),
     );
     await result.fold<Future<void>>(
       (failure) async {
@@ -141,19 +143,22 @@ abstract class _SignInEmailStoreBase with Store {
           return;
         }
         errorKey = _messageKeyFor(failure);
-        _analyticsService.trackEvent(
-          AnalyticsEvents.userLogin,
-          parameters: {
-            'method': 'google_oauth',
-            'success': 'false',
-            'stage': 'oauth',
-            'error_code': errorKey ?? 'unknown',
-          },
+        unawaited(
+          _analyticsService.trackEvent(
+            AnalyticsEvents.userLogin,
+            parameters: {
+              'method': 'google_oauth',
+              'success': 'false',
+              'stage': 'oauth',
+              'error_code': errorKey ?? 'unknown',
+            },
+          ),
         );
       },
       (session) async {
-        final accountResult =
-            await _getCurrentAccountUseCase.call(params: null);
+        final accountResult = await _getCurrentAccountUseCase.call(
+          params: null,
+        );
         accountResult.fold(
           (failure) {
             errorKey = _messageKeyFor(failure);
@@ -165,13 +170,15 @@ abstract class _SignInEmailStoreBase with Store {
               isNewUser: session.isNewUser,
             );
             googleSignInSucceeded = true;
-            _analyticsService.trackEvent(
-              AnalyticsEvents.userLogin,
-              parameters: {
-                'method': 'google_oauth',
-                'success': 'true',
-                'is_new_user': session.isNewUser ? 'true' : 'false',
-              },
+            unawaited(
+              _analyticsService.trackEvent(
+                AnalyticsEvents.userLogin,
+                parameters: {
+                  'method': 'google_oauth',
+                  'success': 'true',
+                  'is_new_user': session.isNewUser ? 'true' : 'false',
+                },
+              ),
             );
           },
         );

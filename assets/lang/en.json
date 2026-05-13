@@ -202,6 +202,8 @@
   "omnichannel_messenger_auth_code_label": "Authorization code",
   "omnichannel_messenger_auth_code_hint": "Paste code from Facebook OAuth callback",
   "omnichannel_messenger_oauth_help": "Enter the temporary OAuth code to verify and link your Messenger page.",
+  "omnichannel_messenger_connect_via_website_message": "You will be redirected to helpdesk.jarvis.cx to authorize Messenger access. Continue?",
+  "omnichannel_messenger_open_website_button": "Open website",
   "omnichannel_messenger_customer_sync_title": "Messenger Customer Sync",
   "omnichannel_messenger_settings_title": "Messenger Settings",
   "omnichannel_messenger_settings_subtitle": "Configure auto-reply, language, and working hours.",

@@ -210,6 +210,8 @@
   "omnichannel_messenger_auth_code_label": "Ma xac thuc",
   "omnichannel_messenger_auth_code_hint": "Dan ma tra ve tu callback OAuth Facebook",
   "omnichannel_messenger_oauth_help": "Nhap ma OAuth tam thoi de xac thuc va lien ket trang Messenger.",
+  "omnichannel_messenger_connect_via_website_message": "Ban se duoc chuyen den helpdesk.jarvis.cx de uy quyen ket noi Messenger. Tiep tuc?",
+  "omnichannel_messenger_open_website_button": "Mo trang web",
   "omnichannel_messenger_customer_sync_title": "Dong bo khach hang Messenger",
   "omnichannel_messenger_settings_title": "Cau hinh Messenger",
   "omnichannel_messenger_settings_subtitle": "Cai dat tra loi tu dong, ngon ngu va gio lam viec.",
