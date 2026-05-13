@@ -74,11 +74,7 @@ class ZaloQrDto {
   final String token;
   final String? image;
 
-  const ZaloQrDto({
-    required this.code,
-    required this.token,
-    this.image,
-  });
+  const ZaloQrDto({required this.code, required this.token, this.image});
 
   factory ZaloQrDto.fromJson(Map<String, dynamic> json) => ZaloQrDto(
     code: json['code'] as String,
@@ -86,11 +82,7 @@ class ZaloQrDto {
     image: json['image'] as String?,
   );
 
-  ZaloQr toEntity() => ZaloQr(
-    code: code,
-    url: token,
-    image: image,
-  );
+  ZaloQr toEntity() => ZaloQr(code: code, url: token, image: image);
 }
 
 @JsonSerializable()
