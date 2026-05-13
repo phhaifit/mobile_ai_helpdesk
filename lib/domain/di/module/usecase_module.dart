@@ -11,6 +11,7 @@ import 'package:ai_helpdesk/domain/repository/monetization/monetization_reposito
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
@@ -37,6 +38,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
@@ -70,7 +72,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -128,6 +129,9 @@ class UseCaseModule {
     getIt.registerSingleton<UploadAvatarUseCase>(
       UploadAvatarUseCase(getIt<AccountRepository>()),
     );
+    getIt.registerSingleton<DeleteAvatarUseCase>(
+      DeleteAvatarUseCase(getIt<AccountRepository>()),
+    );
 
     // Ticket Use Cases:--------------------------------------------------------
     getIt.registerSingleton<GetTicketsUseCase>(
@@ -181,9 +185,6 @@ class UseCaseModule {
     // Omnichannel Use Cases:---------------------------------------------------
     getIt.registerSingleton<GetOmnichannelOverviewUseCase>(
       GetOmnichannelOverviewUseCase(getIt<OmnichannelRepository>()),
-    );
-    getIt.registerSingleton<ConnectMessengerUseCase>(
-      ConnectMessengerUseCase(getIt<OmnichannelRepository>()),
     );
     getIt.registerSingleton<DisconnectMessengerUseCase>(
       DisconnectMessengerUseCase(getIt<OmnichannelRepository>()),
@@ -395,6 +396,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<WatchSourceStatusesUseCase>(
       WatchSourceStatusesUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<UploadLocalFileUseCase>(
+      UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

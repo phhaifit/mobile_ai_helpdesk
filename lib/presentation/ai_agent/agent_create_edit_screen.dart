@@ -37,9 +37,7 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
     final a = widget.agent;
     _nameCtrl = TextEditingController(text: a?.name ?? '');
     _descCtrl = TextEditingController(text: a?.description ?? '');
-    _workflowsCtrl = TextEditingController(
-      text: a?.workflows.join(', ') ?? '',
-    );
+    _workflowsCtrl = TextEditingController(text: a?.workflows.join(', ') ?? '');
     if (a != null) {
       _mode = a.mode;
       _platforms.addAll(a.platforms);
@@ -58,17 +56,18 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
     final l = AppLocalizations.of(context);
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: l.translate('ai_agent_name'),
       ).show(context);
       return;
     }
 
-    final workflows = _workflowsCtrl.text
-        .split(',')
-        .map((w) => w.trim())
-        .where((w) => w.isNotEmpty)
-        .toList();
+    final workflows =
+        _workflowsCtrl.text
+            .split(',')
+            .map((w) => w.trim())
+            .where((w) => w.isNotEmpty)
+            .toList();
 
     final agent = AiAgent(
       id: widget.agent?.id ?? '',
@@ -92,7 +91,7 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
     if (_store.success) {
       Navigator.pop(context);
     } else if (_store.errorStore.errorMessage.isNotEmpty) {
-      FlushbarHelper.createError(
+      await FlushbarHelper.createError(
         message: _store.errorStore.errorMessage,
       ).show(context);
     }
@@ -160,17 +159,21 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: _allPlatforms
-                  .map(
-                    (p) => FilterChip(
-                      label: Text(p),
-                      selected: _platforms.contains(p),
-                      onSelected: (selected) => setState(() {
-                        selected ? _platforms.add(p) : _platforms.remove(p);
-                      }),
-                    ),
-                  )
-                  .toList(),
+              children:
+                  _allPlatforms
+                      .map(
+                        (p) => FilterChip(
+                          label: Text(p),
+                          selected: _platforms.contains(p),
+                          onSelected:
+                              (selected) => setState(() {
+                                selected
+                                    ? _platforms.add(p)
+                                    : _platforms.remove(p);
+                              }),
+                        ),
+                      )
+                      .toList(),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -183,16 +186,18 @@ class _AgentCreateEditScreenState extends State<AgentCreateEditScreen> {
             ),
             const SizedBox(height: 24),
             Observer(
-              builder: (_) => FilledButton(
-                onPressed: _store.isLoading ? null : _save,
-                child: _store.isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l.translate('ai_agent_save')),
-              ),
+              builder:
+                  (_) => FilledButton(
+                    onPressed: _store.isLoading ? null : _save,
+                    child:
+                        _store.isLoading
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : Text(l.translate('ai_agent_save')),
+                  ),
             ),
           ],
         ),

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -22,7 +21,6 @@ class OmnichannelStore = _OmnichannelStore with _$OmnichannelStore;
 
 abstract class _OmnichannelStore with Store {
   final GetOmnichannelOverviewUseCase _getOverviewUseCase;
-  final ConnectMessengerUseCase _connectMessengerUseCase;
   final DisconnectMessengerUseCase _disconnectMessengerUseCase;
   final SyncMessengerDataUseCase _syncMessengerDataUseCase;
   final UpdateMessengerSettingsUseCase _updateMessengerSettingsUseCase;
@@ -32,11 +30,9 @@ abstract class _OmnichannelStore with Store {
   final GenerateZaloQrUseCase _generateZaloQrUseCase;
   final GetZaloQrStatusUseCase _getZaloQrStatusUseCase;
   final ConnectZaloUseCase _connectZaloUseCase;
-  String? _pendingMessengerAuthCode;
 
   _OmnichannelStore(
     this._getOverviewUseCase,
-    this._connectMessengerUseCase,
     this._disconnectMessengerUseCase,
     this._syncMessengerDataUseCase,
     this._updateMessengerSettingsUseCase,
@@ -96,22 +92,6 @@ abstract class _OmnichannelStore with Store {
   }
 
   @action
-  Future<void> connectMessenger() async {
-    final String? authCode = _normalizedAuthCode(_pendingMessengerAuthCode);
-    _pendingMessengerAuthCode = null;
-
-    await _runAction(
-      () => _connectMessengerUseCase.call(
-        params: ConnectMessengerParams(authCode: authCode),
-      ),
-    );
-  }
-
-  set pendingMessengerAuthCode(String? authCode) {
-    _pendingMessengerAuthCode = authCode;
-  }
-
-  @action
   Future<void> disconnectMessenger() async {
     await _runAction(() => _disconnectMessengerUseCase.call(params: null));
   }
@@ -143,14 +123,17 @@ abstract class _OmnichannelStore with Store {
     zaloQrStatus = null;
 
     actionFuture = ObservableFuture(
-      _generateZaloQrUseCase.call(params: null).then((qr) {
-        zaloQr = qr;
-        zaloQrStatus = ZaloQrStatus.pending;
-        _startQrPolling(qr.code);
-      }).catchError((_) {
-        actionWasSuccess = false;
-        actionMessageKey = 'omnichannel_generic_error';
-      }),
+      _generateZaloQrUseCase
+          .call(params: null)
+          .then((qr) {
+            zaloQr = qr;
+            zaloQrStatus = ZaloQrStatus.pending;
+            _startQrPolling(qr.code);
+          })
+          .catchError((_) {
+            actionWasSuccess = false;
+            actionMessageKey = 'omnichannel_generic_error';
+          }),
     );
     await actionFuture;
   }
@@ -162,7 +145,8 @@ abstract class _OmnichannelStore with Store {
         final update = await _getZaloQrStatusUseCase.call(params: code);
         zaloQrStatus = update.status;
 
-        if (update.status == ZaloQrStatus.confirmed && update.authCode != null) {
+        if (update.status == ZaloQrStatus.confirmed &&
+            update.authCode != null) {
           timer.cancel();
           await _connectZaloWithCode(update.authCode!);
         } else if (update.status == ZaloQrStatus.expired) {
@@ -218,14 +202,6 @@ abstract class _OmnichannelStore with Store {
     );
 
     await actionFuture;
-  }
-
-  String? _normalizedAuthCode(String? value) {
-    final String normalized = value?.trim() ?? '';
-    if (normalized.isEmpty) {
-      return null;
-    }
-    return normalized;
   }
 
   void dispose() {

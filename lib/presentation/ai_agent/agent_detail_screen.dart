@@ -12,7 +12,7 @@ import '/utils/routes/routes.dart';
 class AgentDetailScreen extends StatefulWidget {
   final AiAgent agent;
 
-  const AgentDetailScreen({super.key, required this.agent});
+  const AgentDetailScreen({required this.agent, super.key});
 
   @override
   State<AgentDetailScreen> createState() => _AgentDetailScreenState();
@@ -31,28 +31,29 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
     final l = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l.translate('ai_agent_delete')),
-        content: Text(l.translate('ai_agent_delete_confirm')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.translate('ai_agent_cancel')),
+      builder:
+          (_) => AlertDialog(
+            title: Text(l.translate('ai_agent_delete')),
+            content: Text(l.translate('ai_agent_delete_confirm')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(l.translate('ai_agent_cancel')),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(l.translate('ai_agent_delete')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.translate('ai_agent_delete')),
-          ),
-        ],
-      ),
     );
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       await _store.deleteAgent(widget.agent.id);
       if (!mounted) return;
       if (_store.success) {
         Navigator.pop(context);
       } else if (_store.errorStore.errorMessage.isNotEmpty) {
-        FlushbarHelper.createError(
+        await FlushbarHelper.createError(
           message: _store.errorStore.errorMessage,
         ).show(context);
       }
@@ -69,24 +70,27 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: l.translate('ai_agent_edit'),
-            onPressed: () => Navigator.pushNamed(
-              context,
-              Routes.agentEdit,
-              arguments: widget.agent,
-            ),
+            onPressed:
+                () => Navigator.pushNamed(
+                  context,
+                  Routes.agentEdit,
+                  arguments: widget.agent,
+                ),
           ),
           Observer(
-            builder: (_) => IconButton(
-              icon: _store.isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.delete_outline),
-              tooltip: l.translate('ai_agent_delete'),
-              onPressed: _store.isLoading ? null : _confirmDelete,
-            ),
+            builder:
+                (_) => IconButton(
+                  icon:
+                      _store.isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.delete_outline),
+                  tooltip: l.translate('ai_agent_delete'),
+                  onPressed: _store.isLoading ? null : _confirmDelete,
+                ),
           ),
         ],
       ),
@@ -101,9 +105,10 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
             ),
             _DetailRow(
               label: l.translate('ai_agent_description'),
-              value: widget.agent.description.isNotEmpty
-                  ? widget.agent.description
-                  : '-',
+              value:
+                  widget.agent.description.isNotEmpty
+                      ? widget.agent.description
+                      : '-',
             ),
             _DetailRow(
               label: l.translate('ai_agent_mode'),
@@ -127,11 +132,12 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
             FilledButton.icon(
               icon: const Icon(Icons.psychology_outlined),
               label: Text(l.translate('ai_agent_open_playground')),
-              onPressed: () => Navigator.pushNamed(
-                context,
-                Routes.playground,
-                arguments: widget.agent,
-              ),
+              onPressed:
+                  () => Navigator.pushNamed(
+                    context,
+                    Routes.playground,
+                    arguments: widget.agent,
+                  ),
             ),
           ],
         ),

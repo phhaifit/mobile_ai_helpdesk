@@ -4,15 +4,15 @@ import 'package:ai_helpdesk/domain/entity/monetization/monetization.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 
 class MockMonetizationRepositoryImpl implements MonetizationRepository {
-  final MonetizationOverview _overview = MonetizationOverview(
+  final MonetizationOverview _overview = const MonetizationOverview(
     currentPlan: CurrentPlanStatus(
       tier: PlanTier.free,
       planNameKey: 'freePlan',
       isActive: true,
       expiresAt: null,
     ),
-    usageLimit: const UsageLimit(usedTickets: 18, totalTickets: 20),
-    plans: const [
+    usageLimit: UsageLimit(usedTickets: 18, totalTickets: 20),
+    plans: [
       SubscriptionPlan(
         id: 'free',
         tier: PlanTier.free,
@@ -39,7 +39,7 @@ class MockMonetizationRepositoryImpl implements MonetizationRepository {
         ],
       ),
     ],
-    featureGates: const [
+    featureGates: [
       FeatureGate(
         featureKey: 'monthlyTickets',
         freeIncluded: true,

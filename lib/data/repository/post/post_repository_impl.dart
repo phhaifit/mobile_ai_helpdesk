@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:sembast/sembast.dart';
+
 import '/data/local/constants/db_constants.dart';
 import '/data/local/datasources/post/post_datasource.dart';
 import '/data/network/apis/posts/post_api.dart';
 import '/domain/entity/post/post.dart';
 import '/domain/entity/post/post_list.dart';
 import '/domain/repository/post/post_repository.dart';
-import 'package:sembast/sembast.dart';
 
 class PostRepositoryImpl extends PostRepository {
   // data source object
@@ -21,22 +22,25 @@ class PostRepositoryImpl extends PostRepository {
   // Post: ---------------------------------------------------------------------
   @override
   Future<PostList> getPosts() async {
-    return await _postApi.getPosts().then((postsList) {
-      postsList.posts?.forEach((post) {
-        _postDataSource.insert(post);
-      });
+    return await _postApi
+        .getPosts()
+        .then((postsList) {
+          postsList.posts?.forEach((post) {
+            _postDataSource.insert(post);
+          });
 
-      return postsList;
-    }).catchError((Object error) => throw error);
+          return postsList;
+        })
+        .catchError((Object error) => throw error);
   }
 
   @override
   Future<List<Post>> findPostById(int id) {
     //creating filter
-    List<Filter> filters = [];
+    final List<Filter> filters = [];
 
     //check to see if dataLogsType is not null
-    Filter dataLogTypeFilter = Filter.equals(DBConstants.fieldId, id);
+    final Filter dataLogTypeFilter = Filter.equals(DBConstants.fieldId, id);
     filters.add(dataLogTypeFilter);
 
     //making db call

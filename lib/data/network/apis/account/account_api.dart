@@ -100,4 +100,10 @@ class AccountApi {
     );
     return response.data ?? <String, dynamic>{};
   }
+
+  /// Removes the current account avatar. The Helpdesk API expects only the
+  /// bearer + tenantID headers (injected by interceptors) — no body or params.
+  Future<void> deleteAvatar() async {
+    await _dio.delete<dynamic>(Endpoints.accountAvatar);
+  }
 }

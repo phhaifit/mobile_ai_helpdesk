@@ -69,22 +69,20 @@ class MessengerPageDto {
   }
 }
 
-@JsonSerializable()
 class ZaloQrDto {
   final String code;
-  final String qrUrl;
+  final String token;
+  final String? image;
 
-  const ZaloQrDto({
-    required this.code,
-    required this.qrUrl,
-  });
+  const ZaloQrDto({required this.code, required this.token, this.image});
 
-  factory ZaloQrDto.fromJson(Map<String, dynamic> json) => _$ZaloQrDtoFromJson(json);
-
-  ZaloQr toEntity() => ZaloQr(
-    code: code,
-    url: qrUrl,
+  factory ZaloQrDto.fromJson(Map<String, dynamic> json) => ZaloQrDto(
+    code: json['code'] as String,
+    token: json['token'] as String,
+    image: json['image'] as String?,
   );
+
+  ZaloQr toEntity() => ZaloQr(code: code, url: token, image: image);
 }
 
 @JsonSerializable()
@@ -92,12 +90,10 @@ class ZaloQrStatusDto {
   final String status;
   final String? authCode;
 
-  const ZaloQrStatusDto({
-    required this.status,
-    this.authCode,
-  });
+  const ZaloQrStatusDto({required this.status, this.authCode});
 
-  factory ZaloQrStatusDto.fromJson(Map<String, dynamic> json) => _$ZaloQrStatusDtoFromJson(json);
+  factory ZaloQrStatusDto.fromJson(Map<String, dynamic> json) =>
+      _$ZaloQrStatusDtoFromJson(json);
 
   ZaloQrStatusUpdate toEntity() {
     ZaloQrStatus domainStatus;
@@ -136,13 +132,6 @@ class OmnichannelApi {
               MessengerPageDto.fromJson(Map<String, dynamic>.from(item)),
         )
         .toList(growable: false);
-  }
-
-  Future<dynamic> verifyMessengerAuthCode(String code) {
-    return _dioClient.dio.post(
-      Endpoints.verifyMessengerAuthCode(),
-      data: <String, dynamic>{'code': code},
-    );
   }
 
   Future<dynamic> deleteMessengerPage(String channelId) {

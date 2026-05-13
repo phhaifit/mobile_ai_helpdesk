@@ -39,45 +39,21 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
       );
     }
 
-    final MessengerIntegrationState messengerState =
-        fallback.messenger.copyWith(
-      connectionStatus: IntegrationConnectionStatus.connected,
-      oauthState: OAuthState.verified,
-      pageName:
-          connectedPage.name.isNotEmpty
-              ? connectedPage.name
-              : fallback.messenger.pageName,
-      autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
-      businessHours:
-          connectedPage.businessHours ?? fallback.messenger.businessHours,
-      lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
-    );
+    final MessengerIntegrationState messengerState = fallback.messenger
+        .copyWith(
+          connectionStatus: IntegrationConnectionStatus.connected,
+          oauthState: OAuthState.verified,
+          pageName:
+              connectedPage.name.isNotEmpty
+                  ? connectedPage.name
+                  : fallback.messenger.pageName,
+          autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
+          businessHours:
+              connectedPage.businessHours ?? fallback.messenger.businessHours,
+          lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
+        );
 
     return fallback.copyWith(messenger: messengerState);
-  }
-
-  @override
-  Future<ActionFeedback> connectMessenger({String? authCode}) async {
-    final String normalizedCode = authCode?.trim() ?? '';
-    if (normalizedCode.isEmpty) {
-      return const ActionFeedback(
-        isSuccess: false,
-        messageKey: 'omnichannel_messenger_auth_code_required',
-      );
-    }
-
-    try {
-      await _api.verifyMessengerAuthCode(normalizedCode);
-      return const ActionFeedback(
-        isSuccess: true,
-        messageKey: 'omnichannel_messenger_connect_success',
-      );
-    } on DioException {
-      return const ActionFeedback(
-        isSuccess: false,
-        messageKey: 'omnichannel_messenger_connect_failed',
-      );
-    }
   }
 
   @override
@@ -259,5 +235,4 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
 
     return null;
   }
-
 }
