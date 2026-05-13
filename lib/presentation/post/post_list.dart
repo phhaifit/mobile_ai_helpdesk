@@ -104,7 +104,8 @@ class _PostListScreenState extends State<PostListScreen> {
 
   // General Methods:-----------------------------------------------------------
   Widget _showErrorMessage(String message) {
-    Future.delayed(const Duration(milliseconds: 0), () {
+    Future.delayed(Duration.zero, () {
+      if (!mounted) return;
       if (message.isNotEmpty) {
         FlushbarHelper.createError(
           message: message,

@@ -221,6 +221,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                                             ? l.translate('ticketCancelSuccess')
                                             : l.translate('ticketCancelFailed');
 
+                                    if (!mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('$message ${ticket.id}'),

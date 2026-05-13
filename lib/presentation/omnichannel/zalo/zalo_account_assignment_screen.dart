@@ -124,7 +124,7 @@ class _ZaloAccountAssignmentScreenState
                               vertical: 8,
                             ),
                           ),
-                          value: dropdownValue,
+                          initialValue: dropdownValue,
                           items: [
                             DropdownMenuItem<String>(
                               value: '',
