@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
@@ -20,12 +21,14 @@ import 'package:ai_helpdesk/data/network/apis/invitation/invitation_api.dart';
 import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
 import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/prompt/prompt_template_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/data/network/apis/team/team_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tenant/tenant_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
@@ -43,6 +46,7 @@ import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_reposit
 import 'package:ai_helpdesk/data/repository/omnichannel/omnichannel_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/playground/playground_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/prompt/prompt_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/team/team_repository_impl.dart';
@@ -78,8 +82,14 @@ class RepositoryModule {
     final getIt = GetIt.instance;
 
     // --- AI Agent Repository ---
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName)),
+    );
     getIt.registerSingleton<AiAgentRepository>(
-      MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+      AiAgentRepositoryImpl(
+        getIt<AiAgentApi>(),
+        MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+      ),
     );
 
     // --- Playground Repository ---
@@ -237,7 +247,15 @@ class RepositoryModule {
     }
 
     // --- Prompt Repository ---
-    getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
+    getIt.registerSingleton<PromptTemplateApi>(
+      PromptTemplateApi(getIt<DioClient>()),
+    );
+    getIt.registerSingleton<PromptRepository>(
+      PromptRepositoryImpl(
+        getIt<PromptTemplateApi>(),
+        fallback: MockPromptRepositoryImpl(),
+      ),
+    );
 
     // --- Knowledge API & Repository (AI-Services host) ---
     getIt.registerSingleton<KnowledgeApi>(

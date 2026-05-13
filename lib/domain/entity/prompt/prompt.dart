@@ -1,46 +1,113 @@
-class PromptCategory {
+/// Response template entity aligned with API spec:
+/// GET/POST/PATCH/DELETE /api/v1/response-templates
+class ResponseTemplate {
   final String id;
-  final String nameKey;
+  final String name;
+  final String description;
+  final String template;
+  final bool isActive;
+  final String assistantId;
 
-  const PromptCategory({required this.id, required this.nameKey});
-}
-
-class Prompt {
-  final String id;
-  final String title;
-  final String body;
-  final String categoryId;
-  final bool isFavorite;
-  final int usageCount;
-  final bool isPrivate;
-
-  const Prompt({
+  const ResponseTemplate({
     required this.id,
-    required this.title,
-    required this.body,
-    required this.categoryId,
-    required this.isFavorite,
-    required this.usageCount,
-    required this.isPrivate,
+    required this.name,
+    required this.description,
+    required this.template,
+    required this.isActive,
+    required this.assistantId,
   });
 
-  Prompt copyWith({
+  ResponseTemplate copyWith({
     String? id,
-    String? title,
-    String? body,
-    String? categoryId,
-    bool? isFavorite,
-    int? usageCount,
-    bool? isPrivate,
+    String? name,
+    String? description,
+    String? template,
+    bool? isActive,
+    String? assistantId,
   }) {
-    return Prompt(
+    return ResponseTemplate(
       id: id ?? this.id,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      categoryId: categoryId ?? this.categoryId,
-      isFavorite: isFavorite ?? this.isFavorite,
-      usageCount: usageCount ?? this.usageCount,
-      isPrivate: isPrivate ?? this.isPrivate,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      template: template ?? this.template,
+      isActive: isActive ?? this.isActive,
+      assistantId: assistantId ?? this.assistantId,
     );
+  }
+
+  factory ResponseTemplate.fromJson(Map<String, dynamic> json) {
+    return ResponseTemplate(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      template: json['template'] as String? ?? '',
+      isActive: json['isActive'] as bool? ?? true,
+      assistantId: json['assistantId'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'template': template,
+      'isActive': isActive,
+      'assistantId': assistantId,
+    };
+  }
+}
+
+/// DTO for POST /api/v1/response-templates
+class CreateResponseTemplateDto {
+  final String name;
+  final String description;
+  final String template;
+  final bool isActive;
+  final String assistantId;
+
+  const CreateResponseTemplateDto({
+    required this.name,
+    required this.description,
+    required this.template,
+    required this.isActive,
+    required this.assistantId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'description': description,
+      'template': template,
+      'isActive': isActive,
+      'assistantId': assistantId,
+    };
+  }
+}
+
+/// DTO for PATCH /api/v1/response-templates/{templateId}
+class UpdateResponseTemplateDto {
+  final String? name;
+  final String? description;
+  final String? template;
+  final bool? isActive;
+  final String? assistantId;
+
+  const UpdateResponseTemplateDto({
+    this.name,
+    this.description,
+    this.template,
+    this.isActive,
+    this.assistantId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (name != null) map['name'] = name;
+    if (description != null) map['description'] = description;
+    if (template != null) map['template'] = template;
+    if (isActive != null) map['isActive'] = isActive;
+    if (assistantId != null) map['assistantId'] = assistantId;
+    return map;
   }
 }
