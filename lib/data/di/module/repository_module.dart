@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
@@ -23,6 +24,7 @@ import 'package:ai_helpdesk/data/network/apis/tenant/tenant_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
@@ -74,8 +76,14 @@ class RepositoryModule {
     final getIt = GetIt.instance;
 
     // --- AI Agent Repository ---
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName)),
+    );
     getIt.registerSingleton<AiAgentRepository>(
-      MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+      AiAgentRepositoryImpl(
+        getIt<AiAgentApi>(),
+        MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+      ),
     );
 
     // --- Playground Repository ---
