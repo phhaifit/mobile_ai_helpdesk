@@ -59,6 +59,12 @@ class _MessengerOauthStatusScreenState
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -66,15 +72,20 @@ class _MessengerOauthStatusScreenState
                       children: [
                         Text(
                           messenger.pageName,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${l.translate('omnichannel_connection_status')}: ${l.translate(connectionStatusKey(messenger.connectionStatus))}',
+                          style: const TextStyle(color: Colors.black87),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${l.translate('omnichannel_oauth_status')}: ${l.translate(oauthStatusKey(messenger.oauthState))}',
+                          style: const TextStyle(color: Colors.black54),
                         ),
                       ],
                     ),

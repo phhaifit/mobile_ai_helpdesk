@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -16,19 +17,20 @@ class ZaloAccountAssignmentScreen extends StatefulWidget {
 class _ZaloAccountAssignmentScreenState
     extends State<ZaloAccountAssignmentScreen> {
   late final OmnichannelStore _store;
+  late final TeamStore _teamStore;
   final Map<String, String> _selectedAgentByAccountId = <String, String>{};
-
-  final List<String> _agents = const [
-    'Nguyen Ha Linh',
-    'Tran Minh Quan',
-    'Le Thu Anh',
-    'Pham Gia Bao',
-  ];
 
   @override
   void initState() {
     super.initState();
     _store = getIt<OmnichannelStore>();
+    _teamStore = getIt<TeamStore>();
+
+    // Load team data if not already loaded
+    if (_teamStore.teamMembers.isEmpty) {
+      _teamStore.loadTeamData();
+    }
+
     _store.fetchOverview().then((_) {
       final assignments = _store.overview?.zalo.assignments;
       if (assignments == null || !mounted) {
@@ -54,9 +56,12 @@ class _ZaloAccountAssignmentScreenState
       body: Observer(
         builder: (_) {
           final assignments = _store.overview?.zalo.assignments;
+          final teamMembers = _teamStore.teamMembers;
+
           _showActionMessageIfNeeded(context);
 
-          if (assignments == null && _store.isLoading) {
+          if ((assignments == null || _teamStore.isLoading) &&
+              _store.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -70,37 +75,79 @@ class _ZaloAccountAssignmentScreenState
             padding: const EdgeInsets.all(16),
             children: [
               ...assignments.map((item) {
-                final current =
+                final currentId =
                     _selectedAgentByAccountId[item.accountId] ??
                     item.assignedCs;
+
+                // Ensure the current ID exists in the dropdown items to prevent crashes.
+                // If it doesn't exist (e.g., empty string or deleted user), default to unassigned (empty string).
+                final dropdownValue =
+                    teamMembers.any((m) => m.id == currentId) ? currentId : '';
+
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 10),
+                  color: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: Colors.black.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           item.accountName,
-                          style: Theme.of(context).textTheme.titleSmall,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
-                          initialValue: current,
-                          items: _agents
-                              .map(
-                                (agent) => DropdownMenuItem(
-                                  value: agent,
-                                  child: Text(agent),
+                          isExpanded: true,
+                          dropdownColor: Colors.white,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.black.withValues(alpha: 0.04),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          value: dropdownValue,
+                          items: [
+                            DropdownMenuItem<String>(
+                              value: '',
+                              child: Text(
+                                l.translate('omnichannel_unassigned'),
+                                style: const TextStyle(color: Colors.black54),
+                              ),
+                            ),
+                            ...teamMembers.map(
+                              (m) => DropdownMenuItem<String>(
+                                value: m.id,
+                                child: Text(
+                                  m.displayName ?? m.email,
+                                  style: const TextStyle(color: Colors.black87),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              )
-                              .toList(growable: false),
+                              ),
+                            ),
+                          ],
                           onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
                             setState(() {
-                              _selectedAgentByAccountId[item.accountId] = value;
+                              _selectedAgentByAccountId[item.accountId] =
+                                  value ?? '';
                             });
                           },
                         ),

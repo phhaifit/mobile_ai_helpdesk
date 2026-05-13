@@ -190,12 +190,23 @@ class Endpoints {
   static String zaloGenerateQr() => '/api/v1/zalo/qr';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
   static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
+  static String zaloRevoke() => '/api/v1/zalo/oauth/revoke';
   static String zaloConnect() => '/api/v1/zalo/connect';
   static String zaloDisconnect() => '/api/v1/zalo/disconnect';
-  static String zaloConnections() => '/api/v1/zalo/connections';
+  static String zaloLatestCustomer() => '/api/v1/zalo/latest-customer';
+  static String zaloLatestMessages() => '/api/v1/zalo/latest-messages';
+  static String zaloPersonalConnections() => '/api/v1/zalo/personal/connections';
+  static String zaloPersonalStatus(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/status';
+  static String zaloPersonalConnect() => '/api/v1/zalo/personal/connect';
+  static String zaloPersonalDisconnect() => '/api/v1/zalo/personal/disconnect';
+  static String zaloPersonalAssignCs(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/assign-cs';
+  static String zaloPersonalUnassignCs(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/unassign-cs';
   static String sendZaloMessage() => '/api/v1/zalo/messages/send';
-  static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
-  static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
+  static String zaloMessageDetail(String messageId) =>
+      '/api/v1/zalo/messages/$messageId';
 
   // Tag Management
   static String get tags => '/api/v1/tags';

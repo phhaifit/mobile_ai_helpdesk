@@ -116,6 +116,37 @@ class ZaloQrStatusDto {
   }
 }
 
+class ZaloPersonalConnectionDto {
+  final String channelId;
+  final bool isReady;
+  final bool isListening;
+  final String? customerSupportId;
+
+  const ZaloPersonalConnectionDto({
+    required this.channelId,
+    required this.isReady,
+    required this.isListening,
+    this.customerSupportId,
+  });
+
+  factory ZaloPersonalConnectionDto.fromJson(Map<String, dynamic> json) {
+    return ZaloPersonalConnectionDto(
+      channelId: (json['channelID'] ?? json['channelId'] ?? '') as String,
+      isReady: (json['isReady'] ?? false) as bool,
+      isListening: (json['isListening'] ?? false) as bool,
+      customerSupportId: json['customerSupportId'] as String?,
+    );
+  }
+
+  ZaloAccountAssignment toAssignment() {
+    return ZaloAccountAssignment(
+      accountId: channelId,
+      accountName: 'Zalo Personal ($channelId)',
+      assignedCs: customerSupportId ?? '',
+    );
+  }
+}
+
 class OmnichannelApi {
   final DioClient _dioClient;
 
@@ -197,6 +228,68 @@ class OmnichannelApi {
 
   Future<dynamic> deleteZalo() {
     return _dioClient.dio.delete(Endpoints.zaloDisconnect());
+  }
+
+  Future<dynamic> revokeZaloOauth() {
+    return _dioClient.dio.post(Endpoints.zaloRevoke());
+  }
+
+  Future<dynamic> syncZaloLatestCustomers({String? channelId}) {
+    return _dioClient.dio.post(
+      Endpoints.zaloLatestCustomer(),
+      data: <String, dynamic>{if (channelId != null) 'channelId': channelId},
+    );
+  }
+
+  Future<dynamic> syncZaloLatestMessages({String? channelId, String? customerId}) {
+    return _dioClient.dio.post(
+      Endpoints.zaloLatestMessages(),
+      data: <String, dynamic>{
+        if (channelId != null) 'channelId': channelId,
+        if (customerId != null) 'customerId': customerId,
+      },
+    );
+  }
+
+  Future<List<ZaloPersonalConnectionDto>> getZaloPersonalConnections() async {
+    final res = await _dioClient.dio.get(Endpoints.zaloPersonalConnections());
+    final List<dynamic> raw = _unwrapApiPayload(res.data) as List<dynamic>;
+    return raw
+        .map(
+          (item) =>
+              ZaloPersonalConnectionDto.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  Future<dynamic> assignZaloCs({
+    required String channelId,
+    required String customerSupportId,
+  }) {
+    return _dioClient.dio.post(
+      Endpoints.zaloPersonalAssignCs(channelId),
+      data: <String, dynamic>{'customerSupportId': customerSupportId},
+    );
+  }
+
+  Future<dynamic> unassignZaloCs({
+    required String channelId,
+    required String customerSupportId,
+  }) {
+    return _dioClient.dio.delete(
+      Endpoints.zaloPersonalUnassignCs(channelId),
+      data: <String, dynamic>{'customerSupportId': customerSupportId},
+    );
+  }
+
+  Future<dynamic> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) {
+    return _dioClient.dio.post(
+      Endpoints.sendZaloMessage(),
+      data: <String, dynamic>{'recipient': recipient, 'message': message},
+    );
   }
 }
 

@@ -61,6 +61,12 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -69,6 +75,7 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                         width: 220,
                         height: 220,
                         decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.black12),
                         ),
@@ -89,11 +96,16 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                                               child: Icon(
                                                 Icons.qr_code_2,
                                                 size: 120,
+                                                color: Colors.black26,
                                               ),
                                             ),
                                   )
                                   : const Center(
-                                    child: Icon(Icons.qr_code_2, size: 120),
+                                    child: Icon(
+                                      Icons.qr_code_2,
+                                      size: 120,
+                                      color: Colors.black26,
+                                    ),
                                   ),
                         ),
                       ),
@@ -120,6 +132,7 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                         Text(
                           l.translate('omnichannel_zalo_qr_hint'),
                           textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.black87),
                         ),
                     ],
                   ),
@@ -127,10 +140,23 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
               ),
               const SizedBox(height: 12),
               Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
                 child: ListTile(
-                  title: Text(zalo.accountName),
+                  title: Text(
+                    zalo.accountName,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   subtitle: Text(
                     l.translate(connectionStatusKey(zalo.connectionStatus)),
+                    style: const TextStyle(color: Colors.black54),
                   ),
                 ),
               ),
