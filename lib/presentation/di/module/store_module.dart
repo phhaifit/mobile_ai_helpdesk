@@ -14,8 +14,10 @@ import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
@@ -72,7 +74,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.d
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
-import 'package:ai_helpdesk/presentation/auth/edit_profile/store/edit_profile_store.dart';
+import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
@@ -172,9 +174,11 @@ class StoreModule {
       ),
     );
 
-    getIt.registerFactory<EditProfileStore>(
-      () => EditProfileStore(
+    getIt.registerFactory<ProfileStore>(
+      () => ProfileStore(
         updateAccountUseCase: getIt<UpdateAccountUseCase>(),
+        uploadAvatarUseCase: getIt<UploadAvatarUseCase>(),
+        deleteAvatarUseCase: getIt<DeleteAvatarUseCase>(),
         authStore: getIt<AuthStore>(),
       ),
     );

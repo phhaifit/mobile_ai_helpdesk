@@ -11,6 +11,7 @@ import 'package:ai_helpdesk/domain/repository/monetization/monetization_reposito
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
@@ -126,6 +127,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UploadAvatarUseCase>(
       UploadAvatarUseCase(getIt<AccountRepository>()),
+    );
+    getIt.registerSingleton<DeleteAvatarUseCase>(
+      DeleteAvatarUseCase(getIt<AccountRepository>()),
     );
 
     // Ticket Use Cases:--------------------------------------------------------
