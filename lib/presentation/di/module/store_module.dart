@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
@@ -22,6 +23,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/import_database_query_usecase.dart';
@@ -74,27 +76,6 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
-import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
-import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
-import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
-import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
-import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
-import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
-import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
-import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
-import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
-import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
-import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
-import 'package:ai_helpdesk/presentation/stores/session_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_column_visibility_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -108,10 +89,33 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
+import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
+import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
+import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/audience_selection_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
+import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
+import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
+import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
+import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/customer_history_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_column_visibility_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
@@ -123,8 +127,6 @@ import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
 import '../../../domain/usecase/playground/create_session_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
-import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import '../../playground/store/playground_store.dart';
 
 class StoreModule {
@@ -145,7 +147,6 @@ class StoreModule {
         sentryService: getIt<SentryService>(),
       ),
     );
-
     getIt.registerFactory<SplashStore>(
       () => SplashStore(
         authRepository: getIt<AuthRepository>(),
@@ -153,7 +154,6 @@ class StoreModule {
         authStore: getIt<AuthStore>(),
       ),
     );
-
     getIt.registerFactory<SignInEmailStore>(
       () => SignInEmailStore(
         sendOtpUseCase: getIt<SendOtpUseCase>(),
@@ -163,7 +163,6 @@ class StoreModule {
         analyticsService: getIt<AnalyticsService>(),
       ),
     );
-
     getIt.registerFactory<VerifyOtpStore>(
       () => VerifyOtpStore(
         verifyOtpUseCase: getIt<VerifyOtpUseCase>(),
@@ -173,7 +172,6 @@ class StoreModule {
         analyticsService: getIt<AnalyticsService>(),
       ),
     );
-
     getIt.registerFactory<ProfileStore>(
       () => ProfileStore(
         updateAccountUseCase: getIt<UpdateAccountUseCase>(),
@@ -182,7 +180,6 @@ class StoreModule {
         authStore: getIt<AuthStore>(),
       ),
     );
-
     getIt.registerSingleton<SessionStore>(SessionStore());
 
     // --- Ticket Stores ---
@@ -225,6 +222,13 @@ class StoreModule {
     );
 
     // --- Customer Store ---
+    getIt.registerFactory<CustomerDetailStore>(
+      () => CustomerDetailStore(
+        getIt<CustomerRepository>(),
+        getIt<GetCustomerHistoryUseCase>(),
+        getIt<GetCustomerChatRoomsUseCase>(),
+      ),
+    );
     getIt.registerLazySingleton<CustomerStore>(
       () => CustomerStore(getIt<CustomerRepository>()),
     );
@@ -261,6 +265,7 @@ class StoreModule {
         getIt<ConnectZaloUseCase>(),
       ),
     );
+
     // --- Monetization Store ---
     getIt.registerFactory(
       () => MonetizationStore(
@@ -305,7 +310,6 @@ class StoreModule {
         getIt<EventBus>(),
       ),
     );
-
     getIt.registerFactory<MarketingBroadcastStore>(
       () => MarketingBroadcastStore(
         getIt<GetBroadcastTemplatesUseCase>(),
@@ -332,7 +336,6 @@ class StoreModule {
         getIt<AnalyticsService>(),
       ),
     );
-
     getIt.registerFactory<AudienceSelectionStore>(
       () => AudienceSelectionStore(getIt<GetBroadcastRecipientsUseCase>()),
     );

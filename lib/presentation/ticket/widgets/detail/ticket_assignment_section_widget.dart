@@ -10,9 +10,7 @@ class TicketAssignmentSectionWidget extends StatelessWidget {
   final TicketDetailStore store;
 
   const TicketAssignmentSectionWidget({
-    super.key,
-    required this.ticket,
-    required this.store,
+    required this.ticket, required this.store, super.key,
   });
 
   @override

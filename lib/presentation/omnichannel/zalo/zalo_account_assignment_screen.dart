@@ -60,7 +60,8 @@ class _ZaloAccountAssignmentScreenState
 
           _showActionMessageIfNeeded(context);
 
-          if ((assignments == null || _teamStore.isLoading) && _store.isLoading) {
+          if ((assignments == null || _teamStore.isLoading) &&
+              _store.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -80,16 +81,17 @@ class _ZaloAccountAssignmentScreenState
 
                 // Ensure the current ID exists in the dropdown items to prevent crashes.
                 // If it doesn't exist (e.g., empty string or deleted user), default to unassigned (empty string).
-                final dropdownValue = teamMembers.any((m) => m.id == currentId)
-                    ? currentId
-                    : '';
+                final dropdownValue =
+                    teamMembers.any((m) => m.id == currentId) ? currentId : '';
 
                 return Card(
                   color: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                    side: BorderSide(
+                      color: Colors.black.withValues(alpha: 0.08),
+                    ),
                   ),
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
@@ -99,7 +101,9 @@ class _ZaloAccountAssignmentScreenState
                       children: [
                         Text(
                           item.accountName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
                             color: Colors.black,
                             fontWeight: FontWeight.w700,
                           ),
@@ -115,7 +119,10 @@ class _ZaloAccountAssignmentScreenState
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide.none,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                           ),
                           value: dropdownValue,
                           items: [
@@ -139,7 +146,8 @@ class _ZaloAccountAssignmentScreenState
                           ],
                           onChanged: (value) {
                             setState(() {
-                              _selectedAgentByAccountId[item.accountId] = value ?? '';
+                              _selectedAgentByAccountId[item.accountId] =
+                                  value ?? '';
                             });
                           },
                         ),

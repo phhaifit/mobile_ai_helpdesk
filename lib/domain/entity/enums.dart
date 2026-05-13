@@ -3,51 +3,31 @@ import 'package:flutter/material.dart';
 /// Ticket status enumeration
 enum TicketStatus {
   open,
+
+  /// Client-only sync state (kept for UI/local workflow).
   inProgress,
   resolved,
   closed,
   pending,
+
+  /// Client-only sync state (kept for UI/local workflow).
   processingByAI,
 }
 
 /// Ticket priority levels
-enum TicketPriority {
-  low,
-  medium,
-  high,
-  urgent,
-}
+enum TicketPriority { low, medium, high, urgent }
 
 /// Ticket categories/types
-enum TicketCategory {
-  technical,
-  billing,
-  general,
-  account,
-  other,
-}
+enum TicketCategory { technical, billing, general, account, other }
 
 /// Ticket source/channel
-enum TicketSource {
-  messenger,
-  zalo,
-  email,
-  phone,
-  web,
-}
+enum TicketSource { messenger, zalo, email, phone, web }
 
 /// Comment visibility type
-enum CommentType {
-  public,
-  internal,
-}
+enum CommentType { public, internal }
 
 /// Contact type for ticket
-enum ContactType {
-  email,
-  phone,
-  zalo,
-}
+enum ContactType { email, phone, zalo }
 
 /// Extensions for display names
 extension TicketStatusDisplay on TicketStatus {

@@ -8,9 +8,7 @@ class ContextSelector extends StatelessWidget {
   final ValueChanged<PlaygroundContextType> onChanged;
 
   const ContextSelector({
-    super.key,
-    required this.selected,
-    required this.onChanged,
+    required this.selected, required this.onChanged, super.key,
   });
 
   @override

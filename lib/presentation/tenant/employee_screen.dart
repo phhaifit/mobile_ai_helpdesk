@@ -35,7 +35,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   int _selectedTab = 0;
   TeamRole? _memberRoleFilter;
   InvitationStatus? _invitationStatusFilter;
-  TeamRole _inviteRole = TeamRole.customer_support;
+  TeamRole _inviteRole = TeamRole.customerSupport;
   bool _isSubmittingInvite = false;
 
   @override
@@ -86,15 +86,19 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: isMobile ? AppBar(
-        title: Text(l.translate('employee_app_title')),
-        leading: isMobile && widget.onMenuTap != null
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: widget.onMenuTap,
+      appBar:
+          isMobile
+              ? AppBar(
+                title: Text(l.translate('employee_app_title')),
+                leading:
+                    isMobile && widget.onMenuTap != null
+                        ? IconButton(
+                          icon: const Icon(Icons.menu),
+                          onPressed: widget.onMenuTap,
+                        )
+                        : null,
               )
-            : null,
-      ) : null,
+              : null,
       body: Observer(
         builder: (_) {
           final members = _filteredMembers();
@@ -125,9 +129,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   List<Invitation> get _filteredAccountInvitations {
     final query = _invitationSearchController.text.trim().toLowerCase();
     return _accountInvitations.where((item) {
-      final hitQuery = query.isEmpty || item.email.toLowerCase().contains(query);
+      final hitQuery =
+          query.isEmpty || item.email.toLowerCase().contains(query);
       final hitStatus =
-          _invitationStatusFilter == null || item.status == _invitationStatusFilter;
+          _invitationStatusFilter == null ||
+          item.status == _invitationStatusFilter;
       return hitQuery && hitStatus;
     }).toList();
   }
@@ -167,14 +173,20 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  Widget _buildEmployeeContent(AppLocalizations l, List<TeamMember> members, bool isMobile) {
+  Widget _buildEmployeeContent(
+    AppLocalizations l,
+    List<TeamMember> members,
+    bool isMobile,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(
           l: l,
           title: l.translate('employee_section_info'),
-          subtitle: l.translate('employee_total_employees').replaceAll('{count}', '${members.length}'),
+          subtitle: l
+              .translate('employee_total_employees')
+              .replaceAll('{count}', '${members.length}'),
           isMobile: isMobile,
         ),
         const SizedBox(height: 12),
@@ -183,7 +195,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             children: [
               _employeeFilters(l, isMobile),
               const SizedBox(height: 12),
-              if (isMobile) _employeeCards(l, members) else _employeeTable(l, members),
+              if (isMobile)
+                _employeeCards(l, members)
+              else
+                _employeeTable(l, members),
             ],
           ),
         ),
@@ -191,7 +206,11 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  Widget _buildInvitationContent(AppLocalizations l, List<Invitation> invitations, bool isMobile) {
+  Widget _buildInvitationContent(
+    AppLocalizations l,
+    List<Invitation> invitations,
+    bool isMobile,
+  ) {
     if (_isLoadingInvitations && invitations.isEmpty) {
       return _loadingInvitationsState(l, isMobile);
     }
@@ -202,14 +221,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         _buildHeader(
           l: l,
           title: l.translate('employee_section_invitations'),
-          subtitle: l.translate('employee_total_invitations').replaceAll('{count}', '${invitations.length}'),
+          subtitle: l
+              .translate('employee_total_invitations')
+              .replaceAll('{count}', '${invitations.length}'),
           isMobile: isMobile,
         ),
         const SizedBox(height: 12),
         _panel(
           child: Column(
             children: [
-              if (_isLoadingInvitations) const LinearProgressIndicator(minHeight: 2),
+              if (_isLoadingInvitations)
+                const LinearProgressIndicator(minHeight: 2),
               if (_isLoadingInvitations) const SizedBox(height: 12),
               _invitationFilters(l, isMobile),
               const SizedBox(height: 12),
@@ -219,7 +241,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                 _invitationTable(l, invitations),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -231,7 +253,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         _buildHeader(
           l: l,
           title: l.translate('employee_section_invitations'),
-          subtitle: l.translate('employee_total_invitations').replaceAll('{count}', '0'),
+          subtitle: l
+              .translate('employee_total_invitations')
+              .replaceAll('{count}', '0'),
           isMobile: isMobile,
         ),
         const SizedBox(height: 12),
@@ -266,74 +290,71 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }) {
     return isMobile
         ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
               ),
-              const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: Colors.grey.shade700)),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _onExport,
-                    icon: const Icon(Icons.download, size: 16),
-                    label: Text(l.translate('employee_btn_export_excel')),
+            ),
+            const SizedBox(height: 4),
+            Text(subtitle, style: TextStyle(color: Colors.grey.shade700)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _onExport,
+                  icon: const Icon(Icons.download, size: 16),
+                  label: Text(l.translate('employee_btn_export_excel')),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _openInviteDialog(l),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text(l.translate('employee_btn_add_employee')),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _openInviteDialog(l),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: Text(l.translate('employee_btn_add_employee')),
+                ),
+              ],
+            ),
+          ],
+        )
+        : Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: TextStyle(color: Colors.grey.shade700)),
                 ],
               ),
-            ],
-          )
-        : Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(color: Colors.grey.shade700),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _onExport,
-                icon: const Icon(Icons.download, size: 16),
-                label: Text(l.translate('employee_btn_export_excel')),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton.icon(
-                onPressed: () => _openInviteDialog(l),
-                icon: const Icon(Icons.add, size: 16),
-                label: Text(l.translate('employee_btn_add_employee')),
-              ),
-            ],
-          );
+            ),
+            ElevatedButton.icon(
+              onPressed: _onExport,
+              icon: const Icon(Icons.download, size: 16),
+              label: Text(l.translate('employee_btn_export_excel')),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton.icon(
+              onPressed: () => _openInviteDialog(l),
+              icon: const Icon(Icons.add, size: 16),
+              label: Text(l.translate('employee_btn_add_employee')),
+            ),
+          ],
+        );
   }
 
   Widget _employeeFilters(AppLocalizations l, bool isMobile) {
@@ -350,16 +371,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
 
     final filter = DropdownButtonFormField<TeamRole?>(
-      value: _memberRoleFilter,
+      initialValue: _memberRoleFilter,
       onChanged: (value) => setState(() => _memberRoleFilter = value),
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         isDense: true,
       ),
       items: [
-        DropdownMenuItem<TeamRole?>(value: null, child: Text(l.translate('employee_filter_all'))),
+        DropdownMenuItem<TeamRole?>(
+          value: null,
+          child: Text(l.translate('employee_filter_all')),
+        ),
         ...TeamRole.values.map(
           (role) => DropdownMenuItem<TeamRole?>(
             value: role,
@@ -396,7 +418,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
 
     final filter = DropdownButtonFormField<InvitationStatus?>(
-      value: _invitationStatusFilter,
+      initialValue: _invitationStatusFilter,
       onChanged: (value) => setState(() => _invitationStatusFilter = value),
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -481,21 +503,24 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       return _emptyText(l.translate('employee_empty_employees'));
     }
     return Column(
-      children: members
-          .map(
-            (member) => Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                title: Text(_displayName(member)),
-                subtitle: Text('${member.email}\n${_roleLabel(l, member.role)}'),
-                trailing: TextButton(
-                  onPressed: () => _showMemberDetails(member),
-                  child: Text(l.translate('employee_btn_details')),
+      children:
+          members
+              .map(
+                (member) => Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: ListTile(
+                    title: Text(_displayName(member)),
+                    subtitle: Text(
+                      '${member.email}\n${_roleLabel(l, member.role)}',
+                    ),
+                    trailing: TextButton(
+                      onPressed: () => _showMemberDetails(member),
+                      child: Text(l.translate('employee_btn_details')),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          )
-          .toList(),
+              )
+              .toList(),
     );
   }
 
@@ -504,48 +529,53 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       return _emptyText(l.translate('employee_empty_invitations'));
     }
     return Column(
-      children: invitations
-          .map(
-            (item) => Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.email,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(_roleLabel(l, item.role)),
-                    Text(_formatDateTime(item.expiresAt)),
-                    Text(_invitationStatusLabel(l, item.status)),
-                    const SizedBox(height: 8),
-                    Row(
+      children:
+          invitations
+              .map(
+                (item) => Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (item.status == InvitationStatus.pending)
-                          OutlinedButton(
-                            onPressed: () => _handleResend(item.id, l),
-                            child: Text(l.translate('employee_btn_resend')),
-                          ),
-                        const SizedBox(width: 8),
-                        if (item.status == InvitationStatus.pending)
-                          ElevatedButton(
-                            onPressed: () => _handleDeleteInvitation(item.id, l),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF04E4E),
-                            ),
-                            child: Text(l.translate('employee_btn_delete'), style: const TextStyle(color: Colors.white)),
-                          ),
+                        Text(
+                          item.email,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(_roleLabel(l, item.role)),
+                        Text(_formatDateTime(item.expiresAt)),
+                        Text(_invitationStatusLabel(l, item.status)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            if (item.status == InvitationStatus.pending)
+                              OutlinedButton(
+                                onPressed: () => _handleResend(item.id, l),
+                                child: Text(l.translate('employee_btn_resend')),
+                              ),
+                            const SizedBox(width: 8),
+                            if (item.status == InvitationStatus.pending)
+                              ElevatedButton(
+                                onPressed:
+                                    () => _handleDeleteInvitation(item.id, l),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF04E4E),
+                                ),
+                                child: Text(
+                                  l.translate('employee_btn_delete'),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          )
-          .toList(),
+              )
+              .toList(),
     );
   }
 
@@ -554,16 +584,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: const Color(0xFFF3F4F7),
       child: Row(
-        children: titles
-            .map(
-              (e) => Expanded(
-                child: Text(
-                  e,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            )
-            .toList(),
+        children:
+            titles
+                .map(
+                  (e) => Expanded(
+                    child: Text(
+                      e,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                )
+                .toList(),
       ),
     );
   }
@@ -575,12 +606,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
       child: Row(
-        children: values
-            .map(
-              (v) =>
-                  Expanded(child: v is Widget ? v : Text(v?.toString() ?? '-')),
-            )
-            .toList(),
+        children:
+            values
+                .map(
+                  (v) => Expanded(
+                    child: v is Widget ? v : Text(v?.toString() ?? '-'),
+                  ),
+                )
+                .toList(),
       ),
     );
   }
@@ -611,7 +644,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         color = Colors.orange;
         break;
       case InvitationStatus.declined:
-      case InvitationStatus.expired_declined:
+      case InvitationStatus.expiredDeclined:
         color = Colors.red;
         break;
     }
@@ -638,7 +671,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFF04E4E),
           ),
-          child: Text(l.translate('employee_btn_delete'), style: const TextStyle(color: Colors.white)),
+          child: Text(
+            l.translate('employee_btn_delete'),
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );
@@ -692,7 +728,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     switch (role) {
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.customer_support:
+      case TeamRole.customerSupport:
         return l.translate('employee_role_staff');
     }
   }
@@ -709,7 +745,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         return l.translate('invitation_status_expired');
       case InvitationStatus.declined:
         return l.translate('invitation_status_declined');
-      case InvitationStatus.expired_declined:
+      case InvitationStatus.expiredDeclined:
         return l.translate('invitation_status_expired_declined');
     }
   }
@@ -731,7 +767,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     }
 
     _inviteEmailController.clear();
-    _inviteRole = TeamRole.customer_support;
+    _inviteRole = TeamRole.customerSupport;
 
     await showDialog<void>(
       context: context,
@@ -755,15 +791,16 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<TeamRole>(
-                      value: _inviteRole,
-                      items: TeamRole.values
-                          .map(
-                            (role) => DropdownMenuItem<TeamRole>(
-                              value: role,
-                              child: Text(_roleLabel(dl, role)),
-                            ),
-                          )
-                          .toList(),
+                      initialValue: _inviteRole,
+                      items:
+                          TeamRole.values
+                              .map(
+                                (role) => DropdownMenuItem<TeamRole>(
+                                  value: role,
+                                  child: Text(_roleLabel(dl, role)),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         if (value == null) {
                           return;
@@ -780,30 +817,33 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: _isSubmittingInvite
-                      ? null
-                      : () => Navigator.of(dialogContext).pop(),
+                  onPressed:
+                      _isSubmittingInvite
+                          ? null
+                          : () => Navigator.of(dialogContext).pop(),
                   child: Text(dl.translate('common_cancel')),
                 ),
                 ElevatedButton(
-                  onPressed: _isSubmittingInvite
-                      ? null
-                      : () async {
-                          await _submitInvite(dl);
-                          if (dialogContext.mounted) {
-                            Navigator.of(dialogContext).pop();
-                          }
-                        },
-                  child: _isSubmittingInvite
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(dl.translate('employee_btn_add_employee')),
+                  onPressed:
+                      _isSubmittingInvite
+                          ? null
+                          : () async {
+                            await _submitInvite(dl);
+                            if (dialogContext.mounted) {
+                              Navigator.of(dialogContext).pop();
+                            }
+                          },
+                  child:
+                      _isSubmittingInvite
+                          ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : Text(dl.translate('employee_btn_add_employee')),
                 ),
               ],
             );
@@ -820,9 +860,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       return;
     }
 
-    final invitedByMemberId = _teamStore.teamMembers.isNotEmpty
-        ? _teamStore.teamMembers.first.id
-        : 'system-inviter';
+    final invitedByMemberId =
+        _teamStore.teamMembers.isNotEmpty
+            ? _teamStore.teamMembers.first.id
+            : 'system-inviter';
 
     setState(() {
       _isSubmittingInvite = true;
@@ -844,7 +885,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       _selectedTab = 1;
     });
 
-    _showMessage(l.translate('employee_msg_invite_sent').replaceAll('{email}', email));
+    _showMessage(
+      l.translate('employee_msg_invite_sent').replaceAll('{email}', email),
+    );
   }
 
   Future<void> _handleResend(String invitationId, AppLocalizations l) async {
@@ -860,7 +903,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     _showMessage(l.translate('employee_msg_invite_resent'));
   }
 
-  Future<void> _handleDeleteInvitation(String invitationId, AppLocalizations l) async {
+  Future<void> _handleDeleteInvitation(
+    String invitationId,
+    AppLocalizations l,
+  ) async {
     await _invitationRepository.deleteInvitation(invitationId);
     await _teamStore.loadTeamData();
     await _loadAccountInvitations();

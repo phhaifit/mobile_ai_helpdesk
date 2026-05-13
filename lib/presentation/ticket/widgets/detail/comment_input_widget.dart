@@ -10,12 +10,7 @@ class CommentInputWidget extends StatelessWidget {
   final VoidCallback onSend;
 
   const CommentInputWidget({
-    super.key,
-    required this.text,
-    required this.commentType,
-    required this.onTextChanged,
-    required this.onTypeChanged,
-    required this.onSend,
+    required this.text, required this.commentType, required this.onTextChanged, required this.onTypeChanged, required this.onSend, super.key,
   });
 
   @override

@@ -86,7 +86,7 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                                   ? Image.memory(
                                     base64Decode(
                                       qr.image!.replaceFirst(
-                                        RegExp(r'data:image/[^;]+;base64,'),
+                                        RegExp('data:image/[^;]+;base64,'),
                                         '',
                                       ),
                                     ),

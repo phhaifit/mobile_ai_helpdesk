@@ -32,6 +32,7 @@ dependencies:
   web_socket_channel: ^3.0.3
   intl: '>=0.19.0 <0.21.0'
 
+
   # Firebase & Analytics
   package_info_plus: ^8.0.0
   uuid: ^4.0.0

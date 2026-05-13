@@ -21,18 +21,20 @@ class Tenant {
   });
 
   factory Tenant.fromJson(Map<String, dynamic> json) {
-    final raw = json['data'] is Map<String, dynamic>
-        ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
-        : json;
+    final raw =
+        json['data'] is Map<String, dynamic>
+            ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
+            : json;
 
     final settingsJson = raw['settings'];
-    final settings = settingsJson is Map<String, dynamic>
-        ? TenantSettings.fromJson(Map<String, dynamic>.from(settingsJson))
-        : const TenantSettings(
-            allowInvitations: true,
-            defaultRole: TeamRole.customer_support,
-            enableAuditLog: false,
-          );
+    final settings =
+        settingsJson is Map<String, dynamic>
+            ? TenantSettings.fromJson(Map<String, dynamic>.from(settingsJson))
+            : const TenantSettings(
+              allowInvitations: true,
+              defaultRole: TeamRole.customerSupport,
+              enableAuditLog: false,
+            );
 
     final createdAt = _parseDateTime(raw['createdAt']) ?? DateTime.now();
 
@@ -47,10 +49,7 @@ class Tenant {
 
   Map<String, dynamic> toJson() => _$TenantToJson(this);
 
-  static String? _readString(
-    Map<String, dynamic> json,
-    List<String> keys,
-  ) {
+  static String? _readString(Map<String, dynamic> json, List<String> keys) {
     for (final key in keys) {
       final value = json[key];
       if (value is String && value.trim().isNotEmpty) {

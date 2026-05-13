@@ -9,7 +9,7 @@ import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_source_widget.dar
 class TicketDetailHeaderWidget extends StatelessWidget {
   final Ticket ticket;
 
-  const TicketDetailHeaderWidget({super.key, required this.ticket});
+  const TicketDetailHeaderWidget({required this.ticket, super.key});
 
   @override
   Widget build(BuildContext context) {

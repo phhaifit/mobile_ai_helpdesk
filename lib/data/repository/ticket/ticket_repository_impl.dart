@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/models/ticket/comment_api_model.dart';
 import 'package:ai_helpdesk/data/models/ticket/ticket_api_model.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
@@ -9,33 +10,60 @@ import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket_query_params.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// Real [TicketRepository] implementation.
 ///
-/// **My scope** (customer history + comments) calls the real REST API via
-/// [TicketApi].
+/// **Customer history** calls the real REST API via [TicketApi] and falls back
+/// to [MockTicketDataSource] in debug builds when the backend returns 404/5xx
+/// or a network error — so the customer-detail flow stays exercisable before
+/// the route is stable. 401/403 still propagate so auth flows behave
+/// realistically.
 ///
-/// **Ticket core** (list, detail, create, update, assignment, status) uses
-/// real REST APIs when available. Missing endpoints fall back to mock for now.
+/// **Comments** and **ticket core** (list, detail, create, update, assignment,
+/// status) use real REST APIs. Missing endpoints fall back to mock for now.
 class TicketRepositoryImpl implements TicketRepository {
   final TicketApi _api;
   final MockTicketRepositoryImpl _mock;
+  final MockTicketDataSource? _fallbackTickets;
 
-  TicketRepositoryImpl(this._api, this._mock);
+  TicketRepositoryImpl(this._api, this._mock, [this._fallbackTickets]);
 
-  // ── My scope: Customer ticket history ──────────────────────────────────────
+  // ── Debug fallback helper ─────────────────────────────────────────────────
+
+  bool _shouldFallback(DioException e) {
+    if (!kDebugMode || _fallbackTickets == null) return false;
+    final code = e.response?.statusCode;
+    if (code == null) return true;
+    if (code == 404) return true;
+    if (code >= 500) return true;
+    return false;
+  }
+
+  // ── Customer ticket history ───────────────────────────────────────────────
 
   @override
   Future<List<Ticket>> getCustomerHistory(String customerId) async {
-    final raw = await _api.getCustomerTickets(customerId);
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map(TicketApiModel.fromJson)
-        .map((m) => m.toDomain())
-        .toList();
+    try {
+      final dtos = await _api.getCustomerTickets(customerId);
+      return dtos.map((d) => d.toEntity()).toList(growable: false);
+    } on DioException catch (e) {
+      if (_shouldFallback(e)) {
+        if (kDebugMode) {
+          // ignore: avoid_print
+          print(
+            '[TicketRepo] getCustomerHistory failed '
+            '(${e.response?.statusCode ?? e.type.name}); using mock data.',
+          );
+        }
+        return _fallbackTickets!.getCustomerTickets(customerId);
+      }
+      rethrow;
+    }
   }
 
-  // ── My scope: Comments ─────────────────────────────────────────────────────
+  // ── Comments ──────────────────────────────────────────────────────────────
 
   @override
   Future<List<Comment>> getComments(String ticketId) async {
@@ -53,7 +81,6 @@ class TicketRepositoryImpl implements TicketRepository {
     required Comment comment,
   }) async {
     final data = await _api.addComment(ticketId, comment.content);
-
     // If the server returned a populated object, use the server-assigned id and
     // timestamp; otherwise fall back to the optimistic comment from the store.
     if (data.isNotEmpty && ((data['id'] as String?)?.isNotEmpty ?? false)) {
@@ -62,10 +89,9 @@ class TicketRepositoryImpl implements TicketRepository {
     }
     // Assign a temporary id so the UI can display the comment immediately.
     return comment.copyWith(
-      id:
-          comment.id.isNotEmpty
-              ? comment.id
-              : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
+      id: comment.id.isNotEmpty
+          ? comment.id
+          : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
     );
   }
 
@@ -94,11 +120,9 @@ class TicketRepositoryImpl implements TicketRepository {
       customerId: ticket.customerId,
       priority: _mapPriorityToApi(ticket.priority),
     );
-
     if (data.isEmpty || ((data['id'] as String?)?.isEmpty ?? false)) {
       return _mock.createTicket(ticket);
     }
-
     final apiTicket = TicketApiModel.fromJson(data).toDomain();
     return _mergeTicket(ticket, apiTicket);
   }
@@ -112,17 +136,14 @@ class TicketRepositoryImpl implements TicketRepository {
       assigneeId: ticket.assignedAgentId,
       includeAssigneeId: true,
     );
-
     final status = _mapStatusToApi(ticket.status);
     if (status != null) {
       await _api.updateTicketStatus(ticketId: ticket.id, status: status);
     }
-
     final refreshed = await getTicketById(ticket.id);
     if (refreshed != null) {
       return _mergeTicket(ticket, refreshed);
     }
-
     return ticket.copyWith(updatedAt: DateTime.now());
   }
 
@@ -142,12 +163,8 @@ class TicketRepositoryImpl implements TicketRepository {
       assigneeId: agentId,
       includeAssigneeId: true,
     );
-
     final refreshed = await getTicketById(ticketId);
-    if (refreshed != null) {
-      return refreshed;
-    }
-
+    if (refreshed != null) return refreshed;
     return _mock.assignAgent(ticketId: ticketId, agentId: agentId);
   }
 
@@ -162,6 +179,8 @@ class TicketRepositoryImpl implements TicketRepository {
     // TODO: Replace with ticket history API when available.
     return _mock.getTicketHistory(ticketId);
   }
+
+  // ── Private helpers ───────────────────────────────────────────────────────
 
   Future<List<dynamic>> _getTicketsFromApi(TicketQueryParams params) {
     switch (params.tab) {
@@ -202,10 +221,9 @@ class TicketRepositoryImpl implements TicketRepository {
       status: apiTicket.status,
       priority: apiTicket.priority,
       source: apiTicket.source,
-      customerId:
-          apiTicket.customerId.isNotEmpty
-              ? apiTicket.customerId
-              : base.customerId,
+      customerId: apiTicket.customerId.isNotEmpty
+          ? apiTicket.customerId
+          : base.customerId,
       assignedAgentId: apiTicket.assignedAgentId,
       createdAt: apiTicket.createdAt,
       updatedAt: apiTicket.updatedAt,

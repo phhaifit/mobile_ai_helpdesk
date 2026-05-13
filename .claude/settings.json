@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze *)",
+      "Bash(flutter test *)",
+      "Bash(not exist *)",
+      "PowerShell(New-Item -ItemType Directory -Path \"lib\\\\domain\\\\entity\\\\chat_room\" -Force)",
+      "PowerShell(New-Item -ItemType File -Path \"lib\\\\domain\\\\entity\\\\chat_room\\\\customer_chat_room.dart\" -Force)"
+    ]
+  }
+}

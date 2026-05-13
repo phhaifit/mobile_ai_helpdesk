@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
@@ -19,6 +18,7 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dar
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
+import 'package:mobx/mobx.dart';
 
 part 'ticket_detail_store.g.dart';
 

@@ -80,7 +80,7 @@ class _TenantSwitcherState extends State<TenantSwitcher> {
           final tenants = _tenantStore.tenantList;
           final selectedTenant = _tenantStore.currentTenant;
           final selectedName =
-              selectedTenant?.name.trim().isNotEmpty == true
+              selectedTenant?.name.trim().isNotEmpty ?? false
               ? selectedTenant!.name
               : l.translate('tenant_info_msg_no_org');
 
