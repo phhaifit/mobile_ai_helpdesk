@@ -192,6 +192,8 @@ class Endpoints {
 
   // Omnichannel: Messenger endpoints
   static String messengerCustomers() => '/api/messenger/messenger-customers';
+  static String verifyMessengerAuthCode() => '/api/messenger/verify-auth-code';
+    static String messengerConnectPage() => '/api/messenger/connect-page';
   static String updateMessengerPageConfig() =>
       '/api/messenger/update-page-config';
   static String messengerPages() => '/api/messenger/pages';
@@ -200,7 +202,7 @@ class Endpoints {
   static String resyncMessengerPage() => '/api/messenger/resync-page';
 
   // Omnichannel: Zalo endpoints
-  static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
+  static String zaloGenerateQr() => '/api/v1/zalo/qr';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
   static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
   static String zaloConnect() => '/api/v1/zalo/connect';
@@ -285,6 +287,24 @@ class Endpoints {
 
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
+
+  // AI Agent endpoints (real backend)
+  static String aiAgentByTenant(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId';
+  static String aiAgentById(String agentId) => '/api/v1/ai-agents/$agentId';
+
+  // Jarvis Agent endpoints
+  static String jarvisMessage(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId/messages';
+  static String jarvisConfirm(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId/confirm';
+
+  // Media endpoints
+  static String uploadFile(String tenantId) =>
+      '/api/v1/media/$tenantId/upload';
+
+  // Account
+  static String accountTenants() => '/api/account/tenants';
 
   // WebSocket
   static String ticketWebSocket(String ticketId) {

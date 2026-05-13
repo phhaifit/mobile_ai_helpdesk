@@ -11,6 +11,7 @@ import 'package:ai_helpdesk/domain/repository/monetization/monetization_reposito
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
@@ -37,6 +38,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
@@ -124,6 +126,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UploadAvatarUseCase>(
       UploadAvatarUseCase(getIt<AccountRepository>()),
+    );
+    getIt.registerSingleton<DeleteAvatarUseCase>(
+      DeleteAvatarUseCase(getIt<AccountRepository>()),
     );
 
     // Ticket Use Cases:--------------------------------------------------------
@@ -384,6 +389,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<WatchSourceStatusesUseCase>(
       WatchSourceStatusesUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<UploadLocalFileUseCase>(
+      UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

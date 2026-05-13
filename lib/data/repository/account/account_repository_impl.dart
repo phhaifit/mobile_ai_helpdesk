@@ -71,5 +71,17 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   @override
+  Future<Either<Failure, void>> deleteAvatar() async {
+    try {
+      await _api.deleteAvatar();
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(StackErrorMapper.map(e));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Account?> loadCached() => _local.loadAccount();
 }
