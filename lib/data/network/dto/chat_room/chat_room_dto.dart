@@ -1,179 +1,113 @@
-import 'dart:math' as math;
-
 import 'package:ai_helpdesk/domain/entity/chat_room/customer_chat_room.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'chat_room_dto.g.dart';
-
-@JsonSerializable()
+/// DTO matching the BE `ChatRoom` schema used by `/api/chat-room/*` and the
+/// (placeholder) `/api/customer/{id}/conversations` endpoint. Only the
+/// fields the customer-detail summary needs are projected through
+/// [toEntity]; richer thread data is left for a follow-up.
 class ChatRoomDto {
-  @JsonKey(name: 'id')
-  final String? id;
-
-  @JsonKey(name: 'chatRoomId')
-  final String? chatRoomId;
-
-  @JsonKey(name: 'customerId')
-  final String? customerId;
-
-  @JsonKey(name: 'customerID')
+  final String? chatRoomID;
   final String? customerID;
-
-  @JsonKey(name: 'channelType')
-  final String? channelType;
-
-  @JsonKey(name: 'channel')
-  final String? channel;
-
-  @JsonKey(name: 'totalMessage')
   final int? totalMessage;
-
-  @JsonKey(name: 'seenMessageOrder')
   final int? seenMessageOrder;
-
-  @JsonKey(name: 'lastMessage')
-  final MessageDto? lastMessage;
-
-  @JsonKey(name: 'tickets', defaultValue: const <TicketRefDto>[])
-  final List<TicketRefDto> tickets;
+  final DateTime? updatedAt;
+  final LastMessageDto? lastMessage;
+  final List<String> linkedTicketIds;
 
   const ChatRoomDto({
-    this.id,
-    this.chatRoomId,
-    this.customerId,
+    this.chatRoomID,
     this.customerID,
-    this.channelType,
-    this.channel,
     this.totalMessage,
     this.seenMessageOrder,
+    this.updatedAt,
     this.lastMessage,
-    this.tickets = const <TicketRefDto>[],
+    this.linkedTicketIds = const [],
   });
 
-  factory ChatRoomDto.fromJson(Map<String, dynamic> json) =>
-      _$ChatRoomDtoFromJson(json);
+  factory ChatRoomDto.fromJson(Map<String, dynamic> json) {
+    final rawTickets = json['tickets'];
+    final ticketIds = <String>[];
+    if (rawTickets is List) {
+      for (final t in rawTickets) {
+        if (t is Map && t['ticketID'] != null) {
+          ticketIds.add(t['ticketID'].toString());
+        }
+      }
+    }
 
-  Map<String, dynamic> toJson() => _$ChatRoomDtoToJson(this);
+    return ChatRoomDto(
+      chatRoomID: json['chatRoomID']?.toString(),
+      customerID: json['customerID']?.toString(),
+      totalMessage: _readInt(json['totalMessage']),
+      seenMessageOrder: _readInt(json['seenMessageOrder']),
+      updatedAt: _parseDate(json['updatedAt']),
+      lastMessage: json['lastMessage'] is Map
+          ? LastMessageDto.fromJson(
+              Map<String, dynamic>.from(json['lastMessage'] as Map),
+            )
+          : null,
+      linkedTicketIds: ticketIds,
+    );
+  }
 
   CustomerChatRoom toEntity() {
-    final resolvedId = (id ?? chatRoomId ?? '').trim();
-    final resolvedCustomerId = (customerId ?? customerID ?? '').trim();
-    final resolvedChannel = (channelType ?? channel ?? '').trim();
-
     final total = totalMessage ?? 0;
     final seen = seenMessageOrder ?? 0;
-    final unread = math.max(0, total - seen);
-
-    final preview =
-        (lastMessage?.contentInfo?.content ??
-                lastMessage?.content ??
-                lastMessage?.text ??
-                '')
-            .trim();
-
-    final linkedTicketIds = tickets
-        .map((t) => (t.id ?? t.ticketId ?? '').trim())
-        .where((e) => e.isNotEmpty)
-        .toList(growable: false);
-
+    final unread = total - seen;
+    final channel = lastMessage?.channel ?? 'unknown';
     return CustomerChatRoom(
-      id: resolvedId,
-      customerId: resolvedCustomerId,
-      channel: resolvedChannel,
+      id: chatRoomID ?? '',
+      customerId: customerID ?? '',
+      channel: channel,
       totalMessage: total,
-      unreadCount: unread,
-      lastMessagePreview: preview,
-      lastMessageAt: lastMessage?.createdAt,
+      unreadCount: unread > 0 ? unread : 0,
+      lastMessagePreview: lastMessage?.contentPreview,
+      lastMessageAt: lastMessage?.createdAt ?? updatedAt,
       linkedTicketIds: linkedTicketIds,
     );
   }
 }
 
-@JsonSerializable()
-class TicketRefDto {
-  final String? id;
-
-  @JsonKey(name: 'ticketId')
-  final String? ticketId;
-
-  const TicketRefDto({this.id, this.ticketId});
-
-  factory TicketRefDto.fromJson(Map<String, dynamic> json) =>
-      _$TicketRefDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TicketRefDtoToJson(this);
-}
-
-@JsonSerializable()
-class MessageDto {
-  final String? id;
-
-  @JsonKey(name: 'messageOrder')
-  final int? messageOrder;
-
-  final String? content;
-
-  final String? text;
-
-  @JsonKey(name: 'contentInfo')
-  final ContentInfoDto? contentInfo;
-
-  @JsonKey(name: 'entities')
-  final MessageEntitiesDto? entities;
-
-  @JsonKey(name: 'createdAt')
+class LastMessageDto {
+  final String? messageID;
+  final String? channel;
+  final String? contentPreview;
   final DateTime? createdAt;
 
-  const MessageDto({
-    this.id,
-    this.messageOrder,
-    this.content,
-    this.text,
-    this.contentInfo,
-    this.entities,
-    this.createdAt,
-  });
+  const LastMessageDto({this.messageID, this.channel, this.contentPreview, this.createdAt});
 
-  factory MessageDto.fromJson(Map<String, dynamic> json) =>
-      _$MessageDtoFromJson(json);
+  factory LastMessageDto.fromJson(Map<String, dynamic> json) {
+    final contactInfo = json['contactInfo'];
+    final channelName = contactInfo is Map ? contactInfo['name']?.toString() : null;
 
-  Map<String, dynamic> toJson() => _$MessageDtoToJson(this);
+    final contentInfo = json['contentInfo'];
+    String? preview;
+    if (contentInfo is Map) {
+      final v = contentInfo['content'] ?? contentInfo['text'] ?? contentInfo['body'];
+      preview = v?.toString();
+    } else if (json['content'] is String) {
+      preview = json['content'] as String;
+    }
+
+    return LastMessageDto(
+      messageID: json['messageID']?.toString(),
+      channel: channelName,
+      contentPreview: preview,
+      createdAt: _parseDate(json['createdAt']),
+    );
+  }
 }
 
-@JsonSerializable()
-class ContentInfoDto {
-  final String? content;
-
-  const ContentInfoDto({this.content});
-
-  factory ContentInfoDto.fromJson(Map<String, dynamic> json) =>
-      _$ContentInfoDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ContentInfoDtoToJson(this);
+int? _readInt(Object? raw) {
+  if (raw == null) return null;
+  if (raw is int) return raw;
+  if (raw is num) return raw.toInt();
+  if (raw is String) return int.tryParse(raw);
+  return null;
 }
 
-@JsonSerializable()
-class MessageEntitiesDto {
-  @JsonKey(name: 'contact')
-  final ContactInfoDto? contact;
-
-  const MessageEntitiesDto({this.contact});
-
-  factory MessageEntitiesDto.fromJson(Map<String, dynamic> json) =>
-      _$MessageEntitiesDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MessageEntitiesDtoToJson(this);
-}
-
-@JsonSerializable()
-class ContactInfoDto {
-  final String? email;
-  final String? phone;
-
-  const ContactInfoDto({this.email, this.phone});
-
-  factory ContactInfoDto.fromJson(Map<String, dynamic> json) =>
-      _$ContactInfoDtoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ContactInfoDtoToJson(this);
+DateTime? _parseDate(Object? raw) {
+  if (raw == null) return null;
+  if (raw is DateTime) return raw;
+  if (raw is String && raw.isNotEmpty) return DateTime.tryParse(raw);
+  return null;
 }

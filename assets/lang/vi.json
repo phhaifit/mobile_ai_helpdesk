@@ -633,5 +633,21 @@
   "customer_merge_success": "Hợp nhất khách hàng thành công",
   "customer_merge_error_subscription": "Thao tác này yêu cầu nâng cấp gói dịch vụ.",
   "customer_merge_error_permission": "Bạn không có quyền hợp nhất các khách hàng này.",
-  "customer_merge_error_generic": "Không thể hợp nhất khách hàng."
+  "customer_merge_error_generic": "Không thể hợp nhất khách hàng.",
+  "customer_detail_section_tickets": "Phiếu hỗ trợ",
+  "customer_detail_section_conversations": "Hội thoại",
+  "customer_detail_tickets_empty": "Chưa có phiếu hỗ trợ nào",
+  "customer_detail_conversations_empty": "Chưa có hội thoại nào",
+  "customer_detail_section_error": "Không tải được nội dung này",
+  "customer_detail_section_retry": "Thử lại",
+  "customer_detail_chat_open_soon": "Trình xem hội thoại đang phát triển",
+  "chat_channel_messenger": "Messenger",
+  "chat_channel_zalo": "Zalo",
+  "chat_channel_webchat": "Web chat",
+  "chat_channel_email": "Email",
+  "chat_channel_phone": "Điện thoại",
+  "chat_channel_lazada": "Lazada",
+  "chat_channel_zendesk": "Zendesk",
+  "chat_channel_zohodesk": "Zoho Desk",
+  "chat_channel_unknown": "Kênh khác"
 }

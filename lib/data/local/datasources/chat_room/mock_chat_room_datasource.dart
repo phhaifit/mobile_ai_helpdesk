@@ -1,77 +1,79 @@
 import 'package:ai_helpdesk/domain/entity/chat_room/customer_chat_room.dart';
 
+/// In-memory chat-room store used as a debug fallback for the customer
+/// detail conversation timeline. Seed IDs match the customers seeded by
+/// `MockCustomerDataSource` (`cust_1` / `cust_2` / `cust_3`) and the
+/// tickets seeded by `MockTicketDataSource` (`tkt_*`).
 class MockChatRoomDataSource {
-  static const _seedCustomerIds = <String>{'cust_1', 'cust_2', 'cust_3'};
-
-  late final List<CustomerChatRoom> _seedRooms;
+  final List<CustomerChatRoom> _rooms = [];
 
   MockChatRoomDataSource() {
-    final base = DateTime(2025, 1, 15, 12, 0);
+    _seed();
+  }
 
-    final rooms = <CustomerChatRoom>[
+  void _seed() {
+    final now = DateTime.now();
+    _rooms.addAll([
       CustomerChatRoom(
-        id: 'chatroom_cust_1_messenger',
+        id: 'chr_1001',
         customerId: 'cust_1',
         channel: 'messenger',
-        totalMessage: 52,
-        unreadCount: 4,
-        lastMessagePreview: 'Can you help me with my order status?',
-        lastMessageAt: base.subtract(const Duration(minutes: 8)),
-        linkedTicketIds: const ['ticket_cust_1_1'],
+        totalMessage: 24,
+        unreadCount: 2,
+        lastMessagePreview: 'Mình vẫn chưa đăng nhập được, mong shop hỗ trợ ạ.',
+        lastMessageAt: now.subtract(const Duration(hours: 5)),
+        linkedTicketIds: const ['tkt_1001'],
       ),
       CustomerChatRoom(
-        id: 'chatroom_cust_1_webchat',
+        id: 'chr_1002',
+        customerId: 'cust_1',
+        channel: 'zalo',
+        totalMessage: 12,
+        unreadCount: 0,
+        lastMessagePreview: 'Cảm ơn shop đã hỗ trợ hoàn tiền.',
+        lastMessageAt: now.subtract(const Duration(days: 7)),
+        linkedTicketIds: const ['tkt_1002'],
+      ),
+      CustomerChatRoom(
+        id: 'chr_1003',
         customerId: 'cust_1',
         channel: 'webchat',
-        totalMessage: 11,
+        totalMessage: 3,
         unreadCount: 0,
-        lastMessagePreview: 'Thanks!',
-        lastMessageAt: base.subtract(const Duration(hours: 2)),
-        linkedTicketIds: const [],
+        lastMessagePreview: 'Chào shop, mình hỏi về sản phẩm A...',
+        lastMessageAt: now.subtract(const Duration(days: 45)),
       ),
       CustomerChatRoom(
-        id: 'chatroom_cust_2_zalo',
+        id: 'chr_2001',
         customerId: 'cust_2',
-        channel: 'zalo',
-        totalMessage: 87,
-        unreadCount: 12,
-        lastMessagePreview: 'Mình muốn đổi sản phẩm.',
-        lastMessageAt: base.subtract(const Duration(minutes: 3)),
-        linkedTicketIds: const ['ticket_cust_2_1'],
-      ),
-      CustomerChatRoom(
-        id: 'chatroom_cust_2_email',
-        customerId: 'cust_2',
-        channel: 'email',
-        totalMessage: 6,
-        unreadCount: 1,
-        lastMessagePreview: 'Please find the invoice attached.',
-        lastMessageAt: base.subtract(const Duration(days: 1, hours: 3)),
-        linkedTicketIds: const [],
-      ),
-      CustomerChatRoom(
-        id: 'chatroom_cust_3_webchat',
-        customerId: 'cust_3',
         channel: 'webchat',
-        totalMessage: 33,
-        unreadCount: 2,
-        lastMessagePreview: 'I cannot log in to my account.',
-        lastMessageAt: base.subtract(const Duration(minutes: 40)),
-        linkedTicketIds: const ['ticket_cust_3_1'],
+        totalMessage: 5,
+        unreadCount: 1,
+        lastMessagePreview: 'Em đặt lịch lúc 14h chiều mai được không ạ?',
+        lastMessageAt: now.subtract(const Duration(hours: 1)),
+        linkedTicketIds: const ['tkt_2001'],
       ),
-    ];
-
-    _seedRooms = rooms
-        .where((r) => _seedCustomerIds.contains(r.customerId))
-        .take(7)
-        .toList(growable: false);
+      CustomerChatRoom(
+        id: 'chr_3002',
+        customerId: 'cust_3',
+        channel: 'zalo',
+        totalMessage: 18,
+        unreadCount: 0,
+        lastMessagePreview: 'Hàng đã nhận, cảm ơn.',
+        lastMessageAt: now.subtract(const Duration(days: 110)),
+        linkedTicketIds: const ['tkt_3002'],
+      ),
+    ]);
   }
 
   Future<List<CustomerChatRoom>> getCustomerChatRooms(String customerId) async {
-    await Future.delayed(const Duration(milliseconds: 250));
-
-    return _seedRooms
-        .where((room) => room.customerId == customerId)
-        .toList(growable: false);
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    final all = _rooms.where((r) => r.customerId == customerId).toList()
+      ..sort((a, b) {
+        final at = a.lastMessageAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bt = b.lastMessageAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bt.compareTo(at);
+      });
+    return all;
   }
 }

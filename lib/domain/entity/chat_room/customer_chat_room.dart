@@ -1,39 +1,29 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'customer_chat_room.g.dart';
-
-@JsonSerializable()
+/// A chat-room summary scoped to a single customer's profile.
+///
+/// Source: omnichannel chat rooms (Messenger / Zalo / Webchat / ...).
+/// The channel string is kept raw (e.g. `messenger`, `zalo`, `webchat`,
+/// `zalo_personal`, `lazada`, `zendesk`) so new BE-defined channels render
+/// without an enum rebuild — UI maps unknown values to a generic icon.
 class CustomerChatRoom {
   final String id;
   final String customerId;
-
-  /// Raw channel identifier from backend (e.g. messenger/zalo/webchat/email/...)
   final String channel;
-
   final int totalMessage;
   final int unreadCount;
-
-  /// Preview extracted from last message content.
-  final String lastMessagePreview;
-
+  final String? lastMessagePreview;
   final DateTime? lastMessageAt;
-
-  @JsonKey(defaultValue: [])
   final List<String> linkedTicketIds;
 
   const CustomerChatRoom({
     required this.id,
     required this.customerId,
     required this.channel,
-    required this.totalMessage,
-    required this.unreadCount,
-    required this.lastMessagePreview,
-    required this.lastMessageAt,
+    this.totalMessage = 0,
+    this.unreadCount = 0,
+    this.lastMessagePreview,
+    this.lastMessageAt,
     this.linkedTicketIds = const [],
   });
 
-  factory CustomerChatRoom.fromJson(Map<String, dynamic> json) =>
-      _$CustomerChatRoomFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CustomerChatRoomToJson(this);
+  bool get hasUnread => unreadCount > 0;
 }

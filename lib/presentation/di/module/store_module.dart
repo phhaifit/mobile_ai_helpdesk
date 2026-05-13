@@ -190,6 +190,7 @@ class StoreModule {
     // --- Customer Store ---
     getIt.registerFactory<CustomerDetailStore>(
       () => CustomerDetailStore(
+        getIt<CustomerRepository>(),
         getIt<GetCustomerHistoryUseCase>(),
         getIt<GetCustomerChatRoomsUseCase>(),
       ),

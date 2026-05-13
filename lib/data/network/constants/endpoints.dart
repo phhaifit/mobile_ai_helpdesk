@@ -85,10 +85,17 @@ class Endpoints {
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 
   // Ticket
-  static String customerTickets() => '/api/ticket/customer-ticket';
+  static String ticketHistoryByCustomer(String customerId) =>
+      '/api/ticket/ticket-history-customer/$customerId';
   static String ticketDetail(String id) => '/api/ticket/$id';
 
   // Chat room
+  // NOTE: customer-scoped conversation endpoint is not yet finalised on BE;
+  // this placeholder URL deliberately returns 404 until BE chooses between
+  // adding a `customerID` filter to `/api/chat-room` or shipping a dedicated
+  // route. Until then the repository falls back to mock data in debug builds.
+  static String customerConversations(String customerId) =>
+      '/api/customer/$customerId/conversations';
   static String chatRoomDetail() => '/api/chat-room/detail';
   static String chatRoomMessages() => '/api/chat-room/message';
 }

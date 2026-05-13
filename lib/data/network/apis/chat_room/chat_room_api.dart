@@ -7,87 +7,24 @@ class ChatRoomApi {
 
   ChatRoomApi(this._dioClient);
 
-  Future<List<ChatRoomDto>> getCustomerChatRooms(String customerId) async {
+  /// GET the chat rooms belonging to a single customer.
+  ///
+  /// Backend is still finalising the route shape: this call targets the
+  /// placeholder `/api/customer/{id}/conversations` URL and will 404 until
+  /// BE either ships that route or adds a `customerID` filter to
+  /// `/api/chat-room`. The repository layer maps the 404 to mock data in
+  /// debug builds so the customer-detail timeline stays renderable.
+  Future<List<ChatRoomDto>> getByCustomer(String customerId) async {
     final response = await _dioClient.dio.get(
-      Endpoints.chatRoomDetail(),
-      queryParameters: {'customerId': customerId},
+      Endpoints.customerConversations(customerId),
     );
-
     final data = response.data;
-
-    final dynamic payload;
-    if (data is Map<String, dynamic>) {
-      payload =
-          data['data'] ?? data['result'] ?? data['chatRooms'] ?? data['rooms'];
-    } else {
-      payload = data;
-    }
-
-    if (payload == null) return [];
-
-    if (payload is List) {
-      return payload
-          .whereType<Map<String, dynamic>>()
-          .map(ChatRoomDto.fromJson)
-          .toList();
-    }
-
-    if (payload is Map<String, dynamic>) {
-      final items = payload['items'] ?? payload['data'];
-      if (items is List) {
-        return items
-            .whereType<Map<String, dynamic>>()
-            .map(ChatRoomDto.fromJson)
-            .toList();
-      }
-    }
-
-    return [];
-  }
-
-  Future<List<MessageDto>> getChatRoomMessages({
-    required String chatRoomId,
-    int limit = 20,
-    String? lastMessageId,
-  }) async {
-    final response = await _dioClient.dio.get(
-      Endpoints.chatRoomMessages(),
-      queryParameters: {
-        'chatRoomId': chatRoomId,
-        'limit': limit,
-        if (lastMessageId != null) 'lastMessageId': lastMessageId,
-      },
-    );
-
-    final data = response.data;
-
-    final dynamic payload;
-    if (data is Map<String, dynamic>) {
-      payload =
-          data['data'] ?? data['result'] ?? data['messages'] ?? data['items'];
-    } else {
-      payload = data;
-    }
-
-    if (payload == null) return [];
-
-    if (payload is List) {
-      return payload
-          .whereType<Map<String, dynamic>>()
-          .map(MessageDto.fromJson)
-          .toList();
-    }
-
-    if (payload is Map<String, dynamic>) {
-      final items = payload['items'] ?? payload['data'];
-      if (items is List) {
-        return items
-            .whereType<Map<String, dynamic>>()
-            .map(MessageDto.fromJson)
-            .toList();
-      }
-    }
-
-    return [];
+    if (data is! Map) return const <ChatRoomDto>[];
+    final raw = data['data'];
+    if (raw is! List) return const <ChatRoomDto>[];
+    return raw
+        .whereType<Map<dynamic, dynamic>>()
+        .map((e) => ChatRoomDto.fromJson(Map<String, dynamic>.from(e)))
+        .toList(growable: false);
   }
 }

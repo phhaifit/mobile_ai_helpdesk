@@ -42,7 +42,19 @@ void main() {
       verify(() => mockDio.get(any(), queryParameters: any(named: 'queryParameters'))).called(1);
     });
 
-    test('checkEmailAvailability returns true for NOT_FOUND', () async {
+    test('checkEmailAvailability returns false when backend returns OK (email taken)', () async {
+      when(() => mockDio.get(any(), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer((_) async => Response(
+                data: {'status': 'OK', 'data': {'customerID': 'existing'}},
+                requestOptions: RequestOptions(path: ''),
+              ));
+
+      final result = await customerApi.checkEmailAvailability('taken@example.com');
+      expect(result, isFalse);
+      verify(() => mockDio.get(any(), queryParameters: {'spamAddress': 'taken@example.com'})).called(1);
+    });
+
+    test('checkEmailAvailability returns true for 200 NOT_FOUND', () async {
       when(() => mockDio.get(any(), queryParameters: any(named: 'queryParameters')))
           .thenAnswer((_) async => Response(
                 data: {'status': 'NOT_FOUND'},

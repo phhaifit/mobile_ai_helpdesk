@@ -24,6 +24,7 @@ class Ticket {
   final String? chatRoomId;
   final String? assignedAgentId;
   final String? assignedAgentName;
+  final String? customerSupportName;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? resolvedAt;
@@ -51,6 +52,7 @@ class Ticket {
     this.chatRoomId,
     this.assignedAgentId,
     this.assignedAgentName,
+    this.customerSupportName,
     required this.createdAt,
     required this.updatedAt,
     this.resolvedAt,
@@ -79,6 +81,7 @@ class Ticket {
     Object? chatRoomId = _ticketFieldUnset,
     Object? assignedAgentId = _ticketFieldUnset,
     Object? assignedAgentName = _ticketFieldUnset,
+    Object? customerSupportName = _ticketFieldUnset,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? resolvedAt,
@@ -115,6 +118,10 @@ class Ticket {
           identical(assignedAgentName, _ticketFieldUnset)
               ? this.assignedAgentName
               : assignedAgentName as String?,
+      customerSupportName:
+          identical(customerSupportName, _ticketFieldUnset)
+              ? this.customerSupportName
+              : customerSupportName as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,

@@ -1,8 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
-import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
+import 'package:ai_helpdesk/presentation/customer/widgets/customer_conversation_section.dart';
+import 'package:ai_helpdesk/presentation/customer/widgets/customer_ticket_section.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
 class CustomerDetailScreen extends StatefulWidget {
@@ -26,25 +31,15 @@ class CustomerDetailScreen extends StatefulWidget {
 }
 
 class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
+  late final CustomerDetailStore _detailStore;
   late Customer _customer;
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _customer = widget.customer;
-    _fetchDetail();
-  }
-
-  Future<void> _fetchDetail() async {
-    setState(() => _isLoading = true);
-    final updated = await widget.store.loadCustomerById(_customer.id);
-    if (updated != null && mounted) {
-      setState(() {
-        _customer = updated;
-      });
-    }
-    if (mounted) setState(() => _isLoading = false);
+    _detailStore = GetIt.instance<CustomerDetailStore>();
+    _detailStore.loadAll(_customer.id);
   }
 
   void _onDelete(BuildContext context) async {
@@ -157,13 +152,30 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
           IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _onDelete(context)),
         ],
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Observer(
+        builder: (_) {
+          // Merge detail-endpoint data (avatar, tags refreshed) into the
+          // list-endpoint snapshot we already have, so we never regress on
+          // fields the detail endpoint omits (e.g. contactID, tenantId).
+          final fetched = _detailStore.profile;
+          if (fetched != null) {
+            _customer = _customer.copyWith(
+              fullName: fetched.fullName,
+              avatarUrl: fetched.avatarUrl ?? _customer.avatarUrl,
+              tags: fetched.tags.isNotEmpty ? fetched.tags : _customer.tags,
+              tenantId: fetched.tenantId ?? _customer.tenantId,
+              tenantName: fetched.tenantName ?? _customer.tenantName,
+            );
+          }
+          final isProfileLoading = _detailStore.isProfileLoading && fetched == null;
+          if (isProfileLoading && _customer.id.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Card(
               elevation: 0,
               color: Colors.white,
@@ -254,15 +266,20 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             ]),
 
             _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_activity'), [
-              if (_customer.tenantName != null) 
+              if (_customer.tenantName != null)
                 _buildInfoRow(Icons.business_outlined, AppLocalizations.of(context).translate('customer_detail_tenant'), _customer.tenantName!),
               _buildInfoRow(Icons.confirmation_num_outlined, AppLocalizations.of(context).translate('customer_detail_tickets'), '${_customer.totalTickets}'),
               _buildInfoRow(Icons.access_time, AppLocalizations.of(context).translate('customer_detail_created_at'), dateFormat.format(_customer.createdAt)),
               if (_customer.lastContactedAt != null)
                 _buildInfoRow(Icons.update, AppLocalizations.of(context).translate('customer_detail_last_contact'), dateFormat.format(_customer.lastContactedAt!)),
             ]),
-          ],
-        ),
+
+            CustomerTicketSection(store: _detailStore, customerId: _customer.id),
+            CustomerConversationSection(store: _detailStore, customerId: _customer.id),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -626,5 +626,21 @@
   "customer_merge_success": "Customers merged successfully",
   "customer_merge_error_subscription": "This action requires an upgraded subscription.",
   "customer_merge_error_permission": "You don't have permission to merge these customers.",
-  "customer_merge_error_generic": "Failed to merge customers."
+  "customer_merge_error_generic": "Failed to merge customers.",
+  "customer_detail_section_tickets": "Tickets",
+  "customer_detail_section_conversations": "Conversations",
+  "customer_detail_tickets_empty": "No tickets yet",
+  "customer_detail_conversations_empty": "No conversations yet",
+  "customer_detail_section_error": "Couldn't load this section",
+  "customer_detail_section_retry": "Retry",
+  "customer_detail_chat_open_soon": "Conversation viewer coming soon",
+  "chat_channel_messenger": "Messenger",
+  "chat_channel_zalo": "Zalo",
+  "chat_channel_webchat": "Web chat",
+  "chat_channel_email": "Email",
+  "chat_channel_phone": "Phone",
+  "chat_channel_lazada": "Lazada",
+  "chat_channel_zendesk": "Zendesk",
+  "chat_channel_zohodesk": "Zoho Desk",
+  "chat_channel_unknown": "Other channel"
 }

@@ -1,79 +1,102 @@
 import 'package:ai_helpdesk/domain/entity/chat_room/customer_chat_room.dart';
+import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
 import 'package:mobx/mobx.dart';
 
 part 'customer_detail_store.g.dart';
 
-class CustomerDetailStore = _CustomerDetailStoreBase with _$CustomerDetailStore;
+/// Multi-source store backing [CustomerDetailScreen]. Profile / tickets /
+/// conversations each have their own [ObservableFuture] so a partial failure
+/// in one section does not block the other two.
+class CustomerDetailStore = _CustomerDetailStore with _$CustomerDetailStore;
 
-abstract class _CustomerDetailStoreBase with Store {
-  final GetCustomerHistoryUseCase _getCustomerHistoryUseCase;
-  final GetCustomerChatRoomsUseCase _getCustomerChatRoomsUseCase;
+abstract class _CustomerDetailStore with Store {
+  final CustomerRepository _customerRepository;
+  final GetCustomerHistoryUseCase _getCustomerTickets;
+  final GetCustomerChatRoomsUseCase _getCustomerChatRooms;
 
-  _CustomerDetailStoreBase(
-    this._getCustomerHistoryUseCase,
-    this._getCustomerChatRoomsUseCase,
+  _CustomerDetailStore(
+    this._customerRepository,
+    this._getCustomerTickets,
+    this._getCustomerChatRooms,
   );
 
   @observable
-  ObservableFuture<void> fetchFuture = ObservableFuture.value(null);
+  ObservableFuture<Customer?>? profileFuture;
 
   @observable
-  ObservableList<Ticket> tickets = ObservableList<Ticket>();
+  ObservableFuture<List<Ticket>>? ticketsFuture;
 
   @observable
-  ObservableList<CustomerChatRoom> chatRooms =
-      ObservableList<CustomerChatRoom>();
-
-  @observable
-  String? errorMessage;
+  ObservableFuture<List<CustomerChatRoom>>? chatRoomsFuture;
 
   @computed
-  bool get isLoading => fetchFuture.status == FutureStatus.pending;
+  bool get isProfileLoading => profileFuture?.status == FutureStatus.pending;
 
-  @action
-  Future<void> fetchCustomerDetail(String customerId) async {
-    errorMessage = null;
+  @computed
+  bool get isTicketsLoading => ticketsFuture?.status == FutureStatus.pending;
 
-    fetchFuture = ObservableFuture(_fetch(customerId));
-    await fetchFuture;
+  @computed
+  bool get isChatRoomsLoading => chatRoomsFuture?.status == FutureStatus.pending;
+
+  @computed
+  Customer? get profile {
+    final f = profileFuture;
+    if (f == null || f.status != FutureStatus.fulfilled) return null;
+    return f.result as Customer?;
   }
 
-  Future<void> _fetch(String customerId) async {
-    try {
-      final ticketsFuture = _getCustomerHistoryUseCase.call(params: customerId);
-      final chatRoomsFuture = _getCustomerChatRoomsUseCase.call(
-        params: customerId,
-      );
+  @computed
+  List<Ticket> get tickets {
+    final f = ticketsFuture;
+    if (f == null || f.status != FutureStatus.fulfilled) return const [];
+    return f.result as List<Ticket>;
+  }
 
-      final ticketsResult = await ticketsFuture;
-      final chatRoomsResult = await chatRoomsFuture;
+  @computed
+  List<CustomerChatRoom> get chatRooms {
+    final f = chatRoomsFuture;
+    if (f == null || f.status != FutureStatus.fulfilled) return const [];
+    return f.result as List<CustomerChatRoom>;
+  }
 
-      tickets
-        ..clear()
-        ..addAll(
-          (ticketsResult..sort((a, b) => b.updatedAt.compareTo(a.updatedAt))),
-        );
+  /// Kicks off all three loads in parallel.
+  @action
+  void loadAll(String customerId) {
+    loadProfile(customerId);
+    refreshTickets(customerId);
+    refreshChatRooms(customerId);
+  }
 
-      final sortedRooms = [...chatRoomsResult]..sort((a, b) {
-        final aAt = a.lastMessageAt;
-        final bAt = b.lastMessageAt;
+  @action
+  void loadProfile(String customerId) {
+    profileFuture = ObservableFuture(_loadProfile(customerId));
+  }
 
-        if (aAt == null && bAt == null) return 0;
-        if (aAt == null) return 1;
-        if (bAt == null) return -1;
-        return bAt.compareTo(aAt);
-      });
-
-      chatRooms
-        ..clear()
-        ..addAll(sortedRooms);
-    } catch (e) {
-      errorMessage = e.toString();
-      tickets.clear();
-      chatRooms.clear();
+  Future<Customer?> _loadProfile(String customerId) async {
+    final customer = await _customerRepository.getCustomerById(customerId);
+    if (customer == null) return null;
+    if (customer.tenantId == null || (customer.tenantName ?? '').isNotEmpty) {
+      return customer;
     }
+    final tenantName = await _customerRepository.getTenantName(customer.tenantId!);
+    return customer.copyWith(tenantName: tenantName);
+  }
+
+  @action
+  void refreshTickets(String customerId) {
+    ticketsFuture = ObservableFuture(
+      _getCustomerTickets.call(params: customerId),
+    );
+  }
+
+  @action
+  void refreshChatRooms(String customerId) {
+    chatRoomsFuture = ObservableFuture(
+      _getCustomerChatRooms.call(params: customerId),
+    );
   }
 }

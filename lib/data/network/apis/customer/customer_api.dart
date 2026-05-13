@@ -45,16 +45,28 @@ class CustomerApi {
     return CustomerDto.fromJson(list.first as Map<String, dynamic>);
   }
 
+  /// Returns `true` if the email is available (not in use by another customer).
+  ///
+  /// Backend contract:
+  ///   - 200 OK with `status: OK` + customer payload → email is TAKEN.
+  ///   - 404 (or response status `NOT_FOUND`) → email is AVAILABLE.
+  ///
+  /// On any other error the method returns `false` to err on the safe side
+  /// (preventing accidental duplicate customers if the check itself failed).
   Future<bool> checkEmailAvailability(String email) async {
     try {
       final response = await _dioClient.dio.get(
         Endpoints.checkEmailAvailability(),
-        queryParameters: {'email': email},
+        queryParameters: {'spamAddress': email},
       );
-      return response.data['status'] == 'OK' || response.data['status'] == 'NOT_FOUND';
+      final status = response.data?['status']?.toString();
+      if (status == 'NOT_FOUND') return true;
+      // 200 OK with status=OK means the customer was found → email is taken.
+      return false;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404 || e.response?.data?['status'] == 'NOT_FOUND') {
-        return true; 
+      if (e.response?.statusCode == 404 ||
+          e.response?.data?['status'] == 'NOT_FOUND') {
+        return true;
       }
       return false;
     }
