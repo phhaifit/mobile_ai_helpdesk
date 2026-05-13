@@ -7,7 +7,7 @@ import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_input_wid
 class CommentThreadWidget extends StatelessWidget {
   final TicketDetailStore store;
 
-  const CommentThreadWidget({super.key, required this.store});
+  const CommentThreadWidget({required this.store, super.key});
 
   @override
   Widget build(BuildContext context) {

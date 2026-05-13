@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
+import 'package:flutter/material.dart';
 
 void showAgentSelectionBottomSheet({
   required BuildContext context,

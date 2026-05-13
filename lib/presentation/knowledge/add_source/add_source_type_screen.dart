@@ -46,7 +46,7 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),

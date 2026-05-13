@@ -1,8 +1,7 @@
-import 'package:dio/dio.dart';
-
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
 import 'package:ai_helpdesk/data/network/dto/ticket/ticket_dto.dart';
+import 'package:dio/dio.dart';
 
 class TicketApi {
   final Dio _dio;
@@ -65,8 +64,8 @@ class TicketApi {
   /// POST /api/ticket/new
   Future<Map<String, dynamic>> createTicket({
     required String title,
-    String? description,
     required String customerId,
+    String? description,
     String? priority,
   }) async {
     final response = await _dio.post(
@@ -223,7 +222,7 @@ List<TicketDto> _parseTickets(Object? body) {
   };
   if (rawList is! List) return const <TicketDto>[];
   return rawList
-      .whereType<Map>()
+      .whereType<Map<dynamic, dynamic>>()
       .map((e) => TicketDto.fromJson(Map<String, dynamic>.from(e)))
       .toList(growable: false);
 }

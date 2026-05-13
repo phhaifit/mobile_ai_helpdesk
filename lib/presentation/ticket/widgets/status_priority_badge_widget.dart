@@ -6,9 +6,7 @@ class StatusPriorityBadgeWidget extends StatelessWidget {
   final TicketPriority priority;
 
   const StatusPriorityBadgeWidget({
-    super.key,
-    required this.status,
-    required this.priority,
+    required this.status, required this.priority, super.key,
   });
 
   Color _getStatusBadgeColor(TicketStatus status) {

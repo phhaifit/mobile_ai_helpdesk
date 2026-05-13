@@ -13,9 +13,9 @@ import '/data/sharedpref/shared_preference_helper.dart';
 import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
 import '../../local/datasources/chat/chat_datasource.dart';
 import '../../local/datasources/chat/chat_room_datasource.dart';
+import '../../local/datasources/customer/mock_customer_datasource.dart';
 // import '../../local/datasources/customer_management/customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
-import '../../local/datasources/customer/mock_customer_datasource.dart';
 
 class LocalModule {
   static Future<void> configureLocalModuleInjection() async {

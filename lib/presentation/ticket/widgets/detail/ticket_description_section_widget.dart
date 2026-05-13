@@ -5,7 +5,7 @@ import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 class TicketDescriptionSectionWidget extends StatelessWidget {
   final Ticket ticket;
 
-  const TicketDescriptionSectionWidget({super.key, required this.ticket});
+  const TicketDescriptionSectionWidget({required this.ticket, super.key});
 
   @override
   Widget build(BuildContext context) {

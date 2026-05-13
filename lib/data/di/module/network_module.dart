@@ -1,3 +1,7 @@
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:event_bus/event_bus.dart';
 
 import '/constants/env.dart';
@@ -12,15 +16,10 @@ import '/core/events/auth_events.dart';
 import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
-
-import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
-import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
-import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
-import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';

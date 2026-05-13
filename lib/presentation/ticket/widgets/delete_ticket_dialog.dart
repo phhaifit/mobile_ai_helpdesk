@@ -4,7 +4,7 @@ import 'package:ai_helpdesk/constants/colors.dart';
 class DeleteTicketDialog extends StatelessWidget {
   final String ticketTitle;
 
-  const DeleteTicketDialog({super.key, required this.ticketTitle});
+  const DeleteTicketDialog({required this.ticketTitle, super.key});
 
   @override
   Widget build(BuildContext context) {

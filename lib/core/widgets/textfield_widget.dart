@@ -28,33 +28,33 @@ class TextFieldWidget extends StatelessWidget {
         onChanged: onChanged,
         autofocus: autoFocus,
         textInputAction: inputAction,
-        obscureText: this.isObscure,
+        obscureText: isObscure,
         maxLength: 25,
-        keyboardType: this.inputType,
+        keyboardType: inputType,
         style: Theme.of(context).textTheme.bodyLarge,
         decoration: InputDecoration(
-            hintText: this.hint,
-            hintStyle: Theme.of(context)
-                .textTheme
-                .bodyLarge!
-                .copyWith(color: hintColor),
-            errorText: errorText,
-            counterText: '',
-            icon: this.isIcon ? Icon(this.icon, color: iconColor) : null),
+          hintText: hint,
+          hintStyle: Theme.of(
+            context,
+          ).textTheme.bodyLarge!.copyWith(color: hintColor),
+          errorText: errorText,
+          counterText: '',
+          icon: isIcon ? Icon(icon, color: iconColor) : null,
+        ),
       ),
     );
   }
 
   const TextFieldWidget({
-    Key? key,
     required this.icon,
     required this.errorText,
     required this.textController,
+    super.key,
     this.inputType,
     this.hint,
     this.isObscure = false,
     this.isIcon = true,
-    this.padding = const EdgeInsets.all(0),
+    this.padding = EdgeInsets.zero,
     this.hintColor = Colors.grey,
     this.iconColor = Colors.grey,
     this.focusNode,
@@ -62,5 +62,5 @@ class TextFieldWidget extends StatelessWidget {
     this.onChanged,
     this.autoFocus = false,
     this.inputAction,
-  }) : super(key: key);
+  });
 }

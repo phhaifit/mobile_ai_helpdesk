@@ -11,11 +11,7 @@ class TicketFilterDialog extends StatefulWidget {
   final VoidCallback onFilterCleared;
 
   const TicketFilterDialog({
-    super.key,
-    required this.initialFilter,
-    required this.allTickets,
-    required this.onFilterChanged,
-    required this.onFilterCleared,
+    required this.initialFilter, required this.allTickets, required this.onFilterChanged, required this.onFilterCleared, super.key,
   });
 
   @override
@@ -359,7 +355,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
   Widget _buildCustomerDropdown() {
     final customers = _getUniqueCustomers();
     return DropdownButtonFormField<String?>(
-      value: _currentFilter.customerId ?? '',
+      initialValue: _currentFilter.customerId ?? '',
       items: [
         const DropdownMenuItem<String?>(
           value: '',
@@ -396,7 +392,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
   Widget _buildCreatorDropdown() {
     final creators = _getUniqueCreators();
     return DropdownButtonFormField<String?>(
-      value: _currentFilter.createdById ?? '',
+      initialValue: _currentFilter.createdById ?? '',
       items: [
         const DropdownMenuItem<String?>(
           value: '',
@@ -486,7 +482,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
     required ValueChanged<T?> onChanged,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: items,
       onChanged: onChanged,
       decoration: InputDecoration(
