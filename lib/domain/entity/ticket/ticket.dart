@@ -49,12 +49,12 @@ class Ticket {
     required this.customerEmail,
     required this.createdByID,
     required this.createdByName,
+    required this.createdAt,
+    required this.updatedAt,
     this.chatRoomId,
     this.assignedAgentId,
     this.assignedAgentName,
     this.customerSupportName,
-    required this.createdAt,
-    required this.updatedAt,
     this.resolvedAt,
     this.notes,
     this.attachments = const [],
@@ -78,12 +78,12 @@ class Ticket {
     String? customerEmail,
     String? createdByID,
     String? createdByName,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     Object? chatRoomId = _ticketFieldUnset,
     Object? assignedAgentId = _ticketFieldUnset,
     Object? assignedAgentName = _ticketFieldUnset,
     Object? customerSupportName = _ticketFieldUnset,
-    DateTime? createdAt,
-    DateTime? updatedAt,
     DateTime? resolvedAt,
     String? notes,
     List<String>? attachments,
@@ -106,6 +106,8 @@ class Ticket {
       customerEmail: customerEmail ?? this.customerEmail,
       createdByID: createdByID ?? this.createdByID,
       createdByName: createdByName ?? this.createdByName,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       chatRoomId:
           identical(chatRoomId, _ticketFieldUnset)
               ? this.chatRoomId
@@ -122,8 +124,6 @@ class Ticket {
           identical(customerSupportName, _ticketFieldUnset)
               ? this.customerSupportName
               : customerSupportName as String?,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       notes: notes ?? this.notes,
       attachments: attachments ?? this.attachments,

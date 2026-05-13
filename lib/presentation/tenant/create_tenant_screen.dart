@@ -107,6 +107,18 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
       return;
     }
 
+    final isFirstLoginCreate =
+        _tenantStore.currentTenant == null && _tenantStore.tenantList.isEmpty;
+
+    if (isFirstLoginCreate) {
+      await _tenantStore.createTenantOnFirstLogin(name: name);
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop();
+      return;
+    }
+
     final now = DateTime.now();
     await _tenantStore.createTenant(
       Tenant(
@@ -115,7 +127,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         slug: _slugFromName(name).isEmpty ? null : _slugFromName(name),
         settings: const TenantSettings(
           allowInvitations: true,
-          defaultRole: TeamRole.member,
+          defaultRole: TeamRole.customer_support,
           enableAuditLog: false,
         ),
         createdAt: now,

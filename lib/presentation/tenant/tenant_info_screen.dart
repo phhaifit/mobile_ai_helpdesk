@@ -19,15 +19,27 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
   final TenantStore _tenantStore = getIt<TenantStore>();
   final TextEditingController _organizationNameController =
       TextEditingController();
+  final TextEditingController _autoResolutionTimeoutController =
+      TextEditingController();
 
   bool _autoResolutionEnabled = false;
   String? _activeTenantId;
   bool _isSavingName = false;
+  bool _isSavingAutoResolution = false;
   bool _isDeletingTenant = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reloadAutoResolutionSettings();
+    });
+  }
 
   @override
   void dispose() {
     _organizationNameController.dispose();
+    _autoResolutionTimeoutController.dispose();
     super.dispose();
   }
 
@@ -51,8 +63,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
           ) : null,
       body: Observer(
         builder: (_) {
-          final tenant = _tenantStore.currentTenant;
-          _syncTenantName(tenant?.id, tenant?.name ?? '');
+          _syncTenantState();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -244,27 +255,161 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                   },
                                 ),
                               ),
-                            ],
-                          )
-                        else
-                          Row(
-                            children: [
+                              const SizedBox(height: 12),
                               Text(
-                                l.translate('tenant_info_auto_resolution_label'),
+                                l.translate('tenant_info_auto_resolution_timeout_label'),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
-                              const Spacer(),
-                              Switch(
-                                value: _autoResolutionEnabled,
-                                activeColor: AppColors.messengerBlue,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _autoResolutionEnabled = value;
-                                  });
-                                },
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _autoResolutionTimeoutController,
+                                keyboardType: TextInputType.number,
+                                enabled: _autoResolutionEnabled,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  hintText: l.translate(
+                                    'tenant_info_auto_resolution_timeout_hint',
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed:
+                                      (_tenantStore.currentTenant == null ||
+                                          _isSavingAutoResolution ||
+                                          _tenantStore.isLoading)
+                                      ? null
+                                      : _handleSaveAutoResolution,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.messengerBlue,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  child: _isSavingAutoResolution
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(l.translate('tenant_info_save')),
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    l.translate('tenant_info_auto_resolution_label'),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Switch(
+                                    value: _autoResolutionEnabled,
+                                    activeColor: AppColors.messengerBlue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _autoResolutionEnabled = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 240,
+                                    child: Text(
+                                      l.translate(
+                                        'tenant_info_auto_resolution_timeout_label',
+                                      ),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _autoResolutionTimeoutController,
+                                      keyboardType: TextInputType.number,
+                                      enabled: _autoResolutionEnabled,
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        hintText: l.translate(
+                                          'tenant_info_auto_resolution_timeout_hint',
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 12,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed:
+                                      (_tenantStore.currentTenant == null ||
+                                          _isSavingAutoResolution ||
+                                          _tenantStore.isLoading)
+                                      ? null
+                                      : _handleSaveAutoResolution,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.messengerBlue,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  child: _isSavingAutoResolution
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(l.translate('tenant_info_save')),
+                                ),
                               ),
                             ],
                           ),
@@ -377,15 +522,39 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     );
   }
 
-  /// Syncs the tenant name with the controller
-  /// @param tenantId - The id of the tenant
-  /// @param tenantName - The name of the tenant
-  /// @return void
-  void _syncTenantName(String? tenantId, String tenantName) {
+  void _syncTenantState() {
+    final tenant = _tenantStore.currentTenant;
+    final tenantId = tenant?.id;
     if (_activeTenantId != tenantId) {
       _activeTenantId = tenantId;
-      _organizationNameController.text = tenantName;
+      _organizationNameController.text = tenant?.name ?? '';
+      _autoResolutionEnabled = tenant?.settings.autoResolutionEnabled ?? false;
+      _autoResolutionTimeoutController.text =
+          (tenant?.settings.autoResolutionTimeoutHours ?? 24).toString();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _reloadAutoResolutionSettings();
+      });
     }
+  }
+
+  Future<void> _reloadAutoResolutionSettings() async {
+    final tenantId = _tenantStore.currentTenant?.id;
+    if (tenantId == null) {
+      return;
+    }
+    await _tenantStore.refreshAutoResolutionSettings();
+    if (!mounted || _tenantStore.currentTenant?.id != tenantId) {
+      return;
+    }
+    final settings = _tenantStore.currentTenant?.settings;
+    if (settings == null) {
+      return;
+    }
+    setState(() {
+      _autoResolutionEnabled = settings.autoResolutionEnabled;
+      _autoResolutionTimeoutController.text =
+          settings.autoResolutionTimeoutHours.toString();
+    });
   }
 
   /// Handles the cancel organization name action
@@ -427,6 +596,46 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
       updated
           ? l.translate('tenant_info_msg_name_updated')
           : l.translate('tenant_info_msg_name_failed'),
+    );
+  }
+
+  Future<void> _handleSaveAutoResolution() async {
+    final l = AppLocalizations.of(context);
+    final tenant = _tenantStore.currentTenant;
+    if (tenant == null) {
+      _showMessage(l.translate('tenant_info_msg_no_org'));
+      return;
+    }
+
+    final timeoutHours = int.tryParse(
+      _autoResolutionTimeoutController.text.trim(),
+    );
+    if (timeoutHours == null || timeoutHours <= 0) {
+      _showMessage(l.translate('tenant_info_msg_auto_resolution_invalid_timeout'));
+      return;
+    }
+
+    setState(() {
+      _isSavingAutoResolution = true;
+    });
+    final updated = await _tenantStore.updateAutoResolutionSettings(
+      enabled: _autoResolutionEnabled,
+      timeoutHours: timeoutHours,
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSavingAutoResolution = false;
+    });
+
+    if (updated) {
+      await _reloadAutoResolutionSettings();
+    }
+    _showMessage(
+      updated
+          ? l.translate('tenant_info_msg_auto_resolution_updated')
+          : l.translate('tenant_info_msg_auto_resolution_failed'),
     );
   }
 
@@ -480,10 +689,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
     });
 
     final hasTenants = _tenantStore.currentTenant != null;
-    _syncTenantName(
-      _tenantStore.currentTenant?.id,
-      _tenantStore.currentTenant?.name ?? '',
-    );
+    _syncTenantState();
     final msgL = AppLocalizations.of(context);
     _showMessage(
       hasTenants

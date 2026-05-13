@@ -18,7 +18,7 @@ class InvitationResponseScreen extends StatefulWidget {
 
   final String invitationId;
 
-  /// Mock seed: invitation id → tenant id when invite is not in [TeamStore] yet.
+  /// Fallback seed: invitation id → tenant id when invite is not in [TeamStore] yet.
   static const Map<String, String> seedInviteTenantIds = {
     'inv-001': 'tn-001',
     'inv-002': 'tn-001',
@@ -42,6 +42,19 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   bool _finished = false;
   bool? _accepted;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTenantJoinInfo();
+  }
+
+  Future<void> _loadTenantJoinInfo() async {
+    await _tenantStore.getTenantJoinInfo();
+    if (!mounted) {
+      return;
+    }
+  }
 
   Invitation? _findInvitation() {
     for (final i in _teamStore.invitations) {
@@ -67,16 +80,14 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   TeamRole _invitedRole(Invitation? inv) {
-    return inv?.role ?? TeamRole.member;
+    return inv?.role ?? TeamRole.customer_support;
   }
 
   String _inviteRoleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return l.translate('employee_role_owner');
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.member:
+      case TeamRole.customer_support:
         return l.translate('invite_response_role_member');
     }
   }
@@ -99,9 +110,19 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
       _errorMessage = null;
     });
 
+    final tenantId = _tenantStore.currentTenant?.id ??
+        _findInvitation()?.tenantId ??
+        InvitationResponseScreen.seedInviteTenantIds[widget.invitationId];
+
     final Invitation? result = accept
-        ? await _invitationRepository.acceptInvitation(widget.invitationId)
-        : await _invitationRepository.declineInvitation(widget.invitationId);
+        ? await _invitationRepository.acceptInvitation(
+            widget.invitationId,
+            tenantId: tenantId,
+          )
+        : await _invitationRepository.declineInvitation(
+            widget.invitationId,
+            tenantId: tenantId,
+          );
 
     await _teamStore.loadTeamData();
 

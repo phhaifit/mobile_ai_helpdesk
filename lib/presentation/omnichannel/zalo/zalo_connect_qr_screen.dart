@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/omnichannel_ui_helpers.dart';
@@ -73,17 +75,14 @@ class _ZaloConnectQrScreenState extends State<ZaloConnectQrScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child:
-                              qr != null
-                                  ? Image.network(
-                                    qr.url,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        },
+                              qr != null && qr.image != null
+                                  ? Image.memory(
+                                    base64Decode(
+                                      qr.image!.replaceFirst(
+                                        RegExp(r'data:image/[^;]+;base64,'),
+                                        '',
+                                      ),
+                                    ),
                                     errorBuilder:
                                         (context, error, stackTrace) =>
                                             const Center(

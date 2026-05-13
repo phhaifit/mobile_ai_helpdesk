@@ -213,4 +213,59 @@ class AnalyticsEvents {
   /// Fired when user opens knowledge base article.
   /// Parameters: article_id, category, search_origin (true/false)
   static const String articleViewed = 'article_viewed';
+
+  // ============================================================================
+  // Marketing / Broadcasting Events
+  // ============================================================================
+
+  /// Fired when a broadcast template is created.
+  /// Parameters: channel, category
+  static const String marketingTemplateCreated = 'marketing_template_created';
+
+  /// Fired when a broadcast template is updated.
+  /// Parameters: template_id, channel, category
+  static const String marketingTemplateUpdated = 'marketing_template_updated';
+
+  /// Fired when a broadcast template is deleted.
+  /// Parameters: template_id
+  static const String marketingTemplateDeleted = 'marketing_template_deleted';
+
+  /// Fired when a broadcast campaign is created.
+  /// Parameters: channel, template_id
+  static const String marketingCampaignCreated = 'marketing_campaign_created';
+
+  /// Fired when a broadcast campaign is started (executed).
+  /// Parameters: campaign_id, channel, recipient_count
+  static const String marketingCampaignStarted = 'marketing_campaign_started';
+
+  /// Fired when a broadcast campaign is paused.
+  /// Parameters: campaign_id
+  static const String marketingCampaignPaused = 'marketing_campaign_paused';
+
+  /// Fired when a broadcast campaign is resumed.
+  /// Parameters: campaign_id
+  static const String marketingCampaignResumed = 'marketing_campaign_resumed';
+
+  /// Fired when a broadcast campaign reaches completed status via realtime.
+  /// Parameters: campaign_id, sent_count, delivered_count, failed_count
+  static const String marketingCampaignCompleted =
+      'marketing_campaign_completed';
+
+  /// Fired when a broadcast campaign reaches failed status via realtime.
+  /// Parameters: campaign_id
+  static const String marketingCampaignFailed = 'marketing_campaign_failed';
+
+  /// Fired when a Facebook admin account is connected or reauthed.
+  /// Parameters: account_id
+  static const String marketingFacebookConnected =
+      'marketing_facebook_connected';
+
+  /// Fired when a Facebook admin account is disconnected.
+  /// Parameters: account_id
+  static const String marketingFacebookDisconnected =
+      'marketing_facebook_disconnected';
+
+  /// Fired when audience filtering completes.
+  /// Parameters: recipient_count, filter_type
+  static const String marketingAudienceFiltered = 'marketing_audience_filtered';
 }

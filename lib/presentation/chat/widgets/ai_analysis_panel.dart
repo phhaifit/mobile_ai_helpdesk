@@ -21,7 +21,7 @@ class AIAnalysisPanel extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               blurRadius: 12,
               offset: const Offset(-4, 0),
             ),
@@ -33,7 +33,7 @@ class AIAnalysisPanel extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
               decoration: BoxDecoration(
-                color: AppColors.messengerBlue.withOpacity(0.05),
+                color: AppColors.messengerBlue.withValues(alpha: 0.05),
                 border: Border(
                   bottom: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
@@ -221,9 +221,9 @@ class AIAnalysisPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

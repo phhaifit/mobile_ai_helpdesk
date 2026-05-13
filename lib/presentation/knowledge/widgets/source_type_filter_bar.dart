@@ -1,21 +1,27 @@
+import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:flutter/material.dart';
 
+/// Horizontal scroller of "All / Web / File / Drive / DB" pills.
+/// Each pill maps to either `null` (all) or a [KnowledgeSourceType] used by
+/// the store's `setTypeFilter`.
 class SourceTypeFilterBar extends StatelessWidget {
-  final String? selected;
-  final ValueChanged<String?> onSelected;
+  final KnowledgeSourceType? selected;
+  final ValueChanged<KnowledgeSourceType?> onSelected;
 
   const SourceTypeFilterBar({
-    super.key,
     required this.selected,
     required this.onSelected,
+    super.key,
   });
 
-  static const _filters = [
-    (null, 'Tất cả', Icons.apps_outlined),
-    ('file', 'Tệp tin', Icons.insert_drive_file_outlined),
-    ('web', 'Web', Icons.language),
-    ('drive', 'Google Drive', Icons.add_to_drive),
-    ('db', 'Truy vấn CSDL', Icons.storage_outlined),
+  static const _filters = <_Filter>[
+    _Filter(null, 'Tất cả', Icons.apps_outlined),
+    _Filter(KnowledgeSourceType.web, 'Web', Icons.link),
+    _Filter(KnowledgeSourceType.wholeSite, 'Toàn site', Icons.language),
+    _Filter(KnowledgeSourceType.localFile, 'Tệp tin',
+        Icons.insert_drive_file_outlined),
+    _Filter(KnowledgeSourceType.googleDrive, 'Drive', Icons.add_to_drive),
+    _Filter(KnowledgeSourceType.databaseQuery, 'CSDL', Icons.storage_outlined),
   ];
 
   @override
@@ -28,18 +34,16 @@ class SourceTypeFilterBar extends StatelessWidget {
         itemCount: _filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final (category, label, icon) = _filters[index];
-          final isSelected = selected == category;
+          final f = _filters[index];
+          final isSelected = selected == f.type;
           return GestureDetector(
-            onTap: () => onSelected(category),
+            onTap: () => onSelected(f.type),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF1A73E8)
-                    : Colors.grey[100],
+                color:
+                    isSelected ? const Color(0xFF1A73E8) : Colors.grey[100],
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
@@ -51,18 +55,17 @@ class SourceTypeFilterBar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    icon,
+                    f.icon,
                     size: 14,
                     color: isSelected ? Colors.white : Colors.grey[700],
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    label,
+                    f.label,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color:
-                          isSelected ? Colors.white : Colors.grey[700],
+                      color: isSelected ? Colors.white : Colors.grey[700],
                     ),
                   ),
                 ],
@@ -73,4 +76,11 @@ class SourceTypeFilterBar extends StatelessWidget {
       ),
     );
   }
+}
+
+class _Filter {
+  final KnowledgeSourceType? type;
+  final String label;
+  final IconData icon;
+  const _Filter(this.type, this.label, this.icon);
 }

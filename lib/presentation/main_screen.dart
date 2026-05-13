@@ -1,13 +1,10 @@
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
-import 'chat/support_inbox_screen.dart';
-import 'ticket/screens/ticket_list_screen.dart';
-import 'tenant/employee_screen.dart';
-import 'tenant/tenant_info_screen.dart';
 import 'ai_agent/agent_list_screen.dart';
+import 'chat/support_inbox_screen.dart';
 import 'customer/screens/customer_main_screen.dart';
 import 'knowledge/knowledge_source_list_screen.dart';
 import 'marketing/campaign_list_screen.dart';
@@ -17,11 +14,10 @@ import 'monetization/monetization_screen.dart';
 import 'omnichannel/omnichannel_hub_screen.dart';
 import 'playground/playground_screen.dart';
 import 'prompt/prompt_library_screen.dart';
+import 'tenant/employee_screen.dart';
+import 'tenant/tenant_info_screen.dart';
+import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
-import 'team/store/team_store.dart';
-import 'tenant/invitation_response_screen.dart';
-import '../../../di/service_locator.dart';
-import '../../../domain/entity/invitation/invitation.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
@@ -58,7 +54,12 @@ class _MainScreenState extends State<MainScreen> {
     final String initial = widget.initialCategory;
     final matchingCategory = _categories.firstWhere(
       (c) => c.title == initial,
-      orElse: () => MenuCategory(title: '', icon: Icons.help_outline_rounded, items: []),
+      orElse:
+          () => MenuCategory(
+            title: '',
+            icon: Icons.help_outline_rounded,
+            items: [],
+          ),
     );
 
     if (matchingCategory.items.isNotEmpty) {
@@ -144,14 +145,14 @@ class _MainScreenState extends State<MainScreen> {
         icon: Icons.campaign_outlined,
         items: [
           MenuItem(
-            id: 'campaigns',
+            id: Routes.campaignList,
             title: 'Chiến dịch',
-            onTap: () => _selectCategory('campaigns'),
+            onTap: () => _selectCategory(Routes.campaignList),
           ),
           MenuItem(
-            id: 'template',
+            id: Routes.templateLibrary,
             title: 'Template',
-            onTap: () => _selectCategory('template'),
+            onTap: () => _selectCategory(Routes.templateLibrary),
           ),
         ],
       ),
@@ -185,12 +186,15 @@ class _MainScreenState extends State<MainScreen> {
             onTap: () => _selectCategory('payment'),
           ),
           MenuItem(
-            id: 'mock_invitation_response',
-            title: 'Mock invitation response',
-            onTap: _openMockInvitationResponse,
+            id: Routes.templateLibrary,
+            title: 'Template',
+            onTap: () => _selectCategory(Routes.templateLibrary),
           ),
-          MenuItem(id: 'template', title: 'Template', onTap: () => _selectCategory('template')),
-          MenuItem(id: 'facebook_admin', title: 'Facebook Admin', onTap: () => _selectCategory('facebook_admin')),
+          MenuItem(
+            id: Routes.facebookAdminSetup,
+            title: 'Facebook Admin',
+            onTap: () => _selectCategory(Routes.facebookAdminSetup),
+          ),
         ],
       ),
       MenuCategory(
@@ -256,25 +260,6 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  /// Opens the invitation response flow using a pending invite from the team store
-  /// (same screen as an email accept link), or mock seed `inv-001` if none pending.
-  /// TODO: remove this after testing
-  void _openMockInvitationResponse() {
-    final teamStore = getIt<TeamStore>();
-    String invitationId = 'inv-001';
-    for (final inv in teamStore.invitations) {
-      if (inv.status == InvitationStatus.pending) {
-        invitationId = inv.id;
-        break;
-      }
-    }
-    Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) => InvitationResponseScreen(invitationId: invitationId),
-      ),
-    );
-  }
-
   void _selectCategory(String category) {
     final currentRoute = ModalRoute.of(context)?.settings.name;
     if (category == 'pending_tickets' && currentRoute != Routes.ticketList) {
@@ -332,11 +317,11 @@ class _MainScreenState extends State<MainScreen> {
         contentWidget = const AgentListScreen();
       case 'playground':
         contentWidget = const PlaygroundScreen(agent: null);
-      case 'campaigns':
+      case Routes.campaignList:
         contentWidget = CampaignListScreen(onMenuTap: _toggleMobileSidebar);
-      case 'template':
+      case Routes.templateLibrary:
         contentWidget = TemplateLibraryScreen(onMenuTap: _toggleMobileSidebar);
-      case 'facebook_admin':
+      case Routes.facebookAdminSetup:
         contentWidget = const FacebookAdminSetupScreen();
       case 'prompt_library':
         contentWidget = _wrapWithMenuBar(
@@ -536,7 +521,7 @@ class _MainScreenState extends State<MainScreen> {
             if (_showSidebarMobile)
               GestureDetector(
                 onTap: () => setState(() => _showSidebarMobile = false),
-                child: Container(color: Colors.black.withOpacity(0.3)),
+                child: Container(color: Colors.black.withValues(alpha: 0.3)),
               ),
             if (_showSidebarMobile)
               Positioned(

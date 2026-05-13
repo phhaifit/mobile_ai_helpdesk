@@ -1,6 +1,6 @@
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/domain/entity/customer/tag.dart';
 import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
-import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 
 class TagRepositoryImpl implements TagRepository {
   final TagApi _api;

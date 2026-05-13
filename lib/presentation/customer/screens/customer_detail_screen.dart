@@ -18,12 +18,12 @@ class CustomerDetailScreen extends StatefulWidget {
   final VoidCallback onMerge;
 
   const CustomerDetailScreen({
-    super.key,
     required this.customer,
     required this.store,
     required this.onBack,
     required this.onEdit,
     required this.onMerge,
+    super.key,
   });
 
   @override
@@ -42,29 +42,41 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     _detailStore.loadAll(_customer.id);
   }
 
-  void _onDelete(BuildContext context) async {
+  Future<void> _onDelete(BuildContext context) async {
     final localizations = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(localizations.translate('customer_detail_delete_title')),
-        content: Text(localizations.translate('customer_detail_delete_confirm')),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), 
-            child: Text(localizations.translate('common_cancel'), style: const TextStyle(color: Colors.grey))
+      builder:
+          (_) => AlertDialog(
+            title: Text(
+              localizations.translate('customer_detail_delete_title'),
+            ),
+            content: Text(
+              localizations.translate('customer_detail_delete_confirm'),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  localizations.translate('common_cancel'),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: Text(
+                  localizations.translate('customer_detail_delete_btn'),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true), 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text(localizations.translate('customer_detail_delete_btn'), style: const TextStyle(color: Colors.white))
-          ),
-        ],
-      ),
     );
-
-    if (confirm == true) {
+    if (confirm ?? false) {
       final success = await widget.store.deleteCustomer(_customer.id);
       if (success) {
         widget.onBack();
@@ -95,7 +107,10 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             Divider(height: 24, color: Colors.grey.shade300),
             ...children,
           ],
@@ -104,7 +119,12 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color? iconColor}) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    Color? iconColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -116,19 +136,26 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
                 const SizedBox(height: 2),
                 Text(
-                  value.isEmpty ? AppLocalizations.of(context).translate('customer_detail_not_updated') : value, 
+                  value.isEmpty
+                      ? AppLocalizations.of(
+                        context,
+                      ).translate('customer_detail_not_updated')
+                      : value,
                   style: TextStyle(
-                    fontSize: 14, 
-                    color: value.isEmpty ? Colors.grey : Colors.black87, 
-                    fontWeight: value.isEmpty ? null : FontWeight.w500
-                  )
+                    fontSize: 14,
+                    color: value.isEmpty ? Colors.grey : Colors.black87,
+                    fontWeight: value.isEmpty ? null : FontWeight.w500,
+                  ),
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -137,19 +164,33 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
-    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
-        title: Text(AppLocalizations.of(context).translate('customer_detail_title'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
+        title: Text(
+          AppLocalizations.of(context).translate('customer_detail_title'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.edit_outlined, color: AppColors.primaryBlue), onPressed: widget.onEdit),
-          IconButton(icon: const Icon(Icons.merge_type, color: Colors.orange), onPressed: widget.onMerge),
-          IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _onDelete(context)),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: AppColors.primaryBlue),
+            onPressed: widget.onEdit,
+          ),
+          IconButton(
+            icon: const Icon(Icons.merge_type, color: Colors.orange),
+            onPressed: widget.onMerge,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () => _onDelete(context),
+          ),
         ],
       ),
       body: Observer(
@@ -167,7 +208,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
               tenantName: fetched.tenantName ?? _customer.tenantName,
             );
           }
-          final isProfileLoading = _detailStore.isProfileLoading && fetched == null;
+          final isProfileLoading =
+              _detailStore.isProfileLoading && fetched == null;
           if (isProfileLoading && _customer.id.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -176,106 +218,266 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            Card(
-              elevation: 0,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.grey.shade200),
-              ),
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                child: Column(
-                  children: [
-                     CircleAvatar(
-                       radius: 40,
-                       backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
-                       backgroundImage: _customer.avatarUrl != null && _customer.avatarUrl!.isNotEmpty 
-                         ? NetworkImage(_customer.avatarUrl!) 
-                         : null,
-                       child: (_customer.avatarUrl == null || _customer.avatarUrl!.isEmpty)
-                         ? Text(
-                             _getInitials(_customer.fullName),
-                             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
-                           )
-                         : null,
-                     ),
-                    const SizedBox(height: 16),
-                    Text(_customer.fullName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    if (_customer.tags.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _customer.tags.map((t) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                // ── Avatar / name / tags card ─────────────────────────────
+                Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 24,
+                      horizontal: 16,
+                    ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: AppColors.primaryBlue.withValues(
+                            alpha: 0.1,
                           ),
-                          child: Text(
-                            t.name,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                          backgroundImage:
+                              _customer.avatarUrl != null &&
+                                      _customer.avatarUrl!.isNotEmpty
+                                  ? NetworkImage(_customer.avatarUrl!)
+                                  : null,
+                          child:
+                              (_customer.avatarUrl == null ||
+                                      _customer.avatarUrl!.isEmpty)
+                                  ? Text(
+                                    _getInitials(_customer.fullName),
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryBlue,
+                                    ),
+                                  )
+                                  : null,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _customer.fullName,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
-                        )).toList(),
+                        ),
+                        if (_customer.tags.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children:
+                                _customer.tags
+                                    .map(
+                                      (t) => Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryBlue
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          t.name,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primaryBlue,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        ],
+                        if (_customer.groups.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            ).translate('customer_detail_groups'),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children:
+                                _customer.groups
+                                    .map(
+                                      (g) => Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade50,
+                                          border: Border.all(
+                                            color: Colors.green.shade200,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          g,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green.shade700,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                // ── Contact info ──────────────────────────────────────────
+                _buildInfoCard(
+                  AppLocalizations.of(
+                    context,
+                  ).translate('customer_detail_contact_info'),
+                  [
+                    if (_customer.phones.isEmpty)
+                      _buildInfoRow(
+                        Icons.phone_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_phone'),
+                        '',
                       ),
-                    ],
-                    if (_customer.groups.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context).translate('customer_detail_groups'), 
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)
+                    for (var p in _customer.phones)
+                      _buildInfoRow(
+                        Icons.phone_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_phone'),
+                        p,
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _customer.groups.map((g) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            border: Border.all(color: Colors.green.shade200),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            g,
-                            style: TextStyle(fontSize: 12, color: Colors.green.shade700, fontWeight: FontWeight.w600),
-                          ),
-                        )).toList(),
+                    if (_customer.emails.isEmpty)
+                      _buildInfoRow(
+                        Icons.email_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_email'),
+                        '',
                       ),
-                    ],
+                    for (var e in _customer.emails)
+                      _buildInfoRow(
+                        Icons.email_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_email'),
+                        e,
+                      ),
                   ],
                 ),
-              ),
-            ),
-            
-            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_contact_info'), [
-              if (_customer.phones.isEmpty) _buildInfoRow(Icons.phone_outlined, AppLocalizations.of(context).translate('customer_detail_phone'), ''),
-              for (var p in _customer.phones) _buildInfoRow(Icons.phone_outlined, AppLocalizations.of(context).translate('customer_detail_phone'), p),
-              if (_customer.emails.isEmpty) _buildInfoRow(Icons.email_outlined, AppLocalizations.of(context).translate('customer_detail_email'), ''),
-              for (var e in _customer.emails) _buildInfoRow(Icons.email_outlined, AppLocalizations.of(context).translate('customer_detail_email'), e),
-            ]),
-
-            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_social'), [
-              if (_customer.zalos.isEmpty) _buildInfoRow(Icons.chat_bubble_outline, AppLocalizations.of(context).translate('customer_detail_zalo'), '', iconColor: Colors.blue),
-              for (var z in _customer.zalos) _buildInfoRow(Icons.chat_bubble_outline, AppLocalizations.of(context).translate('customer_detail_zalo'), z, iconColor: Colors.blue),
-              if (_customer.messengers.isEmpty) _buildInfoRow(Icons.message_outlined, AppLocalizations.of(context).translate('customer_detail_messenger'), '', iconColor: Colors.blueAccent),
-              for (var m in _customer.messengers) _buildInfoRow(Icons.message_outlined, AppLocalizations.of(context).translate('customer_detail_messenger'), m, iconColor: Colors.blueAccent),
-            ]),
-
-            _buildInfoCard(AppLocalizations.of(context).translate('customer_detail_activity'), [
-              if (_customer.tenantName != null)
-                _buildInfoRow(Icons.business_outlined, AppLocalizations.of(context).translate('customer_detail_tenant'), _customer.tenantName!),
-              _buildInfoRow(Icons.confirmation_num_outlined, AppLocalizations.of(context).translate('customer_detail_tickets'), '${_customer.totalTickets}'),
-              _buildInfoRow(Icons.access_time, AppLocalizations.of(context).translate('customer_detail_created_at'), dateFormat.format(_customer.createdAt)),
-              if (_customer.lastContactedAt != null)
-                _buildInfoRow(Icons.update, AppLocalizations.of(context).translate('customer_detail_last_contact'), dateFormat.format(_customer.lastContactedAt!)),
-            ]),
-
-            CustomerTicketSection(store: _detailStore, customerId: _customer.id),
-            CustomerConversationSection(store: _detailStore, customerId: _customer.id),
+                // ── Social ────────────────────────────────────────────────
+                _buildInfoCard(
+                  AppLocalizations.of(
+                    context,
+                  ).translate('customer_detail_social'),
+                  [
+                    if (_customer.zalos.isEmpty)
+                      _buildInfoRow(
+                        Icons.chat_bubble_outline,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_zalo'),
+                        '',
+                        iconColor: Colors.blue,
+                      ),
+                    for (var z in _customer.zalos)
+                      _buildInfoRow(
+                        Icons.chat_bubble_outline,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_zalo'),
+                        z,
+                        iconColor: Colors.blue,
+                      ),
+                    if (_customer.messengers.isEmpty)
+                      _buildInfoRow(
+                        Icons.message_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_messenger'),
+                        '',
+                        iconColor: Colors.blueAccent,
+                      ),
+                    for (var m in _customer.messengers)
+                      _buildInfoRow(
+                        Icons.message_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_messenger'),
+                        m,
+                        iconColor: Colors.blueAccent,
+                      ),
+                  ],
+                ),
+                // ── Activity ──────────────────────────────────────────────
+                _buildInfoCard(
+                  AppLocalizations.of(
+                    context,
+                  ).translate('customer_detail_activity'),
+                  [
+                    if (_customer.tenantName != null)
+                      _buildInfoRow(
+                        Icons.business_outlined,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_tenant'),
+                        _customer.tenantName!,
+                      ),
+                    _buildInfoRow(
+                      Icons.confirmation_num_outlined,
+                      AppLocalizations.of(
+                        context,
+                      ).translate('customer_detail_tickets'),
+                      '${_customer.totalTickets}',
+                    ),
+                    _buildInfoRow(
+                      Icons.access_time,
+                      AppLocalizations.of(
+                        context,
+                      ).translate('customer_detail_created_at'),
+                      dateFormat.format(_customer.createdAt),
+                    ),
+                    if (_customer.lastContactedAt != null)
+                      _buildInfoRow(
+                        Icons.update,
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_detail_last_contact'),
+                        dateFormat.format(_customer.lastContactedAt!),
+                      ),
+                  ],
+                ),
+                // ── Ticket & conversation sections (feat) ─────────────────
+                CustomerTicketSection(
+                  store: _detailStore,
+                  customerId: _customer.id,
+                ),
+                CustomerConversationSection(
+                  store: _detailStore,
+                  customerId: _customer.id,
+                ),
               ],
             ),
           );
