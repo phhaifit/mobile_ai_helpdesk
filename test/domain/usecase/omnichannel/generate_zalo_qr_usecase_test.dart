@@ -35,6 +35,12 @@ class MockOmnichannelRepository implements OmnichannelRepository {
   ) async => throw UnimplementedError();
   @override
   Future<ActionFeedback> disconnectZalo() async => throw UnimplementedError();
+
+  @override
+  Future<ActionFeedback> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) async => throw UnimplementedError();
 }
 
 void main() {

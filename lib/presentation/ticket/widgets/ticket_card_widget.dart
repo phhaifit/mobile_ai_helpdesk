@@ -11,8 +11,7 @@ class TicketCardWidget extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const TicketCardWidget({
-    super.key,
-    required this.ticket,
+    required this.ticket, super.key,
     this.onTap,
     this.onDelete,
   });

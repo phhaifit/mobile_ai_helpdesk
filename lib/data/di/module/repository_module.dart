@@ -5,16 +5,21 @@ import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
 import 'package:ai_helpdesk/data/network/apis/invitation/invitation_api.dart';
 import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
 import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/prompt/prompt_template_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/data/network/apis/team/team_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tenant/tenant_api.dart';
@@ -24,6 +29,7 @@ import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/chat_room/customer_chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/invitation_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/knowledge/knowledge_repository_impl.dart';
@@ -36,6 +42,7 @@ import 'package:ai_helpdesk/data/repository/omnichannel/mock_omnichannel_reposit
 import 'package:ai_helpdesk/data/repository/omnichannel/omnichannel_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/playground/playground_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/prompt/prompt_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/team/team_repository_impl.dart';
@@ -48,6 +55,7 @@ import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart'
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
@@ -74,6 +82,9 @@ class RepositoryModule {
     final getIt = GetIt.instance;
 
     // --- AI Agent Repository ---
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName)),
+    );
     getIt.registerSingleton<AiAgentRepository>(
       AiAgentRepositoryImpl(getIt<AiAgentApi>(), getIt<SharedPreferenceHelper>()),
     );
@@ -108,10 +119,7 @@ class RepositoryModule {
 
     // --- Account (Helpdesk) ---
     getIt.registerSingleton<AccountRepository>(
-      AccountRepositoryImpl(
-        getIt<AccountApi>(),
-        getIt<AuthLocalDatasource>(),
-      ),
+      AccountRepositoryImpl(getIt<AccountApi>(), getIt<AuthLocalDatasource>()),
     );
 
     // --- Ticket Data Source & Repository ---
@@ -123,14 +131,19 @@ class RepositoryModule {
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
     );
 
-    getIt.registerSingleton<TicketApi>(
-      TicketApi(getIt<DioClient>()),
-    );
-
     getIt.registerSingleton<TicketRepository>(
       TicketRepositoryImpl(
         getIt<TicketApi>(),
         getIt<MockTicketRepositoryImpl>(),
+        getIt<MockTicketDataSource>(),
+      ),
+    );
+
+    // --- Customer Conversation Repository ---
+    getIt.registerSingleton<CustomerChatRoomRepository>(
+      CustomerChatRoomRepositoryImpl(
+        getIt<ChatRoomApi>(),
+        getIt<MockChatRoomDataSource>(),
       ),
     );
 
@@ -140,14 +153,18 @@ class RepositoryModule {
     );
 
     // --- Customer Repositories ---
+    // MockCustomerDataSource is passed as an in-memory fallback used in debug builds when
+    // the backend returns 404/5xx/network errors (auth/permission errors still propagate).
     getIt.registerSingleton<CustomerRepository>(
-      CustomerRepositoryImpl(getIt<CustomerApi>(), getIt<TagApi>()),
+      CustomerRepositoryImpl(
+        getIt<CustomerApi>(),
+        getIt<TagApi>(),
+        getIt<MockCustomerDataSource>(),
+      ),
     );
-    
+
     getIt.registerSingleton<MockTagDataSource>(MockTagDataSource());
-    getIt.registerSingleton<TagRepository>(
-      TagRepositoryImpl(getIt<TagApi>()),
-    );
+    getIt.registerSingleton<TagRepository>(TagRepositoryImpl(getIt<TagApi>()));
 
     getIt.registerSingleton<OmnichannelApi>(OmnichannelApi(getIt<DioClient>()));
 
@@ -232,7 +249,15 @@ class RepositoryModule {
     }
 
     // --- Prompt Repository ---
-    getIt.registerSingleton<PromptRepository>(MockPromptRepositoryImpl());
+    getIt.registerSingleton<PromptTemplateApi>(
+      PromptTemplateApi(getIt<DioClient>()),
+    );
+    getIt.registerSingleton<PromptRepository>(
+      PromptRepositoryImpl(
+        getIt<PromptTemplateApi>(),
+        fallback: MockPromptRepositoryImpl(),
+      ),
+    );
 
     // --- Knowledge API & Repository (AI-Services host) ---
     getIt.registerSingleton<KnowledgeApi>(

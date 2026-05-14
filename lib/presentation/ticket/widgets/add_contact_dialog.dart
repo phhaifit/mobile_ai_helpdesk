@@ -7,8 +7,7 @@ class AddContactDialog extends StatefulWidget {
   final Function(ContactInfo) onConfirm;
 
   const AddContactDialog({
-    super.key,
-    required this.onConfirm,
+    required this.onConfirm, super.key,
   });
 
   @override
@@ -85,7 +84,7 @@ class _AddContactDialogState extends State<AddContactDialog> {
               ),
             ),
             const SizedBox(height: 8),
-            Container(
+            DecoratedBox(
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppColors.dividerColor,

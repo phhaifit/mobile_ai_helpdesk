@@ -7,9 +7,7 @@ class TicketCustomerInfoWidget extends StatelessWidget {
   final VoidCallback onViewHistory;
 
   const TicketCustomerInfoWidget({
-    super.key,
-    required this.ticket,
-    required this.onViewHistory,
+    required this.ticket, required this.onViewHistory, super.key,
   });
 
   @override

@@ -16,8 +16,7 @@ class PlaygroundInputBar extends StatefulWidget {
   final TextEditingController? controller;
 
   const PlaygroundInputBar({
-    super.key,
-    required this.onSend,
+    required this.onSend, super.key,
     this.onAttachmentsChanged,
     this.controller,
     this.enabled = true,

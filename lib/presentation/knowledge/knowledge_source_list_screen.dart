@@ -378,9 +378,7 @@ class _KnowledgeSourceListScreenState
     final err = _store.errorMessage;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(err == null
-            ? 'Đã cập nhật tần suất cho "${source.name}"'
-            : err),
+        content: Text(err ?? 'Đã cập nhật tần suất cho "${source.name}"'),
         backgroundColor: err == null ? null : const Color(0xFFDC2626),
       ),
     );

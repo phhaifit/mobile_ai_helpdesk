@@ -15,9 +15,7 @@ class CreateTicketScreenBody extends StatefulWidget {
   final ValueChanged<Ticket>? onCreated;
 
   const CreateTicketScreenBody({
-    super.key,
-    required this.onClose,
-    required this.store,
+    required this.onClose, required this.store, super.key,
     this.onCreated,
   });
 
@@ -201,9 +199,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Tiêu đề: ',
               style: TextStyle(
                 fontSize: 14,
@@ -211,7 +209,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,
@@ -262,7 +260,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: widget.store.selectedCustomer.isEmpty
+          initialValue: widget.store.selectedCustomer.isEmpty
               ? null
               : widget.store.selectedCustomer,
           items: const [
@@ -306,9 +304,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Tên khách hàng: ',
               style: TextStyle(
                 fontSize: 14,
@@ -316,7 +314,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,
@@ -371,7 +369,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
             final statusColor =
                 AppColors.getStatusColor(widget.store.ticketStatus);
             return DropdownButtonFormField<TicketStatus>(
-              value: widget.store.ticketStatus,
+              initialValue: widget.store.ticketStatus,
               items: TicketStatus.values
                   .map((status) => DropdownMenuItem(
                         value: status,
@@ -448,7 +446,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
             final priorityColor =
                 AppColors.getPriorityColor(widget.store.priority);
             return DropdownButtonFormField<TicketPriority>(
-              value: widget.store.priority,
+              initialValue: widget.store.priority,
               items: TicketPriority.values
                   .map((priority) => DropdownMenuItem(
                         value: priority,
@@ -521,7 +519,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: widget.store.supportPerson.isEmpty
+          initialValue: widget.store.supportPerson.isEmpty
               ? null
               : widget.store.supportPerson,
           items: const [
@@ -564,9 +562,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Thông tin liên lạc: ',
               style: TextStyle(
                 fontSize: 14,
@@ -574,7 +572,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,

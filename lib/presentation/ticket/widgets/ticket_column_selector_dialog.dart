@@ -7,8 +7,7 @@ class TicketColumnSelectorDialog extends StatelessWidget {
   final TicketColumnVisibilityStore store;
 
   const TicketColumnSelectorDialog({
-    super.key,
-    required this.store,
+    required this.store, super.key,
   });
 
   @override

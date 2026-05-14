@@ -17,7 +17,7 @@ final _getIt = GetIt.instance;
 class TicketDetailScreen extends StatefulWidget {
   final String ticketId;
 
-  const TicketDetailScreen({super.key, required this.ticketId});
+  const TicketDetailScreen({required this.ticketId, super.key});
 
   @override
   State<TicketDetailScreen> createState() => _TicketDetailScreenState();
@@ -154,7 +154,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     );
   }
 
-  void _handleMenuAction(String action) async {
+  Future<void> _handleMenuAction(String action) async {
     switch (action) {
       case 'edit':
         final result = await Navigator.pushNamed(
@@ -173,7 +173,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
             ticketTitle: _store.ticket?.title ?? '',
           ),
         );
-        if (confirmed == true) {
+        if (confirmed ?? false) {
           await _store.deleteTicket();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

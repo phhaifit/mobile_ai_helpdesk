@@ -11,7 +11,7 @@ final _getIt = GetIt.instance;
 class EditTicketScreen extends StatefulWidget {
   final Ticket ticket;
 
-  const EditTicketScreen({super.key, required this.ticket});
+  const EditTicketScreen({required this.ticket, super.key});
 
   @override
   State<EditTicketScreen> createState() => _EditTicketScreenState();
@@ -172,7 +172,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketStatus>(
-            value: _store.ticketStatus,
+            initialValue: _store.ticketStatus,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -213,7 +213,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Mức độ ưu tiên', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketPriority>(
-            value: _store.priority,
+            initialValue: _store.priority,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -254,7 +254,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketCategory>(
-            value: _store.category,
+            initialValue: _store.category,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
