@@ -10,8 +10,7 @@ class PlaygroundMessageBubble extends StatelessWidget {
   final VoidCallback? onEdit;
 
   const PlaygroundMessageBubble({
-    super.key,
-    required this.message,
+    required this.message, super.key,
     this.onEdit,
   });
 

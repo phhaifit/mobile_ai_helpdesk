@@ -152,7 +152,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
 
                 // Search and filter + Table with tickets (grouped)
                 Expanded(
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: AppColors.dividerColor,

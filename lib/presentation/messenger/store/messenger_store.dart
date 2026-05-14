@@ -1,10 +1,10 @@
 import 'package:mobx/mobx.dart';
 
 import '/domain/entity/messenger/messenger_page.dart';
+import '/domain/repository/messenger/messenger_repository.dart';
 import '/domain/usecase/messenger/connect_messenger_page_usecase.dart';
 import '/domain/usecase/messenger/disconnect_messenger_page_usecase.dart';
 import '/domain/usecase/messenger/get_messenger_pages_usecase.dart';
-import '/domain/repository/messenger/messenger_repository.dart';
 
 part 'messenger_store.g.dart';
 

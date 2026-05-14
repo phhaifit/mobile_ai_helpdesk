@@ -1,6 +1,7 @@
-import 'package:mobx/mobx.dart' hide Reaction;
 import 'dart:async';
 import 'dart:math';
+
+import 'package:mobx/mobx.dart' hide Reaction;
 import '../../../constants/analytics_events.dart';
 import '../../../domain/analytics/analytics_service.dart';
 import '../../../domain/entity/chat/message.dart';
@@ -9,6 +10,7 @@ import '../../../domain/repository/chat/chat_repository.dart';
 
 part 'chat_store.g.dart'; // File này sẽ tự sinh ra sau khi chạy build_runner
 
+// ignore: library_private_types_in_public_api
 class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
@@ -54,6 +56,7 @@ abstract class _ChatStore with Store {
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void setSearchQuery(String query) {
     searchQuery = query;
   }

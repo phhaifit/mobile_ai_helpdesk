@@ -48,6 +48,12 @@ class _ZaloSyncStatusScreenState extends State<ZaloSyncStatusScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -55,14 +61,17 @@ class _ZaloSyncStatusScreenState extends State<ZaloSyncStatusScreen> {
                     children: [
                       Text(
                         '${l.translate('omnichannel_connection_status')}: ${l.translate(connectionStatusKey(zalo.connectionStatus))}',
+                        style: const TextStyle(color: Colors.black87),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${l.translate('omnichannel_sync_status')}: ${l.translate(syncStateKey(zalo.syncState))}',
+                        style: const TextStyle(color: Colors.black87),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${l.translate('omnichannel_last_sync')}: ${formatDateTime(zalo.lastMessageSyncAt)}',
+                        style: const TextStyle(color: Colors.black54),
                       ),
                     ],
                   ),

@@ -65,24 +65,59 @@ class _MessengerSettingsScreenState extends State<MessengerSettingsScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l.translate('omnichannel_messenger_auto_reply')),
-                value: _autoReply,
-                onChanged:
-                    (value) => setState(() {
-                      _autoReply = value;
-                    }),
-              ),
-              const SizedBox(height: 16),
-              Text(l.translate('omnichannel_messenger_business_hours')),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _businessHourController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: l.translate(
-                    'omnichannel_messenger_business_hours_hint',
+              Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          l.translate('omnichannel_messenger_auto_reply'),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        value: _autoReply,
+                        onChanged: (value) => setState(() {
+                          _autoReply = value;
+                        }),
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      Text(
+                        l.translate('omnichannel_messenger_business_hours'),
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _businessHourController,
+                        style: const TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.black.withValues(alpha: 0.04),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          hintText: l.translate(
+                            'omnichannel_messenger_business_hours_hint',
+                          ),
+                          hintStyle: const TextStyle(color: Colors.black26),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

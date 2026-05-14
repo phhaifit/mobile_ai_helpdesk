@@ -11,10 +11,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 /// Deep-link / email style screen to accept or decline a tenant invitation.
 class InvitationResponseScreen extends StatefulWidget {
-  const InvitationResponseScreen({
-    required this.invitationId,
-    super.key,
-  });
+  const InvitationResponseScreen({required this.invitationId, super.key});
 
   final String invitationId;
 
@@ -32,7 +29,8 @@ class InvitationResponseScreen extends StatefulWidget {
 class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   final TeamStore _teamStore = getIt<TeamStore>();
   final TenantStore _tenantStore = getIt<TenantStore>();
-  final InvitationRepository _invitationRepository = getIt<InvitationRepository>();
+  final InvitationRepository _invitationRepository =
+      getIt<InvitationRepository>();
 
   static const Color _brandBlue = Color(0xFF1890FF);
   static const Color _brandPurple = Color(0xFF7C3AED);
@@ -66,7 +64,8 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   String _organizationName(AppLocalizations l, Invitation? inv) {
-    final tenantId = inv?.tenantId ??
+    final tenantId =
+        inv?.tenantId ??
         InvitationResponseScreen.seedInviteTenantIds[widget.invitationId];
     if (tenantId == null) {
       return l.translate('invite_response_organization_fallback');
@@ -80,14 +79,14 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   }
 
   TeamRole _invitedRole(Invitation? inv) {
-    return inv?.role ?? TeamRole.customer_support;
+    return inv?.role ?? TeamRole.customerSupport;
   }
 
   String _inviteRoleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.customer_support:
+      case TeamRole.customerSupport:
         return l.translate('invite_response_role_member');
     }
   }
@@ -95,13 +94,17 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
   Future<void> _respond(bool accept) async {
     final l = AppLocalizations.of(context);
     if (widget.invitationId.trim().isEmpty) {
-      setState(() => _errorMessage = l.translate('invite_response_error_invalid'));
+      setState(
+        () => _errorMessage = l.translate('invite_response_error_invalid'),
+      );
       return;
     }
 
     final inv = _findInvitation();
     if (inv != null && inv.status != InvitationStatus.pending) {
-      setState(() => _errorMessage = l.translate('invite_response_error_not_pending'));
+      setState(
+        () => _errorMessage = l.translate('invite_response_error_not_pending'),
+      );
       return;
     }
 
@@ -110,19 +113,21 @@ class _InvitationResponseScreenState extends State<InvitationResponseScreen> {
       _errorMessage = null;
     });
 
-    final tenantId = _tenantStore.currentTenant?.id ??
+    final tenantId =
+        _tenantStore.currentTenant?.id ??
         _findInvitation()?.tenantId ??
         InvitationResponseScreen.seedInviteTenantIds[widget.invitationId];
 
-    final Invitation? result = accept
-        ? await _invitationRepository.acceptInvitation(
-            widget.invitationId,
-            tenantId: tenantId,
-          )
-        : await _invitationRepository.declineInvitation(
-            widget.invitationId,
-            tenantId: tenantId,
-          );
+    final Invitation? result =
+        accept
+            ? await _invitationRepository.acceptInvitation(
+              widget.invitationId,
+              tenantId: tenantId,
+            )
+            : await _invitationRepository.declineInvitation(
+              widget.invitationId,
+              tenantId: tenantId,
+            );
 
     await _teamStore.loadTeamData();
 

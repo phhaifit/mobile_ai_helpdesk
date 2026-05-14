@@ -15,6 +15,7 @@
 ///           draft/scheduled → FilledButton('Bắt đầu')
 ///           running → Row[OutlinedButton('Tạm dừng'), FilledButton('Dừng hẳn')]
 ///           paused  → Row[FilledButton('Tiếp tục'),  FilledButton('Dừng hẳn')]
+library;
 
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';

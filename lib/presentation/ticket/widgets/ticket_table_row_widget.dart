@@ -16,13 +16,11 @@ class TicketTableRowWidget extends StatelessWidget {
   final List<TicketColumn> visibleColumns;
 
   const TicketTableRowWidget({
-    super.key,
-    required this.ticket,
+    required this.ticket, required this.currentAgentId, super.key,
     this.onAcceptPressed,
     this.onCancelPressed,
     this.onDetailPressed,
     this.selectedTabIndex = 1,
-    required this.currentAgentId,
     this.visibleColumns = const [
       TicketColumn.title,
       TicketColumn.statusPriority,
@@ -39,7 +37,7 @@ class TicketTableRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Table(
         columnWidths: TicketTableColumns.buildTableWidths(visibleColumns),
@@ -81,9 +79,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Tiếp nhận",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Tiếp nhận',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }
@@ -101,9 +99,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Hủy",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Hủy',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }
@@ -121,9 +119,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Chi tiết",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Chi tiết',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }

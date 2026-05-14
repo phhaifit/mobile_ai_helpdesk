@@ -9,31 +9,31 @@ part of 'prompt_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$PromptStore on _PromptStore, Store {
-  Computed<List<Prompt>>? _$filteredPromptsComputed;
+  Computed<List<ResponseTemplate>>? _$filteredTemplatesComputed;
 
   @override
-  List<Prompt> get filteredPrompts =>
-      (_$filteredPromptsComputed ??= Computed<List<Prompt>>(
-            () => super.filteredPrompts,
-            name: '_PromptStore.filteredPrompts',
+  List<ResponseTemplate> get filteredTemplates =>
+      (_$filteredTemplatesComputed ??= Computed<List<ResponseTemplate>>(
+            () => super.filteredTemplates,
+            name: '_PromptStore.filteredTemplates',
           ))
           .value;
 
-  late final _$promptsAtom = Atom(
-    name: '_PromptStore.prompts',
+  late final _$templatesAtom = Atom(
+    name: '_PromptStore.templates',
     context: context,
   );
 
   @override
-  ObservableList<Prompt> get prompts {
-    _$promptsAtom.reportRead();
-    return super.prompts;
+  ObservableList<ResponseTemplate> get templates {
+    _$templatesAtom.reportRead();
+    return super.templates;
   }
 
   @override
-  set prompts(ObservableList<Prompt> value) {
-    _$promptsAtom.reportWrite(value, super.prompts, () {
-      super.prompts = value;
+  set templates(ObservableList<ResponseTemplate> value) {
+    _$templatesAtom.reportWrite(value, super.templates, () {
+      super.templates = value;
     });
   }
 
@@ -55,39 +55,21 @@ mixin _$PromptStore on _PromptStore, Store {
     });
   }
 
-  late final _$selectedCategoryIdAtom = Atom(
-    name: '_PromptStore.selectedCategoryId',
+  late final _$filterAssistantIdAtom = Atom(
+    name: '_PromptStore.filterAssistantId',
     context: context,
   );
 
   @override
-  String get selectedCategoryId {
-    _$selectedCategoryIdAtom.reportRead();
-    return super.selectedCategoryId;
+  String? get filterAssistantId {
+    _$filterAssistantIdAtom.reportRead();
+    return super.filterAssistantId;
   }
 
   @override
-  set selectedCategoryId(String value) {
-    _$selectedCategoryIdAtom.reportWrite(value, super.selectedCategoryId, () {
-      super.selectedCategoryId = value;
-    });
-  }
-
-  late final _$favoritesOnlyAtom = Atom(
-    name: '_PromptStore.favoritesOnly',
-    context: context,
-  );
-
-  @override
-  bool get favoritesOnly {
-    _$favoritesOnlyAtom.reportRead();
-    return super.favoritesOnly;
-  }
-
-  @override
-  set favoritesOnly(bool value) {
-    _$favoritesOnlyAtom.reportWrite(value, super.favoritesOnly, () {
-      super.favoritesOnly = value;
+  set filterAssistantId(String? value) {
+    _$filterAssistantIdAtom.reportWrite(value, super.filterAssistantId, () {
+      super.filterAssistantId = value;
     });
   }
 
@@ -127,52 +109,63 @@ mixin _$PromptStore on _PromptStore, Store {
     });
   }
 
-  late final _$loadPromptsAsyncAction = AsyncAction(
-    '_PromptStore.loadPrompts',
+  late final _$loadTemplatesAsyncAction = AsyncAction(
+    '_PromptStore.loadTemplates',
     context: context,
   );
 
   @override
-  Future<void> loadPrompts({bool useNetworkDelay = true}) {
-    return _$loadPromptsAsyncAction.run(
-      () => super.loadPrompts(useNetworkDelay: useNetworkDelay),
+  Future<void> loadTemplates({String? assistantId}) {
+    return _$loadTemplatesAsyncAction.run(
+      () => super.loadTemplates(assistantId: assistantId),
     );
   }
 
-  late final _$toggleFavoriteAsyncAction = AsyncAction(
-    '_PromptStore.toggleFavorite',
+  late final _$createTemplateAsyncAction = AsyncAction(
+    '_PromptStore.createTemplate',
     context: context,
   );
 
   @override
-  Future<void> toggleFavorite(String promptId) {
-    return _$toggleFavoriteAsyncAction.run(
-      () => super.toggleFavorite(promptId),
+  Future<void> createTemplate(CreateResponseTemplateDto dto) {
+    return _$createTemplateAsyncAction.run(() => super.createTemplate(dto));
+  }
+
+  late final _$updateTemplateAsyncAction = AsyncAction(
+    '_PromptStore.updateTemplate',
+    context: context,
+  );
+
+  @override
+  Future<void> updateTemplate(
+    String templateId,
+    UpdateResponseTemplateDto dto,
+  ) {
+    return _$updateTemplateAsyncAction.run(
+      () => super.updateTemplate(templateId, dto),
     );
   }
 
-  late final _$upsertPrivatePromptAsyncAction = AsyncAction(
-    '_PromptStore.upsertPrivatePrompt',
+  late final _$deleteTemplateAsyncAction = AsyncAction(
+    '_PromptStore.deleteTemplate',
     context: context,
   );
 
   @override
-  Future<void> upsertPrivatePrompt(Prompt prompt) {
-    return _$upsertPrivatePromptAsyncAction.run(
-      () => super.upsertPrivatePrompt(prompt),
+  Future<void> deleteTemplate(String templateId) {
+    return _$deleteTemplateAsyncAction.run(
+      () => super.deleteTemplate(templateId),
     );
   }
 
-  late final _$incrementUsageAsyncAction = AsyncAction(
-    '_PromptStore.incrementUsage',
+  late final _$toggleActiveAsyncAction = AsyncAction(
+    '_PromptStore.toggleActive',
     context: context,
   );
 
   @override
-  Future<void> incrementUsage(String promptId) {
-    return _$incrementUsageAsyncAction.run(
-      () => super.incrementUsage(promptId),
-    );
+  Future<void> toggleActive(String templateId) {
+    return _$toggleActiveAsyncAction.run(() => super.toggleActive(templateId));
   }
 
   late final _$_PromptStoreActionController = ActionController(
@@ -193,24 +186,12 @@ mixin _$PromptStore on _PromptStore, Store {
   }
 
   @override
-  void setCategoryFilter(String categoryId) {
+  void setFilterAssistantId(String? assistantId) {
     final _$actionInfo = _$_PromptStoreActionController.startAction(
-      name: '_PromptStore.setCategoryFilter',
+      name: '_PromptStore.setFilterAssistantId',
     );
     try {
-      return super.setCategoryFilter(categoryId);
-    } finally {
-      _$_PromptStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setFavoritesOnly(bool value) {
-    final _$actionInfo = _$_PromptStoreActionController.startAction(
-      name: '_PromptStore.setFavoritesOnly',
-    );
-    try {
-      return super.setFavoritesOnly(value);
+      return super.setFilterAssistantId(assistantId);
     } finally {
       _$_PromptStoreActionController.endAction(_$actionInfo);
     }
@@ -219,13 +200,12 @@ mixin _$PromptStore on _PromptStore, Store {
   @override
   String toString() {
     return '''
-prompts: ${prompts},
+templates: ${templates},
 searchQuery: ${searchQuery},
-selectedCategoryId: ${selectedCategoryId},
-favoritesOnly: ${favoritesOnly},
+filterAssistantId: ${filterAssistantId},
 isLoading: ${isLoading},
 errorMessage: ${errorMessage},
-filteredPrompts: ${filteredPrompts}
+filteredTemplates: ${filteredTemplates}
     ''';
   }
 }

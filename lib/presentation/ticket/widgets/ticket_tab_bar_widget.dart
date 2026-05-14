@@ -6,9 +6,7 @@ class TicketTabBarWidget extends StatelessWidget {
   final ValueChanged<int> onTabChanged;
 
   const TicketTabBarWidget({
-    super.key,
-    required this.selectedTabIndex,
-    required this.onTabChanged,
+    required this.selectedTabIndex, required this.onTabChanged, super.key,
   });
 
   @override
@@ -19,7 +17,7 @@ class TicketTabBarWidget extends StatelessWidget {
       'Tất cả phiếu hỗ trợ'
     ];
 
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

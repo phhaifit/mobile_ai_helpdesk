@@ -23,11 +23,7 @@ class TicketTableListWidget extends StatelessWidget {
   final bool hasMore;
 
   const TicketTableListWidget({
-    super.key,
-    required this.tickets,
-    required this.visibleColumns,
-    required this.selectedTabIndex,
-    required this.currentAgentId,
+    required this.tickets, required this.visibleColumns, required this.selectedTabIndex, required this.currentAgentId, super.key,
     this.onAcceptTicket,
     this.onCancelTicket,
     this.onViewDetails,

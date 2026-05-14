@@ -19,13 +19,11 @@ class TicketTableWidget extends StatelessWidget {
   final bool hasMore;
 
   const TicketTableWidget({
-    super.key,
-    required this.tickets,
+    required this.tickets, required this.currentAgentId, super.key,
     this.onAcceptTicket,
     this.onCancelTicket,
     this.onViewDetails,
     this.selectedTabIndex = 1,
-    required this.currentAgentId,
     this.onLoadMore,
     this.isLoadingMore = false,
     this.hasMore = true,
@@ -36,9 +34,9 @@ class TicketTableWidget extends StatelessWidget {
     final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
 
     if (tickets.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 48.0),
+          padding: EdgeInsets.symmetric(vertical: 48.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -47,8 +45,8 @@ class TicketTableWidget extends StatelessWidget {
                 size: 80,
                 color: AppColors.dividerColor,
               ),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'Không có phiếu nào',
                 style: TextStyle(
                   fontSize: 16,
@@ -56,8 +54,8 @@ class TicketTableWidget extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 4),
-              const Text(
+              SizedBox(height: 4),
+              Text(
                 'Nhấn nút "Thêm phiếu" phía trên để tạo phiếu mới',
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),

@@ -8,9 +8,7 @@ class TicketHeaderWidget extends StatelessWidget {
   final VoidCallback? onAddTicketPressed;
 
   const TicketHeaderWidget({
-    super.key,
-    required this.tabTitle,
-    required this.ticketCount,
+    required this.tabTitle, required this.ticketCount, super.key,
     this.onExportPressed,
     this.onAddTicketPressed,
   });
