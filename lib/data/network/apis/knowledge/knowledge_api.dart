@@ -240,6 +240,11 @@ class KnowledgeApi {
       Endpoints.knowledgeTestDatabaseQuery,
       data: {'query': query, 'uri': uri},
     );
+    // Backend may return rows as a top-level List instead of Map.
+    // Normalize to {'rows': [...]} so _parsePreview works uniformly.
+    if (response.data is List) {
+      return {'rows': response.data};
+    }
     return _asMap(response.data);
   }
 
