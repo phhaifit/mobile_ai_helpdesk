@@ -1,7 +1,7 @@
-import 'package:dio/dio.dart';
-
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
+import 'package:ai_helpdesk/data/network/dto/ticket/ticket_dto.dart';
+import 'package:dio/dio.dart';
 
 class TicketApi {
   final Dio _dio;
@@ -64,8 +64,8 @@ class TicketApi {
   /// POST /api/ticket/new
   Future<Map<String, dynamic>> createTicket({
     required String title,
-    String? description,
     required String customerId,
+    String? description,
     String? priority,
   }) async {
     final response = await _dio.post(
@@ -114,13 +114,33 @@ class TicketApi {
     return _parseMap(response.data);
   }
 
-  /// GET /api/ticket/customer-ticket?customerId={id}
-  Future<List<dynamic>> getCustomerTickets(String customerId) async {
-    final response = await _dio.get(
-      Endpoints.ticketCustomerHistory,
-      queryParameters: {'customerId': customerId},
-    );
-    return _parseList(response.data);
+  /// GET `/api/ticket/ticket-history-customer/{customerId}`.
+  ///
+  /// Backend contract:
+  ///   - 200 OK → `{ status, data: { tickets: [...], total? }, message }`
+  ///   - 404 with `data: []` (or `{tickets: []}`) → customer has no history;
+  ///     this is the documented "empty" response and is mapped to `[]` here
+  ///     rather than thrown.
+  /// Other DioExceptions bubble up so the repository can decide whether to
+  /// fall back to mock data.
+  Future<List<TicketDto>> getCustomerTickets(
+    String customerId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        Endpoints.ticketHistoryByCustomer(customerId),
+        queryParameters: {'limit': limit, 'offset': offset},
+      );
+      return _parseTickets(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404 &&
+          _looksLikeEmptyHistory(e.response?.data)) {
+        return const <TicketDto>[];
+      }
+      rethrow;
+    }
   }
 
   /// GET /api/ticket/comment/get-comment/{ticketId}
@@ -148,6 +168,10 @@ class TicketApi {
   Future<void> deleteComment(String commentId) async {
     await _dio.delete(Endpoints.ticketDeleteComment(commentId));
   }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
 
   /// Handles both direct list response and wrapped `{ "data": [...] }` format.
   List<dynamic> _parseList(dynamic data) {
@@ -180,4 +204,36 @@ class TicketApi {
     }
     return query;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Top-level helpers for getCustomerTickets (from feat/customer-management)
+// ---------------------------------------------------------------------------
+
+/// BE wraps tickets inside data.tickets[] (with optional total).
+/// Tolerates the legacy / fallback shape where data itself is a list.
+List<TicketDto> _parseTickets(Object? body) {
+  if (body is! Map) return const <TicketDto>[];
+  final data = body['data'];
+  final Object? rawList = switch (data) {
+    Map<dynamic, dynamic>() => data['tickets'],
+    List<dynamic>() => data,
+    _ => null,
+  };
+  if (rawList is! List) return const <TicketDto>[];
+  return rawList
+      .whereType<Map<dynamic, dynamic>>()
+      .map((e) => TicketDto.fromJson(Map<String, dynamic>.from(e)))
+      .toList(growable: false);
+}
+
+bool _looksLikeEmptyHistory(Object? body) {
+  if (body is! Map) return false;
+  final data = body['data'];
+  if (data is List && data.isEmpty) return true;
+  if (data is Map) {
+    final tickets = data['tickets'];
+    if (tickets is List && tickets.isEmpty) return true;
+  }
+  return false;
 }

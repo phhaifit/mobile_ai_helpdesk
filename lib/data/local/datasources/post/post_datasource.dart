@@ -1,7 +1,9 @@
-import '/core/data/local/sembast/sembast_client.dart';
-import '/data/local/constants/db_constants.dart';
-import '/domain/entity/post/post.dart';
-import '/domain/entity/post/post_list.dart';
+import 'dart:developer';
+
+import 'package:ai_helpdesk/core/data/local/sembast/sembast_client.dart';
+import 'package:ai_helpdesk/data/local/constants/db_constants.dart';
+import 'package:ai_helpdesk/domain/entity/post/post.dart';
+import 'package:ai_helpdesk/domain/entity/post/post_list.dart';
 import 'package:sembast/sembast.dart';
 
 class PostDataSource {
@@ -11,7 +13,7 @@ class PostDataSource {
 
   // Private getter to shorten the amount of code needed to get the
   // singleton instance of an opened database.
-//  Future<Database> get _db async => await AppDatabase.instance.database;
+  //  Future<Database> get _db async => await AppDatabase.instance.database;
 
   // database instance
   final SembastClient _sembastClient;
@@ -31,8 +33,9 @@ class PostDataSource {
   Future<List<Post>> getAllSortedByFilter({List<Filter>? filters}) async {
     //creating finder
     final finder = Finder(
-        filter: filters != null ? Filter.and(filters) : null,
-        sortOrders: [SortOrder(DBConstants.fieldId)]);
+      filter: filters != null ? Filter.and(filters) : null,
+      sortOrders: [SortOrder(DBConstants.fieldId)],
+    );
 
     final recordSnapshots = await _postsStore.find(
       _sembastClient.database,
@@ -49,26 +52,25 @@ class PostDataSource {
   }
 
   Future<PostList?> getPostsFromDb() async {
-
-    print('Loading from database');
+    log('Loading from database');
 
     // post list
     PostList? postsList;
 
     // fetching data
-    final recordSnapshots = await _postsStore.find(
-      _sembastClient.database,
-    );
+    final recordSnapshots = await _postsStore.find(_sembastClient.database);
 
     // Making a List<Post> out of List<RecordSnapshot>
-    if(recordSnapshots.length > 0) {
+    if (recordSnapshots.isNotEmpty) {
       postsList = PostList(
-          posts: recordSnapshots.map((snapshot) {
-            final post = Post.fromMap(snapshot.value);
-            // An ID is a key of a record from the database.
-            post.id = snapshot.key;
-            return post;
-          }).toList());
+        posts:
+            recordSnapshots.map((snapshot) {
+              final post = Post.fromMap(snapshot.value);
+              // An ID is a key of a record from the database.
+              post.id = snapshot.key;
+              return post;
+            }).toList(),
+      );
     }
 
     return postsList;
@@ -87,16 +89,10 @@ class PostDataSource {
 
   Future<int> delete(Post post) async {
     final finder = Finder(filter: Filter.byKey(post.id));
-    return await _postsStore.delete(
-      _sembastClient.database,
-      finder: finder,
-    );
+    return await _postsStore.delete(_sembastClient.database, finder: finder);
   }
 
   Future<void> deleteAll() async {
-    await _postsStore.drop(
-      _sembastClient.database,
-    );
+    await _postsStore.drop(_sembastClient.database);
   }
-
 }

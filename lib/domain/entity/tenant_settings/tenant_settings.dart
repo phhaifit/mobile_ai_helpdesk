@@ -62,9 +62,10 @@ class TenantSettings {
   }
 
   static Map<String, dynamic> _normalize(Map<String, dynamic> json) {
-    final data = json['data'] is Map<String, dynamic>
-        ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
-        : Map<String, dynamic>.from(json);
+    final data =
+        json['data'] is Map<String, dynamic>
+            ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
+            : Map<String, dynamic>.from(json);
 
     final settings = data['settings'];
     if (settings is Map<String, dynamic>) {
@@ -81,7 +82,7 @@ class TenantSettings {
         }
       }
     }
-    return TeamRole.customer_support;
+    return TeamRole.customerSupport;
   }
 
   static bool _readAutoResolutionEnabled(Map<String, dynamic> json) {

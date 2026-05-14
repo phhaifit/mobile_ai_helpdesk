@@ -6,7 +6,7 @@ import 'package:ai_helpdesk/presentation/ticket/widgets/detail/history_item_widg
 class TicketHistoryTimelineWidget extends StatelessWidget {
   final TicketDetailStore store;
 
-  const TicketHistoryTimelineWidget({super.key, required this.store});
+  const TicketHistoryTimelineWidget({required this.store, super.key});
 
   @override
   Widget build(BuildContext context) {

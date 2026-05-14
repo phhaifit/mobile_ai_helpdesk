@@ -6,7 +6,7 @@ import 'package:ai_helpdesk/domain/entity/enums.dart';
 class CommentItemWidget extends StatelessWidget {
   final Comment comment;
 
-  const CommentItemWidget({super.key, required this.comment});
+  const CommentItemWidget({required this.comment, super.key});
 
   @override
   Widget build(BuildContext context) {

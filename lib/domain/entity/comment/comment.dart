@@ -17,10 +17,10 @@ class Comment {
     required this.ticketId,
     required this.authorId,
     required this.authorName,
-    this.authorAvatar,
     required this.content,
     required this.type,
     required this.createdAt,
+    this.authorAvatar,
     this.updatedAt,
     this.attachments = const [],
   });

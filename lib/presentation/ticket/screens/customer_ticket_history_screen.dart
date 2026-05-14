@@ -15,9 +15,7 @@ class CustomerTicketHistoryScreen extends StatefulWidget {
   final String customerName;
 
   const CustomerTicketHistoryScreen({
-    super.key,
-    required this.customerId,
-    required this.customerName,
+    required this.customerId, required this.customerName, super.key,
   });
 
   @override

@@ -8,6 +8,7 @@
 ///       if step==1: _buildAudienceStep() (inline RecipientTargetingForm)
 ///       if step==2: _buildScheduleStep()
 ///     _buildNavigationButtons()
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -263,7 +264,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
         Observer(
           builder:
               (_) => DropdownButtonFormField<CampaignChannel>(
-                value: _store.draftChannel,
+                initialValue: _store.draftChannel,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.send_outlined),
@@ -380,7 +381,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
               if (_store.draftFilterType == RecipientFilterType.segment) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value:
+                  initialValue:
                       _store.draftSegmentValue.isEmpty
                           ? null
                           : _store.draftSegmentValue,
@@ -401,7 +402,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
               if (_store.draftFilterType == RecipientFilterType.channel) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<CampaignChannel>(
-                  value: _store.draftChannelFilter,
+                  initialValue: _store.draftChannelFilter,
                   decoration: const InputDecoration(
                     labelText: 'Kênh',
                     border: OutlineInputBorder(),
@@ -687,8 +688,9 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                                       ? null
                                       : () async {
                                         await _store.createCampaign();
-                                        if (mounted && _store.actionWasSuccess)
+                                        if (mounted && _store.actionWasSuccess) {
                                           Navigator.pop(context);
+                                        }
                                       },
                               child:
                                   _store.isSubmitting
@@ -738,8 +740,9 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                                       ? null
                                       : () async {
                                         await _store.createCampaign();
-                                        if (mounted && _store.actionWasSuccess)
+                                        if (mounted && _store.actionWasSuccess) {
                                           Navigator.pop(context);
+                                        }
                                       },
                               child:
                                   _store.isSubmitting

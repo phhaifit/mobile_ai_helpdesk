@@ -209,8 +209,10 @@ mixin _$CustomerStore on _CustomerStore, Store {
   );
 
   @override
-  Future<bool> saveCustomer(Customer customer) {
-    return _$saveCustomerAsyncAction.run(() => super.saveCustomer(customer));
+  Future<bool> saveCustomer(Customer customer, {Customer? previous}) {
+    return _$saveCustomerAsyncAction.run(
+      () => super.saveCustomer(customer, previous: previous),
+    );
   }
 
   late final _$deleteCustomerAsyncAction = AsyncAction(

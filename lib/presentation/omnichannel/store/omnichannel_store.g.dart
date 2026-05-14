@@ -173,16 +173,6 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
     return _$fetchOverviewAsyncAction.run(() => super.fetchOverview());
   }
 
-  late final _$connectMessengerAsyncAction = AsyncAction(
-    '_OmnichannelStore.connectMessenger',
-    context: context,
-  );
-
-  @override
-  Future<void> connectMessenger() {
-    return _$connectMessengerAsyncAction.run(() => super.connectMessenger());
-  }
-
   late final _$disconnectMessengerAsyncAction = AsyncAction(
     '_OmnichannelStore.disconnectMessenger',
     context: context,

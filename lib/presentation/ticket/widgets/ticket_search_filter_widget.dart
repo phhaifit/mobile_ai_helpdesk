@@ -10,11 +10,9 @@ class TicketSearchFilterWidget extends StatelessWidget {
   final int activeFilterCount;
 
   const TicketSearchFilterWidget({
-    super.key,
+    required this.onSearchChanged, required this.searchController, super.key,
     this.searchHint = 'Tìm theo tiêu đề',
-    required this.onSearchChanged,
     this.onFilterPressed,
-    required this.searchController,
     this.hasActiveFilter = false,
     this.activeFilterCount = 0,
   });
@@ -72,7 +70,7 @@ class TicketSearchFilterWidget extends StatelessWidget {
           // Filter button with badge
           Stack(
             children: [
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.dividerColor),
                   borderRadius: BorderRadius.circular(8),

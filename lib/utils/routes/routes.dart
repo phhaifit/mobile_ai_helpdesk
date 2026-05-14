@@ -7,7 +7,6 @@ import 'package:ai_helpdesk/presentation/ai_agent/agent_create_edit_screen.dart'
 import 'package:ai_helpdesk/presentation/ai_agent/agent_detail_screen.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/agent_list_screen.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/team_assistant_screen.dart';
-import 'package:ai_helpdesk/presentation/auth/edit_profile/edit_profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/profile_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/sign_in_email_screen.dart';
 import 'package:ai_helpdesk/presentation/auth/verify_otp/verify_otp_screen.dart';
@@ -59,7 +58,6 @@ class Routes {
   static const String home = '/home';
   static const String promptEditor = '/prompt-editor';
   static const String profile = '/profile';
-  static const String editProfile = '/profile/edit';
   static const String ticketList = '/ticket';
   static const String createTicket = '/create_ticket';
   static const String ticketDetail = '/ticket/ticket-detail';
@@ -144,11 +142,6 @@ class Routes {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ProfileScreen(),
-        );
-      case editProfile:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const EditProfileScreen(),
         );
       case ticketList:
         return MaterialPageRoute(

@@ -7,8 +7,7 @@ class HistoryItemWidget extends StatelessWidget {
   final bool isLast;
 
   const HistoryItemWidget({
-    super.key,
-    required this.entry,
+    required this.entry, super.key,
     this.isLast = false,
   });
 

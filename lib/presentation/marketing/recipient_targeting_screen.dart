@@ -8,6 +8,7 @@
 ///       OutlinedButton(estimate audience)
 ///       _buildEstimateResult()
 ///       FilledButton('Xác nhận') → pop with result
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -210,7 +211,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
         );
       case RecipientFilterType.segment:
         return DropdownButtonFormField<String>(
-          value:
+          initialValue:
               _store.draftSegmentValue.isEmpty
                   ? null
                   : _store.draftSegmentValue,
@@ -229,7 +230,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
         );
       case RecipientFilterType.channel:
         return DropdownButtonFormField<CampaignChannel>(
-          value: _store.draftChannelFilter,
+          initialValue: _store.draftChannelFilter,
           decoration: const InputDecoration(
             labelText: 'Kênh liên lạc',
             border: OutlineInputBorder(),

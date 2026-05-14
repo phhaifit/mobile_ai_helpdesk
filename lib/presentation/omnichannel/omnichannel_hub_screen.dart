@@ -78,13 +78,30 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
               ).textTheme.bodyLarge?.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 24),
-            Text(
-              l.translate('omnichannel_integrated_apps_title'),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
+            if (data.messenger.connectionStatus ==
+                    IntegrationConnectionStatus.connected ||
+                data.zalo.connectionStatus ==
+                    IntegrationConnectionStatus.connected) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l.translate('omnichannel_integrated_apps_title'),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _showDashboardSelectionDialog(context, data),
+                    icon: const Icon(Icons.dashboard_outlined),
+                    label: const Text('Bảng điều khiển'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
             _buildIntegratedAppsCard(context, data),
             const SizedBox(height: 24),
             Text(
@@ -123,16 +140,19 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
           appName: data.messenger.pageName,
           appType: l.translate('omnichannel_messenger_title'),
           onTap: () => Navigator.pushNamed(context, Routes.messengerDashboard),
+          onInfoTap: () => _openMessengerModal(context, data.messenger),
         ),
       if (data.zalo.connectionStatus == IntegrationConnectionStatus.connected)
         _IntegratedAppItem(
           appName: data.zalo.accountName,
           appType: l.translate('omnichannel_zalo_title'),
           onTap: () => Navigator.pushNamed(context, Routes.zaloOverview),
+          onInfoTap: () => _openZaloModal(context, data.zalo),
         ),
     ];
 
     return Card(
+      color: Colors.white,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -238,6 +258,14 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
                                   ?.copyWith(color: Colors.black54),
                             ),
                           ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.info_outline,
+                              size: 20,
+                              color: Colors.black38,
+                            ),
+                            onPressed: item.onInfoTap,
+                          ),
                         ],
                       ),
                     ),
@@ -333,13 +361,7 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          if (isConnected) {
-            _openMessengerModal(context, messenger);
-          } else {
-            _showWebRedirectDialog(context);
-          }
-        },
+        onTap: () => Navigator.pushNamed(context, Routes.messengerDashboard),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -403,6 +425,19 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline, color: Colors.black54),
+                onPressed: () {
+                  if (isConnected) {
+                    _openMessengerModal(context, messenger);
+                  } else {
+                    _showWebRedirectDialog(context);
+                  }
+                },
+                tooltip: isConnected
+                    ? l.translate('omnichannel_messenger_modal_title')
+                    : l.translate('omnichannel_web_redirect_button'),
               ),
             ],
           ),
@@ -610,13 +645,7 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          if (isConnected) {
-            _openZaloModal(context, zalo);
-          } else {
-            _showWebRedirectDialog(context);
-          }
-        },
+        onTap: () => Navigator.pushNamed(context, Routes.zaloOverview),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -680,6 +709,19 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline, color: Colors.black54),
+                onPressed: () {
+                  if (isConnected) {
+                    _openZaloModal(context, zalo);
+                  } else {
+                    _showWebRedirectDialog(context);
+                  }
+                },
+                tooltip: isConnected
+                    ? l.translate('omnichannel_zalo_modal_title')
+                    : l.translate('omnichannel_web_redirect_button'),
               ),
             ],
           ),
@@ -980,6 +1022,160 @@ class _OmnichannelHubScreenState extends State<OmnichannelHubScreen> {
       },
     );
   }
+
+  Future<void> _showDashboardSelectionDialog(
+    BuildContext context,
+    OmnichannelOverview data,
+  ) async {
+    final theme = Theme.of(context);
+    final l = AppLocalizations.of(context);
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chọn Dashboard',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Truy cập nhanh vào các kênh đã kết nối',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (data.messenger.connectionStatus ==
+                    IntegrationConnectionStatus.connected)
+                  _buildDialogOption(
+                    context: dialogContext,
+                    icon: Icons.chat_rounded,
+                    color: const Color(0xFF0084FF),
+                    title: 'Messenger',
+                    subtitle: data.messenger.pageName,
+                    onTap: () {
+                      Navigator.pop(dialogContext);
+                      Navigator.pushNamed(context, Routes.messengerDashboard);
+                    },
+                  ),
+                if (data.zalo.connectionStatus ==
+                    IntegrationConnectionStatus.connected)
+                  _buildDialogOption(
+                    context: dialogContext,
+                    icon: Icons.forum_rounded,
+                    color: const Color(0xFF0068FF),
+                    title: 'Zalo',
+                    subtitle: data.zalo.accountName,
+                    onTap: () {
+                      Navigator.pop(dialogContext);
+                      Navigator.pushNamed(context, Routes.zaloOverview);
+                    },
+                  ),
+                if (data.messenger.connectionStatus !=
+                        IntegrationConnectionStatus.connected &&
+                    data.zalo.connectionStatus !=
+                        IntegrationConnectionStatus.connected)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        'Chưa có kênh nào được kết nối',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.black45,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: Text(l.translate('omnichannel_close_button')),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDialogOption({
+    required BuildContext context,
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.black26),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _IntegratedAppItem {
@@ -987,9 +1183,12 @@ class _IntegratedAppItem {
   final String appType;
   final VoidCallback onTap;
 
+  final VoidCallback onInfoTap;
+
   const _IntegratedAppItem({
     required this.appName,
     required this.appType,
     required this.onTap,
+    required this.onInfoTap,
   });
 }

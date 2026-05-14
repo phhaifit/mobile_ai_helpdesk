@@ -1,6 +1,6 @@
-import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.dart';
+import 'package:mobx/mobx.dart';
 
 part 'customer_history_store.g.dart';
 

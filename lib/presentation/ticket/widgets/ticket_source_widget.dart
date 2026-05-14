@@ -6,8 +6,7 @@ class TicketSourceWidget extends StatelessWidget {
   final TicketSource source;
 
   const TicketSourceWidget({
-    super.key,
-    required this.source,
+    required this.source, super.key,
   });
 
   IconData _getSourceIcon(TicketSource source) {

@@ -11,23 +11,23 @@ class PlaygroundDataSource {
   // ---------------------------------------------------------------------------
 
   static const _lazadaResponses = [
-    "Xin chào! Tôi có thể giúp bạn tra cứu đơn hàng. Vui lòng cung cấp mã đơn hàng của bạn nhé.",
-    "Đơn hàng #ORD-2026-00{n} của bạn đang trong quá trình giao hàng. Dự kiến đến nơi vào ngày mai từ 8:00 - 18:00.",
-    "Chính sách hoàn trả của Lazada cho phép đổi/trả trong vòng **15 ngày** kể từ ngày nhận hàng. Bạn muốn tôi hướng dẫn thủ tục không?",
-    "Vấn đề của bạn đã được ghi nhận. Đội ngũ hỗ trợ Lazada sẽ liên hệ trong vòng **2 giờ làm việc**.",
-    "Tôi có thể hỗ trợ bạn:\n- Tra cứu đơn hàng\n- Yêu cầu hoàn trả\n- Kiểm tra tình trạng giao hàng\n- Liên hệ người bán\n\nBạn cần hỗ trợ vấn đề nào?",
-    "Rất tiếc về sự bất tiện này! Để xử lý khiếu nại, tôi cần bạn cung cấp **ảnh chụp sản phẩm** và **mô tả vấn đề**. Bạn có thể đính kèm ảnh vào đây không?",
-    "Đơn hàng của bạn đã được **xác nhận hoàn tiền**. Số tiền sẽ được hoàn về tài khoản trong 3-5 ngày làm việc.",
+    'Xin chào! Tôi có thể giúp bạn tra cứu đơn hàng. Vui lòng cung cấp mã đơn hàng của bạn nhé.',
+    'Đơn hàng #ORD-2026-00{n} của bạn đang trong quá trình giao hàng. Dự kiến đến nơi vào ngày mai từ 8:00 - 18:00.',
+    'Chính sách hoàn trả của Lazada cho phép đổi/trả trong vòng **15 ngày** kể từ ngày nhận hàng. Bạn muốn tôi hướng dẫn thủ tục không?',
+    'Vấn đề của bạn đã được ghi nhận. Đội ngũ hỗ trợ Lazada sẽ liên hệ trong vòng **2 giờ làm việc**.',
+    'Tôi có thể hỗ trợ bạn:\n- Tra cứu đơn hàng\n- Yêu cầu hoàn trả\n- Kiểm tra tình trạng giao hàng\n- Liên hệ người bán\n\nBạn cần hỗ trợ vấn đề nào?',
+    'Rất tiếc về sự bất tiện này! Để xử lý khiếu nại, tôi cần bạn cung cấp **ảnh chụp sản phẩm** và **mô tả vấn đề**. Bạn có thể đính kèm ảnh vào đây không?',
+    'Đơn hàng của bạn đã được **xác nhận hoàn tiền**. Số tiền sẽ được hoàn về tài khoản trong 3-5 ngày làm việc.',
   ];
 
   static const _normalResponses = [
-    "Xin chào! Tôi là trợ lý AI, rất vui được hỗ trợ bạn hôm nay. Bạn cần giúp đỡ gì?",
-    "Cảm ơn bạn đã liên hệ. Tôi hiểu vấn đề của bạn và sẽ cố gắng hỗ trợ tốt nhất.",
-    "Dựa trên thông tin bạn cung cấp, đây là một số giải pháp:\n\n1. **Kiểm tra lại cài đặt** trong phần tùy chọn\n2. **Xóa cache** của trình duyệt/ứng dụng\n3. **Liên hệ bộ phận kỹ thuật** nếu vấn đề vẫn tiếp diễn",
-    "Tôi đã chuyển yêu cầu của bạn đến đội hỗ trợ chuyên biệt. Họ sẽ phản hồi trong **vòng 24 giờ**.",
-    "Câu hỏi rất hay! Giờ làm việc của chúng tôi là **Thứ 2 - Thứ 6, 8:00 - 18:00** và **Thứ 7, 8:00 - 12:00**.",
-    "Bạn có thể thanh toán qua:\n- **Thẻ tín dụng/ghi nợ** (Visa, MasterCard)\n- **Chuyển khoản ngân hàng**\n- **Ví điện tử** (MoMo, ZaloPay, VNPay)\n- **Tiền mặt** khi giao hàng (COD)",
-    "Tôi rất xin lỗi về trải nghiệm không tốt này. Chúng tôi sẽ ghi nhận phản hồi và cải thiện dịch vụ. Tôi có thể làm gì thêm để hỗ trợ bạn không?",
+    'Xin chào! Tôi là trợ lý AI, rất vui được hỗ trợ bạn hôm nay. Bạn cần giúp đỡ gì?',
+    'Cảm ơn bạn đã liên hệ. Tôi hiểu vấn đề của bạn và sẽ cố gắng hỗ trợ tốt nhất.',
+    'Dựa trên thông tin bạn cung cấp, đây là một số giải pháp:\n\n1. **Kiểm tra lại cài đặt** trong phần tùy chọn\n2. **Xóa cache** của trình duyệt/ứng dụng\n3. **Liên hệ bộ phận kỹ thuật** nếu vấn đề vẫn tiếp diễn',
+    'Tôi đã chuyển yêu cầu của bạn đến đội hỗ trợ chuyên biệt. Họ sẽ phản hồi trong **vòng 24 giờ**.',
+    'Câu hỏi rất hay! Giờ làm việc của chúng tôi là **Thứ 2 - Thứ 6, 8:00 - 18:00** và **Thứ 7, 8:00 - 12:00**.',
+    'Bạn có thể thanh toán qua:\n- **Thẻ tín dụng/ghi nợ** (Visa, MasterCard)\n- **Chuyển khoản ngân hàng**\n- **Ví điện tử** (MoMo, ZaloPay, VNPay)\n- **Tiền mặt** khi giao hàng (COD)',
+    'Tôi rất xin lỗi về trải nghiệm không tốt này. Chúng tôi sẽ ghi nhận phản hồi và cải thiện dịch vụ. Tôi có thể làm gì thêm để hỗ trợ bạn không?',
   ];
 
   int _responseIndex = 0;

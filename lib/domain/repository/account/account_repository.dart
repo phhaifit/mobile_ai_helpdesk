@@ -42,6 +42,9 @@ abstract class AccountRepository {
   /// Multipart upload for the account avatar.
   Future<Either<Failure, void>> uploadAvatar(File file);
 
+  /// Removes the account avatar (DELETE on the avatar endpoint).
+  Future<Either<Failure, void>> deleteAvatar();
+
   /// Last-known account from local cache.
   Future<Account?> loadCached();
 }
