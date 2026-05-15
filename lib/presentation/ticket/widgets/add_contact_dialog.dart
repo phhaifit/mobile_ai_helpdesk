@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
+import 'package:flutter/material.dart';
 
 class AddContactDialog extends StatefulWidget {
   final Function(ContactInfo) onConfirm;

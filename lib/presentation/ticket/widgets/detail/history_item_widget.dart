@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
+import 'package:flutter/material.dart';
 
 class HistoryItemWidget extends StatelessWidget {
   final TicketHistory entry;

@@ -1,17 +1,17 @@
+import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_filter_dialog.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_header_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_search_filter_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_tab_bar_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_table_widget.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_tab_bar_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_header_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_search_filter_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_filter_dialog.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_table_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/screens/create_ticket_screen.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
-import 'package:ai_helpdesk/utils/routes/routes.dart';
 
 class TicketListScreen extends StatefulWidget {
   const TicketListScreen({super.key});

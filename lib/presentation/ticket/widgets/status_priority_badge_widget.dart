@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class StatusPriorityBadgeWidget extends StatelessWidget {
   final TicketStatus status;

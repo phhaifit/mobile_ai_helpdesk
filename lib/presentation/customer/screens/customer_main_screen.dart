@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import 'customer_add_edit_screen.dart';
-import 'customer_list_screen.dart';
 import 'customer_detail_screen.dart';
+import 'customer_list_screen.dart';
 import 'customer_merge_screen.dart';
 
 enum CustomerViewInfo { list, detail, add, edit, merge }

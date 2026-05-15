@@ -1,8 +1,9 @@
+import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 import 'ticket_column_selector_dialog.dart';
 import 'ticket_table_list_widget.dart';
