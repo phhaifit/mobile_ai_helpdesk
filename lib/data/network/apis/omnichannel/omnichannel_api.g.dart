@@ -6,7 +6,6 @@ part of 'omnichannel_api.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-
 ZaloQrStatusDto _$ZaloQrStatusDtoFromJson(Map<String, dynamic> json) =>
     ZaloQrStatusDto(
       status: json['status'] as String,

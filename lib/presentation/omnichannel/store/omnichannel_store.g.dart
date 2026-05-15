@@ -255,6 +255,21 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
     );
   }
 
+  late final _$sendZaloMessageAsyncAction = AsyncAction(
+    '_OmnichannelStore.sendZaloMessage',
+    context: context,
+  );
+
+  @override
+  Future<void> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) {
+    return _$sendZaloMessageAsyncAction.run(
+      () => super.sendZaloMessage(recipient: recipient, message: message),
+    );
+  }
+
   late final _$_OmnichannelStoreActionController = ActionController(
     name: '_OmnichannelStore',
     context: context,

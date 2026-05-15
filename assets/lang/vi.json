@@ -230,7 +230,7 @@
   "omnichannel_zalo_personal_message_title": "Tin nhan ca nhan Zalo",
   "omnichannel_zalo_recipient_label": "Tai khoan nhan",
   "omnichannel_zalo_message_label": "Noi dung tin nhan",
-  "omnichannel_zalo_send_button": "Gui tin nhan mo phong",
+  "omnichannel_zalo_send_button": "Gui tin nhan",
   "omnichannel_zalo_message_validation": "Can nhap tai khoan nhan va noi dung tin nhan.",
   "omnichannel_generic_error": "Da co loi xay ra. Vui long thu lai.",
   "omnichannel_web_redirect_title": "Tích hợp qua Web",
