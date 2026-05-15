@@ -355,7 +355,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
   Widget _buildCustomerDropdown() {
     final customers = _getUniqueCustomers();
     return DropdownButtonFormField<String?>(
-      initialValue: _currentFilter.customerId ?? '',
+      value: _currentFilter.customerId ?? '',
       items: [
         const DropdownMenuItem<String?>(
           value: '',
@@ -392,7 +392,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
   Widget _buildCreatorDropdown() {
     final creators = _getUniqueCreators();
     return DropdownButtonFormField<String?>(
-      initialValue: _currentFilter.createdById ?? '',
+      value: _currentFilter.createdById ?? '',
       items: [
         const DropdownMenuItem<String?>(
           value: '',
@@ -482,7 +482,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
     required ValueChanged<T?> onChanged,
   }) {
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      value: value,
       items: items,
       onChanged: onChanged,
       decoration: InputDecoration(

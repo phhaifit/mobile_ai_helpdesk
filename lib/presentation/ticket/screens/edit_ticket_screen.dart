@@ -172,7 +172,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketStatus>(
-            initialValue: _store.ticketStatus,
+            value: _store.ticketStatus,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -213,7 +213,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Mức độ ưu tiên', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketPriority>(
-            initialValue: _store.priority,
+            value: _store.priority,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -254,7 +254,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketCategory>(
-            initialValue: _store.category,
+            value: _store.category,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
