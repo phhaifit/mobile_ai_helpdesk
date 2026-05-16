@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/core/data/network/dio/configs/dio_configs.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
+import 'package:ai_helpdesk/data/network/dto/ticket/ticket_dto.dart';
 
 /// Test double for [TicketApi].
 /// Overrides all network methods — Dio is never called.
@@ -8,6 +9,7 @@ import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 class FakeTicketApi extends TicketApi {
   // --- configurable return values ---
   List<dynamic> customerTicketsResponse = [];
+  List<TicketDto> customerTicketsDtoResponse = const [];
   List<dynamic> commentsResponse = [];
   Map<String, dynamic> addCommentResponse = {};
   Map<String, dynamic> ticketDetailResponse = {};
@@ -32,9 +34,13 @@ class FakeTicketApi extends TicketApi {
   }
 
   @override
-  Future<List<dynamic>> getCustomerTickets(String customerId) async {
+  Future<List<TicketDto>> getCustomerTickets(
+    String customerId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     lastGetCustomerTicketsId = customerId;
-    return customerTicketsResponse;
+    return customerTicketsDtoResponse;
   }
 
   @override
