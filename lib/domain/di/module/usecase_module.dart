@@ -110,9 +110,18 @@ import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messa
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/open_chat_room_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/search/search_messages_grouped_by_chat_room_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_stop_typing_indicator_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_typing_indicator_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/search_messages_grouped_by_chat_room_usecase.dart';
 
 class UseCaseModule {
   static Future<void> configureUseCaseModuleInjection() async {
@@ -420,6 +429,9 @@ class UseCaseModule {
     getIt.registerSingleton<GetChatMessagesUseCase>(
       GetChatMessagesUseCase(getIt<ChatRepository>()),
     );
+    getIt.registerSingleton<ObserveChatMessagesUseCase>(
+      ObserveChatMessagesUseCase(getIt<ChatRepository>()),
+    );
     getIt.registerSingleton<GetNewerChatMessagesUseCase>(
       GetNewerChatMessagesUseCase(getIt<ChatRepository>()),
     );
@@ -455,6 +467,30 @@ class UseCaseModule {
     );
     getIt.registerSingleton<GenerateAiDraftResponseUseCase>(
       GenerateAiDraftResponseUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveIncomingMessagesUseCase>(
+      ObserveIncomingMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveReactionUpdatesUseCase>(
+      ObserveReactionUpdatesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveCustomerTypingUseCase>(
+      ObserveCustomerTypingUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveDraftProgressUseCase>(
+      ObserveDraftProgressUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveChatRoomSeenUseCase>(
+      ObserveChatRoomSeenUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<ObserveInAppNotificationsUseCase>(
+      ObserveInAppNotificationsUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<EmitTypingIndicatorUseCase>(
+      EmitTypingIndicatorUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<EmitStopTypingIndicatorUseCase>(
+      EmitStopTypingIndicatorUseCase(getIt<ChatRepository>()),
     );
   }
 }

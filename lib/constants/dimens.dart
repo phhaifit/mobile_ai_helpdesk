@@ -35,6 +35,10 @@ class Dimens {
   /// Upper cap for bubble width regardless of screen size.
   static const double chatBubbleAbsoluteMaxWidth = 560.0;
 
-  /// Max height for inline image/sticker previews inside a bubble.
+  /// Max height for inline image previews in chat.
   static const double chatBubbleImageMaxHeight = 220.0;
+
+  /// Max size for sticker previews (intrinsic, no bubble background).
+  static const double chatBubbleStickerMaxHeight = 128.0;
+  static const double chatBubbleStickerMaxWidth = 128.0;
 }

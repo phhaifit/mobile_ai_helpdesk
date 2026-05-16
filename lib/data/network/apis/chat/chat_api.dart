@@ -114,9 +114,13 @@ class ChatApi {
   Future<MessageDto> sendMessageFromAgentToCustomer({
     required SendCsMessageToCustomerParams params,
   }) async {
+    final Map<String, dynamic> body = Map<String, dynamic>.from(params.toJson());
+    // Backend reads `files.length`; omitting `files` causes 500 on Zalo/Messenger.
+    body.putIfAbsent('files', () => <dynamic>[]);
+
     final res = await _dioClient.dio.post(
       Endpoints.csToCustomer(),
-      data: params.toJson(),
+      data: body,
     );
     return MessageDto.fromJson((res.data['data'] as List)[0] as Map<String, dynamic>);
   }
@@ -139,7 +143,7 @@ class ChatApi {
         if (socketId != null) 'socketID': socketId,
       },
     );
-    return SeenInfoDto.fromJson(res.data['data'] as Map<String, dynamic>);
+    return SeenInfoDto.fromJson((res.data['data'] as List)[0] as Map<String, dynamic>);
   }
 
   /// Adds an emoji reaction to a message.
@@ -152,7 +156,7 @@ class ChatApi {
       Endpoints.reactToMessage(),
       data: params.toJson(),
     );
-    return MessageReactionDto.fromJson(res.data['data'] as Map<String, dynamic>);
+    return MessageReactionDto.fromJson((res.data['data'] as List)[0] as Map<String, dynamic>);
   }
 
   /// Removes an emoji reaction.

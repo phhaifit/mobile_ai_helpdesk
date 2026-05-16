@@ -6,6 +6,7 @@ import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_s
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
@@ -18,6 +19,16 @@ import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/import_database_query_usecase.dart';
@@ -29,9 +40,6 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/reindex_source_usecase.dart
 import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
@@ -79,11 +87,14 @@ import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.dart';
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
+import 'package:ai_helpdesk/presentation/playground/store/playground_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
 import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
@@ -114,7 +125,6 @@ import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../data/realtime/socket/socket_service.dart';
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
@@ -127,9 +137,6 @@ import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
 import '../../../domain/usecase/playground/create_session_usecase.dart';
 import '../../../domain/usecase/playground/get_sessions_usecase.dart';
 import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
-import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
-import '../../playground/store/playground_store.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -234,21 +241,32 @@ class StoreModule {
     // --- Chat Stores ---
     getIt.registerSingleton<ChatStore>(
       ChatStore(
-        getIt<GetChatMessagesUseCase>(),
         getIt<SendMessageFromAgentToCustomerUseCase>(),
         getIt<FlatSearchMessageListUseCase>(),
         getIt<ReactToMessageUseCase>(),
         getIt<UnreactToMessageUseCase>(),
+        getIt<GenerateAiDraftResponseUseCase>(),
         getIt<AnalyticsService>(),
         getIt<ErrorStore>(),
-        getIt<SocketService>(),
+        getIt<ChatRepository>(),
+        getIt<ObserveChatMessagesUseCase>(),
+        getIt<ObserveReactionUpdatesUseCase>(),
+        getIt<ObserveCustomerTypingUseCase>(),
+        getIt<ObserveDraftProgressUseCase>(),
+        getIt<SettingRepository>(),
       ),
     );
     
     getIt.registerSingleton<ChatRoomStore>(
-      ChatRoomStore(getIt<GetChatRoomsUseCase>(),
-      getIt<MarkChatRoomAsSeenUseCase>(),
-    ));
+      ChatRoomStore(
+        getIt<GetChatRoomsUseCase>(),
+        getIt<MarkChatRoomAsSeenUseCase>(),
+        getIt<ObserveIncomingMessagesUseCase>(),
+        getIt<ObserveChatRoomSeenUseCase>(),
+        getIt<ObserveInAppNotificationsUseCase>(),
+        getIt<SettingRepository>(),
+      ),
+    );
 
     // --- Theme & Language ---
     getIt.registerSingleton<ThemeStore>(

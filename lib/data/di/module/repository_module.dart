@@ -43,6 +43,7 @@ import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.d
 import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
+import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
@@ -129,10 +130,10 @@ class RepositoryModule {
     // --- Chat Repositories ---
     getIt.registerSingleton<ChatApi>(ChatApi(getIt<DioClient>()));
     getIt.registerSingleton<ChatRepositoryImpl>(
-      ChatRepositoryImpl(getIt<ChatApi>()),
+      ChatRepositoryImpl(getIt<ChatApi>(), getIt<SocketService>()),
     );
     getIt.registerSingleton<ChatRoomRepositoryImpl>(
-      ChatRoomRepositoryImpl(getIt<ChatApi>()),
+      ChatRoomRepositoryImpl(getIt<ChatApi>(), getIt<SocketService>()),
     );
 
     getIt.registerSingleton<ChatRepository>(getIt<ChatRepositoryImpl>());

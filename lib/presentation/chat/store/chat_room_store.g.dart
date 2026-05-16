@@ -19,6 +19,24 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
           ))
           .value;
 
+  late final _$activeRoomIdAtom = Atom(
+    name: '_ChatRoomStore.activeRoomId',
+    context: context,
+  );
+
+  @override
+  String? get activeRoomId {
+    _$activeRoomIdAtom.reportRead();
+    return super.activeRoomId;
+  }
+
+  @override
+  set activeRoomId(String? value) {
+    _$activeRoomIdAtom.reportWrite(value, super.activeRoomId, () {
+      super.activeRoomId = value;
+    });
+  }
+
   late final _$chatRoomsAtom = Atom(
     name: '_ChatRoomStore.chatRooms',
     context: context,
@@ -81,6 +99,42 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   );
 
   @override
+  void setActiveRoomId(String? roomId) {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore.setActiveRoomId',
+    );
+    try {
+      return super.setActiveRoomId(roomId);
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _onRoomSeen(ChatRoomSeenUpdate update) {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore._onRoomSeen',
+    );
+    try {
+      return super._onRoomSeen(update);
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _onInAppNotification(InAppNotification notification) {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore._onInAppNotification',
+    );
+    try {
+      return super._onInAppNotification(notification);
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void clearRooms() {
     final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
       name: '_ChatRoomStore.clearRooms',
@@ -93,7 +147,7 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   }
 
   @override
-  void updateLastMessage(String roomId, String message, {bool isMe = true}) {
+  void updateLastMessage(String roomId, Message message, {bool isMe = true}) {
     final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
       name: '_ChatRoomStore.updateLastMessage',
     );
@@ -107,6 +161,7 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   @override
   String toString() {
     return '''
+activeRoomId: ${activeRoomId},
 chatRooms: ${chatRooms},
 isLoading: ${isLoading},
 totalUnread: ${totalUnread}

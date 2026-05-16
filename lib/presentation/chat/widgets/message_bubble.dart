@@ -7,6 +7,7 @@ import '../../../constants/colors.dart';
 import '../../../constants/dimens.dart';
 import '../../../domain/entity/chat/attachment.dart';
 import '../../../domain/entity/chat/message.dart';
+import '../../../utils/locale/app_localization.dart';
 import 'chat_avatar.dart';
 import 'reaction_picker.dart';
 
@@ -25,6 +26,16 @@ Future<void> _openAttachmentUrl(String url) async {
   await launchUrl(uri, mode: LaunchMode.externalApplication);
 }
 
+bool _isVisualMedia(Attachment attachment) {
+  return attachment.type == AttachmentType.image ||
+      attachment.type == AttachmentType.sticker;
+}
+
+bool _messageIsVisualMediaOnly(Message message) {
+  if (message.attachments.isEmpty) return false;
+  return message.attachments.every(_isVisualMedia);
+}
+
 class MessageBubble extends StatelessWidget {
   final Message message;
 
@@ -37,8 +48,10 @@ class MessageBubble extends StatelessWidget {
   /// Show the sender's avatar (left side only, on last bubble of group).
   final bool showAvatar;
 
-  /// Callback when a reaction is selected
-  final Function(String emoji)? onReactionAdded;
+  /// Zalo reaction selected (`reactIcon` code, e.g. `/-strong`).
+  final ValueChanged<String>? onZaloReactionSelected;
+
+  final VoidCallback? onReply;
 
   /// Whether this message is highlighted by search
   final bool isHighlighted;
@@ -49,7 +62,8 @@ class MessageBubble extends StatelessWidget {
     this.isGroupStart = true,
     this.isGroupEnd = true,
     this.showAvatar = true,
-    this.onReactionAdded,
+    this.onZaloReactionSelected,
+    this.onReply,
     this.isHighlighted = false,
   });
 
@@ -71,8 +85,9 @@ class MessageBubble extends StatelessWidget {
           // Avatar placeholder for non-me messages
           if (!isMe) _buildAvatarSlot(),
 
-          // Bubble + metadata column
+          // Bubble + metadata column (loose flex: width follows content, not screen)
           Flexible(
+            fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: isMe
                   ? CrossAxisAlignment.end
@@ -106,40 +121,10 @@ class MessageBubble extends StatelessWidget {
                     ],
 
                     Flexible(
+                      fit: FlexFit.loose,
                       child: GestureDetector(
-                        onLongPress: () => _showReactionPicker(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMe
-                                ? AppColors.messengerBlue
-                                : AppColors.bubbleGray,
-                            borderRadius: _buildBorderRadius(
-                              isMe,
-                              isGroupStart,
-                              isGroupEnd,
-                            ),
-                            border: isHighlighted
-                                ? Border.all(
-                                    color: AppColors.textPrimary,
-                                    width: 2.5,
-                                  )
-                                : null,
-                            boxShadow: isHighlighted
-                                ? [
-                                    BoxShadow(
-                                      color: AppColors.textPrimary.withValues(alpha: 0.4),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: _buildBubbleChild(context, isMe),
-                        ),
+                        onLongPress: () => _showMessageActions(context),
+                        child: _buildMessageBody(context, isMe),
                       ),
                     ),
 
@@ -185,77 +170,254 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildBubbleChild(BuildContext context, bool isMe) {
+  Widget _buildMessageBody(BuildContext context, bool isMe) {
     final double maxW = _bubbleMaxWidth(context);
 
     if (message.attachments.isNotEmpty) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxW),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      return _buildAttachmentsBody(isMe, maxW);
+    }
+
+    return _buildTextBody(isMe, maxW);
+  }
+
+  /// Attachment messages: render files/media only (never [Message.content]).
+  Widget _buildAttachmentsBody(bool isMe, double maxW) {
+    if (_messageIsVisualMediaOnly(message) && message.replyPreview == null) {
+      return _wrapHighlight(
+        Column(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            for (int i = 0; i < message.attachments.length; i++) ...<Widget>[
-              if (i > 0) const SizedBox(height: Dimens.spacingS),
-              _buildAttachmentBody(message.attachments[i], isMe, maxW),
-            ],
-          ],
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: _buildVisualMediaList(maxW),
         ),
       );
     }
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxW),
-      child: Text(
-        message.content,
-        style: TextStyle(
-          color: isMe ? Colors.white : AppColors.textPrimary,
-          fontSize: 15,
-        ),
-        softWrap: true,
-        maxLines: null,
-      ),
-    );
-  }
+    final List<Widget> visualMedia = <Widget>[];
+    final List<Widget> bubbleChildren = <Widget>[];
 
-  Widget _buildAttachmentBody(
-    Attachment attachment,
-    bool isMe,
-    double maxWidth,
-  ) {
-    final bool asImage =
-        attachment.type == AttachmentType.image ||
-        attachment.type == AttachmentType.sticker;
+    if (message.replyPreview != null) {
+      bubbleChildren
+        ..add(_buildReplyQuote(isMe))
+        ..add(const SizedBox(height: 8));
+    }
 
-    if (asImage) {
-      return GestureDetector(
-        onTap: () => _openAttachmentUrl(attachment.url),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(Dimens.cardBorderRadius),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: maxWidth,
-              maxHeight: Dimens.chatBubbleImageMaxHeight,
-            ),
-            child: Image.network(
-              attachment.url,
-              fit: BoxFit.contain,
-              errorBuilder: (BuildContext context, Object error, StackTrace? stack) {
-                return Container(
-                  padding: const EdgeInsets.all(Dimens.spacingM),
-                  color: Colors.grey.shade300,
-                  child: Icon(
-                    Icons.broken_image_outlined,
-                    color: isMe ? Colors.white70 : AppColors.textPrimary,
-                  ),
-                );
-              },
-            ),
+    for (final Attachment attachment in message.attachments) {
+      if (_isVisualMedia(attachment)) {
+        visualMedia.add(_buildVisualMedia(attachment, maxW));
+      } else {
+        bubbleChildren.add(_buildFileAttachmentRow(attachment, isMe));
+      }
+    }
+
+    final List<Widget> body = <Widget>[];
+    if (bubbleChildren.isNotEmpty) {
+      body.add(
+        _wrapInTextBubble(
+          isMe: isMe,
+          maxWidth: maxW,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: bubbleChildren,
           ),
         ),
       );
     }
+    if (visualMedia.isNotEmpty) {
+      if (body.isNotEmpty) {
+        body.add(const SizedBox(height: Dimens.spacingS));
+      }
+      for (int i = 0; i < visualMedia.length; i++) {
+        if (i > 0) {
+          body.add(const SizedBox(height: Dimens.spacingS));
+        }
+        body.add(visualMedia[i]);
+      }
+    }
 
+    return _wrapHighlight(
+      ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxW),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: body,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextBody(bool isMe, double maxW) {
+    final List<Widget> bubbleChildren = <Widget>[];
+
+    if (message.replyPreview != null) {
+      bubbleChildren
+        ..add(_buildReplyQuote(isMe))
+        ..add(const SizedBox(height: 8));
+    }
+
+    final String text = message.content.trim();
+    if (text.isNotEmpty) {
+      bubbleChildren.add(
+        Text(
+          message.content,
+          style: TextStyle(
+            color: isMe ? Colors.white : AppColors.textPrimary,
+            fontSize: 15,
+          ),
+          softWrap: true,
+          maxLines: null,
+        ),
+      );
+    }
+
+    if (bubbleChildren.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return _wrapHighlight(
+      _wrapInTextBubble(
+        isMe: isMe,
+        maxWidth: maxW,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: bubbleChildren,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildVisualMediaList(double maxW) {
+    return <Widget>[
+      for (int i = 0; i < message.attachments.length; i++) ...<Widget>[
+        if (i > 0) const SizedBox(height: Dimens.spacingS),
+        _buildVisualMedia(message.attachments[i], maxW),
+      ],
+    ];
+  }
+
+  Widget _wrapInTextBubble({
+    required bool isMe,
+    required double maxWidth,
+    required Widget child,
+  }) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isMe ? AppColors.messengerBlue : AppColors.bubbleGray,
+        borderRadius: _buildBorderRadius(isMe, isGroupStart, isGroupEnd),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _wrapHighlight(Widget child) {
+    if (!isHighlighted) {
+      return child;
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.textPrimary, width: 2.5),
+        borderRadius: _buildBorderRadius(message.isMe, isGroupStart, isGroupEnd),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withValues(alpha: 0.4),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildVisualMedia(Attachment attachment, double maxWidth) {
+    final bool isSticker = attachment.type == AttachmentType.sticker;
+    final double maxHeight = isSticker
+        ? Dimens.chatBubbleStickerMaxHeight
+        : Dimens.chatBubbleImageMaxHeight;
+    final double maxW = isSticker
+        ? Dimens.chatBubbleStickerMaxWidth
+        : maxWidth;
+
+    return GestureDetector(
+      onTap: () => _openAttachmentUrl(attachment.url),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(Dimens.cardBorderRadius),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxW,
+            maxHeight: maxHeight,
+          ),
+          child: Image.network(
+            attachment.url,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stack) {
+              return Container(
+                padding: const EdgeInsets.all(Dimens.spacingM),
+                color: Colors.grey.shade200,
+                child: const Icon(
+                  Icons.broken_image_outlined,
+                  color: AppColors.textSecondary,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReplyQuote(bool isMe) {
+    final preview = message.replyPreview!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isMe
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          left: BorderSide(
+            color: isMe ? Colors.white70 : AppColors.messengerBlue,
+            width: 3,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            preview.senderName,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isMe ? Colors.white : AppColors.messengerBlue,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            preview.content,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              color: isMe ? Colors.white70 : AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileAttachmentRow(Attachment attachment, bool isMe) {
     return InkWell(
       onTap: () => _openAttachmentUrl(attachment.url),
       borderRadius: BorderRadius.circular(Dimens.cardBorderRadius),
@@ -381,18 +543,28 @@ class MessageBubble extends StatelessWidget {
       child: Wrap(
         spacing: 4,
         children: message.reactions.map((reaction) {
-          return GestureDetector(
-            onTap: () => onReactionAdded?.call(reaction.emoji),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${reaction.emoji} ${reaction.amount}',
-                style: const TextStyle(fontSize: 12),
-              ),
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (message.isZalo)
+                  ZaloReactionImage(reactIcon: reaction.emoji, size: 16)
+                else
+                  Text(
+                    reaction.emoji,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                const SizedBox(width: 4),
+                Text(
+                  '${reaction.amount}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -400,28 +572,55 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  void _showReactionPicker(BuildContext context) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final Offset offset = renderBox.localToGlobal(Offset.zero);
+  Future<void> _showMessageActions(BuildContext context) async {
+    final AppLocalizations l = AppLocalizations.of(context);
 
-    showMenu<String>(
+    await showModalBottomSheet<void>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx,
-        offset.dy,
-        offset.dx + renderBox.size.width,
-        offset.dy + renderBox.size.height,
-      ),
-      items: <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.reply_rounded),
+                title: Text(l.translate('chat_reply')),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  onReply?.call();
+                },
+              ),
+              if (message.canReactOnZalo)
+                ListTile(
+                  leading: const Icon(Icons.add_reaction_outlined),
+                  title: Text(l.translate('chat_add_reaction')),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _showReactionPicker(context);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showReactionPicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext sheetContext) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
           child: ReactionPicker(
-            onReactionSelected: (String emoji) {
-              onReactionAdded?.call(emoji);
-              Navigator.of(context).pop();
+            onReactionSelected: (String reactIcon) {
+              Navigator.of(sheetContext).pop();
+              onZaloReactionSelected?.call(reactIcon);
             },
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

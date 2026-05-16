@@ -39,6 +39,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
       (_) => getIt<TenantStore>().currentTenant?.id,
       (_) {
         if (!mounted) return;
+        getIt<ChatRoomStore>().setActiveRoomId(null);
         setState(() => _selectedRoom = null);
       },
     );
@@ -75,6 +76,7 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   void _selectRoom(ChatRoom room) {
     setState(() {
       _selectedRoom = room;
+      _store.setActiveRoomId(room.id);
       _store.markAsRead(room);
     });
   }

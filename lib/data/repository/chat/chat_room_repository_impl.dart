@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
+import 'package:ai_helpdesk/core/events/socket/server/interactions/chat_room_marked_as_seen_event.dart';
+import 'package:ai_helpdesk/core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/chat_room_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
@@ -7,18 +11,74 @@ import 'package:ai_helpdesk/data/network/apis/chat/models/message_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/seen_info_dto.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/params/fetch_chat_rooms_params.dart';
 import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
+import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
 import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/chat/channel.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room_counter.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_room_seen_update.dart';
+import 'package:ai_helpdesk/domain/entity/chat/in_app_notification.dart';
 import 'package:ai_helpdesk/domain/entity/chat/seen_info.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:dio/dio.dart';
 
 class ChatRoomRepositoryImpl implements ChatRoomRepository {
   final ChatApi _chatApi;
+  final SocketService _socketService;
 
-  ChatRoomRepositoryImpl(this._chatApi);
+  final StreamController<ChatRoomSeenUpdate> _seenController =
+      StreamController<ChatRoomSeenUpdate>.broadcast();
+  final StreamController<InAppNotification> _notificationController =
+      StreamController<InAppNotification>.broadcast();
+
+  bool _socketListening = false;
+
+  ChatRoomRepositoryImpl(this._chatApi, this._socketService) {
+    _listenSocket();
+  }
+
+  void _listenSocket() {
+    if (_socketListening) return;
+    _socketListening = true;
+
+    _socketService.seen.listen((ChatRoomMarkedAsSeenEvent event) {
+      _seenController.add(
+        ChatRoomSeenUpdate(
+          chatRoomId: event.chatRoomId,
+          messageId: event.messageId,
+          messageOrder: event.messageOrder,
+          customerSupportId: event.customerSupportId,
+          numberMessageSeen: event.numberMessageSeen,
+        ),
+      );
+    });
+
+    _socketService.notifications.listen((SocketInAppNotificationEvent event) {
+      _notificationController.add(
+        InAppNotification(
+          id: event.id,
+          title: event.title,
+          body: event.body,
+          chatRoomId: event.chatRoomId,
+          type: event.type,
+          seen: event.seen,
+          createdAt: event.createdAt,
+        ),
+      );
+    });
+  }
+
+  @override
+  Stream<ChatRoomSeenUpdate> watchRoomSeenUpdates() {
+    _listenSocket();
+    return _seenController.stream;
+  }
+
+  @override
+  Stream<InAppNotification> watchInAppNotifications() {
+    _listenSocket();
+    return _notificationController.stream;
+  }
 
   @override
   Future<List<ChatRoom>> getChatRooms({

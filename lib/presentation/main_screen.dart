@@ -7,10 +7,12 @@ import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
+import 'package:ai_helpdesk/presentation/tenant/create_tenant_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import '../constants/colors.dart';
 import 'ai_agent/agent_list_screen.dart';
@@ -29,6 +31,7 @@ import 'tenant/employee_screen.dart';
 import 'tenant/tenant_info_screen.dart';
 import 'ticket/screens/ticket_list_screen.dart';
 import 'widgets/sidebar_menu_panel.dart';
+import 'widgets/tenant_switcher.dart';
 
 class MainScreen extends StatefulWidget {
   final String initialCategory;
@@ -40,6 +43,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  static const String _logName = 'MainScreen';
+
   late String _selectedCategory;
   bool _showSidebarMobile = false;
 
@@ -49,39 +54,144 @@ class _MainScreenState extends State<MainScreen> {
   final SocketService _socketService = getIt<SocketService>();
   final ChatStore _chatStore = getIt<ChatStore>();
   final AuthStore _authStore = getIt<AuthStore>();
+  final TenantStore _tenantStore = getIt<TenantStore>();
 
-  /// Last tenant id used for chat socket + inbox sync (avoids duplicate work when
-  /// [TenantStore.currentTenant] matches the initial connect).
+  /// Tenant id for which [SocketService.connect] completed without throwing.
+  /// Used to skip redundant reconnects when [TenantStore.currentTenant] matches.
+  /// Left null after a failed connect so a later workspace change can retry.
   String? _chatRealtimeTenantId;
 
-  late final ReactionDisposer _tenantChatReaction;
+  ReactionDisposer? _tenantChatReaction;
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+    unawaited(_bootstrap());
+  }
+
+  Future<void> _bootstrap() async {
+    developer.log('bootstrap: loadTenants', name: _logName);
+    await _tenantStore.loadTenants();
+    if (!mounted) {
+      developer.log('bootstrap: aborted (unmounted after loadTenants)', name: _logName);
+      return;
+    }
+    developer.log('bootstrap: initRealtime', name: _logName);
+    await _initRealtime();
+    if (!mounted) {
+      developer.log('bootstrap: aborted (unmounted after initRealtime)', name: _logName);
+      return;
+    }
+    // Register only after initial realtime so the first [loadTenants] selection
+    // does not race [_initRealtime] (duplicate disconnect/connect + double inbox fetch).
     _tenantChatReaction = reaction(
-      (_) => getIt<TenantStore>().currentTenant?.id,
+      (_) => _tenantStore.currentTenant?.id,
       (String? tenantId) {
         if (!_authStore.isAuthenticated) {
           return;
         }
         if (tenantId == _chatRealtimeTenantId) {
+          developer.log(
+            'tenant reaction: skip (already synced) tenantId=$tenantId',
+            name: _logName,
+          );
           return;
         }
+        developer.log(
+          'tenant reaction: context change tenantId=$tenantId '
+          'previousRealtimeTenantId=$_chatRealtimeTenantId',
+          name: _logName,
+        );
         unawaited(_onTenantContextChanged(tenantId));
       },
     );
-    unawaited(_initRealtime());
+    developer.log('bootstrap: tenant reaction registered', name: _logName);
+    final String? currentId = _tenantStore.currentTenant?.id;
+    if (_authStore.isAuthenticated &&
+        currentId != null &&
+        currentId.isNotEmpty &&
+        _chatRealtimeTenantId == null) {
+      // MobX reaction does not run until a tracked change; retry once if bootstrap connect failed.
+      developer.log(
+        'bootstrap: retry tenant context (init connect had no socket) tenantId=$currentId',
+        name: _logName,
+      );
+      unawaited(_onTenantContextChanged(currentId));
+    }
+    developer.log(
+      'bootstrap: done chatRealtimeTenantId=$_chatRealtimeTenantId',
+      name: _logName,
+    );
+  }
+
+  Future<void> _openCreateTenantFlow(BuildContext context) async {
+    final int tenantCountBeforeCreate = _tenantStore.tenantList.length;
+    await Navigator.of(context, rootNavigator: true).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => const CreateTenantScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+    await _refreshTenantsAfterCreate(tenantCountBeforeCreate);
+  }
+
+  Future<void> _refreshTenantsAfterCreate(int previousCount) async {
+    if (_tenantStore.tenantList.length > previousCount) {
+      return;
+    }
+
+    const List<Duration> retryDelays = <Duration>[
+      Duration.zero,
+      Duration(milliseconds: 500),
+      Duration(milliseconds: 1200),
+    ];
+
+    for (int i = 0; i < retryDelays.length; i++) {
+      final Duration delay = retryDelays[i];
+      if (delay != Duration.zero) {
+        await Future<void>.delayed(delay);
+      }
+
+      await _tenantStore.loadTenants();
+
+      if (_tenantStore.tenantList.length > previousCount) {
+        return;
+      }
+    }
+  }
+
+  Widget _buildTenantSwitcher() {
+    return Observer(
+      builder: (_) {
+        return TenantSwitcher(
+          tenants: _tenantStore.tenantList.toList(),
+          selectedTenant: _tenantStore.currentTenant,
+          isLoading: _tenantStore.isLoading,
+          onTenantChanged: (String tenantId) {
+            unawaited(_tenantStore.switchTenant(tenantId));
+          },
+          onCreateTenant: _openCreateTenantFlow,
+        );
+      },
+    );
   }
 
   /// Refetch rooms, clear message cache, and move the socket to the new
   /// tenant namespace when the selected tenant changes.
   Future<void> _onTenantContextChanged(String? tenantId) async {
+    developer.log(
+      'onTenantContextChanged: start tenantId=$tenantId',
+      name: _logName,
+    );
     final ChatRoomStore chatRoomStore = getIt<ChatRoomStore>();
     if (tenantId == null || tenantId.isEmpty) {
+      developer.log(
+        'onTenantContextChanged: clearing workspace (no tenant)',
+        name: _logName,
+      );
       await _socketService.disconnect();
-      await _chatStore.unbindSocket();
+      await _chatStore.dispose();
       _chatStore.resetAfterTenantSwitch();
       chatRoomStore.clearRooms();
       _chatRealtimeTenantId = null;
@@ -89,47 +199,74 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     await _socketService.disconnect();
-    await _chatStore.unbindSocket();
+    await _chatStore.dispose();
     _chatStore.resetAfterTenantSwitch();
     await chatRoomStore.fetchChatRooms();
+    final int roomCount = chatRoomStore.chatRooms.length;
+    developer.log(
+      'onTenantContextChanged: rooms loaded count=$roomCount tenantId=$tenantId',
+      name: _logName,
+    );
+
     try {
       await _socketService.connect(tenantId: tenantId);
-      _chatStore.bindSocket();
-    } catch (e, s) {
+      _chatRealtimeTenantId = tenantId;
       developer.log(
-        'Socket connect failed after tenant change',
-        name: 'MainScreen',
+        'onTenantContextChanged: connect ok tenantId=$tenantId '
+        'socketConnected=${_socketService.isConnected} socketId=${_socketService.socketId}',
+        name: _logName,
+      );
+    } catch (e, s) {
+      _chatRealtimeTenantId = null;
+      await _chatStore.dispose();
+      developer.log(
+        'onTenantContextChanged: connect failed tenantId=$tenantId',
+        name: _logName,
         error: e,
         stackTrace: s,
       );
     }
-    final Iterable<String> roomIds =
-        chatRoomStore.chatRooms.map((room) => room.id);
+    final Iterable<String> roomIds = chatRoomStore.chatRooms.map((room) => room.id);
     await _chatStore.prefetchMessagesForRooms(roomIds);
-    _chatRealtimeTenantId = tenantId;
+    developer.log(
+      'onTenantContextChanged: prefetch done roomCount=${roomIds.length} '
+      'chatRealtimeTenantId=$_chatRealtimeTenantId',
+      name: _logName,
+    );
   }
 
   /// Establish the tenant-scoped socket connection and route inbound chat
-  /// messages into [ChatStore]. Called once after the authenticated shell
-  /// mounts; safe against missing tenant id and against double-connect.
+  /// messages into [ChatStore]. Run from [_bootstrap] after [TenantStore.loadTenants]
+  /// so the tenant id matches HTTP headers; the tenant MobX reaction is registered afterward.
   Future<void> _initRealtime() async {
-    if (!_authStore.isAuthenticated) return;
+    if (!_authStore.isAuthenticated) {
+      developer.log('initRealtime: skip (not authenticated)', name: _logName);
+      return;
+    }
 
     final String tenantId = await _resolveInitialRealtimeTenantId();
-
-    _chatStore.bindSocket();
+    developer.log(
+      'initRealtime: resolved tenantId=$tenantId',
+      name: _logName,
+    );
 
     try {
       await _socketService.connect(tenantId: tenantId);
-    } catch (e, s) {
+      _chatRealtimeTenantId = tenantId;
       developer.log(
-        'Socket connect failed',
-        name: 'MainScreen',
+        'initRealtime: connect ok tenantId=$tenantId '
+        'socketConnected=${_socketService.isConnected} socketId=${_socketService.socketId}',
+        name: _logName,
+      );
+    } catch (e, s) {
+      await _chatStore.dispose();
+      developer.log(
+        'initRealtime: connect failed tenantId=$tenantId',
+        name: _logName,
         error: e,
         stackTrace: s,
       );
     }
-    _chatRealtimeTenantId = tenantId;
   }
 
   /// Matches HTTP ([TenantHeaderInterceptor]): prefer in-memory selection, then
@@ -646,6 +783,7 @@ class _MainScreenState extends State<MainScreen> {
                     categories: _categories,
                     selectedCategory: _selectedCategory,
                     onCategorySelected: _selectCategory,
+                    tenantSwitcher: _buildTenantSwitcher(),
                   ),
                 ),
               ),
@@ -665,13 +803,14 @@ class _MainScreenState extends State<MainScreen> {
                 categories: _categories,
                 selectedCategory: _selectedCategory,
                 onCategorySelected: _selectCategory,
+                tenantSwitcher: _buildTenantSwitcher(),
               ),
             ),
             // Divider
             Container(width: 1, color: AppColors.dividerColor),
             // Content area
             Expanded(child: _buildContent()),
-          ],
+          ],  
         ),
       );
     }
@@ -679,8 +818,13 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
-    _tenantChatReaction();
-    unawaited(_chatStore.unbindSocket());
+    developer.log(
+      'dispose: teardown realtime (reaction + socket)',
+      name: _logName,
+    );
+    _tenantChatReaction?.call();
+    unawaited(_chatStore.dispose());
+    getIt<ChatRoomStore>().dispose();
     unawaited(_socketService.disconnect());
     super.dispose();
   }

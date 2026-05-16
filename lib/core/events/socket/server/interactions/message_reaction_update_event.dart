@@ -8,6 +8,9 @@ class MessageReactionUpdateEvent {
   final int amount;
   final String? customerId;
   final String? customerSupportId;
+  final String? customerSupportName;
+  final String? customerSupportAvatar;
+  final DateTime? deletedAt;
 
   MessageReactionUpdateEvent({
     required this.messageReactionId,
@@ -17,6 +20,9 @@ class MessageReactionUpdateEvent {
     required this.amount,
     required this.customerId,
     required this.customerSupportId,
+    this.customerSupportName,
+    this.customerSupportAvatar,
+    this.deletedAt,
   });
 
   static MessageReactionUpdateEvent? parse(dynamic payload) {
@@ -34,6 +40,7 @@ class MessageReactionUpdateEvent {
         amount is! num) {
       return null;
     }
+    final String? deletedAtRaw = m['deletedAt']?.toString();
     return MessageReactionUpdateEvent(
       messageReactionId: messageReactionId,
       messageId: messageId,
@@ -42,6 +49,11 @@ class MessageReactionUpdateEvent {
       amount: amount.toInt(),
       customerId: m['customerID']?.toString(),
       customerSupportId: m['customerSupportID']?.toString(),
+      customerSupportName: m['customerSupportName']?.toString(),
+      customerSupportAvatar: m['customerSupportAvatar']?.toString(),
+      deletedAt: deletedAtRaw != null && deletedAtRaw.isNotEmpty
+          ? DateTime.tryParse(deletedAtRaw)
+          : null,
     );
   }
 }

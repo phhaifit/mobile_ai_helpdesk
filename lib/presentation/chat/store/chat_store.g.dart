@@ -9,15 +9,6 @@ part of 'chat_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$ChatStore on _ChatStore, Store {
-  Computed<ObservableList<Message>>? _$currentMessagesComputed;
-
-  @override
-  ObservableList<Message> get currentMessages =>
-      (_$currentMessagesComputed ??= Computed<ObservableList<Message>>(
-            () => super.currentMessages,
-            name: '_ChatStore.currentMessages',
-          ))
-          .value;
   Computed<bool>? _$hasMoreOlderMessagesComputed;
 
   @override
@@ -25,6 +16,15 @@ mixin _$ChatStore on _ChatStore, Store {
       (_$hasMoreOlderMessagesComputed ??= Computed<bool>(
             () => super.hasMoreOlderMessages,
             name: '_ChatStore.hasMoreOlderMessages',
+          ))
+          .value;
+  Computed<bool>? _$showSuggestedReplyPanelComputed;
+
+  @override
+  bool get showSuggestedReplyPanel =>
+      (_$showSuggestedReplyPanelComputed ??= Computed<bool>(
+            () => super.showSuggestedReplyPanel,
+            name: '_ChatStore.showSuggestedReplyPanel',
           ))
           .value;
   Computed<List<Message>>? _$filteredMessagesComputed;
@@ -36,6 +36,24 @@ mixin _$ChatStore on _ChatStore, Store {
             name: '_ChatStore.filteredMessages',
           ))
           .value;
+
+  late final _$currentMessagesAtom = Atom(
+    name: '_ChatStore.currentMessages',
+    context: context,
+  );
+
+  @override
+  ObservableList<Message> get currentMessages {
+    _$currentMessagesAtom.reportRead();
+    return super.currentMessages;
+  }
+
+  @override
+  set currentMessages(ObservableList<Message> value) {
+    _$currentMessagesAtom.reportWrite(value, super.currentMessages, () {
+      super.currentMessages = value;
+    });
+  }
 
   late final _$currentChatRoomIdAtom = Atom(
     name: '_ChatStore.currentChatRoomId',
@@ -95,57 +113,155 @@ mixin _$ChatStore on _ChatStore, Store {
     );
   }
 
-  late final _$isTypingAtom = Atom(
-    name: '_ChatStore.isTyping',
+  late final _$isSendingMessageAtom = Atom(
+    name: '_ChatStore.isSendingMessage',
     context: context,
   );
 
   @override
-  bool get isTyping {
-    _$isTypingAtom.reportRead();
-    return super.isTyping;
+  bool get isSendingMessage {
+    _$isSendingMessageAtom.reportRead();
+    return super.isSendingMessage;
   }
 
   @override
-  set isTyping(bool value) {
-    _$isTypingAtom.reportWrite(value, super.isTyping, () {
-      super.isTyping = value;
+  set isSendingMessage(bool value) {
+    _$isSendingMessageAtom.reportWrite(value, super.isSendingMessage, () {
+      super.isSendingMessage = value;
     });
   }
 
-  late final _$draftResponsesAtom = Atom(
-    name: '_ChatStore.draftResponses',
+  late final _$isCustomerTypingAtom = Atom(
+    name: '_ChatStore.isCustomerTyping',
     context: context,
   );
 
   @override
-  ObservableList<String> get draftResponses {
-    _$draftResponsesAtom.reportRead();
-    return super.draftResponses;
+  bool get isCustomerTyping {
+    _$isCustomerTypingAtom.reportRead();
+    return super.isCustomerTyping;
   }
 
   @override
-  set draftResponses(ObservableList<String> value) {
-    _$draftResponsesAtom.reportWrite(value, super.draftResponses, () {
-      super.draftResponses = value;
+  set isCustomerTyping(bool value) {
+    _$isCustomerTypingAtom.reportWrite(value, super.isCustomerTyping, () {
+      super.isCustomerTyping = value;
     });
   }
 
-  late final _$isDraftLoadingAtom = Atom(
-    name: '_ChatStore.isDraftLoading',
+  late final _$typingActorLabelAtom = Atom(
+    name: '_ChatStore.typingActorLabel',
     context: context,
   );
 
   @override
-  bool get isDraftLoading {
-    _$isDraftLoadingAtom.reportRead();
-    return super.isDraftLoading;
+  String? get typingActorLabel {
+    _$typingActorLabelAtom.reportRead();
+    return super.typingActorLabel;
   }
 
   @override
-  set isDraftLoading(bool value) {
-    _$isDraftLoadingAtom.reportWrite(value, super.isDraftLoading, () {
-      super.isDraftLoading = value;
+  set typingActorLabel(String? value) {
+    _$typingActorLabelAtom.reportWrite(value, super.typingActorLabel, () {
+      super.typingActorLabel = value;
+    });
+  }
+
+  late final _$suggestedReplyAtom = Atom(
+    name: '_ChatStore.suggestedReply',
+    context: context,
+  );
+
+  @override
+  String? get suggestedReply {
+    _$suggestedReplyAtom.reportRead();
+    return super.suggestedReply;
+  }
+
+  @override
+  set suggestedReply(String? value) {
+    _$suggestedReplyAtom.reportWrite(value, super.suggestedReply, () {
+      super.suggestedReply = value;
+    });
+  }
+
+  late final _$isSuggestedReplyLoadingAtom = Atom(
+    name: '_ChatStore.isSuggestedReplyLoading',
+    context: context,
+  );
+
+  @override
+  bool get isSuggestedReplyLoading {
+    _$isSuggestedReplyLoadingAtom.reportRead();
+    return super.isSuggestedReplyLoading;
+  }
+
+  @override
+  set isSuggestedReplyLoading(bool value) {
+    _$isSuggestedReplyLoadingAtom.reportWrite(
+      value,
+      super.isSuggestedReplyLoading,
+      () {
+        super.isSuggestedReplyLoading = value;
+      },
+    );
+  }
+
+  late final _$isSuggestedReplyPanelExpandedAtom = Atom(
+    name: '_ChatStore.isSuggestedReplyPanelExpanded',
+    context: context,
+  );
+
+  @override
+  bool get isSuggestedReplyPanelExpanded {
+    _$isSuggestedReplyPanelExpandedAtom.reportRead();
+    return super.isSuggestedReplyPanelExpanded;
+  }
+
+  @override
+  set isSuggestedReplyPanelExpanded(bool value) {
+    _$isSuggestedReplyPanelExpandedAtom.reportWrite(
+      value,
+      super.isSuggestedReplyPanelExpanded,
+      () {
+        super.isSuggestedReplyPanelExpanded = value;
+      },
+    );
+  }
+
+  late final _$activeDraftTaskIdAtom = Atom(
+    name: '_ChatStore.activeDraftTaskId',
+    context: context,
+  );
+
+  @override
+  String? get activeDraftTaskId {
+    _$activeDraftTaskIdAtom.reportRead();
+    return super.activeDraftTaskId;
+  }
+
+  @override
+  set activeDraftTaskId(String? value) {
+    _$activeDraftTaskIdAtom.reportWrite(value, super.activeDraftTaskId, () {
+      super.activeDraftTaskId = value;
+    });
+  }
+
+  late final _$draftErrorAtom = Atom(
+    name: '_ChatStore.draftError',
+    context: context,
+  );
+
+  @override
+  String? get draftError {
+    _$draftErrorAtom.reportRead();
+    return super.draftError;
+  }
+
+  @override
+  set draftError(String? value) {
+    _$draftErrorAtom.reportWrite(value, super.draftError, () {
+      super.draftError = value;
     });
   }
 
@@ -165,6 +281,58 @@ mixin _$ChatStore on _ChatStore, Store {
     _$searchQueryAtom.reportWrite(value, super.searchQuery, () {
       super.searchQuery = value;
     });
+  }
+
+  late final _$observeRoomAsyncAction = AsyncAction(
+    '_ChatStore.observeRoom',
+    context: context,
+  );
+
+  @override
+  Future<void> observeRoom(
+    String roomId, {
+    int unreadCount = 0,
+    String? ticketId,
+    String? channelId,
+  }) {
+    return _$observeRoomAsyncAction.run(
+      () => super.observeRoom(
+        roomId,
+        unreadCount: unreadCount,
+        ticketId: ticketId,
+        channelId: channelId,
+      ),
+    );
+  }
+
+  late final _$generateSuggestedReplyAsyncAction = AsyncAction(
+    '_ChatStore.generateSuggestedReply',
+    context: context,
+  );
+
+  @override
+  Future<void> generateSuggestedReply({
+    required String chatRoomId,
+    String? ticketId,
+  }) {
+    return _$generateSuggestedReplyAsyncAction.run(
+      () => super.generateSuggestedReply(
+        chatRoomId: chatRoomId,
+        ticketId: ticketId,
+      ),
+    );
+  }
+
+  late final _$regenerateSuggestedReplyAsyncAction = AsyncAction(
+    '_ChatStore.regenerateSuggestedReply',
+    context: context,
+  );
+
+  @override
+  Future<void> regenerateSuggestedReply() {
+    return _$regenerateSuggestedReplyAsyncAction.run(
+      () => super.regenerateSuggestedReply(),
+    );
   }
 
   late final _$prefetchMessagesForRoomsAsyncAction = AsyncAction(
@@ -201,8 +369,9 @@ mixin _$ChatStore on _ChatStore, Store {
     String contactId,
     String ticketId,
     String text,
-    List<Attachment>? attachments,
-  ) {
+    List<Attachment>? attachments, {
+    String? replyMessageId,
+  }) {
     return _$sendMessageAsyncAction.run(
       () => super.sendMessage(
         chatRoomId,
@@ -211,6 +380,7 @@ mixin _$ChatStore on _ChatStore, Store {
         ticketId,
         text,
         attachments,
+        replyMessageId: replyMessageId,
       ),
     );
   }
@@ -223,6 +393,28 @@ mixin _$ChatStore on _ChatStore, Store {
   @override
   Future<List<Message>> searchMessages(String keyword) {
     return _$searchMessagesAsyncAction.run(() => super.searchMessages(keyword));
+  }
+
+  late final _$reactToMessageAsyncAction = AsyncAction(
+    '_ChatStore.reactToMessage',
+    context: context,
+  );
+
+  @override
+  Future<void> reactToMessage({
+    required Message message,
+    required String reactIcon,
+    required String chatRoomId,
+    String? channelId,
+  }) {
+    return _$reactToMessageAsyncAction.run(
+      () => super.reactToMessage(
+        message: message,
+        reactIcon: reactIcon,
+        chatRoomId: chatRoomId,
+        channelId: channelId,
+      ),
+    );
   }
 
   late final _$generateDraftResponsesAsyncAction = AsyncAction(
@@ -267,36 +459,48 @@ mixin _$ChatStore on _ChatStore, Store {
   }
 
   @override
-  void _mergeMessage(String roomId, Message message) {
+  void _clearSuggestedReplyState() {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore._mergeMessage',
+      name: '_ChatStore._clearSuggestedReplyState',
     );
     try {
-      return super._mergeMessage(roomId, message);
+      return super._clearSuggestedReplyState();
     } finally {
       _$_ChatStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void onSocketMessage(Message message) {
+  void _onDraftProgress(DraftResponseProgress progress) {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore.onSocketMessage',
+      name: '_ChatStore._onDraftProgress',
     );
     try {
-      return super.onSocketMessage(message);
+      return super._onDraftProgress(progress);
     } finally {
       _$_ChatStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void onSocketTyping({required bool typing}) {
+  void dismissSuggestedReply() {
     final _$actionInfo = _$_ChatStoreActionController.startAction(
-      name: '_ChatStore.onSocketTyping',
+      name: '_ChatStore.dismissSuggestedReply',
     );
     try {
-      return super.onSocketTyping(typing: typing);
+      return super.dismissSuggestedReply();
+    } finally {
+      _$_ChatStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void toggleSuggestedReplyPanel() {
+    final _$actionInfo = _$_ChatStoreActionController.startAction(
+      name: '_ChatStore.toggleSuggestedReplyPanel',
+    );
+    try {
+      return super.toggleSuggestedReplyPanel();
     } finally {
       _$_ChatStoreActionController.endAction(_$actionInfo);
     }
@@ -305,15 +509,21 @@ mixin _$ChatStore on _ChatStore, Store {
   @override
   String toString() {
     return '''
+currentMessages: ${currentMessages},
 currentChatRoomId: ${currentChatRoomId},
 isLoading: ${isLoading},
 isLoadingOlderMessages: ${isLoadingOlderMessages},
-isTyping: ${isTyping},
-draftResponses: ${draftResponses},
-isDraftLoading: ${isDraftLoading},
+isSendingMessage: ${isSendingMessage},
+isCustomerTyping: ${isCustomerTyping},
+typingActorLabel: ${typingActorLabel},
+suggestedReply: ${suggestedReply},
+isSuggestedReplyLoading: ${isSuggestedReplyLoading},
+isSuggestedReplyPanelExpanded: ${isSuggestedReplyPanelExpanded},
+activeDraftTaskId: ${activeDraftTaskId},
+draftError: ${draftError},
 searchQuery: ${searchQuery},
-currentMessages: ${currentMessages},
 hasMoreOlderMessages: ${hasMoreOlderMessages},
+showSuggestedReplyPanel: ${showSuggestedReplyPanel},
 filteredMessages: ${filteredMessages}
     ''';
   }

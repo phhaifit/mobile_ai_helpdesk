@@ -1,18 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
 import '../../domain/entity/chat/chat_room.dart';
 import '../../domain/entity/chat/message.dart';
 import '../../domain/entity/prompt/prompt.dart';
-import '../playground/widgets/draft_response_panel.dart';
+import '../../domain/usecase/chat/realtime/emit_stop_typing_indicator_usecase.dart';
+import '../../domain/usecase/chat/realtime/emit_typing_indicator_usecase.dart';
+import '../auth/store/auth_store.dart';
 import '../prompt/store/prompt_store.dart';
 import 'slash_prompt_picker_overlay.dart';
+import 'store/chat_room_store.dart';
 import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
 import 'widgets/message_bubble.dart';
+import 'widgets/reply_preview_bar.dart';
+import 'widgets/suggested_replies_panel.dart';
 import 'widgets/typing_indicator.dart';
 
 bool _sameSender(Message a, Message b) {
@@ -40,27 +48,51 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late final ChatStore _chatStore;
+  late final ChatRoomStore _chatRoomStore;
   late final PromptStore _promptStore;
+  late final AuthStore _authStore;
+  late final EmitTypingIndicatorUseCase _emitTyping;
+  late final EmitStopTypingIndicatorUseCase _emitStopTyping;
+
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
-  final ItemScrollController _itemScrollController =  ItemScrollController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _itemPositionsListener = ItemPositionsListener.create();
+
+  Timer? _typingIdleTimer;
+  bool _isAgentTypingEmitted = false;
 
   int _previousItemCount = 0;
   bool _slashMode = false;
   bool _showSearch = false;
-  List<String> _searchResults = []; // Message IDs that match search query
-  int _currentSearchIndex = -1; // Index in _searchResults array
-  String? _highlightedMessageId; // ID of currently highlighted message
+  List<String> _searchResults = [];
+  int _currentSearchIndex = -1;
+  String? _highlightedMessageId;
+  Message? _replyingTo;
 
   @override
   void initState() {
     super.initState();
     _chatStore = getIt<ChatStore>();
+    _chatRoomStore = getIt<ChatRoomStore>();
     _promptStore = getIt<PromptStore>();
+    _authStore = getIt<AuthStore>();
+    _emitTyping = getIt<EmitTypingIndicatorUseCase>();
+    _emitStopTyping = getIt<EmitStopTypingIndicatorUseCase>();
 
-    _chatStore.currentChatRoomId = widget.room?.id;
+    final ChatRoom? room = widget.room;
+    if (room?.id != null) {
+      _chatRoomStore.setActiveRoomId(room!.id);
+      unawaited(
+        _chatStore.observeRoom(
+          room.id,
+          unreadCount: room.unreadCount,
+          ticketId: room.ticketId,
+          channelId: room.channel.id,
+        ),
+      );
+    }
 
     _textController.addListener(_onComposerChanged);
     if (_promptStore.prompts.isEmpty) {
@@ -71,14 +103,43 @@ class _ChatScreenState extends State<ChatScreen> {
     _itemPositionsListener.itemPositions.addListener(_onItemPositionsChanged);
   }
 
+  String? get _customerSupportId => _authStore.account?.customerSupportId;
+
+  void _emitAgentTypingIfNeeded() {
+    final String? roomId = widget.room?.id;
+    if (roomId == null) return;
+    if (_isAgentTypingEmitted) return;
+
+    _emitTyping.call(
+      params: EmitTypingParams(
+        chatRoomId: roomId,
+        customerSupportId: _customerSupportId,
+        fullname: _authStore.account?.fullname,
+        profilePicture: _authStore.account?.profilePicture,
+      ),
+    );
+    _isAgentTypingEmitted = true;
+  }
+
+  void _emitAgentStopTyping() {
+    final String? roomId = widget.room?.id;
+    if (roomId == null) return;
+    if (!_isAgentTypingEmitted) return;
+
+    _emitStopTyping.call(
+      params: EmitStopTypingParams(
+        chatRoomId: roomId,
+        customerSupportId: _customerSupportId,
+      ),
+    );
+    _isAgentTypingEmitted = false;
+  }
+
   void _onItemPositionsChanged() {
     final Iterable<ItemPosition> positions =
         _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
-    // Smallest index currently visible — when the user scrolls toward the
-    // top of the list, this approaches 0. Trigger an older-page fetch a
-    // few items before the very top so the new batch lands seamlessly.
     final int topVisible = positions
         .map((ItemPosition p) => p.index)
         .reduce((int a, int b) => a < b ? a : b);
@@ -91,13 +152,25 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _onComposerChanged() {
-    final t = _textController.text;
-    final next = t.startsWith('/');
+    final String t = _textController.text;
+    final bool next = t.startsWith('/');
     if (next != _slashMode) {
       setState(() => _slashMode = next);
     } else if (_slashMode) {
       setState(() {});
     }
+
+    if (t.trim().isEmpty) {
+      _typingIdleTimer?.cancel();
+      _emitAgentStopTyping();
+      return;
+    }
+
+    _typingIdleTimer?.cancel();
+    _typingIdleTimer = Timer(const Duration(milliseconds: 300), () {
+      _emitAgentTypingIfNeeded();
+      _typingIdleTimer = Timer(const Duration(seconds: 2), _emitAgentStopTyping);
+    });
   }
 
   String get _slashQuery =>
@@ -114,7 +187,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _onInputFocusChanged() {
-    // Scroll to bottom when input is focused
     if (_inputFocusNode.hasFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToBottom();
@@ -124,11 +196,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _itemScrollController.scrollTo(
-        index: _chatStore.currentMessages.length - 1,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      final int messageCount = _chatStore.currentMessages.length;
+      if (messageCount == 0) return;
+      _itemScrollController.jumpTo(index: messageCount - 1);
     });
   }
 
@@ -141,15 +211,14 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     }
 
-    final results = await _chatStore.searchMessages(query);
+    final List<Message> results = await _chatStore.searchMessages(query);
 
     setState(() {
-      _searchResults = results.map((e) => e.id).toList();
+      _searchResults = results.map((Message e) => e.id).toList();
       _currentSearchIndex = -1;
       _highlightedMessageId = null;
     });
 
-    // Auto-navigate to first result if exists
     if (_searchResults.isNotEmpty) {
       _navigateToNextSearchResult();
     }
@@ -163,13 +232,12 @@ class _ChatScreenState extends State<ChatScreen> {
       _highlightedMessageId = _searchResults[_currentSearchIndex];
     });
 
-    // Scroll to highlighted message
     _scrollToMessage(_highlightedMessageId!);
   }
 
   void _scrollToMessage(String messageId) {
-    final messages = _chatStore.currentMessages;
-    final messageIndex = messages.indexWhere((m) => m.id == messageId);
+    final List<Message> messages = _chatStore.currentMessages;
+    final int messageIndex = messages.indexWhere((Message m) => m.id == messageId);
 
     if (messageIndex != -1) {
       final int olderLoaderCount = _chatStore.isLoadingOlderMessages ? 1 : 0;
@@ -190,7 +258,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _searchController.clear();
       _searchResults = [];
       _currentSearchIndex = -1;
-      _highlightedMessageId = null; // This will remove highlight
+      _highlightedMessageId = null;
     });
   }
 
@@ -202,15 +270,14 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
+    final ChatRoom room = widget.room!;
+
     return Scaffold(
       appBar: ChatAppBar(
-        room: widget.room!,
+        room: room,
         onInfoTap: widget.onInfoTap,
         onAIAnalysisTap: () {
-          final roomId = widget.room?.id;
-          if (roomId != null) {
-            _chatStore.generateDraftResponses(chatRoomId: roomId);
-          }
+          unawaited(_chatStore.regenerateSuggestedReply());
         },
         onSearchTap: () {
           setState(() => _showSearch = !_showSearch);
@@ -224,18 +291,28 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Observer(
-            builder: (_) => DraftResponsePanel(
-              drafts: _chatStore.draftResponses.toList(),
-              onUse: (draft) {
-                _textController.text = draft;
-                _textController.selection = TextSelection.collapsed(
-                  offset: _textController.text.length,
-                );
-              },
-              onDismiss: () {
-                _chatStore.draftResponses.clear();
-              },
-            ),
+            builder: (_) {
+              if (!_chatStore.showSuggestedReplyPanel) {
+                return const SizedBox.shrink();
+              }
+              return SuggestedRepliesPanel(
+                isExpanded: _chatStore.isSuggestedReplyPanelExpanded,
+                isLoading: _chatStore.isSuggestedReplyLoading,
+                suggestion: _chatStore.suggestedReply,
+                errorMessage: _chatStore.draftError,
+                onRegenerate: () {
+                  unawaited(_chatStore.regenerateSuggestedReply());
+                },
+                onToggleExpanded: _chatStore.toggleSuggestedReplyPanel,
+                onDismissSuggestion: _chatStore.dismissSuggestedReply,
+                onApplySuggestion: (String draft) {
+                  _textController.text = draft;
+                  _textController.selection = TextSelection.collapsed(
+                    offset: _textController.text.length,
+                  );
+                },
+              );
+            },
           ),
           if (_showSearch)
             Container(
@@ -310,7 +387,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final messages = _chatStore.currentMessages;
+                final List<Message> messages = _chatStore.currentMessages;
 
                 if (messages.isEmpty) {
                   return Center(
@@ -348,8 +425,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final bool showOlderLoader = _chatStore.isLoadingOlderMessages;
                 final int olderLoaderCount = showOlderLoader ? 1 : 0;
-                final int typingCount = _chatStore.isTyping ? 1 : 0;
-                final int itemCount = olderLoaderCount + messages.length + typingCount;
+                final int typingCount = _chatStore.isCustomerTyping ? 1 : 0;
+                final int itemCount =
+                    olderLoaderCount + messages.length + typingCount;
 
                 if (itemCount > _previousItemCount) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -366,7 +444,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     horizontal: 12,
                   ),
                   itemCount: itemCount,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (BuildContext context, int index) {
                     if (showOlderLoader && index == 0) {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
@@ -383,15 +461,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     final int messageIndex = index - olderLoaderCount;
 
                     if (messageIndex == messages.length) {
-                      return const TypingIndicator(senderName: 'AI Assistant');
+                      return TypingIndicator(
+                        senderName: _chatStore.typingActorLabel ?? room.name,
+                      );
                     }
 
-                    final message = messages[messageIndex];
-                    final isGroupStart =
-                        messageIndex == 0 ||
+                    final Message message = messages[messageIndex];
+                    final bool isGroupStart = messageIndex == 0 ||
                         !_sameSender(messages[messageIndex - 1], message);
-                    final isGroupEnd =
-                        messageIndex == messages.length - 1 ||
+                    final bool isGroupEnd = messageIndex == messages.length - 1 ||
                         !_sameSender(message, messages[messageIndex + 1]);
 
                     return MessageBubble(
@@ -400,8 +478,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       isGroupEnd: isGroupEnd,
                       showAvatar: isGroupEnd,
                       isHighlighted: _highlightedMessageId == message.id,
-                      onReactionAdded: (emoji) {
-                        _chatStore.addReactionToMessage(message.id, emoji);
+                      onReply: () {
+                        setState(() => _replyingTo = message);
+                        _inputFocusNode.requestFocus();
+                      },
+                      onZaloReactionSelected: (String reactIcon) {
+                        unawaited(
+                          _chatStore.reactToMessage(
+                            message: message,
+                            reactIcon: reactIcon,
+                            chatRoomId: room.id,
+                            channelId: room.channel.id,
+                          ),
+                        );
                       },
                     );
                   },
@@ -412,26 +501,50 @@ class _ChatScreenState extends State<ChatScreen> {
           if (_slashMode)
             Observer(
               builder: (_) {
-                final filtered = _promptStore.slashFiltered(_slashQuery);
+                final List<Prompt> filtered =
+                    _promptStore.slashFiltered(_slashQuery);
                 return SlashPromptPickerOverlay(
                   prompts: filtered,
                   onSelected: _applyPrompt,
                 );
               },
             ),
-          ChatInputBar(
-            controller: _textController,
-            onSend: () async {
-              final text = _textController.text.trim();
-              if (text.isEmpty) {
-                return;
-              }
-              setState(() => _slashMode = false);
-              await _chatStore.sendMessage(widget.room!.id, widget.room!.channel.id, widget.room!.contactId, widget.room!.ticketId, text, null);
-              _textController.clear();
-              _scrollToBottom();
-            },
-            focusNode: _inputFocusNode,
+          if (_replyingTo != null)
+            ReplyPreviewBar(
+              message: _replyingTo!,
+              onCancel: () => setState(() => _replyingTo = null),
+            ),
+          Observer(
+            builder: (_) => ChatInputBar(
+              controller: _textController,
+              sendEnabled: !_chatStore.isSendingMessage,
+              onSend: () async {
+                if (_chatStore.isSendingMessage) return;
+
+                final String text = _textController.text.trim();
+                if (text.isEmpty) {
+                  return;
+                }
+                _emitAgentStopTyping();
+                final String? replyId = _replyingTo?.id;
+                setState(() {
+                  _slashMode = false;
+                  _replyingTo = null;
+                });
+                _textController.clear();
+                await _chatStore.sendMessage(
+                  room.id,
+                  room.channel.id,
+                  room.contactId,
+                  room.ticketId,
+                  text,
+                  null,
+                  replyMessageId: replyId,
+                );
+                _scrollToBottom();
+              },
+              focusNode: _inputFocusNode,
+            ),
           ),
         ],
       ),
@@ -440,6 +553,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _typingIdleTimer?.cancel();
+    _emitAgentStopTyping();
+    _chatRoomStore.setActiveRoomId(null);
     _itemPositionsListener.itemPositions.removeListener(_onItemPositionsChanged);
     _textController.removeListener(_onComposerChanged);
     _textController.dispose();

@@ -1,87 +1,78 @@
 import 'dart:async';
+
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
-import 'package:ai_helpdesk/core/events/socket/server/ai/draft_response_sse_event.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
-import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
-import 'package:ai_helpdesk/data/realtime/sse/draft_response_sse_client.dart';
+import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_typing_event.dart';
+import 'package:ai_helpdesk/domain/entity/chat/draft_response_progress.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
+import 'package:ai_helpdesk/domain/entity/chat/message_reaction_update.dart';
+import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
+import 'package:ai_helpdesk/domain/entity/chat/user.dart' show User;
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart'
+    show NoParams;
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
+
 import '../../../constants/analytics_events.dart';
-import '../../../di/service_locator.dart';
 import '../../../domain/analytics/analytics_service.dart';
-import '../../../domain/entity/chat/attachment.dart';
-import '../../../domain/entity/chat/message.dart' show Message;
-import '../../../domain/entity/chat/reaction.dart';
-import '../../../domain/entity/chat/user.dart' show User;
-import '../../../domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
-import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
-import '../../../domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
-import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
-import '../../../domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 
 part 'chat_store.g.dart';
 
 class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
-  final ObservableMap<String, ObservableList<Message>> _messageCache = ObservableMap();
-
-  @computed
-  ObservableList<Message> get currentMessages {
-    final String? roomId = currentChatRoomId;
-
-    if (roomId == null) return ObservableList<Message>();
-
-    // Do not [putIfAbsent] here — a read during open would insert an empty
-    // list into [_messageCache] and fight with the real fetch assignment.
-    final ObservableList<Message>? list = _messageCache[roomId];
-    return list ?? ObservableList<Message>();
-  }
-
-  final GetChatMessagesUseCase _getChatMessages;
   final SendMessageFromAgentToCustomerUseCase _sendMessage;
   final FlatSearchMessageListUseCase _flatSearchMessageList;
   final ReactToMessageUseCase _reactToMessage;
   final UnreactToMessageUseCase _unreactToMessage;
+  final GenerateAiDraftResponseUseCase _generateAiDraftResponse;
+  final ObserveChatMessagesUseCase _observeChatMessages;
+  final ObserveReactionUpdatesUseCase _observeReactionUpdates;
+  final ObserveCustomerTypingUseCase _observeCustomerTyping;
+  final ObserveDraftProgressUseCase _observeDraftProgress;
+  final SettingRepository _settingRepository;
   final AnalyticsService _analyticsService;
   final ErrorStore _errorStore;
-  final SocketService _socketService;
+  final ChatRepository _chatRepository;
 
-  /// Page size used for both initial open and scroll-up pagination.
-  static const int _pageSize = 30;
+  StreamSubscription<List<Message>>? _messagesSub;
+  StreamSubscription<MessageReactionUpdate>? _reactionSub;
+  StreamSubscription<ChatTypingEvent>? _typingSub;
+  StreamSubscription<DraftResponseProgress>? _draftProgressSub;
 
-  /// Maximum number of concurrent prefetch requests so the inbox prefetch
-  /// does not overwhelm the API when there are many rooms.
-  static const int _prefetchConcurrency = 4;
-
-  /// Per-room flag — false once an older-message page returns fewer than
-  /// [_pageSize] items (no more history).
-  final Map<String, bool> _hasMoreOlderByRoom = <String, bool>{};
-
-  StreamSubscription<Message>? _socketMessageSub;
-
-  // Canned responses for auto-reply simulation
-  static const List<String> _defaultResponses = [
-    'Cảm ơn bạn đã liên hệ! Tôi sẽ giúp bạn trong vài phút.',
-    'Tôi đã ghi nhận vấn đề của bạn. Đang xử lý...',
-    'Đó là một câu hỏi hay! Hãy cho tôi một giây để tìm câu trả lời.',
-    'Tôi hiểu rồi. Để tôi kiểm tra thêm một chút.',
-    'Cảm ơn! Tôi đang xử lý yêu cầu của bạn.',
-    'Bạn có thể cung cấp thêm chi tiết không?',
-    'Mình sẽ giúp bạn giải quyết vấn đề này.',
-    'Tôi đang tìm kiếm thông tin phù hợp cho bạn.',
-  ];
+  String? _currentTicketId;
+  String? _currentChannelId;
 
   _ChatStore(
-    this._getChatMessages,
     this._sendMessage,
     this._flatSearchMessageList,
     this._reactToMessage,
     this._unreactToMessage,
+    this._generateAiDraftResponse,
     this._analyticsService,
     this._errorStore,
-    this._socketService,
+    this._chatRepository,
+    this._observeChatMessages,
+    this._observeReactionUpdates,
+    this._observeCustomerTyping,
+    this._observeDraftProgress,
+    this._settingRepository,
   );
+
+  @observable
+  ObservableList<Message> currentMessages = ObservableList<Message>();
 
   @observable
   String? currentChatRoomId;
@@ -93,25 +84,44 @@ abstract class _ChatStore with Store {
   bool isLoadingOlderMessages = false;
 
   @observable
-  bool isTyping = false;
+  bool isSendingMessage = false;
+
+  @observable
+  bool isCustomerTyping = false;
+
+  @observable
+  String? typingActorLabel;
+
+  @observable
+  String? suggestedReply;
+
+  @observable
+  bool isSuggestedReplyLoading = false;
+
+  @observable
+  bool isSuggestedReplyPanelExpanded = true;
+
+  @observable
+  String? activeDraftTaskId;
+
+  @observable
+  String? draftError;
+
+  @observable
+  String searchQuery = '';
 
   @computed
   bool get hasMoreOlderMessages {
     final String? roomId = currentChatRoomId;
     if (roomId == null) return false;
-    return _hasMoreOlderByRoom[roomId] ?? true;
+    return _chatRepository.hasMoreOlderMessages(roomId);
   }
 
-  @observable
-  ObservableList<String> draftResponses = ObservableList<String>();
-
-  @observable
-  bool isDraftLoading = false;
-
-  StreamSubscription<DraftResponseSseEvent>? _draftSub;
-
-  @observable
-  String searchQuery = '';
+  @computed
+  bool get showSuggestedReplyPanel =>
+      isSuggestedReplyLoading ||
+      suggestedReply != null ||
+      draftError != null;
 
   @computed
   List<Message> get filteredMessages {
@@ -119,7 +129,7 @@ abstract class _ChatStore with Store {
 
     return currentMessages
         .where(
-          (msg) =>
+          (Message msg) =>
               msg.content.toLowerCase().contains(searchQuery.toLowerCase()),
         )
         .toList();
@@ -128,96 +138,202 @@ abstract class _ChatStore with Store {
   @action
   void setSearchQuery(String query) => searchQuery = query;
 
-  /// Clears cached threads and UI state when the workspace ([Tenant]) changes.
   @action
   void resetAfterTenantSwitch() {
-    _draftSub?.cancel();
-    _draftSub = null;
-    _messageCache.clear();
-    _hasMoreOlderByRoom.clear();
+    _cancelRealtimeSubscriptions();
+    _chatRepository.resetMessageCache();
     currentChatRoomId = null;
+    _currentTicketId = null;
+    _currentChannelId = null;
     isLoading = false;
     isLoadingOlderMessages = false;
-    isTyping = false;
+    isSendingMessage = false;
+    isCustomerTyping = false;
+    typingActorLabel = null;
     searchQuery = '';
-    draftResponses.clear();
-    isDraftLoading = false;
+    currentMessages.clear();
+    _clearSuggestedReplyState();
+    activeDraftTaskId = null;
   }
 
-  /// Silently load the most recent [_pageSize] messages for each room so
-  /// opening a room from the inbox feels instant. Failures are swallowed
-  /// per-room. This does **not** mark rooms as seen.
-  @action
-  Future<void> prefetchMessagesForRooms(Iterable<String> roomIds) async {
-    final List<String> pending = roomIds.where((String id) {
-      final ObservableList<Message>? cached = _messageCache[id];
-      return cached == null || cached.isEmpty;
-    }).toList(growable: false);
+  void _cancelRealtimeSubscriptions() {
+    unawaited(_messagesSub?.cancel());
+    _messagesSub = null;
+    unawaited(_reactionSub?.cancel());
+    _reactionSub = null;
+    unawaited(_typingSub?.cancel());
+    _typingSub = null;
+    unawaited(_draftProgressSub?.cancel());
+    _draftProgressSub = null;
+  }
 
-    for (int i = 0; i < pending.length; i += _prefetchConcurrency) {
-      final int end = (i + _prefetchConcurrency).clamp(0, pending.length);
-      await Future.wait(
-        pending.sublist(i, end).map(_prefetchSingleRoom),
-        eagerError: false,
+  @action
+  void _clearSuggestedReplyState() {
+    suggestedReply = null;
+    isSuggestedReplyLoading = false;
+    draftError = null;
+  }
+
+  @action
+  Future<void> observeRoom(
+    String roomId, {
+    int unreadCount = 0,
+    String? ticketId,
+    String? channelId,
+  }) async {
+    currentChatRoomId = roomId;
+    _currentTicketId = ticketId;
+    _currentChannelId = channelId;
+    isCustomerTyping = false;
+    typingActorLabel = null;
+
+    _cancelRealtimeSubscriptions();
+
+    _messagesSub = _observeChatMessages
+        .call(params: ObserveMessagesParams(roomId: roomId))
+        .listen((List<Message> messages) {
+      currentMessages
+        ..clear()
+        ..addAll(messages);
+    });
+
+    _reactionSub = _observeReactionUpdates
+        .call(params: const NoParams())
+        .listen((MessageReactionUpdate update) {
+      if (update.chatRoomId != roomId) return;
+      // Messages stream refreshes from repository cache after reaction merge.
+    });
+
+    _typingSub = _observeCustomerTyping.call(params: const NoParams()).listen(
+      (ChatTypingEvent event) {
+        if (event.chatRoomId != roomId) return;
+        isCustomerTyping = event.isTyping;
+        typingActorLabel = event.isTyping ? event.actorName : null;
+      },
+    );
+
+    _draftProgressSub =
+        _observeDraftProgress.call(params: const NoParams()).listen(
+      _onDraftProgress,
+    );
+
+    if (unreadCount > 0 && suggestedReply == null && !isSuggestedReplyLoading) {
+      await generateSuggestedReply(
+        chatRoomId: roomId,
+        ticketId: ticketId,
       );
     }
   }
 
-  Future<void> _prefetchSingleRoom(String roomId) async {
+  @action
+  void _onDraftProgress(DraftResponseProgress progress) {
+    if (activeDraftTaskId != null && progress.taskId != activeDraftTaskId) {
+      return;
+    }
+
+    if (progress.isInProgress) {
+      isSuggestedReplyLoading = true;
+      draftError = null;
+      return;
+    }
+
+    if (progress.isFailed) {
+      isSuggestedReplyLoading = false;
+      draftError = progress.errorMessage ?? 'Draft generation failed';
+      return;
+    }
+
+    if (progress.isCompleted) {
+      isSuggestedReplyLoading = false;
+      draftError = null;
+      final String? text = progress.suggestionText;
+      if (text != null && text.isNotEmpty) {
+        suggestedReply = text;
+        isSuggestedReplyPanelExpanded = true;
+      } else {
+        draftError = 'No suggestion returned';
+      }
+    }
+  }
+
+  @action
+  Future<void> generateSuggestedReply({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    if (currentChatRoomId != chatRoomId) {
+      currentChatRoomId = chatRoomId;
+    }
+
+    suggestedReply = null;
+    draftError = null;
+    isSuggestedReplyLoading = true;
+    isSuggestedReplyPanelExpanded = true;
+    activeDraftTaskId = null;
+
     try {
-      final List<Message> messages = await _getChatMessages(
-        params: GetChatMessagesParams(
-          chatRoomId: roomId,
-          limit: _pageSize,
+      final Map<String, dynamic> data = await _generateAiDraftResponse.call(
+        params: GenerateAiDraftResponseParams(
+          chatRoomId: chatRoomId,
+          ticketId: ticketId ?? _currentTicketId,
         ),
       );
-      _messageCache[roomId] = ObservableList<Message>.of(messages);
-      _hasMoreOlderByRoom[roomId] = messages.length >= _pageSize;
-    } catch (_) {
-      // Best-effort prefetch: a single failure must not block other rooms.
+      final String? taskId = data['taskId']?.toString();
+      if (taskId == null || taskId.isEmpty) {
+        isSuggestedReplyLoading = false;
+        draftError = 'Missing draft task id';
+        return;
+      }
+      activeDraftTaskId = taskId;
+    } on Failure catch (e) {
+      isSuggestedReplyLoading = false;
+      draftError = e.message;
+      _errorStore.setErrorMessage(e.message);
+    } catch (e) {
+      isSuggestedReplyLoading = false;
+      draftError = e.toString();
+      _errorStore.setErrorMessage(e.toString());
     }
   }
 
-  /// Load the next older page (above the oldest cached message) for the
-  /// currently open room. Prepends results in ascending order.
+  @action
+  Future<void> regenerateSuggestedReply() async {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return;
+    await generateSuggestedReply(
+      chatRoomId: roomId,
+      ticketId: _currentTicketId,
+    );
+  }
+
+  @action
+  void dismissSuggestedReply() {
+    suggestedReply = null;
+    draftError = null;
+    isSuggestedReplyLoading = false;
+    activeDraftTaskId = null;
+  }
+
+  @action
+  void toggleSuggestedReplyPanel() {
+    isSuggestedReplyPanelExpanded = !isSuggestedReplyPanelExpanded;
+  }
+
+  @action
+  Future<void> prefetchMessagesForRooms(Iterable<String> roomIds) async {
+    await _chatRepository.prefetchMessagesForRooms(roomIds);
+  }
+
   @action
   Future<void> loadOlderMessages() async {
     final String? roomId = currentChatRoomId;
     if (roomId == null) return;
     if (isLoadingOlderMessages) return;
-    if (!(_hasMoreOlderByRoom[roomId] ?? true)) return;
-
-    final ObservableList<Message>? list = _messageCache[roomId];
-    if (list == null || list.isEmpty) return;
-
-    final String oldestId = list.first.id;
+    if (!_chatRepository.hasMoreOlderMessages(roomId)) return;
 
     try {
       isLoadingOlderMessages = true;
-
-      final List<Message> older = await _getChatMessages(
-        params: GetChatMessagesParams(
-          chatRoomId: roomId,
-          lastMessageId: oldestId,
-          limit: _pageSize,
-        ),
-      );
-
-      if (older.isEmpty) {
-        _hasMoreOlderByRoom[roomId] = false;
-        return;
-      }
-
-      final Set<String> existingIds = list.map((Message m) => m.id).toSet();
-      final List<Message> deduped = older
-          .where((Message m) => !existingIds.contains(m.id))
-          .toList(growable: false);
-
-      if (deduped.isNotEmpty) {
-        list.insertAll(0, deduped);
-      }
-
-      _hasMoreOlderByRoom[roomId] = older.length >= _pageSize;
+      await _chatRepository.loadOlderMessages(roomId);
     } on ApiFailure catch (e) {
       _errorStore.setErrorMessage(e.toString());
     } finally {
@@ -226,38 +342,19 @@ abstract class _ChatStore with Store {
   }
 
   @action
-  void _mergeMessage(String roomId, Message message) {
-    final list = _messageCache.putIfAbsent(
-      roomId,
-      () => ObservableList<Message>(),
-    );
-
-    if (list.isEmpty || message.order > list.last.order) {
-      list.add(message);
-    } else {
-      final existingIndex = list.indexWhere((m) => m.id == message.id);
-
-      if (existingIndex >= 0) {
-        list[existingIndex] = message;
-      } else {
-        final insertIndex =
-            list.indexWhere((m) => m.order > message.order);
-
-        if (insertIndex == -1) {
-          list.add(message);
-        } else {
-          list.insert(insertIndex, message);
-        }
-      }
-}
-  }
-
-  @action
-  Future<void> sendMessage(String chatRoomId, String channelId, String contactId, String ticketId, String text, List<Attachment>? attachments) async {
+  Future<void> sendMessage(
+    String chatRoomId,
+    String channelId,
+    String contactId,
+    String ticketId,
+    String text,
+    List<Attachment>? attachments, {
+    String? replyMessageId,
+  }) async {
     if (text.trim().isEmpty && (attachments?.isEmpty ?? true)) return;
 
     try {
-      final newMessage = await _sendMessage.call(
+      final Message newMessage = await _sendMessage.call(
         params: SendAgentToCustomerMessageParams(
           chatRoomId: chatRoomId,
           channelId: channelId,
@@ -265,143 +362,128 @@ abstract class _ChatStore with Store {
           ticketId: ticketId,
           content: text,
           attachments: attachments,
+          replyMessageId: replyMessageId,
+          socketId: _settingRepository.socketId,
         ),
       );
 
-      currentMessages.add(newMessage);
+      _chatRepository.mergeMessage(roomId: chatRoomId, message: newMessage);
     } on Failure catch (e) {
       _errorStore.setErrorMessage(e.message);
 
-      currentMessages.add(Message(
-        id: '',
-        conversationId: chatRoomId,
-        order: currentMessages.last.order,
-        sender: const User(id: '', name: '', avatar: ''),
-        isMe: true,
-        content: e.message,
-        attachments: attachments ?? [],
-        timestamp: DateTime.now(),
-        replyMessageId: null,
-        reactions: [],
-      ));
+      currentMessages.add(
+        Message(
+          id: '',
+          conversationId: chatRoomId,
+          order: currentMessages.isNotEmpty ? currentMessages.last.order : 0,
+          sender: const User(id: '', name: '', avatar: ''),
+          isMe: true,
+          content: e.message,
+          attachments: attachments ?? <Attachment>[],
+          timestamp: DateTime.now(),
+          replyMessageId: null,
+          reactions: const <Reaction>[],
+        ),
+      );
+    } finally {
+      isSendingMessage = false;
     }
 
-    // Track message sent event
-    _analyticsService.trackEvent(
-      AnalyticsEvents.messageSent,
-      parameters: {'channel': 'chat'},
+    unawaited(
+      _analyticsService.trackEvent(
+        AnalyticsEvents.messageSent,
+        parameters: <String, String>{'channel': 'chat'},
+      ),
     );
   }
 
   @action
   Future<List<Message>> searchMessages(String keyword) async {
-    if (currentChatRoomId == null) return [];
+    if (currentChatRoomId == null) return <Message>[];
 
-    final messages = await _flatSearchMessageList(
+    return _flatSearchMessageList(
       params: FlatSearchMessageListParams(
         chatRoomId: currentChatRoomId!,
         keyword: keyword,
       ),
     );
-
-    return messages;
   }
 
-  void addReactionToMessage(String messageId, String emoji) {
-    final index = currentMessages.indexWhere((m) => m.id == messageId);
-    if (index != -1) {
-      final message = currentMessages[index];
-
-      // Check if emoji reaction already exists
-      final reactionIndex = message.reactions.indexWhere(
-        (r) => r.emoji == emoji,
+  @action
+  Future<void> reactToMessage({
+    required Message message,
+    required String reactIcon,
+    required String chatRoomId,
+    String? channelId,
+  }) async {
+    if (!message.canReactOnZalo) {
+      _errorStore.setErrorMessage(
+        'Reactions are only available for Zalo messages with valid Zalo IDs.',
       );
+      return;
+    }
 
-      if (reactionIndex != -1) {
-        // Add user to existing reaction
-        final existingReaction = message.reactions[reactionIndex];
-        final updatedReaction = existingReaction.copyWith(
-          user: const User(id: 'You', name: 'You', avatar: ''),
-        );
+    _applyOptimisticReaction(messageId: message.id, emoji: reactIcon);
 
-        final updatedReactions = message.reactions.toList();
-        updatedReactions[reactionIndex] = updatedReaction;
-
-        currentMessages[index] = message.copyWith(reactions: updatedReactions);
-      } else {
-        // Add new reaction
-        currentMessages[index] = message.copyWith(
-          reactions: [...message.reactions, Reaction(id: '', user: const User(id: 'You', name: 'You', avatar: ''), emoji: emoji, amount: 1)],
-        );
-      }
+    try {
+      await _reactToMessage.call(
+        params: ReactToMessageRequest(
+          messageId: message.id,
+          zaloMessageId: message.zaloMessageId!,
+          reactIcon: reactIcon,
+          zaloAccountId: message.zaloAccountId!,
+          chatRoomId: chatRoomId,
+          channelId: channelId ?? _currentChannelId,
+          socketId: _settingRepository.socketId,
+        ),
+      );
+    } on Failure catch (e) {
+      _errorStore.setErrorMessage(e.message);
     }
   }
 
-  @action
-  void onSocketMessage(Message message) {
-    // Merge by id to avoid duplicates.
-    _mergeMessage(message.conversationId, message);
+  void _applyOptimisticReaction({
+    required String messageId,
+    required String emoji,
+  }) {
+    final int index = currentMessages.indexWhere((Message m) => m.id == messageId);
+    if (index == -1) return;
+
+    final Message message = currentMessages[index];
+    final int reactionIndex =
+        message.reactions.indexWhere((Reaction r) => r.emoji == emoji);
+
+    if (reactionIndex != -1) {
+      final Reaction existingReaction = message.reactions[reactionIndex];
+      final List<Reaction> updatedReactions = message.reactions.toList();
+      updatedReactions[reactionIndex] = existingReaction.copyWith(
+        user: const User(id: 'You', name: 'You', avatar: ''),
+        amount: existingReaction.amount + 1,
+      );
+      currentMessages[index] =
+          message.copyWith(reactions: updatedReactions);
+    } else {
+      currentMessages[index] = message.copyWith(
+        reactions: <Reaction>[
+          ...message.reactions,
+          Reaction(
+            id: '',
+            user: const User(id: 'You', name: 'You', avatar: ''),
+            emoji: emoji,
+            amount: 1,
+          ),
+        ],
+      );
+    }
   }
 
-  /// Subscribe to the underlying [SocketService.messages] stream so any
-  /// inbound chat message reaches [_mergeMessage]. Idempotent.
-  void bindSocket() {
-    if (_socketMessageSub != null) return;
-    _socketMessageSub = _socketService.messages.listen(onSocketMessage);
-  }
-
-  /// Cancel the socket subscription. Safe to call multiple times.
-  Future<void> unbindSocket() async {
-    await _socketMessageSub?.cancel();
-    _socketMessageSub = null;
-  }
-
-  @action
-  void onSocketTyping({required bool typing}) {
-    isTyping = typing;
-  }
-
+  /// @deprecated Use [generateSuggestedReply] instead.
   @action
   Future<void> generateDraftResponses({required String chatRoomId}) async {
-    await _draftSub?.cancel();
-    draftResponses.clear();
-    isDraftLoading = true;
-    final client = getIt<DraftResponseSseClient>();
-
-    _draftSub = client
-        .streamDraftResponse(chatRoomId: chatRoomId)
-        .listen(
-          (evt) {
-            if (evt.event == 'lastDraftResponseUpdate') {
-              final json = evt.dataJson;
-              final drafts = json?['drafts'];
-              if (drafts is List) {
-                draftResponses
-                  ..clear()
-                  ..addAll(drafts.whereType<String>());
-              } else {
-                // Fallback: treat data as a single draft.
-                if (evt.data.isNotEmpty) {
-                  draftResponses
-                    ..clear()
-                    ..add(evt.data);
-                }
-              }
-              isDraftLoading = false;
-            }
-          },
-          onError: (_) {
-            isDraftLoading = false;
-          },
-          onDone: () {
-            isDraftLoading = false;
-          },
-        );
+    await generateSuggestedReply(chatRoomId: chatRoomId);
   }
 
-  void dispose() {
-    _draftSub?.cancel();
-    _socketMessageSub?.cancel();
+  Future<void> dispose() async {
+    _cancelRealtimeSubscriptions();
   }
-
 }
