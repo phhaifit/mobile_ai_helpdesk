@@ -5,6 +5,7 @@ class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
   final FocusNode? focusNode;
+
   /// Shown in the composer (e.g. localized “type / for prompts”).
   final String? hintText;
 
@@ -50,7 +51,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 6,
             offset: const Offset(0, -2),
           ),

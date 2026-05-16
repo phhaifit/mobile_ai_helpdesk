@@ -20,12 +20,12 @@ class AiAgent {
     required this.id,
     required this.name,
     required this.description,
-    this.avatarUrl,
     required this.mode,
     required this.platforms,
     required this.workflows,
-    this.teamId,
     required this.createdAt,
+    this.avatarUrl,
+    this.teamId,
   });
 
   factory AiAgent.fromJson(Map<String, dynamic> json) =>
@@ -43,16 +43,15 @@ class AiAgent {
     List<String>? workflows,
     String? teamId,
     DateTime? createdAt,
-  }) =>
-      AiAgent(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        description: description ?? this.description,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        mode: mode ?? this.mode,
-        platforms: platforms ?? this.platforms,
-        workflows: workflows ?? this.workflows,
-        teamId: teamId ?? this.teamId,
-        createdAt: createdAt ?? this.createdAt,
-      );
+  }) => AiAgent(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    mode: mode ?? this.mode,
+    platforms: platforms ?? this.platforms,
+    workflows: workflows ?? this.workflows,
+    teamId: teamId ?? this.teamId,
+    createdAt: createdAt ?? this.createdAt,
+  );
 }

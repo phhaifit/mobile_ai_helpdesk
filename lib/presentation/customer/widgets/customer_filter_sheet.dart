@@ -1,13 +1,13 @@
+import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 
 class CustomerFilterSheet extends StatelessWidget {
   final CustomerStore store;
 
-  const CustomerFilterSheet({super.key, required this.store});
+  const CustomerFilterSheet({required this.store, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,25 +25,31 @@ class CustomerFilterSheet extends StatelessWidget {
             children: [
               Text(
                 AppLocalizations.of(context).translate('customer_filter_title'),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
-                AppLocalizations.of(context).translate('customer_filter_tags'), 
-                style: const TextStyle(fontWeight: FontWeight.w600)
+                AppLocalizations.of(context).translate('customer_filter_tags'),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
-                children: store.availableTags.map((t) {
-                  final isSelected = store.selectedTagIds.contains(t.id);
-                  return FilterChip(
-                    label: Text(t.name),
-                    selected: isSelected,
-                    onSelected: (val) => store.toggleTagFilter(t.id),
-                    selectedColor: AppColors.primaryBlue.withOpacity(0.2),
-                  );
-                }).toList(),
+                children:
+                    store.availableTags.map((t) {
+                      final isSelected = store.selectedTagIds.contains(t.id);
+                      return FilterChip(
+                        label: Text(t.name),
+                        selected: isSelected,
+                        onSelected: (val) => store.toggleTagFilter(t.id),
+                        selectedColor: AppColors.primaryBlue.withValues(
+                          alpha: 0.2,
+                        ),
+                      );
+                    }).toList(),
               ),
               const SizedBox(height: 24),
               Row(
@@ -54,7 +60,11 @@ class CustomerFilterSheet extends StatelessWidget {
                         store.clearFilters();
                         Navigator.pop(context);
                       },
-                      child: Text(AppLocalizations.of(context).translate('customer_filter_clear')),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_filter_clear'),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -68,8 +78,10 @@ class CustomerFilterSheet extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        AppLocalizations.of(context).translate('customer_filter_apply'), 
-                        style: const TextStyle(color: Colors.white)
+                        AppLocalizations.of(
+                          context,
+                        ).translate('customer_filter_apply'),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),

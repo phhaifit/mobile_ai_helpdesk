@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:flutter/material.dart';
 
 /// Empty state widget displayed when no items are available
 class EmptyStateWidget extends StatelessWidget {

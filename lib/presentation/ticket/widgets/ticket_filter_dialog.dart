@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket_filter.dart';
+import 'package:flutter/material.dart';
 
 class TicketFilterDialog extends StatefulWidget {
   final TicketFilter initialFilter;
@@ -11,11 +11,7 @@ class TicketFilterDialog extends StatefulWidget {
   final VoidCallback onFilterCleared;
 
   const TicketFilterDialog({
-    super.key,
-    required this.initialFilter,
-    required this.allTickets,
-    required this.onFilterChanged,
-    required this.onFilterCleared,
+    required this.initialFilter, required this.allTickets, required this.onFilterChanged, required this.onFilterCleared, super.key,
   });
 
   @override

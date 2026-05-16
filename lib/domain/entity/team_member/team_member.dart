@@ -3,7 +3,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'team_member.g.dart';
 
-enum TeamRole { owner, admin, member }
+enum TeamRole {
+  admin,
+  @JsonValue('customer_support')
+  customerSupport,
+}
 
 @JsonSerializable()
 class TeamMember {

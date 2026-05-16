@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:flutter/material.dart';
 
 class TicketHeaderWidget extends StatelessWidget {
   final String tabTitle;
@@ -8,9 +8,7 @@ class TicketHeaderWidget extends StatelessWidget {
   final VoidCallback? onAddTicketPressed;
 
   const TicketHeaderWidget({
-    super.key,
-    required this.tabTitle,
-    required this.ticketCount,
+    required this.tabTitle, required this.ticketCount, super.key,
     this.onExportPressed,
     this.onAddTicketPressed,
   });

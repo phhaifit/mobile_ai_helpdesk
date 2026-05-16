@@ -1,12 +1,15 @@
 import 'package:another_flushbar/flushbar_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
 import '/core/widgets/progress_indicator_widget.dart';
 import '/di/service_locator.dart';
 import '/presentation/post/store/post_store.dart';
 import '/utils/locale/app_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PostListScreen extends StatefulWidget {
+  const PostListScreen({super.key});
+
   @override
   _PostListScreenState createState() => _PostListScreenState();
 }
@@ -44,7 +47,7 @@ class _PostListScreenState extends State<PostListScreen> {
     return Observer(
       builder: (context) {
         return _postStore.loading
-            ? CustomProgressIndicatorWidget()
+            ? const CustomProgressIndicatorWidget()
             : _buildListView();
       },
     );
@@ -55,7 +58,7 @@ class _PostListScreenState extends State<PostListScreen> {
         ? ListView.separated(
             itemCount: _postStore.postList!.posts!.length,
             separatorBuilder: (context, position) {
-              return Divider();
+              return const Divider();
             },
             itemBuilder: (context, position) {
               return _buildListItem(position);
@@ -71,7 +74,7 @@ class _PostListScreenState extends State<PostListScreen> {
   Widget _buildListItem(int position) {
     return ListTile(
       dense: true,
-      leading: Icon(Icons.cloud_circle),
+      leading: const Icon(Icons.cloud_circle),
       title: Text(
         '${_postStore.postList?.posts?[position].title}',
         maxLines: 1,
@@ -95,23 +98,23 @@ class _PostListScreenState extends State<PostListScreen> {
           return _showErrorMessage(_postStore.errorStore.errorMessage);
         }
 
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
       },
     );
   }
 
   // General Methods:-----------------------------------------------------------
   Widget _showErrorMessage(String message) {
-    Future.delayed(Duration(milliseconds: 0), () {
+    Future.delayed(const Duration(milliseconds: 0), () {
       if (message.isNotEmpty) {
         FlushbarHelper.createError(
           message: message,
           title: AppLocalizations.of(context).translate('home_tv_error'),
-          duration: Duration(seconds: 3),
-        )..show(context);
+          duration: const Duration(seconds: 3),
+        ).show(context);
       }
     });
 
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 }

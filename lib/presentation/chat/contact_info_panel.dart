@@ -60,12 +60,16 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: widget.room.isAI
-                            ? [AppColors.messengerBlue, const Color(0xFF9B51E0)]
-                            : [
-                                const Color(0xFF6BC5F8),
-                                AppColors.messengerBlue,
-                              ],
+                        colors:
+                            widget.room.isAI
+                                ? [
+                                  AppColors.messengerBlue,
+                                  const Color(0xFF9B51E0),
+                                ]
+                                : [
+                                  const Color(0xFF6BC5F8),
+                                  AppColors.messengerBlue,
+                                ],
                       ),
                     ),
                     child: Center(
@@ -98,9 +102,10 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: widget.room.isActive
-                              ? AppColors.onlineGreen
-                              : Colors.grey,
+                          color:
+                              widget.room.isActive
+                                  ? AppColors.onlineGreen
+                                  : Colors.grey,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -109,9 +114,10 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                         widget.room.isActive ? 'Đang hoạt động' : 'Ngoại tuyến',
                         style: TextStyle(
                           fontSize: 12,
-                          color: widget.room.isActive
-                              ? AppColors.onlineGreen
-                              : Colors.grey,
+                          color:
+                              widget.room.isActive
+                                  ? AppColors.onlineGreen
+                                  : Colors.grey,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -348,9 +354,10 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
               decoration: BoxDecoration(
                 color: backgroundColor ?? Colors.white,
                 border: Border.all(
-                  color: backgroundColor != null
-                      ? Colors.transparent
-                      : Colors.grey.shade300,
+                  color:
+                      backgroundColor != null
+                          ? Colors.transparent
+                          : Colors.grey.shade300,
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -471,22 +478,23 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
                       color: AppColors.messengerBlue,
                     ),
                   ),
-                  suffixIcon: _labelInputController.text.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            if (_labelInputController.text.isNotEmpty) {
-                              setState(() {
-                                _labels.add(_labelInputController.text);
-                                _labelInputController.clear();
-                              });
-                            }
-                          },
-                          child: const Icon(
-                            Icons.check,
-                            color: AppColors.messengerBlue,
-                          ),
-                        )
-                      : null,
+                  suffixIcon:
+                      _labelInputController.text.isNotEmpty
+                          ? GestureDetector(
+                            onTap: () {
+                              if (_labelInputController.text.isNotEmpty) {
+                                setState(() {
+                                  _labels.add(_labelInputController.text);
+                                  _labelInputController.clear();
+                                });
+                              }
+                            },
+                            child: const Icon(
+                              Icons.check,
+                              color: AppColors.messengerBlue,
+                            ),
+                          )
+                          : null,
                 ),
                 onChanged: (value) {
                   setState(() {});
@@ -506,66 +514,70 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
               const SizedBox(height: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _suggestedLabels.map((suggestedLabel) {
-                  final isSelected =
-                      _selectedSuggestedLabels.contains(suggestedLabel) ||
-                      _labels.contains(suggestedLabel);
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (isSelected) {
-                          _selectedSuggestedLabels.remove(suggestedLabel);
-                          _labels.remove(suggestedLabel);
-                        } else {
-                          _selectedSuggestedLabels.add(suggestedLabel);
-                          if (!_labels.contains(suggestedLabel)) {
-                            _labels.add(suggestedLabel);
-                          }
-                        }
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 18,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isSelected
-                                    ? AppColors.messengerBlue
-                                    : Colors.grey.shade300,
+                children:
+                    _suggestedLabels.map((suggestedLabel) {
+                      final isSelected =
+                          _selectedSuggestedLabels.contains(suggestedLabel) ||
+                          _labels.contains(suggestedLabel);
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedSuggestedLabels.remove(suggestedLabel);
+                              _labels.remove(suggestedLabel);
+                            } else {
+                              _selectedSuggestedLabels.add(suggestedLabel);
+                              if (!_labels.contains(suggestedLabel)) {
+                                _labels.add(suggestedLabel);
+                              }
+                            }
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color:
+                                        isSelected
+                                            ? AppColors.messengerBlue
+                                            : Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(3),
+                                  color:
+                                      isSelected
+                                          ? AppColors.messengerBlue
+                                          : Colors.transparent,
+                                ),
+                                child:
+                                    isSelected
+                                        ? const Center(
+                                          child: Icon(
+                                            Icons.check,
+                                            size: 12,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                        : null,
                               ),
-                              borderRadius: BorderRadius.circular(3),
-                              color: isSelected
-                                  ? AppColors.messengerBlue
-                                  : Colors.transparent,
-                            ),
-                            child: isSelected
-                                ? const Center(
-                                    child: Icon(
-                                      Icons.check,
-                                      size: 12,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
+                              const SizedBox(width: 8),
+                              Text(
+                                suggestedLabel,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            suggestedLabel,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                        ),
+                      );
+                    }).toList(),
               ),
             ],
           ),
@@ -774,9 +786,9 @@ class _ContactInfoPanelState extends State<ContactInfoPanel> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

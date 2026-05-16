@@ -36,9 +36,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
   void _applyMember(TeamMember member) {
     _role = member.role;
     final trimmedName = member.displayName?.trim();
-    _fullNameController.text = (trimmedName != null && trimmedName.isNotEmpty)
-        ? trimmedName
-        : member.email.split('@').first;
+    _fullNameController.text =
+        (trimmedName != null && trimmedName.isNotEmpty)
+            ? trimmedName
+            : member.email.split('@').first;
     _phoneController.text = member.phoneNumber ?? '';
   }
 
@@ -58,11 +59,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
 
   String _roleLabel(AppLocalizations l, TeamRole role) {
     switch (role) {
-      case TeamRole.owner:
-        return l.translate('employee_role_owner');
       case TeamRole.admin:
         return l.translate('employee_role_manager');
-      case TeamRole.member:
+      case TeamRole.customerSupport:
         return l.translate('employee_role_staff');
     }
   }
@@ -94,12 +93,16 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       }
       final l = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.translate('employee_detail_snackbar_updated'))),
+        SnackBar(
+          content: Text(l.translate('employee_detail_snackbar_updated')),
+        ),
       );
     } else {
       final l = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.translate('employee_detail_snackbar_save_failed'))),
+        SnackBar(
+          content: Text(l.translate('employee_detail_snackbar_save_failed')),
+        ),
       );
     }
   }
@@ -139,11 +142,15 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
     if (ok) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.translate('employee_detail_snackbar_removed'))),
+        SnackBar(
+          content: Text(l.translate('employee_detail_snackbar_removed')),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l.translate('employee_detail_snackbar_delete_failed'))),
+        SnackBar(
+          content: Text(l.translate('employee_detail_snackbar_delete_failed')),
+        ),
       );
     }
   }
@@ -223,19 +230,22 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: AppColors.backgroundGrey,
-              elevation: 0,
-              foregroundColor: AppColors.textPrimary,
-              title: Text(l.translate('employee_detail_appbar')),
-            )
-          : null,
+      appBar:
+          isMobile
+              ? AppBar(
+                backgroundColor: AppColors.backgroundGrey,
+                elevation: 0,
+                foregroundColor: AppColors.textPrimary,
+                title: Text(l.translate('employee_detail_appbar')),
+              )
+              : null,
       body: Observer(
         builder: (_) {
           TeamMember? member;
           try {
-            member = _teamStore.teamMembers.firstWhere((m) => m.id == _memberId);
+            member = _teamStore.teamMembers.firstWhere(
+              (m) => m.id == _memberId,
+            );
           } catch (_) {
             member = null;
           }
@@ -281,7 +291,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         ],
                       ),
                     Text(
-                      l.translate('employee_detail_title').replaceAll('{name}', _displayName(member)),
+                      l
+                          .translate('employee_detail_title')
+                          .replaceAll('{name}', _displayName(member)),
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
@@ -304,7 +316,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           _labeledRow(
                             isMobile: isMobile,
                             forceHorizontal: true,
-                            label: l.translate('employee_detail_profile_picture'),
+                            label: l.translate(
+                              'employee_detail_profile_picture',
+                            ),
                             field: Align(
                               alignment: Alignment.centerLeft,
                               child: CircleAvatar(
@@ -356,14 +370,15 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                                   value: _role,
                                   isExpanded: true,
                                   isDense: true,
-                                  items: TeamRole.values
-                                      .map(
-                                        (r) => DropdownMenuItem<TeamRole>(
-                                          value: r,
-                                          child: Text(_roleLabel(l, r)),
-                                        ),
-                                      )
-                                      .toList(),
+                                  items:
+                                      TeamRole.values
+                                          .map(
+                                            (r) => DropdownMenuItem<TeamRole>(
+                                              value: r,
+                                              child: Text(_roleLabel(l, r)),
+                                            ),
+                                          )
+                                          .toList(),
                                   onChanged: (value) {
                                     if (value != null) {
                                       setState(() => _role = value);
@@ -416,9 +431,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: FilledButton(
-                              onPressed: (_isSaving || _teamStore.isLoading)
-                                  ? null
-                                  : _onSave,
+                              onPressed:
+                                  (_isSaving || _teamStore.isLoading)
+                                      ? null
+                                      : _onSave,
                               style: FilledButton.styleFrom(
                                 backgroundColor: const Color(0xFF4057D6),
                                 foregroundColor: Colors.white,
@@ -430,16 +446,21 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: _isSaving
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
+                              child:
+                                  _isSaving
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                      : Text(
+                                        l.translate(
+                                          'employee_detail_save_changes',
+                                        ),
                                       ),
-                                    )
-                                  : Text(l.translate('employee_detail_save_changes')),
                             ),
                           ),
                         ],
@@ -498,9 +519,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           ),
                           const SizedBox(height: 16),
                           FilledButton(
-                            onPressed: (_isDeleting || _teamStore.isLoading)
-                                ? null
-                                : _confirmDelete,
+                            onPressed:
+                                (_isDeleting || _teamStore.isLoading)
+                                    ? null
+                                    : _confirmDelete,
                             style: FilledButton.styleFrom(
                               backgroundColor: const Color(0xFFF04E4E),
                               foregroundColor: Colors.white,
@@ -512,16 +534,19 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: _isDeleting
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
+                            child:
+                                _isDeleting
+                                    ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : Text(
+                                      l.translate('employee_detail_delete'),
                                     ),
-                                  )
-                                : Text(l.translate('employee_detail_delete')),
                           ),
                         ],
                       ),

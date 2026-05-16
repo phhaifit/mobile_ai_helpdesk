@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class CommentItemWidget extends StatelessWidget {
   final Comment comment;
 
-  const CommentItemWidget({super.key, required this.comment});
+  const CommentItemWidget({required this.comment, super.key});
 
   @override
   Widget build(BuildContext context) {

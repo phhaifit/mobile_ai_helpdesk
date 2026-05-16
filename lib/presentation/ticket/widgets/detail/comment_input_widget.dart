@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class CommentInputWidget extends StatelessWidget {
   final String text;
@@ -10,12 +10,7 @@ class CommentInputWidget extends StatelessWidget {
   final VoidCallback onSend;
 
   const CommentInputWidget({
-    super.key,
-    required this.text,
-    required this.commentType,
-    required this.onTextChanged,
-    required this.onTypeChanged,
-    required this.onSend,
+    required this.text, required this.commentType, required this.onTextChanged, required this.onTypeChanged, required this.onSend, super.key,
   });
 
   @override

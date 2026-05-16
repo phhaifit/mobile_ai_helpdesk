@@ -1,13 +1,3 @@
-// Screen file map — SlashPromptPickerOverlay (folders and files that define this screen)
-// lib/
-// ├── presentation/
-// │   └── chat/
-// │       ├── slash_prompt_picker_overlay.dart   # this file
-// │       └── chat_screen.dart                   # parent: builds overlay when slashMode
-// ├── domain/entity/prompt/prompt.dart           # list item model
-// └── utils/locale/app_localization.dart
-//
-// assets/lang/en.json, vi.json   (repo root, strings for header / empty / usage line)
 import 'package:ai_helpdesk/domain/entity/prompt/prompt.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +9,8 @@ class SlashPromptPickerOverlay extends StatelessWidget {
     super.key,
   });
 
-  final List<Prompt> prompts;
-  final ValueChanged<Prompt> onSelected;
+  final List<ResponseTemplate> prompts;
+  final ValueChanged<ResponseTemplate> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -72,17 +62,19 @@ class SlashPromptPickerOverlay extends StatelessWidget {
                         return ListTile(
                           dense: true,
                           title: Text(
-                            p.title,
+                            p.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          subtitle: Text(
-                            l.translate('prompt_tv_used_times').replaceFirst(
-                                  '%s',
-                                  '${p.usageCount}',
-                                ),
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
+                          subtitle: p.description.isNotEmpty
+                              ? Text(
+                                  p.description,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      Theme.of(context).textTheme.labelSmall,
+                                )
+                              : null,
                           onTap: () => onSelected(p),
                         );
                       },

@@ -29,8 +29,7 @@ class CommentApiModel {
     required this.content,
     required this.authorId,
     required this.authorName,
-    this.authorAvatar,
-    required this.createdAt,
+    required this.createdAt, this.authorAvatar,
     this.updatedAt,
   });
 

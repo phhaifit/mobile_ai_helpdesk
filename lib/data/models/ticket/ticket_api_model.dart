@@ -26,12 +26,9 @@ class TicketApiModel {
     required this.title,
     required this.status,
     required this.priority,
-    this.assigneeId,
-    required this.customerId,
+    required this.customerId, required this.createdAt, required this.updatedAt, this.assigneeId,
     this.chatRoomId,
     this.channelType,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   factory TicketApiModel.fromJson(Map<String, dynamic> json) {

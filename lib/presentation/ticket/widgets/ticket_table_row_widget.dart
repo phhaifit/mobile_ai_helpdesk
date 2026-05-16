@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:flutter/material.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 import 'status_priority_badge_widget.dart';
-import 'ticket_table_columns.dart';
 import 'ticket_source_widget.dart';
+import 'ticket_table_columns.dart';
 
 class TicketTableRowWidget extends StatelessWidget {
   final Ticket ticket;
@@ -16,13 +17,11 @@ class TicketTableRowWidget extends StatelessWidget {
   final List<TicketColumn> visibleColumns;
 
   const TicketTableRowWidget({
-    super.key,
-    required this.ticket,
+    required this.ticket, required this.currentAgentId, super.key,
     this.onAcceptPressed,
     this.onCancelPressed,
     this.onDetailPressed,
     this.selectedTabIndex = 1,
-    required this.currentAgentId,
     this.visibleColumns = const [
       TicketColumn.title,
       TicketColumn.statusPriority,
@@ -39,7 +38,7 @@ class TicketTableRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Table(
         columnWidths: TicketTableColumns.buildTableWidths(visibleColumns),
@@ -81,9 +80,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Tiếp nhận",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Tiếp nhận',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }
@@ -101,9 +100,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Hủy",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Hủy',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }
@@ -121,9 +120,9 @@ class TicketTableRowWidget extends StatelessWidget {
           vertical: 6,
         ),
       ),
-      child: Text(
-        "Chi tiết",
-        style: const TextStyle(fontSize: 9),
+      child: const Text(
+        'Chi tiết',
+        style: TextStyle(fontSize: 9),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:ai_helpdesk/domain/entity/omnichannel/omnichannel.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -8,6 +7,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
@@ -23,7 +23,8 @@ class MockRepository implements OmnichannelRepository {
   Future<ZaloQr> generateZaloQr() async => mockedQr!;
 
   @override
-  Future<ZaloQrStatusUpdate> getZaloQrStatus(String qrCode) async => mockedStatus!;
+  Future<ZaloQrStatusUpdate> getZaloQrStatus(String qrCode) async =>
+      mockedStatus!;
 
   @override
   Future<ActionFeedback> connectZalo(String authCode) async =>
@@ -34,10 +35,6 @@ class MockRepository implements OmnichannelRepository {
 
   @override
   Future<ActionFeedback> disconnectZalo() async =>
-      const ActionFeedback(isSuccess: true, messageKey: 'success');
-
-  @override
-  Future<ActionFeedback> connectMessenger({String? authCode}) async =>
       const ActionFeedback(isSuccess: true, messageKey: 'success');
 
   @override
@@ -53,12 +50,20 @@ class MockRepository implements OmnichannelRepository {
       const ActionFeedback(isSuccess: true, messageKey: 'success');
 
   @override
-  Future<ActionFeedback> updateMessengerSettings(MessengerSettingsUpdate settings) async =>
-      const ActionFeedback(isSuccess: true, messageKey: 'success');
+  Future<ActionFeedback> updateMessengerSettings(
+    MessengerSettingsUpdate settings,
+  ) async => const ActionFeedback(isSuccess: true, messageKey: 'success');
 
   @override
-  Future<ActionFeedback> updateZaloAssignments(List<ZaloAssignmentUpdate> updates) async =>
-      const ActionFeedback(isSuccess: true, messageKey: 'success');
+  Future<ActionFeedback> updateZaloAssignments(
+    List<ZaloAssignmentUpdate> updates,
+  ) async => const ActionFeedback(isSuccess: true, messageKey: 'success');
+
+  @override
+  Future<ActionFeedback> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) async => const ActionFeedback(isSuccess: true, messageKey: 'success');
 }
 
 void main() {
@@ -70,13 +75,13 @@ void main() {
       repository = MockRepository();
       store = OmnichannelStore(
         GetOmnichannelOverviewUseCase(repository),
-        ConnectMessengerUseCase(repository),
         DisconnectMessengerUseCase(repository),
         SyncMessengerDataUseCase(repository),
         UpdateMessengerSettingsUseCase(repository),
         DisconnectZaloUseCase(repository),
         RetryZaloSyncUseCase(repository),
         UpdateZaloAssignmentsUseCase(repository),
+        SendZaloMessageUseCase(repository),
         GenerateZaloQrUseCase(repository),
         GetZaloQrStatusUseCase(repository),
         ConnectZaloUseCase(repository),
@@ -90,20 +95,17 @@ void main() {
     });
 
     test('startZaloQrFlow sets loading and fetches QR', () async {
-      repository.mockedQr = const ZaloQr(
-        code: 'code',
-        url: 'url',
-      );
-      
+      repository.mockedQr = const ZaloQr(code: 'code', url: 'url');
+
       final future = store.startZaloQrFlow();
-      
+
       expect(store.isLoading, isTrue);
-      
+
       await future;
-      
+
       expect(store.zaloQr?.code, 'code');
       expect(store.isLoading, isFalse);
-      
+
       store.dispose();
     });
 

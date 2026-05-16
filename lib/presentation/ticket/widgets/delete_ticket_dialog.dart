@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:flutter/material.dart';
 
 class DeleteTicketDialog extends StatelessWidget {
   final String ticketTitle;
 
-  const DeleteTicketDialog({super.key, required this.ticketTitle});
+  const DeleteTicketDialog({required this.ticketTitle, super.key});
 
   @override
   Widget build(BuildContext context) {

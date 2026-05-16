@@ -1,7 +1,7 @@
-import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
+import 'package:mobx/mobx.dart';
 
 part 'edit_ticket_store.g.dart';
 

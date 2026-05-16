@@ -30,11 +30,11 @@ abstract class _VerifyOtpStoreBase with Store {
     required GetCurrentAccountUseCase getCurrentAccountUseCase,
     required AuthStore authStore,
     required AnalyticsService analyticsService,
-  })  : _verifyOtpUseCase = verifyOtpUseCase,
-        _sendOtpUseCase = sendOtpUseCase,
-        _getCurrentAccountUseCase = getCurrentAccountUseCase,
-        _authStore = authStore,
-        _analyticsService = analyticsService;
+  }) : _verifyOtpUseCase = verifyOtpUseCase,
+       _sendOtpUseCase = sendOtpUseCase,
+       _getCurrentAccountUseCase = getCurrentAccountUseCase,
+       _authStore = authStore,
+       _analyticsService = analyticsService;
 
   late String email;
 
@@ -108,19 +108,22 @@ abstract class _VerifyOtpStoreBase with Store {
     await verifyResult.fold<Future<void>>(
       (failure) async {
         errorKey = _messageKeyFor(failure);
-        _analyticsService.trackEvent(
-          AnalyticsEvents.userLogin,
-          parameters: {
-            'method': 'otp',
-            'success': 'false',
-            'stage': 'verify_code',
-            'error_code': errorKey ?? 'unknown',
-          },
+        unawaited(
+          _analyticsService.trackEvent(
+            AnalyticsEvents.userLogin,
+            parameters: {
+              'method': 'otp',
+              'success': 'false',
+              'stage': 'verify_code',
+              'error_code': errorKey ?? 'unknown',
+            },
+          ),
         );
       },
       (session) async {
-        final accountResult =
-            await _getCurrentAccountUseCase.call(params: null);
+        final accountResult = await _getCurrentAccountUseCase.call(
+          params: null,
+        );
         accountResult.fold(
           (failure) {
             errorKey = _messageKeyFor(failure);
@@ -175,6 +178,7 @@ abstract class _VerifyOtpStoreBase with Store {
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void _setCountdown(int value) {
     resendCountdown = value;
   }

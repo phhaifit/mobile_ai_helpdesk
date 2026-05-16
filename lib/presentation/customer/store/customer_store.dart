@@ -94,7 +94,7 @@ abstract class _CustomerStore with Store {
         offset: _currentPage * _limit,
         limit: _limit,
       );
-      
+
       if (result.isEmpty) {
         hasReachedMax = true;
       } else {
@@ -104,8 +104,10 @@ abstract class _CustomerStore with Store {
         customers.addAll(result);
         _currentPage++;
       }
-    } catch (e) {
-      errorMessage = 'Failed to load customers: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapLoadError(e);
+    } catch (_) {
+      errorMessage = 'load_generic';
     } finally {
       if (isLoadMore) {
         isLoadingMore = false;
@@ -162,22 +164,39 @@ abstract class _CustomerStore with Store {
   }
 
   @action
-  Future<bool> saveCustomer(Customer customer) async {
+  Future<bool> saveCustomer(Customer customer, {Customer? previous}) async {
     isSaving = true;
     errorMessage = null;
     try {
-      if (customers.any((c) => c.id == customer.id)) {
+      final isUpdate = previous != null;
+      if (isUpdate) {
         await _repository.updateCustomer(customer);
+        await _syncCustomerTags(
+          customerId: customer.id,
+          oldTags: previous.tags,
+          newTags: customer.tags,
+        );
+        await _syncCustomerContacts(
+          customerId: customer.id,
+          previous: previous,
+          current: customer,
+        );
       } else {
         if (customer.emails.isNotEmpty) {
-          final isEmailValid = await _repository.checkValidEmail(customer.emails.first);
-          if (!isEmailValid) {
-            errorMessage = 'Email address is already in use or completely invalid.';
+          final isEmailAvailable = await _repository.checkEmailAvailability(customer.emails.first);
+          if (!isEmailAvailable) {
+            errorMessage = 'This email is already in use by another customer.';
             isSaving = false;
             return false;
           }
         }
-        await _repository.createCustomer(customer);
+        final created = await _repository.createCustomer(customer);
+        await _syncCustomerTags(
+          customerId: created.id,
+          oldTags: const <Tag>[],
+          newTags: customer.tags,
+        );
+        await _addExtraContactsForCreate(customerId: created.id, customer: customer);
       }
       await loadCustomers();
       return true;
@@ -194,6 +213,122 @@ abstract class _CustomerStore with Store {
     } finally {
       isSaving = false;
     }
+  }
+
+  Future<void> _syncCustomerTags({
+    required String customerId,
+    required List<Tag> oldTags,
+    required List<Tag> newTags,
+  }) async {
+    if (customerId.isEmpty) return;
+    final oldIds = oldTags.map((t) => t.id).where((id) => id.isNotEmpty).toSet();
+    final newIds = newTags.map((t) => t.id).where((id) => id.isNotEmpty).toSet();
+    final toAdd = newIds.difference(oldIds);
+    final toRemove = oldIds.difference(newIds);
+    for (final id in toAdd) {
+      await _repository.addTagToCustomer(customerId, id);
+    }
+    for (final id in toRemove) {
+      await _repository.removeTagFromCustomer(customerId, id);
+    }
+  }
+
+  Future<void> _syncCustomerContacts({
+    required String customerId,
+    required Customer previous,
+    required Customer current,
+  }) async {
+    if (customerId.isEmpty) return;
+    // Email/phone primary slot is handled by updateCustomer; only sync extras (index >= 1).
+    await _diffAndSyncContacts(
+      oldVals: _skipFirst(previous.emails),
+      newVals: _skipFirst(current.emails),
+      add: (v) => _repository.addCustomerContact(customerId, email: v),
+      remove: (v) => _repository.deleteCustomerContact(customerId, email: v),
+    );
+    await _diffAndSyncContacts(
+      oldVals: _skipFirst(previous.phones),
+      newVals: _skipFirst(current.phones),
+      add: (v) => _repository.addCustomerContact(customerId, phone: v),
+      remove: (v) => _repository.deleteCustomerContact(customerId, phone: v),
+    );
+    // Zalo + messenger: no primary concept (updateCustomer doesn't accept them).
+    await _diffAndSyncContacts(
+      oldVals: previous.zalos,
+      newVals: current.zalos,
+      add: (v) => _repository.addCustomerContact(customerId, zalo: v),
+      remove: (v) => _repository.deleteCustomerContact(customerId, zalo: v),
+    );
+    await _diffAndSyncContacts(
+      oldVals: previous.messengers,
+      newVals: current.messengers,
+      add: (v) => _repository.addCustomerContact(customerId, messenger: v),
+      remove: (v) => _repository.deleteCustomerContact(customerId, messenger: v),
+    );
+  }
+
+  Future<void> _addExtraContactsForCreate({
+    required String customerId,
+    required Customer customer,
+  }) async {
+    if (customerId.isEmpty) return;
+    // createCustomer only writes the primary email + primary phone; everything else is an extra contact.
+    for (final v in _skipFirst(customer.emails)) {
+      await _repository.addCustomerContact(customerId, email: v);
+    }
+    for (final v in _skipFirst(customer.phones)) {
+      await _repository.addCustomerContact(customerId, phone: v);
+    }
+    for (final v in customer.zalos) {
+      await _repository.addCustomerContact(customerId, zalo: v);
+    }
+    for (final v in customer.messengers) {
+      await _repository.addCustomerContact(customerId, messenger: v);
+    }
+  }
+
+  Future<void> _diffAndSyncContacts({
+    required Iterable<String> oldVals,
+    required Iterable<String> newVals,
+    required Future<void> Function(String value) add,
+    required Future<void> Function(String value) remove,
+  }) async {
+    final oldSet = oldVals.where((v) => v.isNotEmpty).toSet();
+    final newSet = newVals.where((v) => v.isNotEmpty).toSet();
+    for (final v in newSet.difference(oldSet)) {
+      await add(v);
+    }
+    for (final v in oldSet.difference(newSet)) {
+      await remove(v);
+    }
+  }
+
+  Iterable<String> _skipFirst(List<String> list) =>
+      list.length <= 1 ? const <String>[] : list.skip(1);
+
+  String _mapLoadError(DioException e) {
+    final code = e.response?.statusCode;
+    final status = e.response?.data is Map
+        ? (e.response?.data as Map)['status']?.toString()
+        : null;
+    if (code == 403 || status == 'SUBSCRIPTION_REQUIRED') return 'load_subscription';
+    if (code == 401 || status == 'PERMISSION_DENIED') return 'load_permission';
+    if (code == 404) return 'load_not_found';
+    return 'load_generic';
+  }
+
+  String _mapTagError(DioException e, {required String action}) {
+    final code = e.response?.statusCode;
+    final status = e.response?.data is Map
+        ? (e.response?.data as Map)['status']?.toString()
+        : null;
+    if (status == 'EXISTED') return 'A tag with this name already exists.';
+    if (status == 'PERMISSION_DENIED' || code == 403) {
+      return "You don't have permission to $action this tag.";
+    }
+    if (status == 'NOT_FOUND' || code == 404) return 'Tag not found.';
+    if (status == 'INVALID_INPUT' || code == 400) return 'Invalid tag name.';
+    return 'Failed to $action tag.';
   }
 
   @action
@@ -214,6 +349,7 @@ abstract class _CustomerStore with Store {
   @action
   Future<bool> mergeCustomers({required String primaryId, required String secondaryId}) async {
     isSaving = true;
+    errorMessage = null;
     try {
       await _repository.mergeCustomers(
         primaryCustomerId: primaryId,
@@ -221,8 +357,20 @@ abstract class _CustomerStore with Store {
       );
       await loadCustomers();
       return true;
-    } catch (e) {
-      errorMessage = 'Failed to merge customers: $e';
+    } on DioException catch (e) {
+      final status = e.response?.data is Map
+          ? (e.response?.data as Map)['status']?.toString()
+          : null;
+      if (status == 'PERMISSION_DENIED' || e.response?.statusCode == 401) {
+        errorMessage = 'permission_denied';
+      } else if (e.response?.statusCode == 403) {
+        errorMessage = 'subscription_required';
+      } else {
+        errorMessage = 'generic';
+      }
+      return false;
+    } catch (_) {
+      errorMessage = 'generic';
       return false;
     } finally {
       isSaving = false;
@@ -236,8 +384,11 @@ abstract class _CustomerStore with Store {
       final newTag = await _repository.createTag(name: name);
       availableTags.add(newTag);
       return newTag;
-    } catch (e) {
-      errorMessage = 'Failed to create tag: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapTagError(e, action: 'create');
+      return null;
+    } catch (_) {
+      errorMessage = 'Failed to create tag.';
       return null;
     } finally {
       isSaving = false;
@@ -254,8 +405,11 @@ abstract class _CustomerStore with Store {
         availableTags[index] = updatedTag;
       }
       return true;
-    } catch (e) {
-      errorMessage = 'Failed to update tag: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapTagError(e, action: 'update');
+      return false;
+    } catch (_) {
+      errorMessage = 'Failed to update tag.';
       return false;
     } finally {
       isSaving = false;
@@ -268,9 +422,26 @@ abstract class _CustomerStore with Store {
     try {
       await _repository.deleteTag(id: tagId);
       availableTags.removeWhere((t) => t.id == tagId);
+      // Backend soft-deletes tags but keeps them on existing customer-tag links.
+      // Strip the tag locally from cached customers so the UI does not show a ghost chip.
+      for (var i = 0; i < customers.length; i++) {
+        final c = customers[i];
+        if (c.tags.any((t) => t.id == tagId)) {
+          customers[i] = c.copyWith(
+            tags: c.tags.where((t) => t.id != tagId).toList(),
+          );
+        }
+      }
+      // Also drop the tag from active filters so the list is not stuck filtering by a tag that no longer exists.
+      if (selectedTagIds.remove(tagId)) {
+        await loadCustomers();
+      }
       return true;
-    } catch (e) {
-      errorMessage = 'Failed to delete tag: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapTagError(e, action: 'delete');
+      return false;
+    } catch (_) {
+      errorMessage = 'Failed to delete tag.';
       return false;
     } finally {
       isSaving = false;
@@ -284,8 +455,11 @@ abstract class _CustomerStore with Store {
       await _repository.addTagToCustomer(customerId, tagId);
       await loadCustomers();
       return true;
-    } catch (e) {
-      errorMessage = 'Failed to add tag: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapTagError(e, action: 'assign');
+      return false;
+    } catch (_) {
+      errorMessage = 'Failed to assign tag.';
       return false;
     } finally {
       isSaving = false;
@@ -299,8 +473,11 @@ abstract class _CustomerStore with Store {
       await _repository.removeTagFromCustomer(customerId, tagId);
       await loadCustomers();
       return true;
-    } catch (e) {
-      errorMessage = 'Failed to remove tag: $e';
+    } on DioException catch (e) {
+      errorMessage = _mapTagError(e, action: 'remove');
+      return false;
+    } catch (_) {
+      errorMessage = 'Failed to remove tag.';
       return false;
     } finally {
       isSaving = false;

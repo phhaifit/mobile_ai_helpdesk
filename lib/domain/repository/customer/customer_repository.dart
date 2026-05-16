@@ -15,7 +15,8 @@ abstract class CustomerRepository {
 
   Future<Customer> updateCustomer(Customer customer);
 
-  Future<bool> checkValidEmail(String email);
+  /// Returns `true` if the email is available (not already in use by another customer).
+  Future<bool> checkEmailAvailability(String email);
 
   Future<void> deleteCustomer(String id);
 

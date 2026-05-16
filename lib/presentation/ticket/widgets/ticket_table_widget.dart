@@ -1,8 +1,9 @@
+import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 import 'ticket_card_widget.dart';
 import 'ticket_column_selector_dialog.dart';
@@ -20,13 +21,11 @@ class TicketTableWidget extends StatelessWidget {
   final bool hasMore;
 
   const TicketTableWidget({
-    super.key,
-    required this.tickets,
+    required this.tickets, required this.currentAgentId, super.key,
     this.onAcceptTicket,
     this.onCancelTicket,
     this.onViewDetails,
     this.selectedTabIndex = 1,
-    required this.currentAgentId,
     this.onLoadMore,
     this.isLoadingMore = false,
     this.hasMore = true,
@@ -37,15 +36,19 @@ class TicketTableWidget extends StatelessWidget {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     if (tickets.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 48.0),
+          padding: EdgeInsets.symmetric(vertical: 48.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.inbox_outlined, size: 64, color: AppColors.dividerColor),
-              const SizedBox(height: 16),
-              const Text(
+              Icon(
+                Icons.inbox_outlined,
+                size: 64,
+                color: AppColors.dividerColor,
+              ),
+              SizedBox(height: 16),
+              Text(
                 'Không có phiếu nào',
                 style: TextStyle(
                   fontSize: 16,
@@ -53,9 +56,9 @@ class TicketTableWidget extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 4),
-              const Text(
-                'Nhấn "Thêm phiếu" để tạo phiếu mới',
+              SizedBox(height: 4),
+              Text(
+                'Nhấn nút "Thêm phiếu" phía trên để tạo phiếu mới',
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
             ],

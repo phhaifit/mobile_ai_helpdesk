@@ -9,7 +9,6 @@ part of 'playground_session.dart';
 PlaygroundSession _$PlaygroundSessionFromJson(Map<String, dynamic> json) =>
     PlaygroundSession(
       id: json['id'] as String,
-      agentId: json['agentId'] as String?,
       contextType: $enumDecode(
         _$PlaygroundContextTypeEnumMap,
         json['contextType'],
@@ -19,6 +18,7 @@ PlaygroundSession _$PlaygroundSessionFromJson(Map<String, dynamic> json) =>
               .map((e) => PlaygroundMessage.fromJson(e as Map<String, dynamic>))
               .toList(),
       createdAt: DateTime.parse(json['createdAt'] as String),
+      agentId: json['agentId'] as String?,
     );
 
 Map<String, dynamic> _$PlaygroundSessionToJson(PlaygroundSession instance) =>

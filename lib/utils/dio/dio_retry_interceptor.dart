@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 
@@ -8,15 +9,20 @@ class RetryInterceptor extends Interceptor {
   final RetryOptions options;
   final bool shouldLog;
 
-  RetryInterceptor(
-      {required this.dio, RetryOptions? options, this.shouldLog = true})
-      : this.options = options ?? const RetryOptions();
+  RetryInterceptor({
+    required this.dio,
+    RetryOptions? options,
+    this.shouldLog = true,
+  }) : options = options ?? const RetryOptions();
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     var extra = RetryOptions.fromExtra(err.requestOptions, options);
 
-    var shouldRetry = extra.retries > 0 && await options.retryEvaluator(err);
+    final shouldRetry = extra.retries > 0 && await options.retryEvaluator(err);
     if (!shouldRetry) {
       return super.onError(err, handler);
     }
@@ -27,12 +33,15 @@ class RetryInterceptor extends Interceptor {
 
     // Update options to decrease retry count before new try
     extra = extra.copyWith(retries: extra.retries - 1);
-    err.requestOptions.extra = err.requestOptions.extra
-      ..addAll(extra.toExtra());
+    err.requestOptions.extra =
+        err.requestOptions.extra..addAll(extra.toExtra());
 
-    if (shouldLog)
-      print(
-          '[${err.requestOptions.uri}] An error occurred during request, trying a again (remaining tries: ${extra.retries}, error: ${err.error})');
+    if (shouldLog) {
+      log(
+        '[${err.requestOptions.uri}] An error occurred during request, trying a again '
+        '(remaining tries: ${extra.retries}, error: ${err.error})',
+      );
+    }
     // We retry with the updated options
     await dio
         .request(
@@ -44,12 +53,14 @@ class RetryInterceptor extends Interceptor {
           queryParameters: err.requestOptions.queryParameters,
           options: err.requestOptions.toOptions(),
         )
-        .then((value) => handler.resolve(value),
-            onError: (error) => handler.reject(error as DioException));
+        .then(
+          (value) => handler.resolve(value),
+          onError: (error) => handler.reject(error as DioException),
+        );
   }
 }
 
-typedef FutureOr<bool> RetryEvaluator(DioException error);
+typedef RetryEvaluator = FutureOr<bool> Function(DioException error);
 
 extension RequestOptionsExtensions on RequestOptions {
   Options toOptions() {
@@ -86,24 +97,21 @@ class RetryOptions {
   /// with concurrency though).
   ///
   /// Defaults to [defaultRetryEvaluator].
-  RetryEvaluator get retryEvaluator =>
-      this._retryEvaluator ?? defaultRetryEvaluator;
+  RetryEvaluator get retryEvaluator => _retryEvaluator ?? defaultRetryEvaluator;
 
   final RetryEvaluator? _retryEvaluator;
 
-  const RetryOptions(
-      {this.retries = 3,
-      RetryEvaluator? retryEvaluator,
-      this.retryInterval = const Duration(seconds: 1)})
-      : this._retryEvaluator = retryEvaluator;
+  const RetryOptions({
+    this.retries = 3,
+    RetryEvaluator? retryEvaluator,
+    this.retryInterval = const Duration(seconds: 1),
+  }) : _retryEvaluator = retryEvaluator;
 
   factory RetryOptions.noRetry() {
-    return RetryOptions(
-      retries: 0,
-    );
+    return const RetryOptions(retries: 0);
   }
 
-  static const extraKey = "cache_retry_request";
+  static const extraKey = 'cache_retry_request';
 
   /// Returns [true] only if the response hasn't been cancelled or got
   /// a bad status code.
@@ -115,14 +123,13 @@ class RetryOptions {
   }
 
   factory RetryOptions.fromExtra(
-      RequestOptions request, RetryOptions defaultOptions) {
+    RequestOptions request,
+    RetryOptions defaultOptions,
+  ) {
     return (request.extra[extraKey] as RetryOptions?) ?? defaultOptions;
   }
 
-  RetryOptions copyWith({
-    int? retries,
-    Duration? retryInterval,
-  }) =>
+  RetryOptions copyWith({int? retries, Duration? retryInterval}) =>
       RetryOptions(
         retries: retries ?? this.retries,
         retryInterval: retryInterval ?? this.retryInterval,
@@ -130,13 +137,15 @@ class RetryOptions {
 
   Map<String, dynamic> toExtra() => {extraKey: this};
 
-  Options toOptions() => Options(extra: this.toExtra());
+  Options toOptions() => Options(extra: toExtra());
 
   Options mergeIn(Options options) {
     return options.copyWith(
-        extra: <String, dynamic>{}
-          ..addAll(options.extra ?? {})
-          ..addAll(this.toExtra()));
+      extra:
+          <String, dynamic>{}
+            ..addAll(options.extra ?? {})
+            ..addAll(toExtra()),
+    );
   }
 
   @override

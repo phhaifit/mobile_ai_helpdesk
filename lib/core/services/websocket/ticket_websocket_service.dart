@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:socket_io_client/socket_io_client.dart' as sio;
-
 import 'package:ai_helpdesk/data/models/ticket/comment_api_model.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
+import 'package:flutter/foundation.dart';
+import 'package:socket_io_client/socket_io_client.dart' as sio;
 
 /// Manages a Socket.io connection for real-time chat-room message updates.
 ///

@@ -8,30 +8,38 @@ class TeamApi {
 
   final DioClient _dioClient;
 
+  /// Fetches all team members for the current tenant.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<List<TeamMember>> getMembers(String tenantId) async {
-    final response = await _dioClient.dio.get(Endpoints.tenantMembers(tenantId));
+    final response = await _dioClient.dio.get(Endpoints.members());
     final items = ApiResponseParser.asMapList(response.data);
     return items.map(TeamMember.fromJson).toList(growable: false);
   }
 
+  /// Fetches a specific team member by ID.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<TeamMember> getMemberById({
     required String tenantId,
     required String memberId,
   }) async {
     final response = await _dioClient.dio.get(
-      Endpoints.tenantMember(tenantId, memberId),
+      Endpoints.member(memberId),
     );
     return TeamMember.fromJson(ApiResponseParser.asMap(response.data));
   }
 
+  /// Creates a new team member.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<TeamMember> createMember(TeamMember member) async {
     final response = await _dioClient.dio.post(
-      Endpoints.tenantMembers(member.tenantId),
+      Endpoints.members(),
       data: member.toJson(),
     );
     return TeamMember.fromJson(ApiResponseParser.asMap(response.data));
   }
 
+  /// Updates an existing team member.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<TeamMember> updateMember(TeamMember member) async {
     final payload = <String, dynamic>{
       'role': member.role.name,
@@ -41,18 +49,20 @@ class TeamApi {
       'permissions': member.permissions.map((permission) => permission.toJson()).toList(),
     };
     final response = await _dioClient.dio.patch(
-      Endpoints.tenantMember(member.tenantId, member.id),
+      Endpoints.member(member.id),
       data: payload,
     );
     return TeamMember.fromJson(ApiResponseParser.asMap(response.data));
   }
 
+  /// Deletes a team member.
+  /// tenantId is injected via TenantHeaderInterceptor.
   Future<bool> deleteMember({
     required String tenantId,
     required String memberId,
   }) async {
     final response = await _dioClient.dio.delete(
-      Endpoints.tenantMember(tenantId, memberId),
+      Endpoints.member(memberId),
     );
     return ApiResponseParser.asDeleteSuccess(response.data);
   }

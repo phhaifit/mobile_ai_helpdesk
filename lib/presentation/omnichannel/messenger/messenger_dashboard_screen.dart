@@ -49,6 +49,12 @@ class _MessengerDashboardScreenState extends State<MessengerDashboardScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -56,7 +62,10 @@ class _MessengerDashboardScreenState extends State<MessengerDashboardScreen> {
                     children: [
                       Text(
                         data.pageName,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -69,6 +78,7 @@ class _MessengerDashboardScreenState extends State<MessengerDashboardScreen> {
                       const SizedBox(height: 8),
                       Text(
                         '${l.translate('omnichannel_last_sync')}: ${formatDateTime(data.lastSyncAt)}',
+                        style: const TextStyle(color: Colors.black54),
                       ),
                     ],
                   ),
@@ -110,11 +120,26 @@ class _MessengerDashboardScreenState extends State<MessengerDashboardScreen> {
     required String route,
   }) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      color: Colors.white,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+      ),
       child: ListTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(color: Colors.black54),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.black54),
         onTap: () => Navigator.pushNamed(context, route),
       ),
     );
