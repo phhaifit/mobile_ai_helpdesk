@@ -16,14 +16,15 @@
 ///         SizedBox(16)
 ///         _buildActionCard('Tạo chiến dịch mới', Icons.add_circle_outline, Routes.campaignCreate)
 ///         _buildActionCard('Cài đặt Facebook Admin', Icons.admin_panel_settings, Routes.facebookAdminSetup)
+library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class MarketingScreen extends StatefulWidget {
   final bool showAppBar;

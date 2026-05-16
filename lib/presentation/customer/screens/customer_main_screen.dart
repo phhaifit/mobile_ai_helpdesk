@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import 'customer_list_screen.dart';
-import 'customer_detail_screen.dart';
 import 'customer_add_edit_screen.dart';
+import 'customer_detail_screen.dart';
+import 'customer_list_screen.dart';
 import 'customer_merge_screen.dart';
 
 enum CustomerViewInfo { list, detail, add, edit, merge }
@@ -13,7 +13,7 @@ enum CustomerViewInfo { list, detail, add, edit, merge }
 class CustomerMainScreen extends StatefulWidget {
   final VoidCallback onMenuTap;
 
-  const CustomerMainScreen({super.key, required this.onMenuTap});
+  const CustomerMainScreen({required this.onMenuTap, super.key});
 
   @override
   State<CustomerMainScreen> createState() => _CustomerMainScreenState();
@@ -74,10 +74,7 @@ class _CustomerMainScreenState extends State<CustomerMainScreen> {
           onMerge: _showMerge,
         );
       case CustomerViewInfo.add:
-        return CustomerAddEditScreen(
-          store: _store,
-          onBack: _showList,
-        );
+        return CustomerAddEditScreen(store: _store, onBack: _showList);
       case CustomerViewInfo.edit:
         return CustomerAddEditScreen(
           customer: _selectedCustomer,

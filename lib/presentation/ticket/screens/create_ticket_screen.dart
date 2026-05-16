@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/add_contact_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 
@@ -15,9 +15,7 @@ class CreateTicketScreenBody extends StatefulWidget {
   final ValueChanged<Ticket>? onCreated;
 
   const CreateTicketScreenBody({
-    super.key,
-    required this.onClose,
-    required this.store,
+    required this.onClose, required this.store, super.key,
     this.onCreated,
   });
 
@@ -201,9 +199,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Tiêu đề: ',
               style: TextStyle(
                 fontSize: 14,
@@ -211,7 +209,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,
@@ -306,9 +304,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Tên khách hàng: ',
               style: TextStyle(
                 fontSize: 14,
@@ -316,7 +314,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,
@@ -564,9 +562,9 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Text(
+            Text(
               'Thông tin liên lạc: ',
               style: TextStyle(
                 fontSize: 14,
@@ -574,7 +572,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
                 color: AppColors.textPrimary,
               ),
             ),
-            const Text(
+            Text(
               '*',
               style: TextStyle(
                 color: Colors.red,

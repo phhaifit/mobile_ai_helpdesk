@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
 final _getIt = GetIt.instance;
 
 class EditTicketScreen extends StatefulWidget {
   final Ticket ticket;
 
-  const EditTicketScreen({super.key, required this.ticket});
+  const EditTicketScreen({required this.ticket, super.key});
 
   @override
   State<EditTicketScreen> createState() => _EditTicketScreenState();

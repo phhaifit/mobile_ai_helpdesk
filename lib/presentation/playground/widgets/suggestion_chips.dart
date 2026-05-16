@@ -7,9 +7,7 @@ class SuggestionChips extends StatelessWidget {
   final ValueChanged<String> onSelected;
 
   const SuggestionChips({
-    super.key,
-    required this.suggestions,
-    required this.onSelected,
+    required this.suggestions, required this.onSelected, super.key,
   });
 
   @override

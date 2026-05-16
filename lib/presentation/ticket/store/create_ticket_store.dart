@@ -1,11 +1,11 @@
-import 'package:mobx/mobx.dart';
 import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/contact_info.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
+import 'package:mobx/mobx.dart';
 
 part 'create_ticket_store.g.dart';
 

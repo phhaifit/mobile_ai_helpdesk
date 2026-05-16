@@ -71,12 +71,8 @@ abstract class _TeamStore with Store {
     final membersResult = await _accountRepository.getTenantMembers();
     final invs = await _invitationRepository.getInvitations(tenantId);
     runInAction(() {
-      teamMembers
-        ..clear();
-      membersResult.fold(
-        (_) {},
-        (members) => teamMembers.addAll(members),
-      );
+      teamMembers.clear();
+      membersResult.fold((_) {}, (members) => teamMembers.addAll(members));
       invitations
         ..clear()
         ..addAll(invs);
@@ -177,7 +173,9 @@ abstract class _TeamStore with Store {
   Future<bool> deleteInvitation(String invitationId) async {
     isLoading = true;
     try {
-      final deleted = await _invitationRepository.deleteInvitation(invitationId);
+      final deleted = await _invitationRepository.deleteInvitation(
+        invitationId,
+      );
       if (deleted) {
         await _syncListsFromRepository();
       }
@@ -189,7 +187,6 @@ abstract class _TeamStore with Store {
       isLoading = false;
     }
   }
-
 
   static const List<Permission> _adminPermissionSet = [
     Permission(code: 'tenant:members:invite'),
@@ -206,7 +203,7 @@ abstract class _TeamStore with Store {
     switch (role) {
       case TeamRole.admin:
         return List<Permission>.from(_adminPermissionSet);
-      case TeamRole.customer_support:
+      case TeamRole.customerSupport:
         return List<Permission>.from(_memberPermissionSet);
     }
   }
@@ -228,9 +225,10 @@ abstract class _TeamStore with Store {
       if (existing == null) {
         return false;
       }
-      final permissions = existing.role == role
-          ? List<Permission>.from(existing.permissions)
-          : _permissionsForRole(role);
+      final permissions =
+          existing.role == role
+              ? List<Permission>.from(existing.permissions)
+              : _permissionsForRole(role);
       final trimmed = displayName?.trim();
       final phone = phoneNumber?.trim();
       final updated = await _teamRepository.updateMember(

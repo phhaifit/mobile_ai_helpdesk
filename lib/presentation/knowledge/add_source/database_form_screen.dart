@@ -308,7 +308,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
         : (preview.rows.isNotEmpty
             ? preview.rows.first.keys.toList(growable: false)
             : <String>[]);
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[200]!),
         borderRadius: BorderRadius.circular(8),

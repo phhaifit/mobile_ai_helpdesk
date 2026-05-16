@@ -16,6 +16,7 @@ class ChatRoomTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
+      splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -46,12 +47,10 @@ class ChatRoomTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 13,
-                            color: hasUnread
-                                ? AppColors.textPrimary
-                                : Colors.grey,
-                            fontWeight: hasUnread
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                            color:
+                                hasUnread ? AppColors.textPrimary : Colors.grey,
+                            fontWeight:
+                                hasUnread ? FontWeight.w600 : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -60,12 +59,10 @@ class ChatRoomTile extends StatelessWidget {
                         _formatTime(room.lastMessageTime),
                         style: TextStyle(
                           fontSize: 12,
-                          color: hasUnread
-                              ? AppColors.messengerBlue
-                              : Colors.grey,
-                          fontWeight: hasUnread
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          color:
+                              hasUnread ? AppColors.messengerBlue : Colors.grey,
+                          fontWeight:
+                              hasUnread ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     ],

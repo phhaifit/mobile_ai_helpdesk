@@ -21,8 +21,10 @@ class Ticket {
   final String customerId;
   final String customerName;
   final String customerEmail;
+  final String? chatRoomId;
   final String? assignedAgentId;
   final String? assignedAgentName;
+  final String? customerSupportName;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? resolvedAt;
@@ -47,10 +49,12 @@ class Ticket {
     required this.customerEmail,
     required this.createdByID,
     required this.createdByName,
-    this.assignedAgentId,
-    this.assignedAgentName,
     required this.createdAt,
     required this.updatedAt,
+    this.chatRoomId,
+    this.assignedAgentId,
+    this.assignedAgentName,
+    this.customerSupportName,
     this.resolvedAt,
     this.notes,
     this.attachments = const [],
@@ -74,10 +78,12 @@ class Ticket {
     String? customerEmail,
     String? createdByID,
     String? createdByName,
-    Object? assignedAgentId = _ticketFieldUnset,
-    Object? assignedAgentName = _ticketFieldUnset,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Object? chatRoomId = _ticketFieldUnset,
+    Object? assignedAgentId = _ticketFieldUnset,
+    Object? assignedAgentName = _ticketFieldUnset,
+    Object? customerSupportName = _ticketFieldUnset,
     DateTime? resolvedAt,
     String? notes,
     List<String>? attachments,
@@ -100,14 +106,24 @@ class Ticket {
       customerEmail: customerEmail ?? this.customerEmail,
       createdByID: createdByID ?? this.createdByID,
       createdByName: createdByName ?? this.createdByName,
-      assignedAgentId: identical(assignedAgentId, _ticketFieldUnset)
-          ? this.assignedAgentId
-          : assignedAgentId as String?,
-      assignedAgentName: identical(assignedAgentName, _ticketFieldUnset)
-          ? this.assignedAgentName
-          : assignedAgentName as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      chatRoomId:
+          identical(chatRoomId, _ticketFieldUnset)
+              ? this.chatRoomId
+              : chatRoomId as String?,
+      assignedAgentId:
+          identical(assignedAgentId, _ticketFieldUnset)
+              ? this.assignedAgentId
+              : assignedAgentId as String?,
+      assignedAgentName:
+          identical(assignedAgentName, _ticketFieldUnset)
+              ? this.assignedAgentName
+              : assignedAgentName as String?,
+      customerSupportName:
+          identical(customerSupportName, _ticketFieldUnset)
+              ? this.customerSupportName
+              : customerSupportName as String?,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       notes: notes ?? this.notes,
       attachments: attachments ?? this.attachments,

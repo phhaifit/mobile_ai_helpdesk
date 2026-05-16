@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
+import 'package:flutter/material.dart';
 
 class HistoryItemWidget extends StatelessWidget {
   final TicketHistory entry;
   final bool isLast;
 
   const HistoryItemWidget({
-    super.key,
-    required this.entry,
+    required this.entry, super.key,
     this.isLast = false,
   });
 

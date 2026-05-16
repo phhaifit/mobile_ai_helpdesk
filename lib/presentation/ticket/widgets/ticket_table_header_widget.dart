@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:flutter/material.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 import 'ticket_table_columns.dart';
 
@@ -22,7 +23,7 @@ class TicketTableHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Table(
         columnWidths: TicketTableColumns.buildTableWidths(visibleColumns),

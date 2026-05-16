@@ -3,7 +3,15 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'invitation.g.dart';
 
-enum InvitationStatus { pending, accepted, revoked, expired, declined, expired_declined }
+enum InvitationStatus {
+  pending,
+  accepted,
+  revoked,
+  expired,
+  declined,
+  @JsonValue('expired_declined')
+  expiredDeclined,
+}
 
 @JsonSerializable()
 class Invitation {
@@ -32,9 +40,10 @@ class Invitation {
   });
 
   factory Invitation.fromJson(Map<String, dynamic> json) {
-    final raw = json['data'] is Map<String, dynamic>
-        ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
-        : json;
+    final raw =
+        json['data'] is Map<String, dynamic>
+            ? Map<String, dynamic>.from(json['data'] as Map<String, dynamic>)
+            : json;
 
     return Invitation(
       id: _readString(raw, const ['id', 'invitationID']) ?? '',
@@ -52,10 +61,7 @@ class Invitation {
 
   Map<String, dynamic> toJson() => _$InvitationToJson(this);
 
-  static String? _readString(
-    Map<String, dynamic> json,
-    List<String> keys,
-  ) {
+  static String? _readString(Map<String, dynamic> json, List<String> keys) {
     for (final key in keys) {
       final value = json[key];
       if (value is String && value.trim().isNotEmpty) {
@@ -89,27 +95,38 @@ class Invitation {
   }
 
   static TeamRole _parseTeamRole(String? roleString) {
-    if (roleString == null) return TeamRole.customer_support;
-    try {
-      return TeamRole.values.firstWhere(
-        (role) => role.name.toUpperCase() == roleString.toUpperCase(),
-        orElse: () => TeamRole.customer_support,
-      );
-    } catch (_) {
-      return TeamRole.customer_support;
+    if (roleString == null) return TeamRole.customerSupport;
+    final normalized = roleString.toLowerCase();
+    if (normalized == 'admin' || normalized == 'administrator') {
+      return TeamRole.admin;
     }
+    if (normalized == 'customer_support' ||
+        normalized == 'customer-support' ||
+        normalized == 'customersupport') {
+      return TeamRole.customerSupport;
+    }
+    return TeamRole.customerSupport;
   }
 
   static InvitationStatus _parseInvitationStatus(String? statusString) {
     if (statusString == null) return InvitationStatus.pending;
     final normalized = statusString.toLowerCase();
-    try {
-      return InvitationStatus.values.firstWhere(
-        (status) => status.name == normalized,
-        orElse: () => InvitationStatus.pending,
-      );
-    } catch (_) {
-      return InvitationStatus.pending;
+    switch (normalized) {
+      case 'accepted':
+        return InvitationStatus.accepted;
+      case 'revoked':
+        return InvitationStatus.revoked;
+      case 'expired':
+        return InvitationStatus.expired;
+      case 'declined':
+        return InvitationStatus.declined;
+      case 'expired_declined':
+      case 'expired-declined':
+      case 'expireddeclined':
+        return InvitationStatus.expiredDeclined;
+      case 'pending':
+      default:
+        return InvitationStatus.pending;
     }
   }
 }

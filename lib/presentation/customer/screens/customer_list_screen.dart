@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+
 import '../widgets/customer_filter_sheet.dart';
 
 class CustomerListScreen extends StatefulWidget {
@@ -13,11 +14,11 @@ class CustomerListScreen extends StatefulWidget {
   final VoidCallback onAddCustomer;
 
   const CustomerListScreen({
-    super.key,
     required this.store,
     required this.onMenuTap,
     required this.onSelectCustomer,
     required this.onAddCustomer,
+    super.key,
   });
 
   @override
@@ -36,7 +37,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       widget.store.loadCustomers(isLoadMore: true);
     }
   }
@@ -66,6 +68,49 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     return name.substring(0, 1).toUpperCase();
   }
 
+  Widget _buildErrorState(BuildContext context, String code) {
+    final l10n = AppLocalizations.of(context);
+    final messageKey = switch (code) {
+      'load_subscription' => 'customer_list_error_subscription',
+      'load_permission' => 'customer_list_error_permission',
+      'load_not_found' => 'customer_list_error_not_found',
+      _ => 'customer_list_error_generic',
+    };
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 56, color: Colors.orange.shade400),
+            const SizedBox(height: 16),
+            Text(
+              l10n.translate('customer_list_error_title'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.translate(messageKey),
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => widget.store.loadCustomers(),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(l10n.translate('customer_list_retry')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,10 +123,16 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           icon: const Icon(Icons.menu),
           onPressed: widget.onMenuTap,
         ),
-        title: Text(AppLocalizations.of(context).translate('customer_list_title'), style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          AppLocalizations.of(context).translate('customer_list_title'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_add_alt_1, color: AppColors.primaryBlue),
+            icon: const Icon(
+              Icons.person_add_alt_1,
+              color: AppColors.primaryBlue,
+            ),
             onPressed: widget.onAddCustomer,
           ),
         ],
@@ -95,46 +146,60 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Observer(
-                      builder: (_) => TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context).translate('customer_list_search_hint'),
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 14),
-                          suffixIcon: widget.store.searchQuery.isNotEmpty 
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey, size: 18),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  widget.store.setSearchQuery('');
-                                },
-                              )
-                            : null,
-                        ),
-                        onChanged: (val) => widget.store.setSearchQuery(val),
-                      ),
+                      builder:
+                          (_) => TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(
+                                context,
+                              ).translate('customer_list_search_hint'),
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: Colors.grey,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                              suffixIcon:
+                                  widget.store.searchQuery.isNotEmpty
+                                      ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear,
+                                          color: Colors.grey,
+                                          size: 18,
+                                        ),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          widget.store.setSearchQuery('');
+                                        },
+                                      )
+                                      : null,
+                            ),
+                            onChanged:
+                                (val) => widget.store.setSearchQuery(val),
+                          ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withOpacity(0.1),
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.tune, color: AppColors.primaryBlue),
                     onPressed: () => _showFilter(context),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -144,14 +209,30 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 if (widget.store.isLoading && widget.store.customers.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                if (widget.store.customers.isEmpty &&
+                    widget.store.errorMessage != null) {
+                  return _buildErrorState(context, widget.store.errorMessage!);
+                }
                 if (widget.store.customers.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inbox_rounded, size: 64, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.inbox_rounded,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 16),
-                        Text(AppLocalizations.of(context).translate('customer_list_empty'), style: TextStyle(color: Colors.grey.shade600, fontSize: 16)),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          ).translate('customer_list_empty'),
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -159,7 +240,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                 return ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.all(12),
-                  itemCount: widget.store.customers.length + (widget.store.isLoadingMore ? 1 : 0),
+                  itemCount:
+                      widget.store.customers.length +
+                      (widget.store.isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index >= widget.store.customers.length) {
                       return const Padding(
@@ -186,16 +269,25 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor: AppColors.primaryBlue.withOpacity(0.1),
-                                backgroundImage: customer.avatarUrl != null && customer.avatarUrl!.isNotEmpty 
-                                  ? NetworkImage(customer.avatarUrl!) 
-                                  : null,
-                                child: (customer.avatarUrl == null || customer.avatarUrl!.isEmpty)
-                                  ? Text(
-                                      _getInitials(customer.fullName),
-                                      style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16),
-                                    )
-                                  : null,
+                                backgroundColor: AppColors.primaryBlue
+                                    .withValues(alpha: 0.1),
+                                backgroundImage:
+                                    customer.avatarUrl != null &&
+                                            customer.avatarUrl!.isNotEmpty
+                                        ? NetworkImage(customer.avatarUrl!)
+                                        : null,
+                                child:
+                                    (customer.avatarUrl == null ||
+                                            customer.avatarUrl!.isEmpty)
+                                        ? Text(
+                                          _getInitials(customer.fullName),
+                                          style: const TextStyle(
+                                            color: AppColors.primaryBlue,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                        : null,
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -203,26 +295,39 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            customer.fullName, 
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                            customer.fullName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                         if (customer.tags.isNotEmpty)
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: AppColors.primaryBlue.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: AppColors.primaryBlue
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Text(
                                               customer.tags.first.name,
-                                              style: const TextStyle(fontSize: 10, color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors.primaryBlue,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                       ],
@@ -231,18 +336,33 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                     Builder(
                                       builder: (context) {
                                         final List<Widget> rows = [];
-                                        Widget buildRow(IconData icon, String text) {
+                                        Widget buildRow(
+                                          IconData icon,
+                                          String text,
+                                        ) {
                                           return Padding(
-                                            padding: const EdgeInsets.only(bottom: 4.0),
+                                            padding: const EdgeInsets.only(
+                                              bottom: 4.0,
+                                            ),
                                             child: Row(
                                               children: [
-                                                Icon(icon, size: 14, color: Colors.grey.shade500),
+                                                Icon(
+                                                  icon,
+                                                  size: 14,
+                                                  color: Colors.grey.shade500,
+                                                ),
                                                 const SizedBox(width: 6),
                                                 Expanded(
-                                                  child: Text(text, 
-                                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                                                  child: Text(
+                                                    text,
+                                                    style: TextStyle(
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                      fontSize: 13,
+                                                    ),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -250,13 +370,58 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                           );
                                         }
 
-                                        if (customer.phones.isNotEmpty) rows.add(buildRow(Icons.phone_outlined, customer.phones.first));
-                                        if (customer.emails.isNotEmpty) rows.add(buildRow(Icons.email_outlined, customer.emails.first));
-                                        if (customer.zalos.isNotEmpty) rows.add(buildRow(Icons.chat_bubble_outline, '${AppLocalizations.of(context).translate('customer_list_zalo')}: ${customer.zalos.first}'));
-                                        if (customer.messengers.isNotEmpty) rows.add(buildRow(Icons.message_outlined, '${AppLocalizations.of(context).translate('customer_list_messenger')}: ${customer.messengers.first}'));
-                                        
-                                        if (rows.isEmpty) return Text(AppLocalizations.of(context).translate('customer_list_no_contact'), style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic, fontSize: 13));
-                                        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
+                                        if (customer.phones.isNotEmpty) {
+                                          rows.add(
+                                            buildRow(
+                                              Icons.phone_outlined,
+                                              customer.phones.first,
+                                            ),
+                                          );
+                                        }
+                                        if (customer.emails.isNotEmpty) {
+                                          rows.add(
+                                            buildRow(
+                                              Icons.email_outlined,
+                                              customer.emails.first,
+                                            ),
+                                          );
+                                        }
+                                        if (customer.zalos.isNotEmpty) {
+                                          rows.add(
+                                            buildRow(
+                                              Icons.chat_bubble_outline,
+                                              '${AppLocalizations.of(context).translate('customer_list_zalo')}: ${customer.zalos.first}',
+                                            ),
+                                          );
+                                        }
+                                        if (customer.messengers.isNotEmpty) {
+                                          rows.add(
+                                            buildRow(
+                                              Icons.message_outlined,
+                                              '${AppLocalizations.of(context).translate('customer_list_messenger')}: ${customer.messengers.first}',
+                                            ),
+                                          );
+                                        }
+
+                                        if (rows.isEmpty) {
+                                          return Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            ).translate(
+                                              'customer_list_no_contact',
+                                            ),
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: 13,
+                                            ),
+                                          );
+                                        }
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: rows,
+                                        );
                                       },
                                     ),
                                   ],

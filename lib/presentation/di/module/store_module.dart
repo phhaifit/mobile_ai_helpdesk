@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/monitoring/sentry/sentry_service.dart';
+import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
 import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
@@ -13,12 +14,15 @@ import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
@@ -71,7 +75,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -79,10 +82,10 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
-import 'package:ai_helpdesk/presentation/auth/edit_profile/store/edit_profile_store.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
@@ -97,7 +100,6 @@ import 'package:ai_helpdesk/presentation/monetization/store/monetization_store.d
 import 'package:ai_helpdesk/presentation/omnichannel/store/omnichannel_store.dart';
 import 'package:ai_helpdesk/presentation/playground/store/playground_store.dart';
 import 'package:ai_helpdesk/presentation/prompt/store/prompt_store.dart';
-import 'package:ai_helpdesk/core/services/websocket/ticket_websocket_service.dart';
 import 'package:ai_helpdesk/presentation/splash/store/splash_store.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
@@ -119,6 +121,11 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
+import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
+import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/audience_selection_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
@@ -157,7 +164,6 @@ class StoreModule {
         sentryService: getIt<SentryService>(),
       ),
     );
-
     getIt.registerFactory<SplashStore>(
       () => SplashStore(
         authRepository: getIt<AuthRepository>(),
@@ -165,7 +171,6 @@ class StoreModule {
         authStore: getIt<AuthStore>(),
       ),
     );
-
     getIt.registerFactory<SignInEmailStore>(
       () => SignInEmailStore(
         sendOtpUseCase: getIt<SendOtpUseCase>(),
@@ -175,7 +180,6 @@ class StoreModule {
         analyticsService: getIt<AnalyticsService>(),
       ),
     );
-
     getIt.registerFactory<VerifyOtpStore>(
       () => VerifyOtpStore(
         verifyOtpUseCase: getIt<VerifyOtpUseCase>(),
@@ -185,14 +189,16 @@ class StoreModule {
         analyticsService: getIt<AnalyticsService>(),
       ),
     );
-
-    getIt.registerFactory<EditProfileStore>(
-      () => EditProfileStore(
+    getIt.registerFactory<ProfileStore>(
+      () => ProfileStore(
         updateAccountUseCase: getIt<UpdateAccountUseCase>(),
+        uploadAvatarUseCase: getIt<UploadAvatarUseCase>(),
+        deleteAvatarUseCase: getIt<DeleteAvatarUseCase>(),
         authStore: getIt<AuthStore>(),
       ),
     );
 
+    // --- Session Store ---
     getIt.registerSingleton<SessionStore>(SessionStore());
 
     // --- Ticket Stores ---
@@ -235,6 +241,13 @@ class StoreModule {
     );
 
     // --- Customer Store ---
+    getIt.registerFactory<CustomerDetailStore>(
+      () => CustomerDetailStore(
+        getIt<CustomerRepository>(),
+        getIt<GetCustomerHistoryUseCase>(),
+        getIt<GetCustomerChatRoomsUseCase>(),
+      ),
+    );
     getIt.registerLazySingleton<CustomerStore>(
       () => CustomerStore(getIt<CustomerRepository>()),
     );
@@ -282,18 +295,19 @@ class StoreModule {
     getIt.registerFactory<OmnichannelStore>(
       () => OmnichannelStore(
         getIt<GetOmnichannelOverviewUseCase>(),
-        getIt<ConnectMessengerUseCase>(),
         getIt<DisconnectMessengerUseCase>(),
         getIt<SyncMessengerDataUseCase>(),
         getIt<UpdateMessengerSettingsUseCase>(),
         getIt<DisconnectZaloUseCase>(),
         getIt<RetryZaloSyncUseCase>(),
         getIt<UpdateZaloAssignmentsUseCase>(),
+        getIt<SendZaloMessageUseCase>(),
         getIt<GenerateZaloQrUseCase>(),
         getIt<GetZaloQrStatusUseCase>(),
         getIt<ConnectZaloUseCase>(),
       ),
     );
+
     // --- Monetization Store ---
     getIt.registerFactory(
       () => MonetizationStore(
@@ -338,7 +352,6 @@ class StoreModule {
         getIt<EventBus>(),
       ),
     );
-
     getIt.registerFactory<MarketingBroadcastStore>(
       () => MarketingBroadcastStore(
         getIt<GetBroadcastTemplatesUseCase>(),
@@ -365,11 +378,8 @@ class StoreModule {
         getIt<AnalyticsService>(),
       ),
     );
-
     getIt.registerFactory<AudienceSelectionStore>(
-      () => AudienceSelectionStore(
-        getIt<GetBroadcastRecipientsUseCase>(),
-      ),
+      () => AudienceSelectionStore(getIt<GetBroadcastRecipientsUseCase>()),
     );
 
     // --- AI Agent Store ---
@@ -390,6 +400,15 @@ class StoreModule {
         getIt<GetSessionsUseCase>(),
         getIt<CreateSessionUseCase>(),
         getIt<SendPlaygroundMessageUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Jarvis Store ---
+    getIt.registerLazySingleton<JarvisStore>(
+      () => JarvisStore(
+        getIt<SendJarvisMessageUseCase>(),
+        getIt<ConfirmHitlUseCase>(),
         getIt<ErrorStore>(),
       ),
     );

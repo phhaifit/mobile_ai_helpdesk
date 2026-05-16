@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:ai_helpdesk/data/repository/knowledge/knowledge_exception.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
-import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -19,6 +18,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
+import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:mobx/mobx.dart';
 
 part 'knowledge_store.g.dart';

@@ -30,6 +30,7 @@ import '../../../domain/analytics/analytics_service.dart';
 
 part 'chat_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {

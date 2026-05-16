@@ -1,6 +1,6 @@
+import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
 
 class AppThemeData {
   static const _lightFillColor = Colors.black;
@@ -41,6 +41,35 @@ class AppThemeData {
         ),
         contentTextStyle: _textTheme.titleMedium!.apply(color: _darkFillColor),
       ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryBlue,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primaryBlue,
+          side: const BorderSide(color: AppColors.primaryBlue, width: 1.5),
+          minimumSize: const Size.fromHeight(50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+        ),
+      ),
     );
   }
 
@@ -51,8 +80,8 @@ class AppThemeData {
     secondaryContainer: Color(0xFFFAFBFB),
     surface: Colors.white,
     error: AppColors.errorRed,
-    onError: _lightFillColor,
-    onPrimary: _lightFillColor,
+    onError: Colors.white,
+    onPrimary: Colors.white,
     onSecondary: Color(0xFF322942),
     onSurface: AppColors.textPrimary,
     brightness: Brightness.light,
@@ -66,7 +95,7 @@ class AppThemeData {
     surface: Color(0xFF1F1929),
     error: _darkFillColor,
     onError: _darkFillColor,
-    onPrimary: _darkFillColor,
+    onPrimary: Colors.black87,
     onSecondary: _darkFillColor,
     onSurface: _darkFillColor,
     brightness: Brightness.dark,

@@ -50,6 +50,12 @@ class _MessengerCustomerSyncScreenState
             padding: const EdgeInsets.all(16),
             children: [
               Card(
+                color: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -57,6 +63,7 @@ class _MessengerCustomerSyncScreenState
                     children: [
                       Text(
                         '${l.translate('omnichannel_last_sync')}: ${formatDateTime(messenger.lastSyncAt)}',
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ],
                   ),

@@ -1,3 +1,7 @@
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:event_bus/event_bus.dart';
 
 import '/constants/env.dart';
@@ -12,9 +16,6 @@ import '/core/events/auth_events.dart';
 import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
-
-import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
-import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import '/data/network/apis/account/account_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
@@ -75,8 +76,7 @@ class NetworkModule {
         onRefreshFailed: () {
           getIt<EventBus>().fire(const AuthUnauthorizedEvent());
         },
-        dio: () =>
-            getIt<DioClient>(instanceName: helpdeskDioName).dio,
+        dio: () => getIt<DioClient>(instanceName: helpdeskDioName).dio,
       ),
     );
 
@@ -88,9 +88,9 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<StackHeadersInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     final helpdeskDio = DioClient(
       dioConfigs: DioConfigs(
@@ -99,12 +99,12 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     // AI-Services host (knowledge base, AI agents, response templates, media).
     // Same Bearer + tenant header as Helpdesk; refresh-token interceptor
@@ -143,6 +143,8 @@ class NetworkModule {
     );
     getIt.registerSingleton<CustomerApi>(CustomerApi(getIt<DioClient>()));
     getIt.registerSingleton<TagApi>(TagApi(getIt<DioClient>()));
+    getIt.registerSingleton<TicketApi>(TicketApi(getIt<DioClient>()));
+    getIt.registerSingleton<ChatRoomApi>(ChatRoomApi(getIt<DioClient>()));
     getIt.registerSingleton<AccountApi>(
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );
@@ -160,6 +162,8 @@ class NetworkModule {
     getIt.registerSingleton<TicketWebSocketService>(
       TicketWebSocketService(
         getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+        getTenantId: () async =>
+            await getIt<SharedPreferenceHelper>().tenantId,
       ),
     );
 

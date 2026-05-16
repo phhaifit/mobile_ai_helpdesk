@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/constants/analytics_events.dart';
 import 'package:ai_helpdesk/data/network/realtime/marketing_broadcast_realtime_service.dart';
+import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing_broadcast.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/create_broadcast_usecase.dart';
@@ -21,8 +23,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/select_facebook_a
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
-import 'package:ai_helpdesk/constants/analytics_events.dart';
-import 'package:ai_helpdesk/domain/analytics/analytics_service.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:mobx/mobx.dart';
 

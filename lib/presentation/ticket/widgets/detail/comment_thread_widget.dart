@@ -1,13 +1,13 @@
+import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_input_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_item_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_input_widget.dart';
 
 class CommentThreadWidget extends StatelessWidget {
   final TicketDetailStore store;
 
-  const CommentThreadWidget({super.key, required this.store});
+  const CommentThreadWidget({required this.store, super.key});
 
   @override
   Widget build(BuildContext context) {

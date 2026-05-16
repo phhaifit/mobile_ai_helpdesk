@@ -94,8 +94,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     _textController.addListener(_onComposerChanged);
-    if (_promptStore.prompts.isEmpty) {
-      _promptStore.loadPrompts(useNetworkDelay: false);
+    if (_promptStore.templates.isEmpty) {
+      _promptStore.loadTemplates();
     }
 
     _inputFocusNode.addListener(_onInputFocusChanged);
@@ -177,12 +177,11 @@ class _ChatScreenState extends State<ChatScreen> {
           ? _textController.text.substring(1)
           : '';
 
-  void _applyPrompt(Prompt p) {
-    _textController.text = p.body;
+  void _applyPrompt(ResponseTemplate p) {
+    _textController.text = p.template;
     _textController.selection =
         TextSelection.collapsed(offset: _textController.text.length);
     setState(() => _slashMode = false);
-    _promptStore.incrementUsage(p.id);
   }
 
   void _onInputFocusChanged() {

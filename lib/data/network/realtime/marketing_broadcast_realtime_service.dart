@@ -159,11 +159,9 @@ class MarketingBroadcastRealtimeService {
 
     unawaited(session.disposeWebSocketOnly());
 
-    if (session.pollingTimer == null) {
-      session.pollingTimer = Timer.periodic(session.pollingInterval, (_) {
-        unawaited(_pollLatestStatus(session));
-      });
-    }
+    session.pollingTimer ??= Timer.periodic(session.pollingInterval, (_) {
+      unawaited(_pollLatestStatus(session));
+    });
 
     unawaited(_pollLatestStatus(session));
     _scheduleReconnect(session);

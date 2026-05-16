@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/account/account.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
+import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:file_picker/file_picker.dart';
@@ -30,11 +31,6 @@ class AccountMenuSheet extends StatelessWidget {
     await Navigator.of(context).pushNamed(Routes.profile);
   }
 
-  Future<void> _openEdit(BuildContext context) async {
-    Navigator.pop(context);
-    await Navigator.of(context).pushNamed(Routes.editProfile);
-  }
-
   Future<void> _uploadAvatar(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context);
@@ -59,6 +55,29 @@ class AccountMenuSheet extends StatelessWidget {
           SnackBar(content: Text(l.translate('profile_avatar_upload_success'))),
         );
       },
+    );
+  }
+
+  Future<void> _chooseLanguage(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final languageStore = getIt<LanguageStore>();
+    Navigator.pop(context);
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(l.translate('home_tv_choose_language')),
+        children: languageStore.supportedLanguages.map((language) {
+          final selected = language.locale == languageStore.locale;
+          return ListTile(
+            leading: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off),
+            title: Text(language.language),
+            onTap: () {
+              if (!selected) languageStore.changeLanguage(language.locale);
+              Navigator.pop(dialogContext);
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -156,15 +175,17 @@ class AccountMenuSheet extends StatelessWidget {
             onTap: () => _openProfile(context),
           ),
           ListTile(
-            leading: const Icon(Icons.edit_outlined),
-            title: Text(l.translate('profile_menu_edit')),
-            onTap: () => _openEdit(context),
-          ),
-          ListTile(
             leading: const Icon(Icons.camera_alt_outlined),
             title: Text(l.translate('profile_menu_change_avatar')),
             onTap: () => _uploadAvatar(context),
           ),
+          ListTile(
+            leading: const Icon(Icons.language_outlined),
+            title: Text(l.translate('profile_menu_language')),
+            subtitle: Text(_currentLanguageLabel()),
+            onTap: () => _chooseLanguage(context),
+          ),
+          const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: Text(
@@ -181,4 +202,11 @@ class AccountMenuSheet extends StatelessWidget {
 
   bool get _hasAvatar =>
       account.profilePicture != null && account.profilePicture!.isNotEmpty;
+
+  String _currentLanguageLabel() {
+    final store = getIt<LanguageStore>();
+    final match = store.supportedLanguages
+        .where((language) => language.locale == store.locale);
+    return match.isEmpty ? store.locale : match.first.language;
+  }
 }

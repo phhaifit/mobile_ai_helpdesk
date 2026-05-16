@@ -21,9 +21,9 @@ class PlaygroundMessage {
     required this.id,
     required this.content,
     required this.role,
-    this.isStreaming = false,
     required this.attachments,
     required this.timestamp,
+    this.isStreaming = false,
   });
 
   factory PlaygroundMessage.fromJson(Map<String, dynamic> json) =>
@@ -38,13 +38,12 @@ class PlaygroundMessage {
     bool? isStreaming,
     List<String>? attachments,
     DateTime? timestamp,
-  }) =>
-      PlaygroundMessage(
-        id: id ?? this.id,
-        content: content ?? this.content,
-        role: role ?? this.role,
-        isStreaming: isStreaming ?? this.isStreaming,
-        attachments: attachments ?? this.attachments,
-        timestamp: timestamp ?? this.timestamp,
-      );
+  }) => PlaygroundMessage(
+    id: id ?? this.id,
+    content: content ?? this.content,
+    role: role ?? this.role,
+    isStreaming: isStreaming ?? this.isStreaming,
+    attachments: attachments ?? this.attachments,
+    timestamp: timestamp ?? this.timestamp,
+  );
 }

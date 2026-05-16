@@ -20,11 +20,11 @@ class Customer {
   const Customer({
     required this.id,
     required this.fullName,
+    required this.createdAt,
     this.emails = const [],
     this.phones = const [],
     this.zalos = const [],
     this.messengers = const [],
-    required this.createdAt,
     this.lastContactedAt,
     this.totalTickets = 0,
     this.tags = const [],

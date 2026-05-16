@@ -173,16 +173,6 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
     return _$fetchOverviewAsyncAction.run(() => super.fetchOverview());
   }
 
-  late final _$connectMessengerAsyncAction = AsyncAction(
-    '_OmnichannelStore.connectMessenger',
-    context: context,
-  );
-
-  @override
-  Future<void> connectMessenger() {
-    return _$connectMessengerAsyncAction.run(() => super.connectMessenger());
-  }
-
   late final _$disconnectMessengerAsyncAction = AsyncAction(
     '_OmnichannelStore.disconnectMessenger',
     context: context,
@@ -262,6 +252,21 @@ mixin _$OmnichannelStore on _OmnichannelStore, Store {
   Future<void> updateZaloAssignments(List<ZaloAssignmentUpdate> updates) {
     return _$updateZaloAssignmentsAsyncAction.run(
       () => super.updateZaloAssignments(updates),
+    );
+  }
+
+  late final _$sendZaloMessageAsyncAction = AsyncAction(
+    '_OmnichannelStore.sendZaloMessage',
+    context: context,
+  );
+
+  @override
+  Future<void> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) {
+    return _$sendZaloMessageAsyncAction.run(
+      () => super.sendZaloMessage(recipient: recipient, message: message),
     );
   }
 
