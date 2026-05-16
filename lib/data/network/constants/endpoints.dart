@@ -318,12 +318,12 @@ class Endpoints {
 
   // Jarvis Agent endpoints
   static String jarvisMessage(String tenantId) =>
-      '/api/v1/ai-agents/tenants/$tenantId/messages';
+      '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/message';
   static String jarvisConfirm(String tenantId) =>
-      '/api/v1/ai-agents/tenants/$tenantId/confirm';
+      '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/confirm';
 
   // Media endpoints
-  static String uploadFile(String tenantId) => '/api/v1/media/$tenantId/upload';
+  static String uploadFile(String tenantId) => '/api/v1/media/save-file/$tenantId';
 
   // ---- WebSocket ----------------------------------------------------------
   static String ticketWebSocket(String ticketId) {

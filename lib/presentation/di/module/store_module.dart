@@ -91,6 +91,9 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
+import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
@@ -372,6 +375,15 @@ class StoreModule {
 
     // --- Jarvis Store ---
     getIt.registerFactory<JarvisStore>(
+      () => JarvisStore(
+        getIt<SendJarvisMessageUseCase>(),
+        getIt<ConfirmHitlUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Jarvis Store ---
+    getIt.registerLazySingleton<JarvisStore>(
       () => JarvisStore(
         getIt<SendJarvisMessageUseCase>(),
         getIt<ConfirmHitlUseCase>(),

@@ -9,6 +9,7 @@ import '/domain/entity/ai_agent/ai_agent.dart';
 import '/domain/entity/playground/playground_session.dart';
 import '/domain/repository/playground/playground_repository.dart';
 import '/domain/usecase/media/upload_file_usecase.dart';
+import '/presentation/auth/store/auth_store.dart';
 import '/presentation/jarvis/store/jarvis_store.dart';
 import '/presentation/playground/store/playground_store.dart';
 import '/presentation/playground/widgets/context_selector.dart';
@@ -48,6 +49,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   late final PlaygroundStore _store;
   late final JarvisStore _jarvisStore;
+  late final AuthStore _authStore;
   late final SharedPreferenceHelper _prefs;
   final ScrollController _scrollCtrl = ScrollController();
   final TextEditingController _inputCtrl = TextEditingController();
@@ -62,6 +64,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     super.initState();
     _store = getIt<PlaygroundStore>();
     _jarvisStore = getIt<JarvisStore>();
+    _authStore = getIt<AuthStore>();
     _prefs = getIt<SharedPreferenceHelper>();
     _store.fetchSessions().then((_) {
       if (_store.sessions.isNotEmpty && _store.activeSession == null) {
@@ -131,7 +134,9 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         );
         urls.add(media.url);
       } catch (_) {
-        // Skip files that fail to upload — don't block the message.
+          // Fallback: show local filename in the bubble even if upload fails,
+          // so the user can see what was attached during demo.
+          urls.add(file.name);
       }
     }
 
@@ -177,10 +182,11 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   Future<void> _fetchDraftFromJarvis(String text, List<String> imageUrls) async {
     final tenantId = await _resolveTenantId();
+    final userId = _authStore.account?.accountId ?? tenantId;
 
     final response = await _jarvisStore.sendMessage(
       tenantId: tenantId,
-      userId: tenantId,
+      userId: userId,
       userRole: 'agent',
       message: text,
       sessionId: _store.activeSession?.id,

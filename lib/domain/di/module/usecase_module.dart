@@ -3,6 +3,11 @@ import 'dart:async';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
@@ -352,6 +357,11 @@ class UseCaseModule {
     );
     getIt.registerSingleton<ConfirmHitlUseCase>(
       ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
+    // Media (file upload) Use Cases:-------------------------------------------
+    getIt.registerSingleton<UploadFileUseCase>(
+      UploadFileUseCase(getIt<MediaRepository>()),
     );
 
     // Knowledge Use Cases:-----------------------------------------------------
