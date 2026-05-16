@@ -13,24 +13,23 @@ class AiAgentApi {
   Future<Map<String, dynamic>> getAgentByTenant(String tenantId) async {
     debugPrint('[AiAgentApi] getAgentByTenant called');
     try {
-      final response = await _dioClient.dio
-          .get<Map<String, dynamic>>(Endpoints.agentsByTenant(tenantId));
-      return response.data ?? {};
+      final response = await _dioClient.dio.get<Map<String, dynamic>>(
+        Endpoints.agentsByTenant(tenantId),
+      );
+      return _extractPayloadMap(response.data);
     } on DioException catch (e) {
       _logApiError('getAgentByTenant', e);
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> createAgent(
-    String tenantId,
-  ) async {
+  Future<Map<String, dynamic>> createAgent(String tenantId) async {
     debugPrint('[AiAgentApi] createAgent called');
     try {
       final response = await _dioClient.dio.post<Map<String, dynamic>>(
         Endpoints.agentsByTenant(tenantId),
       );
-      return response.data ?? {};
+      return _extractPayloadMap(response.data);
     } on DioException catch (e) {
       _logApiError('createAgent', e);
       rethrow;
@@ -47,7 +46,7 @@ class AiAgentApi {
         Endpoints.agentsByTenant(tenantId),
         data: dto.toJson(),
       );
-      return response.data ?? {};
+      return _extractPayloadMap(response.data);
     } on DioException catch (e) {
       _logApiError('updateAgentByTenant', e);
       rethrow;
@@ -64,7 +63,7 @@ class AiAgentApi {
         Endpoints.agentById(agentId),
         data: dto.toJson(),
       );
-      return response.data ?? {};
+      return _extractPayloadMap(response.data);
     } on DioException catch (e) {
       _logApiError('updateAgentById', e);
       rethrow;
@@ -97,11 +96,20 @@ class AiAgentApi {
         Endpoints.agentInfo(agentId),
         data: body,
       );
-      return response.data ?? {};
+      return _extractPayloadMap(response.data);
     } on DioException catch (e) {
       _logApiError('updateAgentInfo', e);
       rethrow;
     }
+  }
+
+  Map<String, dynamic> _extractPayloadMap(Map<String, dynamic>? data) {
+    if (data == null) return <String, dynamic>{};
+    final nestedData = data['data'];
+    if (nestedData is Map<String, dynamic>) {
+      return nestedData;
+    }
+    return data;
   }
 
   void _logApiError(String action, DioException e) {

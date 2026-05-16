@@ -14,6 +14,7 @@ import '/domain/usecase/playground/stream_draft_response_usecase.dart';
 
 part 'playground_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class PlaygroundStore = _PlaygroundStore with _$PlaygroundStore;
 
 abstract class _PlaygroundStore with Store {
@@ -84,14 +85,17 @@ abstract class _PlaygroundStore with Store {
     errorStore.errorMessage = '';
     final future = _getSessionsUseCase.call(params: null);
     fetchSessionsFuture = ObservableFuture(future);
-    await future.then((result) {
-      sessions = ObservableList.of(result);
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await future
+        .then((result) {
+          sessions = ObservableList.of(result);
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void openSession(PlaygroundSession session) {
     activeSession = session;
   }
@@ -203,9 +207,10 @@ abstract class _PlaygroundStore with Store {
   @action
   void editMessage(String messageId, String newContent) {
     if (activeSession == null) return;
-    final updatedMessages = activeSession!.messages.map((m) {
-      return m.id == messageId ? m.copyWith(content: newContent) : m;
-    }).toList();
+    final updatedMessages =
+        activeSession!.messages.map((m) {
+          return m.id == messageId ? m.copyWith(content: newContent) : m;
+        }).toList();
     activeSession = activeSession!.copyWith(messages: updatedMessages);
   }
 
@@ -222,13 +227,17 @@ abstract class _PlaygroundStore with Store {
     isDraftLoading = true;
     draftResponse = '';
     errorStore.errorMessage = '';
-    await _getDraftResponseUseCase.call(params: params).then((text) {
-      draftResponse = text;
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    }).whenComplete(() {
-      isDraftLoading = false;
-    });
+    await _getDraftResponseUseCase
+        .call(params: params)
+        .then((text) {
+          draftResponse = text;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        })
+        .whenComplete(() {
+          isDraftLoading = false;
+        });
   }
 
   @action
@@ -241,10 +250,11 @@ abstract class _PlaygroundStore with Store {
     final stream = _streamDraftResponseUseCase.call(params: params);
     _draftStreamSubscription = stream.listen(
       (chunk) => runInAction(() => draftResponse += chunk),
-      onError: (dynamic e) => runInAction(() {
-        errorStore.errorMessage = e.toString();
-        isDraftStreaming = false;
-      }),
+      onError:
+          (dynamic e) => runInAction(() {
+            errorStore.errorMessage = e.toString();
+            isDraftStreaming = false;
+          }),
       onDone: () => runInAction(() => isDraftStreaming = false),
     );
   }

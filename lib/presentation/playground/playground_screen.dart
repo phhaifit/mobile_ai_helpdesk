@@ -134,9 +134,9 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         );
         urls.add(media.url);
       } catch (_) {
-          // Fallback: show local filename in the bubble even if upload fails,
-          // so the user can see what was attached during demo.
-          urls.add(file.name);
+        // Fallback: show local filename in the bubble even if upload fails,
+        // so the user can see what was attached during demo.
+        urls.add(file.name);
       }
     }
 
@@ -162,14 +162,15 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   DraftResponseParams _buildDraftParams(PlaygroundSession session) {
     return DraftResponseParams(
-      chatHistory: session.messages
-          .map(
-            (message) => <String, String>{
-              'role': message.role.name,
-              'content': message.content,
-            },
-          )
-          .toList(),
+      chatHistory:
+          session.messages
+              .map(
+                (message) => <String, String>{
+                  'role': message.role.name,
+                  'content': message.content,
+                },
+              )
+              .toList(),
       channel: _contextType == PlaygroundContextType.lazada ? 'lazada' : 'chat',
       type: 'draft_response',
       defaultConfigType: const <String>['playground'],
@@ -180,7 +181,10 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     );
   }
 
-  Future<void> _fetchDraftFromJarvis(String text, List<String> imageUrls) async {
+  Future<void> _fetchDraftFromJarvis(
+    String text,
+    List<String> imageUrls,
+  ) async {
     final tenantId = await _resolveTenantId();
     final userId = _authStore.account?.accountId ?? tenantId;
 
@@ -256,24 +260,27 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return AppBar(
       automaticallyImplyLeading: false,
       leading: Builder(
-        builder: (ctx) => Navigator.canPop(ctx)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(ctx),
-              )
-            : IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(ctx).openDrawer(),
-              ),
+        builder:
+            (ctx) =>
+                Navigator.canPop(ctx)
+                    ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(ctx),
+                    )
+                    : IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () => Scaffold.of(ctx).openDrawer(),
+                    ),
       ),
       title: Text(l.translate('playground_title')),
       actions: [
         Observer(
-          builder: (_) => IconButton(
-            icon: const Icon(Icons.add_comment_outlined),
-            tooltip: l.translate('playground_new_session'),
-            onPressed: _newSession,
-          ),
+          builder:
+              (_) => IconButton(
+                icon: const Icon(Icons.add_comment_outlined),
+                tooltip: l.translate('playground_new_session'),
+                onPressed: _newSession,
+              ),
         ),
       ],
     );
@@ -294,9 +301,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         ),
         const Divider(height: 1),
         Expanded(
-          child: Observer(
-            builder: (_) => _buildMessagesArea(suggestions),
-          ),
+          child: Observer(builder: (_) => _buildMessagesArea(suggestions)),
         ),
         if (_showDrafts)
           DraftResponsePanel(
@@ -305,13 +310,14 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             onDismiss: _dismissDrafts,
           ),
         Observer(
-          builder: (_) => PlaygroundInputBar(
-            enabled: _store.activeSession != null && !_store.isStreaming,
-            controller: _inputCtrl,
-            onSend: _onSend,
-            onAttachmentsChanged: (list) =>
-                setState(() => _pendingAttachments = list),
-          ),
+          builder:
+              (_) => PlaygroundInputBar(
+                enabled: _store.activeSession != null && !_store.isStreaming,
+                controller: _inputCtrl,
+                onSend: _onSend,
+                onAttachmentsChanged:
+                    (list) => setState(() => _pendingAttachments = list),
+              ),
         ),
       ],
     );
@@ -335,10 +341,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       return Column(
         children: [
           const SizedBox(height: 16),
-          SuggestionChips(
-            suggestions: suggestions,
-            onSelected: _onSend,
-          ),
+          SuggestionChips(suggestions: suggestions, onSelected: _onSend),
         ],
       );
     }
@@ -370,34 +373,35 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     final ctrl = TextEditingController(text: currentContent);
     showDialog<String>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context).translate('playground_edit_message'),
-        ),
-        content: TextField(
-          controller: ctrl,
-          maxLines: 4,
-          autofocus: true,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.of(context).translate('ai_agent_cancel'),
+      builder:
+          (_) => AlertDialog(
+            title: Text(
+              AppLocalizations.of(context).translate('playground_edit_message'),
             ),
-          ),
-          FilledButton(
-            onPressed: () {
-              _store.editMessage(messageId, ctrl.text.trim());
-              Navigator.pop(context);
-            },
-            child: Text(
-              AppLocalizations.of(context).translate('ai_agent_save'),
+            content: TextField(
+              controller: ctrl,
+              maxLines: 4,
+              autofocus: true,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  AppLocalizations.of(context).translate('ai_agent_cancel'),
+                ),
+              ),
+              FilledButton(
+                onPressed: () {
+                  _store.editMessage(messageId, ctrl.text.trim());
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  AppLocalizations.of(context).translate('ai_agent_save'),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     ).then((_) => ctrl.dispose());
   }
 }

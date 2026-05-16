@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '/data/local/datasources/playground/playground_datasource.dart';
 import '/data/network/apis/ai_agent/ai_agent_api.dart';
 import '/data/network/apis/playground/playground_api.dart';
-import '/data/network/models/request/chat_completion_request.dart';
+import '/data/network/models/request/ask_question_request.dart';
 import '/data/network/models/request/chat_message.dart';
 import '/data/network/models/request/draft_response_request.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
@@ -60,8 +60,7 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
   Future<PlaygroundSession> createSession(
     PlaygroundContextType contextType,
     String? agentId,
-  ) =>
-      _dataSource.createSession(contextType, agentId);
+  ) => _dataSource.createSession(contextType, agentId);
 
   @override
   Future<PlaygroundMessage> sendMessage(
@@ -79,15 +78,16 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     final activeAgentId = await _requireActiveAgentId(tenantId);
 
     // 2. Build chat history from current session messages.
-    final history = session.messages
-        .map((m) => ChatMessage(role: m.role.name, content: m.content))
-        .toList();
+    final history =
+        session.messages
+            .map((m) => ChatMessage(role: m.role.name, content: m.content))
+            .toList();
 
-    // 3. Call real API then persist messages locally.
+    // 3. Call playground/chat API then persist messages locally.
     try {
-      final realText = await _api.chatComplete(
+      final realText = await _api.askAgent(
         activeAgentId,
-        ChatCompletionRequest(prompt: content, chatHistory: history),
+        AskQuestionRequest(question: content, chatHistory: history),
       );
 
       return await _dataSource.sendMessage(
@@ -106,8 +106,7 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     String sessionId,
     String messageId,
     String newContent,
-  ) =>
-      _dataSource.editMessage(sessionId, messageId, newContent);
+  ) => _dataSource.editMessage(sessionId, messageId, newContent);
 
   @override
   Future<String> getDraftResponse(DraftResponseParams params) async {
@@ -133,23 +132,29 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     yield* _api.streamDraftResponse(tenantId, req);
   }
 
-  DraftResponseRequest _toRequest(DraftResponseParams params, String tenantId) =>
-      DraftResponseRequest(
-        chatHistory: params.chatHistory
-            .map((m) => ChatMessage(
-                  role: m['role'] ?? '',
-                  content: m['content'] ?? '',
-                ))
+  DraftResponseRequest _toRequest(
+    DraftResponseParams params,
+    String tenantId,
+  ) => DraftResponseRequest(
+    chatHistory:
+        params.chatHistory
+            .map(
+              (m) => ChatMessage(
+                role: m['role'] ?? '',
+                content: m['content'] ?? '',
+              ),
+            )
             .toList(),
-        channel: params.channel,
-        type: params.type,
-        defaultConfigType: params.defaultConfigType
-          .map((item) => <String, dynamic>{'value': item})
-          .toList(),
-        tenantID: tenantId,
-        ticketID: params.ticketID,
-        chatRoomID: params.chatRoomID,
-        customerID: params.customerID,
-        channelProfileOverrides: params.channelProfileOverrides,
-      );
+    channel: params.channel,
+    type: params.type,
+    defaultConfigType:
+        params.defaultConfigType
+            .map((item) => <String, dynamic>{'value': item})
+            .toList(),
+    tenantID: tenantId,
+    ticketID: params.ticketID,
+    chatRoomID: params.chatRoomID,
+    customerID: params.customerID,
+    channelProfileOverrides: params.channelProfileOverrides,
+  );
 }

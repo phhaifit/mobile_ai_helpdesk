@@ -29,10 +29,7 @@ class PlaygroundApi {
     }
   }
 
-  Future<String> chatComplete(
-    String agentId,
-    ChatCompletionRequest req,
-  ) async {
+  Future<String> chatComplete(String agentId, ChatCompletionRequest req) async {
     debugPrint('[PlaygroundApi] chatComplete called');
     try {
       final response = await _dioClient.dio.post<dynamic>(
@@ -64,14 +61,16 @@ class PlaygroundApi {
   }
 
   /// Returns a [Stream<String>] of text chunks via Server-Sent Events.
-  /// Each SSE event line starts with `data: `. The stream closes on `[DONE]`
-  /// or when the server closes the connection.
+  /// The backend sends named events such as `draftResponseProgress` and
+  /// `lastDraftResponseUpdate`, with JSON payloads in `data:` lines.
   Stream<String> streamDraftResponse(
     String tenantId,
     DraftResponseRequest req,
   ) {
     debugPrint('[PlaygroundApi] streamDraftResponse called');
     final controller = StreamController<String>();
+    String? currentEvent;
+    var emittedProgressText = false;
 
     _dioClient.dio
         .post<ResponseBody>(
@@ -86,22 +85,26 @@ class PlaygroundApi {
               .transform(const LineSplitter())
               .listen(
                 (line) {
-                  if (!line.startsWith('data: ')) return;
+                  if (line.startsWith('event:')) {
+                    currentEvent = line.substring(6).trim();
+                    return;
+                  }
+                  if (!line.startsWith('data:')) return;
                   final raw = line.substring(6).trim();
                   if (raw == '[DONE]') {
                     controller.close();
                     return;
                   }
-                  try {
-                    final json = jsonDecode(raw) as Map<String, dynamic>;
-                    final text = (json['text'] ??
-                            json['content'] ??
-                            json['message'] ??
-                            '')
-                        .toString();
-                    if (text.isNotEmpty) controller.add(text);
-                  } catch (_) {
-                    if (raw.isNotEmpty) controller.add(raw);
+                  final text = _extractSseText(
+                    raw,
+                    event: currentEvent,
+                    hasProgressText: emittedProgressText,
+                  );
+                  if (text.isNotEmpty) {
+                    if (currentEvent != 'lastDraftResponseUpdate') {
+                      emittedProgressText = true;
+                    }
+                    controller.add(text);
                   }
                 },
                 onError: controller.addError,
@@ -127,14 +130,45 @@ class PlaygroundApi {
     if (data == null) return '';
     if (data is String) return data;
     if (data is Map<String, dynamic>) {
+      final nestedData = data['data'];
+      if (nestedData is Map<String, dynamic>) {
+        final nestedText = _extractText(nestedData);
+        if (nestedText.isNotEmpty) return nestedText;
+      }
       return (data['response'] ??
               data['message'] ??
               data['content'] ??
               data['text'] ??
+              data['answer'] ??
+              data['draftResponse'] ??
+              data['draft'] ??
               '')
           .toString();
     }
     return data.toString();
+  }
+
+  String _extractSseText(
+    String raw, {
+    required String? event,
+    required bool hasProgressText,
+  }) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) {
+        return event == null ? decoded.toString() : '';
+      }
+
+      if (event == 'lastDraftResponseUpdate' && hasProgressText) {
+        return '';
+      }
+
+      final payload = decoded['data'];
+      final map = payload is Map<String, dynamic> ? payload : decoded;
+      return _extractText(map);
+    } catch (_) {
+      return event == null ? raw : '';
+    }
   }
 
   void _logApiError(String action, DioException e) {

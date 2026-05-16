@@ -6,7 +6,8 @@ class Endpoints {
   // Helpdesk host (tenant-scoped endpoints).
   static String get baseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
   static String get helpdeskBaseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
-  static String get aiServiceApiBaseUrl => EnvConfig.instance.aiServiceApiBaseUrl;
+  static String get aiServiceApiBaseUrl =>
+      EnvConfig.instance.aiServiceApiBaseUrl;
 
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
@@ -40,9 +41,11 @@ class Endpoints {
       '/api/v1/ai-agents/tenants/$tenantId';
   static String agentById(String id) => '/api/v1/ai-agents/$id';
   static String agentInfo(String id) => '/api/v1/ai-agents/$id/information';
+  // Used by Playground chat testing.
   static String agentAsk(String id) => '/api/v1/ai-agents/$id/ask';
   static String agentChatComplete(String id) =>
       '/api/v1/ai-agents/$id/chat-complete';
+  // Draft Response endpoints are tenant-scoped.
   static String agentDraftResponse(String tenantId) =>
       '/api/v1/ai-agents/$tenantId/draft-response';
   static String agentDraftResponseStream(String tenantId) =>
@@ -179,6 +182,7 @@ class Endpoints {
       query: '',
     );
   }
+
   static Uri marketingCampaignStatusWsUri(String campaignId) {
     final base = Uri.parse(baseUrl);
     final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
@@ -209,7 +213,8 @@ class Endpoints {
   static String zaloDisconnect() => '/api/v1/zalo/disconnect';
   static String zaloLatestCustomer() => '/api/v1/zalo/latest-customer';
   static String zaloLatestMessages() => '/api/v1/zalo/latest-messages';
-  static String zaloPersonalConnections() => '/api/v1/zalo/personal/connections';
+  static String zaloPersonalConnections() =>
+      '/api/v1/zalo/personal/connections';
   static String zaloPersonalStatus(String channelId) =>
       '/api/v1/zalo/personal/$channelId/status';
   static String zaloPersonalConnect() => '/api/v1/zalo/personal/connect';
@@ -285,6 +290,7 @@ class Endpoints {
       '/api/v1/knowledges/$tenantId/sources';
   static String knowledgeSourcesByType(String tenantId, String apiType) =>
       '/api/v1/knowledges/$tenantId/sources/$apiType';
+
   /// PATCH (status) and DELETE both use this path; method disambiguates.
   static String knowledgeSource(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId';
@@ -323,7 +329,8 @@ class Endpoints {
       '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/confirm';
 
   // Media endpoints
-  static String uploadFile(String tenantId) => '/api/v1/media/save-file/$tenantId';
+  static String uploadFile(String tenantId) =>
+      '/api/v1/media/save-file/$tenantId';
 
   // ---- WebSocket ----------------------------------------------------------
   static String ticketWebSocket(String ticketId) {

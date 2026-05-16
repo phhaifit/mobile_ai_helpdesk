@@ -17,12 +17,12 @@ import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 import '/data/network/apis/account/account_api.dart';
-import '/data/network/apis/auth/stack_auth_api.dart';
-import '/data/network/constants/endpoints.dart';
-import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/apis/ai_agent/ai_agent_api.dart';
+import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/apis/jarvis/jarvis_agent_api.dart';
 import '/data/network/apis/playground/playground_api.dart';
+import '/data/network/constants/endpoints.dart';
+import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import '/data/network/rest_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
@@ -104,13 +104,13 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<StackHeadersInterceptor>(),
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     // AI-Services host (knowledge base, AI agents, response templates, media).
     // Same Bearer + tenant header as Helpdesk; refresh-token interceptor
@@ -123,13 +123,13 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<StackHeadersInterceptor>(),
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     getIt.registerSingleton<DioClient>(authDio, instanceName: authDioName);
     getIt.registerSingleton<DioClient>(

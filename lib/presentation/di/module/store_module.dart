@@ -19,11 +19,18 @@ import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/create_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/delete_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/get_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/get_agents_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/update_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/import_database_query_usecase.dart';
@@ -37,8 +44,6 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
@@ -78,6 +83,11 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/stream_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -91,9 +101,6 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
-import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
@@ -124,17 +131,6 @@ import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_tab_store.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
-import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
-import '../../../domain/usecase/playground/create_session_usecase.dart';
-import '../../../domain/usecase/playground/get_draft_response_usecase.dart';
-import '../../../domain/usecase/playground/get_sessions_usecase.dart';
-import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
-import '../../../domain/usecase/playground/stream_draft_response_usecase.dart';
 // import '../../login/store/login_store.dart';
 import '../../playground/store/playground_store.dart';
 
@@ -369,15 +365,6 @@ class StoreModule {
         getIt<SendPlaygroundMessageUseCase>(),
         getIt<GetDraftResponseUseCase>(),
         getIt<StreamDraftResponseUseCase>(),
-        getIt<ErrorStore>(),
-      ),
-    );
-
-    // --- Jarvis Store ---
-    getIt.registerFactory<JarvisStore>(
-      () => JarvisStore(
-        getIt<SendJarvisMessageUseCase>(),
-        getIt<ConfirmHitlUseCase>(),
         getIt<ErrorStore>(),
       ),
     );
