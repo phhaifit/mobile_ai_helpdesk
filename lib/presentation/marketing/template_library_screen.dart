@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   final bool showAppBar;
@@ -98,7 +98,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<CampaignChannel>(
-                        initialValue: selectedChannel,
+                        value: selectedChannel,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),

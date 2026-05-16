@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/agent_selection_bottom_sheet.dart';
+import 'package:flutter/material.dart';
 
 class TicketAssignmentSectionWidget extends StatelessWidget {
   final Ticket ticket;

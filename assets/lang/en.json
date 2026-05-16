@@ -222,7 +222,7 @@
   "omnichannel_zalo_personal_message_title": "Zalo Personal Message",
   "omnichannel_zalo_recipient_label": "Recipient account",
   "omnichannel_zalo_message_label": "Message content",
-  "omnichannel_zalo_send_button": "Send Mock Message",
+  "omnichannel_zalo_send_button": "Send message",
   "omnichannel_zalo_message_validation": "Recipient and message are required.",
   "omnichannel_generic_error": "Something went wrong. Please try again.",
   "omnichannel_web_redirect_title": "Integration via Web",

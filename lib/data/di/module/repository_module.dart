@@ -12,6 +12,7 @@ import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart'
 import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';

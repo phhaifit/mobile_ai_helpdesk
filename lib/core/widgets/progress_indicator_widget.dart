@@ -22,9 +22,9 @@ class CustomProgressIndicatorWidget extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: const CircularProgressIndicator(),
+              child: const Padding(
+                padding: EdgeInsets.all(25.0),
+                child: CircularProgressIndicator(),
               ),
             ),
           ),

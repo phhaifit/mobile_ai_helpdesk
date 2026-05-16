@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/status_badge_widget.dart';
+import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/priority_badge_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/status_badge_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/ticket_source_widget.dart';
+import 'package:flutter/material.dart';
 
 class TicketDetailHeaderWidget extends StatelessWidget {
   final Ticket ticket;

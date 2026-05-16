@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/create_ticket_store.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/add_contact_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 
@@ -260,7 +260,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: widget.store.selectedCustomer.isEmpty
+          value: widget.store.selectedCustomer.isEmpty
               ? null
               : widget.store.selectedCustomer,
           items: const [
@@ -369,7 +369,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
             final statusColor =
                 AppColors.getStatusColor(widget.store.ticketStatus);
             return DropdownButtonFormField<TicketStatus>(
-              initialValue: widget.store.ticketStatus,
+              value: widget.store.ticketStatus,
               items: TicketStatus.values
                   .map((status) => DropdownMenuItem(
                         value: status,
@@ -446,7 +446,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
             final priorityColor =
                 AppColors.getPriorityColor(widget.store.priority);
             return DropdownButtonFormField<TicketPriority>(
-              initialValue: widget.store.priority,
+              value: widget.store.priority,
               items: TicketPriority.values
                   .map((priority) => DropdownMenuItem(
                         value: priority,
@@ -519,7 +519,7 @@ class _CreateTicketScreenBodyState extends State<CreateTicketScreenBody> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: widget.store.supportPerson.isEmpty
+          value: widget.store.supportPerson.isEmpty
               ? null
               : widget.store.supportPerson,
           items: const [
