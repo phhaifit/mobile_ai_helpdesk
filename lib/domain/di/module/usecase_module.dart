@@ -2,6 +2,11 @@ import 'dart:async';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
@@ -82,6 +87,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecas
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
@@ -201,6 +207,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateZaloAssignmentsUseCase>(
       UpdateZaloAssignmentsUseCase(getIt<OmnichannelRepository>()),
+    );
+    getIt.registerSingleton<SendZaloMessageUseCase>(
+      SendZaloMessageUseCase(getIt<OmnichannelRepository>()),
     );
     // Monetization Use Cases:--------------------------------------------------
     getIt.registerSingleton<GetMonetizationOverviewUseCase>(
@@ -329,6 +338,20 @@ class UseCaseModule {
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
     );
+
+    // Jarvis Agent Use Cases:--------------------------------------------------
+    getIt.registerSingleton<SendJarvisMessageUseCase>(
+      SendJarvisMessageUseCase(getIt<JarvisRepository>()),
+    );
+    getIt.registerSingleton<ConfirmHitlUseCase>(
+      ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
+    // Media (file upload) Use Cases:-------------------------------------------
+    getIt.registerSingleton<UploadFileUseCase>(
+      UploadFileUseCase(getIt<MediaRepository>()),
+    );
+
     // Knowledge Use Cases:-----------------------------------------------------
     final knowledgeRepo = getIt<KnowledgeRepository>();
     getIt.registerSingleton<GetKnowledgeSourcesUseCase>(
