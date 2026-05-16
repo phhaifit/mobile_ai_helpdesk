@@ -21,6 +21,7 @@ import '/data/network/apis/auth/stack_auth_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/apis/ai_agent/ai_agent_api.dart';
+import '/data/network/apis/jarvis/jarvis_agent_api.dart';
 import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
 import '/data/network/rest_client.dart';
@@ -161,6 +162,9 @@ class NetworkModule {
     );
     getIt.registerSingleton<PlaygroundApi>(
       PlaygroundApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<JarvisAgentApi>(
+      JarvisAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
     );
     // websocket:---------------------------------------------------------------
     getIt.registerSingleton<TicketWebSocketService>(

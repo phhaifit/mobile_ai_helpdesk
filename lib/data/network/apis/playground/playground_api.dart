@@ -17,11 +17,16 @@ class PlaygroundApi {
 
   Future<String> askAgent(String agentId, AskQuestionRequest req) async {
     debugPrint('[PlaygroundApi] askAgent called');
-    final response = await _dioClient.dio.post<dynamic>(
-      Endpoints.agentAsk(agentId),
-      data: req.toJson(),
-    );
-    return _extractText(response.data);
+    try {
+      final response = await _dioClient.dio.post<dynamic>(
+        Endpoints.agentAsk(agentId),
+        data: req.toJson(),
+      );
+      return _extractText(response.data);
+    } on DioException catch (e) {
+      _logApiError('askAgent', e);
+      rethrow;
+    }
   }
 
   Future<String> chatComplete(
@@ -29,11 +34,16 @@ class PlaygroundApi {
     ChatCompletionRequest req,
   ) async {
     debugPrint('[PlaygroundApi] chatComplete called');
-    final response = await _dioClient.dio.post<dynamic>(
-      Endpoints.agentChatComplete(agentId),
-      data: req.toJson(),
-    );
-    return _extractText(response.data);
+    try {
+      final response = await _dioClient.dio.post<dynamic>(
+        Endpoints.agentChatComplete(agentId),
+        data: req.toJson(),
+      );
+      return _extractText(response.data);
+    } on DioException catch (e) {
+      _logApiError('chatComplete', e);
+      rethrow;
+    }
   }
 
   Future<String> getDraftResponse(
@@ -41,11 +51,16 @@ class PlaygroundApi {
     DraftResponseRequest req,
   ) async {
     debugPrint('[PlaygroundApi] getDraftResponse called');
-    final response = await _dioClient.dio.post<dynamic>(
-      Endpoints.agentDraftResponse(tenantId),
-      data: req.toJson(),
-    );
-    return _extractText(response.data);
+    try {
+      final response = await _dioClient.dio.post<dynamic>(
+        Endpoints.agentDraftResponse(tenantId),
+        data: req.toJson(),
+      );
+      return _extractText(response.data);
+    } on DioException catch (e) {
+      _logApiError('getDraftResponse', e);
+      rethrow;
+    }
   }
 
   /// Returns a [Stream<String>] of text chunks via Server-Sent Events.
@@ -96,6 +111,9 @@ class PlaygroundApi {
               );
         })
         .catchError((e, st) {
+          if (e is DioException) {
+            _logApiError('streamDraftResponse', e);
+          }
           // ensure types match StreamController.addError(Object, [StackTrace?])
           controller.addError(e as Object, st as StackTrace?);
           return null;
@@ -117,5 +135,16 @@ class PlaygroundApi {
           .toString();
     }
     return data.toString();
+  }
+
+  void _logApiError(String action, DioException e) {
+    final method = e.requestOptions.method;
+    final path = e.requestOptions.path;
+    final statusCode = e.response?.statusCode;
+    final responseData = e.response?.data;
+    debugPrint(
+      '[PlaygroundApi][$action] $method $path failed '
+      '(status: $statusCode) response: $responseData',
+    );
   }
 }

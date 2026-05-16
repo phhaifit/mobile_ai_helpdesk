@@ -37,6 +37,8 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_useca
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/delete_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/disconnect_facebook_admin_usecase.dart';
@@ -99,6 +101,7 @@ import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.da
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/language/language_store.dart';
 import 'package:ai_helpdesk/presentation/home/store/theme/theme_store.dart';
+import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/audience_selection_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
@@ -363,6 +366,15 @@ class StoreModule {
         getIt<SendPlaygroundMessageUseCase>(),
         getIt<GetDraftResponseUseCase>(),
         getIt<StreamDraftResponseUseCase>(),
+        getIt<ErrorStore>(),
+      ),
+    );
+
+    // --- Jarvis Store ---
+    getIt.registerFactory<JarvisStore>(
+      () => JarvisStore(
+        getIt<SendJarvisMessageUseCase>(),
+        getIt<ConfirmHitlUseCase>(),
         getIt<ErrorStore>(),
       ),
     );

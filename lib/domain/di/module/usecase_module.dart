@@ -4,6 +4,7 @@ import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
@@ -26,6 +27,8 @@ import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -337,6 +340,15 @@ class UseCaseModule {
     getIt.registerSingleton<StreamDraftResponseUseCase>(
       StreamDraftResponseUseCase(getIt<PlaygroundRepository>()),
     );
+
+    // --- Jarvis Use Cases ---
+    getIt.registerSingleton<SendJarvisMessageUseCase>(
+      SendJarvisMessageUseCase(getIt<JarvisRepository>()),
+    );
+    getIt.registerSingleton<ConfirmHitlUseCase>(
+      ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
     // Knowledge Use Cases:-----------------------------------------------------
     final knowledgeRepo = getIt<KnowledgeRepository>();
     getIt.registerSingleton<GetKnowledgeSourcesUseCase>(

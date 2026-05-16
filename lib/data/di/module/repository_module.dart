@@ -58,6 +58,7 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/customer/customer_repository.dart';
 import 'package:ai_helpdesk/domain/repository/invitation/invitation_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
@@ -74,17 +75,16 @@ import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../network/apis/ai_agent/ai_agent_api.dart';
+import '../../network/apis/jarvis/jarvis_agent_api.dart';
 import '../../network/apis/playground/playground_api.dart';
 import '../../repository/ai_agent/ai_agent_repository_impl.dart';
+import '../../repository/jarvis/jarvis_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
     final getIt = GetIt.instance;
 
     // --- AI Agent Repository ---
-    getIt.registerSingleton<AiAgentApi>(
-      AiAgentApi(getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName)),
-    );
     getIt.registerSingleton<AiAgentRepository>(
       AiAgentRepositoryImpl(getIt<AiAgentApi>(), getIt<SharedPreferenceHelper>()),
     );
@@ -97,6 +97,11 @@ class RepositoryModule {
         getIt<PlaygroundApi>(),
         getIt<SharedPreferenceHelper>(),
       ),
+    );
+
+    // --- Jarvis Repository ---
+    getIt.registerSingleton<JarvisRepository>(
+      JarvisRepositoryImpl(getIt<JarvisAgentApi>()),
     );
 
     // --- Auth (Stack Auth OTP + OAuth flow) ---
