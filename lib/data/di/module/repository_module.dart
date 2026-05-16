@@ -4,6 +4,12 @@ import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/jarvis/jarvis_agent_api.dart';
+import 'package:ai_helpdesk/data/network/apis/media/media_api.dart';
+import 'package:ai_helpdesk/data/repository/jarvis/jarvis_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/media/media_repository_impl.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
@@ -95,6 +101,26 @@ class RepositoryModule {
     // --- Playground Repository ---
     getIt.registerSingleton<PlaygroundRepository>(
       PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
+    );
+
+    // --- Jarvis Agent Repository ---
+    getIt.registerSingleton<JarvisAgentApi>(
+      JarvisAgentApi(
+        getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName),
+      ),
+    );
+    getIt.registerSingleton<JarvisRepository>(
+      JarvisRepositoryImpl(getIt<JarvisAgentApi>()),
+    );
+
+    // --- Media (file upload) Repository ---
+    getIt.registerSingleton<MediaApi>(
+      MediaApi(
+        getIt<DioClient>(instanceName: NetworkModule.helpdeskDioName),
+      ),
+    );
+    getIt.registerSingleton<MediaRepository>(
+      MediaRepositoryImpl(getIt<MediaApi>()),
     );
 
     // --- Auth (Stack Auth OTP + OAuth flow) ---
