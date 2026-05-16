@@ -14,7 +14,7 @@ abstract class ChatRepository {
 
   Stream<MessageReactionUpdate> watchReactionUpdates();
 
-  Stream<ChatTypingEvent> watchCustomerTyping();
+  Stream<ChatTypingEvent> watchSupportTyping();
 
   Stream<DraftResponseProgress> watchDraftProgress();
 

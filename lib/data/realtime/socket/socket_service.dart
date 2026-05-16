@@ -17,6 +17,7 @@ import '../../../core/events/socket/server/interactions/chat_room_marked_as_seen
 import '../../../core/events/socket/server/interactions/customer_stopped_typing_event.dart';
 import '../../../core/events/socket/server/interactions/customer_typing_indicator_event.dart';
 import '../../../core/events/socket/server/interactions/message_reaction_update_event.dart';
+import '../../../core/events/socket/server/interactions/socket_typing_payload.dart';
 import '../../../core/events/socket/server/messages/email_message_event.dart';
 import '../../../core/events/socket/server/messages/facebook_messenger_message_event.dart';
 import '../../../core/events/socket/server/messages/generic_new_message_event.dart';
@@ -42,8 +43,8 @@ class SocketService {
   String? _tenantId;
 
   final _messageController = StreamController<Message>.broadcast();
-  final _typingController = StreamController<String>.broadcast(); // chatRoomId
-  final _stopTypingController = StreamController<String>.broadcast();
+  final _typingController = StreamController<SocketTypingPayload>.broadcast();
+  final _stopTypingController = StreamController<SocketTypingPayload>.broadcast();
   final _customerTypingController = StreamController<String>.broadcast();
   final _customerStopTypingController = StreamController<String>.broadcast();
   final _seenController =
@@ -66,8 +67,8 @@ class SocketService {
   SocketService(this._prefs);
 
   Stream<Message> get messages => _messageController.stream;
-  Stream<String> get typing => _typingController.stream;
-  Stream<String> get stopTyping => _stopTypingController.stream;
+  Stream<SocketTypingPayload> get typing => _typingController.stream;
+  Stream<SocketTypingPayload> get stopTyping => _stopTypingController.stream;
   Stream<String> get customerTyping => _customerTypingController.stream;
   Stream<String> get customerStopTyping => _customerStopTypingController.stream;
   Stream<ChatRoomMarkedAsSeenEvent> get seen => _seenController.stream;
@@ -149,13 +150,13 @@ class SocketService {
     socket.on(ZohoDeskMessageEvent.name, onAnyMessage);
 
     socket.on(AgentTypingIndicatorEvent.name, (payload) {
-      final e = AgentTypingIndicatorEvent.parse(payload);
-      if (e != null) _typingController.add(e.chatRoomId);
+      final SocketTypingPayload? e = AgentTypingIndicatorEvent.parse(payload);
+      if (e != null) _typingController.add(e);
     });
 
     socket.on(AgentStoppedTypingEvent.name, (payload) {
-      final e = AgentStoppedTypingEvent.parse(payload);
-      if (e != null) _stopTypingController.add(e.chatRoomId);
+      final SocketTypingPayload? e = AgentStoppedTypingEvent.parse(payload);
+      if (e != null) _stopTypingController.add(e);
     });
 
     socket.on(CustomerTypingIndicatorEvent.name, (payload) {

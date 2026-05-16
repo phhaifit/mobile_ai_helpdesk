@@ -131,21 +131,21 @@ mixin _$ChatStore on _ChatStore, Store {
     });
   }
 
-  late final _$isCustomerTypingAtom = Atom(
-    name: '_ChatStore.isCustomerTyping',
+  late final _$isSupportTypingAtom = Atom(
+    name: '_ChatStore.isSupportTyping',
     context: context,
   );
 
   @override
-  bool get isCustomerTyping {
-    _$isCustomerTypingAtom.reportRead();
-    return super.isCustomerTyping;
+  bool get isSupportTyping {
+    _$isSupportTypingAtom.reportRead();
+    return super.isSupportTyping;
   }
 
   @override
-  set isCustomerTyping(bool value) {
-    _$isCustomerTypingAtom.reportWrite(value, super.isCustomerTyping, () {
-      super.isCustomerTyping = value;
+  set isSupportTyping(bool value) {
+    _$isSupportTypingAtom.reportWrite(value, super.isSupportTyping, () {
+      super.isSupportTyping = value;
     });
   }
 
@@ -514,7 +514,7 @@ currentChatRoomId: ${currentChatRoomId},
 isLoading: ${isLoading},
 isLoadingOlderMessages: ${isLoadingOlderMessages},
 isSendingMessage: ${isSendingMessage},
-isCustomerTyping: ${isCustomerTyping},
+isSupportTyping: ${isSupportTyping},
 typingActorLabel: ${typingActorLabel},
 suggestedReply: ${suggestedReply},
 isSuggestedReplyLoading: ${isSuggestedReplyLoading},

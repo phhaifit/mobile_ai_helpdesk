@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ai_helpdesk/core/events/socket/server/ai/socket_draft_response_progress_event.dart';
+import 'package:ai_helpdesk/core/events/socket/server/interactions/socket_typing_payload.dart';
 import 'package:ai_helpdesk/core/events/socket/server/interactions/message_reaction_update_event.dart';
 import 'package:ai_helpdesk/core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
@@ -44,7 +45,7 @@ class ChatRepositoryImpl implements ChatRepository {
       StreamController<Message>.broadcast();
   final StreamController<MessageReactionUpdate> _reactionController =
       StreamController<MessageReactionUpdate>.broadcast();
-  final StreamController<ChatTypingEvent> _customerTypingController =
+  final StreamController<ChatTypingEvent> _supportTypingController =
       StreamController<ChatTypingEvent>.broadcast();
   final StreamController<DraftResponseProgress> _draftProgressController =
       StreamController<DraftResponseProgress>.broadcast();
@@ -63,15 +64,25 @@ class ChatRepositoryImpl implements ChatRepository {
 
     _socketService.reactions.listen(_handleReactionSocket);
 
-    _socketService.customerTyping.listen((String chatRoomId) {
-      _customerTypingController.add(
-        ChatTypingEvent(chatRoomId: chatRoomId, isTyping: true),
+    _socketService.typing.listen((SocketTypingPayload payload) {
+      _supportTypingController.add(
+        ChatTypingEvent(
+          chatRoomId: payload.chatRoomId,
+          isTyping: true,
+          actorName: payload.fullname,
+          customerSupportId: payload.customerSupportId,
+        ),
       );
     });
 
-    _socketService.customerStopTyping.listen((String chatRoomId) {
-      _customerTypingController.add(
-        ChatTypingEvent(chatRoomId: chatRoomId, isTyping: false),
+    _socketService.stopTyping.listen((SocketTypingPayload payload) {
+      _supportTypingController.add(
+        ChatTypingEvent(
+          chatRoomId: payload.chatRoomId,
+          isTyping: false,
+          actorName: payload.fullname,
+          customerSupportId: payload.customerSupportId,
+        ),
       );
     });
 
@@ -192,9 +203,9 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Stream<ChatTypingEvent> watchCustomerTyping() {
+  Stream<ChatTypingEvent> watchSupportTyping() {
     _listenSocket();
-    return _customerTypingController.stream;
+    return _supportTypingController.stream;
   }
 
   @override

@@ -116,7 +116,7 @@ import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_stop_typing_indica
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_typing_indicator_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart';
@@ -474,8 +474,8 @@ class UseCaseModule {
     getIt.registerSingleton<ObserveReactionUpdatesUseCase>(
       ObserveReactionUpdatesUseCase(getIt<ChatRepository>()),
     );
-    getIt.registerSingleton<ObserveCustomerTypingUseCase>(
-      ObserveCustomerTypingUseCase(getIt<ChatRepository>()),
+    getIt.registerSingleton<ObserveSupportTypingUseCase>(
+      ObserveSupportTypingUseCase(getIt<ChatRepository>()),
     );
     getIt.registerSingleton<ObserveDraftProgressUseCase>(
       ObserveDraftProgressUseCase(getIt<ChatRepository>()),

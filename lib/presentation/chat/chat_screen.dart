@@ -206,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final int messageIndex = reversedMessages.indexWhere((Message m) => m.id == messageId);
 
     if (messageIndex != -1) {
-      final int typingCount = _chatStore.isCustomerTyping ? 1 : 0;
+      final int typingCount = _chatStore.isSupportTyping ? 1 : 0;
       final int scrollIndex = typingCount + messageIndex; // typing indicator is at 0
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _itemScrollController.scrollTo(
@@ -424,7 +424,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final bool showOlderLoader = _chatStore.isLoadingOlderMessages;
                 final int olderLoaderCount = showOlderLoader ? 1 : 0;
-                final int typingCount = _chatStore.isCustomerTyping ? 1 : 0;
+                final int typingCount = _chatStore.isSupportTyping ? 1 : 0;
                 final int itemCount = typingCount + messages.length + olderLoaderCount;
 
                 return ScrollablePositionedList.builder(
@@ -439,9 +439,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (BuildContext context, int index) {
                     // A. Typing Indicator at the Bottom (Index 0)
                     if (typingCount > 0 && index == 0) {
-                      return TypingIndicator(
-                        senderName: _chatStore.typingActorLabel ?? room.name,
-                      );
+                      return TypingIndicator();
                     }
 
                     // B. Messages

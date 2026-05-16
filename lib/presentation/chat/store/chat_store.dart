@@ -17,7 +17,7 @@ import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_ag
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart'
     show NoParams;
@@ -40,7 +40,7 @@ abstract class _ChatStore with Store {
   final GenerateAiDraftResponseUseCase _generateAiDraftResponse;
   final ObserveChatMessagesUseCase _observeChatMessages;
   final ObserveReactionUpdatesUseCase _observeReactionUpdates;
-  final ObserveCustomerTypingUseCase _observeCustomerTyping;
+  final ObserveSupportTypingUseCase _observeSupportTyping;
   final ObserveDraftProgressUseCase _observeDraftProgress;
   final SettingRepository _settingRepository;
   final AnalyticsService _analyticsService;
@@ -66,7 +66,7 @@ abstract class _ChatStore with Store {
     this._chatRepository,
     this._observeChatMessages,
     this._observeReactionUpdates,
-    this._observeCustomerTyping,
+    this._observeSupportTyping,
     this._observeDraftProgress,
     this._settingRepository,
   );
@@ -87,7 +87,7 @@ abstract class _ChatStore with Store {
   bool isSendingMessage = false;
 
   @observable
-  bool isCustomerTyping = false;
+  bool isSupportTyping = false;
 
   @observable
   String? typingActorLabel;
@@ -148,7 +148,7 @@ abstract class _ChatStore with Store {
     isLoading = false;
     isLoadingOlderMessages = false;
     isSendingMessage = false;
-    isCustomerTyping = false;
+    isSupportTyping = false;
     typingActorLabel = null;
     searchQuery = '';
     currentMessages.clear();
@@ -184,7 +184,7 @@ abstract class _ChatStore with Store {
     currentChatRoomId = roomId;
     _currentTicketId = ticketId;
     _currentChannelId = channelId;
-    isCustomerTyping = false;
+    isSupportTyping = false;
     typingActorLabel = null;
 
     _cancelRealtimeSubscriptions();
@@ -204,10 +204,10 @@ abstract class _ChatStore with Store {
       // Messages stream refreshes from repository cache after reaction merge.
     });
 
-    _typingSub = _observeCustomerTyping.call(params: const NoParams()).listen(
+    _typingSub = _observeSupportTyping.call(params: const NoParams()).listen(
       (ChatTypingEvent event) {
         if (event.chatRoomId != roomId) return;
-        isCustomerTyping = event.isTyping;
+        isSupportTyping = event.isTyping;
         typingActorLabel = event.isTyping ? event.actorName : null;
       },
     );

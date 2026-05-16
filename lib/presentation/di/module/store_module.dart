@@ -23,7 +23,7 @@ import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_us
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_customer_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
@@ -251,7 +251,7 @@ class StoreModule {
         getIt<ChatRepository>(),
         getIt<ObserveChatMessagesUseCase>(),
         getIt<ObserveReactionUpdatesUseCase>(),
-        getIt<ObserveCustomerTypingUseCase>(),
+        getIt<ObserveSupportTypingUseCase>(),
         getIt<ObserveDraftProgressUseCase>(),
         getIt<SettingRepository>(),
       ),
