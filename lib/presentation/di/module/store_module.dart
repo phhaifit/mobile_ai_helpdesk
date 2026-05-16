@@ -183,6 +183,8 @@ class StoreModule {
         authStore: getIt<AuthStore>(),
       ),
     );
+
+    // --- Session Store ---
     getIt.registerSingleton<SessionStore>(SessionStore());
 
     // --- Ticket Stores ---

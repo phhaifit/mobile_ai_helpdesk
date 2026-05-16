@@ -155,9 +155,11 @@ class RepositoryModule {
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
     );
 
+    // TicketApi + ChatRoomApi are registered in NetworkModule.
     getIt.registerSingleton<TicketRepository>(
       TicketRepositoryImpl(
         getIt<TicketApi>(),
+        getIt<ChatRoomApi>(),
         getIt<MockTicketRepositoryImpl>(),
         getIt<MockTicketDataSource>(),
       ),
