@@ -308,7 +308,7 @@ class SocketService {
       timestamp: p.createdAt ?? DateTime.now(),
       isMe: isMe,
       attachments: const [],
-      replyMessageId: null,
+      replyPreview: null,
       reactions: const [],
     );
   }

@@ -52,7 +52,7 @@ _$MessageDtoImpl _$$MessageDtoImplFromJson(
           ?.map((e) => MessageReactionDto.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  replyMessage: json['replyMessage'] as Map<String, dynamic>? ?? const {},
+  replyMessage: json['replyMessage'] as Map<String, dynamic>?,
   slackMessage: json['slackMessage'] as Map<String, dynamic>? ?? const {},
   zohoDeskMessage: json['zohoDeskMessage'] as Map<String, dynamic>? ?? const {},
   senderInfo:

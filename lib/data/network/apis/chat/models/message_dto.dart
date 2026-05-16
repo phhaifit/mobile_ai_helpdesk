@@ -32,7 +32,7 @@ class MessageDto with _$MessageDto {
     required TicketInfoDto? ticketInfo,
     @Default([]) List<FileAttachmentDto> files,
     @Default([]) List<MessageReactionDto> reaction,
-    @Default({}) Map<String, dynamic> replyMessage,
+    Map<String, dynamic>? replyMessage,
     @Default({}) Map<String, dynamic> slackMessage,
     @Default({}) Map<String, dynamic> zohoDeskMessage,
     @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,

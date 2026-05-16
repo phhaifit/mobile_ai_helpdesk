@@ -47,7 +47,7 @@ mixin _$MessageDto {
   TicketInfoDto? get ticketInfo => throw _privateConstructorUsedError;
   List<FileAttachmentDto> get files => throw _privateConstructorUsedError;
   List<MessageReactionDto> get reaction => throw _privateConstructorUsedError;
-  Map<String, dynamic> get replyMessage => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get replyMessage => throw _privateConstructorUsedError;
   Map<String, dynamic> get slackMessage => throw _privateConstructorUsedError;
   Map<String, dynamic> get zohoDeskMessage =>
       throw _privateConstructorUsedError;
@@ -91,7 +91,7 @@ abstract class $MessageDtoCopyWith<$Res> {
     TicketInfoDto? ticketInfo,
     List<FileAttachmentDto> files,
     List<MessageReactionDto> reaction,
-    Map<String, dynamic> replyMessage,
+    Map<String, dynamic>? replyMessage,
     Map<String, dynamic> slackMessage,
     Map<String, dynamic> zohoDeskMessage,
     @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
@@ -137,7 +137,7 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
     Object? ticketInfo = freezed,
     Object? files = null,
     Object? reaction = null,
-    Object? replyMessage = null,
+    Object? replyMessage = freezed,
     Object? slackMessage = null,
     Object? zohoDeskMessage = null,
     Object? senderInfo = freezed,
@@ -240,10 +240,10 @@ class _$MessageDtoCopyWithImpl<$Res, $Val extends MessageDto>
                     : reaction // ignore: cast_nullable_to_non_nullable
                         as List<MessageReactionDto>,
             replyMessage:
-                null == replyMessage
+                freezed == replyMessage
                     ? _value.replyMessage
                     : replyMessage // ignore: cast_nullable_to_non_nullable
-                        as Map<String, dynamic>,
+                        as Map<String, dynamic>?,
             slackMessage:
                 null == slackMessage
                     ? _value.slackMessage
@@ -346,7 +346,7 @@ abstract class _$$MessageDtoImplCopyWith<$Res>
     TicketInfoDto? ticketInfo,
     List<FileAttachmentDto> files,
     List<MessageReactionDto> reaction,
-    Map<String, dynamic> replyMessage,
+    Map<String, dynamic>? replyMessage,
     Map<String, dynamic> slackMessage,
     Map<String, dynamic> zohoDeskMessage,
     @JsonKey(name: 'senderInfo') CustomerSupportInfoDto? senderInfo,
@@ -395,7 +395,7 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
     Object? ticketInfo = freezed,
     Object? files = null,
     Object? reaction = null,
-    Object? replyMessage = null,
+    Object? replyMessage = freezed,
     Object? slackMessage = null,
     Object? zohoDeskMessage = null,
     Object? senderInfo = freezed,
@@ -498,10 +498,10 @@ class __$$MessageDtoImplCopyWithImpl<$Res>
                 : reaction // ignore: cast_nullable_to_non_nullable
                     as List<MessageReactionDto>,
         replyMessage:
-            null == replyMessage
+            freezed == replyMessage
                 ? _value._replyMessage
                 : replyMessage // ignore: cast_nullable_to_non_nullable
-                    as Map<String, dynamic>,
+                    as Map<String, dynamic>?,
         slackMessage:
             null == slackMessage
                 ? _value._slackMessage
@@ -545,7 +545,7 @@ class _$MessageDtoImpl implements _MessageDto {
     required this.ticketInfo,
     final List<FileAttachmentDto> files = const [],
     final List<MessageReactionDto> reaction = const [],
-    final Map<String, dynamic> replyMessage = const {},
+    final Map<String, dynamic>? replyMessage,
     final Map<String, dynamic> slackMessage = const {},
     final Map<String, dynamic> zohoDeskMessage = const {},
     @JsonKey(name: 'senderInfo') this.senderInfo,
@@ -627,13 +627,14 @@ class _$MessageDtoImpl implements _MessageDto {
     return EqualUnmodifiableListView(_reaction);
   }
 
-  final Map<String, dynamic> _replyMessage;
+  final Map<String, dynamic>? _replyMessage;
   @override
-  @JsonKey()
-  Map<String, dynamic> get replyMessage {
+  Map<String, dynamic>? get replyMessage {
+    final value = _replyMessage;
+    if (value == null) return null;
     if (_replyMessage is EqualUnmodifiableMapView) return _replyMessage;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_replyMessage);
+    return EqualUnmodifiableMapView(value);
   }
 
   final Map<String, dynamic> _slackMessage;
@@ -785,7 +786,7 @@ abstract class _MessageDto implements MessageDto {
     required final TicketInfoDto? ticketInfo,
     final List<FileAttachmentDto> files,
     final List<MessageReactionDto> reaction,
-    final Map<String, dynamic> replyMessage,
+    final Map<String, dynamic>? replyMessage,
     final Map<String, dynamic> slackMessage,
     final Map<String, dynamic> zohoDeskMessage,
     @JsonKey(name: 'senderInfo') final CustomerSupportInfoDto? senderInfo,
@@ -840,7 +841,7 @@ abstract class _MessageDto implements MessageDto {
   @override
   List<MessageReactionDto> get reaction;
   @override
-  Map<String, dynamic> get replyMessage;
+  Map<String, dynamic>? get replyMessage;
   @override
   Map<String, dynamic> get slackMessage;
   @override

@@ -42,6 +42,18 @@ class AppColors {
   static const Color onlineGreen = Color(0xFF31A24C);
   static const Color bubbleGray = Color(0xFFE9E9EB);
 
+  /// Reply quote inset inside message bubbles (Messenger-style).
+  static const Color replyQuoteOnOutgoingBackground = Color(0xFFFFFFFF);
+  static const Color replyQuoteOnOutgoingAccentFromAgent = messengerBlue;
+  static const Color replyQuoteOnOutgoingAccentFromCustomer = Color(0xFF65676B);
+  static const Color replyQuoteOnOutgoingSender = messengerBlue;
+  static const Color replyQuoteOnOutgoingBody = textSecondary;
+
+  static const Color replyQuoteOnIncomingBackground = messengerBlue;
+  static const Color replyQuoteOnIncomingAccent = Color(0xFFFFFFFF);
+  static const Color replyQuoteOnIncomingSender = Color(0xFFFFFFFF);
+  static const Color replyQuoteOnIncomingBody = Color(0xE6FFFFFF);
+
   /// Map ticket status to color
   static Color getStatusColor(TicketStatus status) {
     switch (status) {

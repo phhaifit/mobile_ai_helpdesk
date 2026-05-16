@@ -11,7 +11,6 @@ class Message {
   final bool isMe;
   final String content;
   final List<Attachment> attachments;
-  final String? replyMessageId;
   final MessageReplyPreview? replyPreview;
   final List<Reaction> reactions;
   final DateTime timestamp;
@@ -44,7 +43,6 @@ class Message {
     required this.content,
     required this.attachments,
     required this.timestamp,
-    this.replyMessageId,
     this.replyPreview,
     required this.reactions,
     this.isZalo = false,
@@ -60,7 +58,6 @@ class Message {
     bool? isMe,
     String? content,
     List<Attachment>? attachments,
-    String? replyMessageId,
     MessageReplyPreview? replyPreview,
     List<Reaction>? reactions,
     DateTime? timestamp,
@@ -76,7 +73,6 @@ class Message {
       isMe: isMe ?? this.isMe,
       content: content ?? this.content,
       attachments: attachments ?? this.attachments,
-      replyMessageId: replyMessageId ?? this.replyMessageId,
       replyPreview: replyPreview ?? this.replyPreview,
       reactions: reactions ?? this.reactions,
       timestamp: timestamp ?? this.timestamp,

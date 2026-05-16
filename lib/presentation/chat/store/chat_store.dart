@@ -381,7 +381,7 @@ abstract class _ChatStore with Store {
           content: e.message,
           attachments: attachments ?? <Attachment>[],
           timestamp: DateTime.now(),
-          replyMessageId: null,
+          replyPreview: null,
           reactions: const <Reaction>[],
         ),
       );

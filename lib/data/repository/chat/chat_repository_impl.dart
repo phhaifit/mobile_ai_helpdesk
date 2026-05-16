@@ -653,8 +653,7 @@ extension MessageMapper on MessageDto {
       content: messageContent,
       attachments: files.map((e) => e.toDomain()).toList(),
       timestamp: createdAt.toLocal(),
-      replyMessageId: replyMessageId,
-      replyPreview: _parseReplyPreview(replyMessage),
+      replyPreview: replyMessage != null ? _parseReplyPreview(replyMessage!) : null,
       reactions: reaction.map((e) => e.toDomain()).toList(),
       isZalo: isZalo,
       zaloMessageId: zaloMessageId,
@@ -692,7 +691,8 @@ MessageReplyPreview? _parseReplyPreview(Map<String, dynamic> replyMessage) {
 
   final String messageType =
       (replyMessage['messageType'] ?? '').toString();
-  final bool isMe = isMeFromMessageType(messageType);
+  final bool isMe = isMeFromMessageType(messageType) ||
+      _replyMessageIsFromAgent(replyMessage);
 
   String content = '';
 
@@ -745,6 +745,10 @@ bool isMeFromMessageType(String type) {
   if (type.contains('_TO_CUSTOMER')) return true;
 
   return false;
+}
+
+bool _replyMessageIsFromAgent(Map<String, dynamic> replyMessage) {
+  return isMeFromMessageType(replyMessage['messageType'] as String);
 }
 
 extension AttachmentMapper on FileAttachmentDto {

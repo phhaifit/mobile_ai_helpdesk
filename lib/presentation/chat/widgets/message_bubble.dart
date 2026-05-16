@@ -7,9 +7,12 @@ import '../../../constants/colors.dart';
 import '../../../constants/dimens.dart';
 import '../../../domain/entity/chat/attachment.dart';
 import '../../../domain/entity/chat/message.dart';
+import '../../../domain/entity/chat/message_reply_preview.dart';
 import '../../../utils/locale/app_localization.dart';
 import 'chat_avatar.dart';
 import 'reaction_picker.dart';
+
+const double _replyQuoteBorderRadius = 8;
 
 double _bubbleMaxWidth(BuildContext context) {
   return math.min(
@@ -70,100 +73,118 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMe = message.isMe;
+    final double maxBubbleWidth = _bubbleMaxWidth(context);
 
     return Padding(
       padding: EdgeInsets.only(
         top: isGroupStart ? 6 : 2,
         bottom: isGroupEnd ? 8 : 0, // Extra space for reactions
       ),
-      child: Row(
-        mainAxisAlignment: isMe
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Avatar placeholder for non-me messages
-          if (!isMe) _buildAvatarSlot(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: <Widget>[
+          if (message.replyPreview != null)
+            Padding(
+              padding: EdgeInsets.only(
+                left: isMe ? 0 : 46,
+                right: isMe ? 8 : 0,
+                bottom: 4,
+              ),
+              child: _buildReplySection(context, isMe, maxBubbleWidth),
+            ),
+          Row(
+            mainAxisAlignment: isMe
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              if (!isMe) _buildAvatarSlot(),
 
-          // Bubble + metadata column (loose flex: width follows content, not screen)
-          Flexible(
-            fit: FlexFit.loose,
-            child: Column(
-              crossAxisAlignment: isMe
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                // Sender name (only for first bubble in group, others only)
-                if (!isMe && isGroupStart)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 46, bottom: 2),
-                    child: Text(
-                      message.sender.name,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                // Bubble row (avatar + bubble)
-                Row(
-                  mainAxisAlignment: isMe
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (!isMe) ...[
-                      // Show avatar or spacer
-                      if (showAvatar) ChatAvatar(name: message.sender.name, avatarUrl: message.sender.avatar, size: 28) else const SizedBox(width: 30),
-                      const SizedBox(width: 6),
-                    ],
-
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: GestureDetector(
-                        onLongPress: () => _showMessageActions(context),
-                        child: _buildMessageBody(context, isMe),
-                      ),
-                    ),
-
-                    if (isMe) const SizedBox(width: 8),
-                  ],
-                ),
-
-                // Reactions below message
-                if (message.reactions.isNotEmpty) _buildReactions(),
-
-                // Timestamp below last bubble in group
-                if (isGroupEnd)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: 3,
-                      left: isMe ? 0 : 46,
-                      right: isMe ? 8 : 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: isMe
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatTime(message.timestamp),
+              // Bubble + metadata column (loose flex: width follows content, not screen)
+              Flexible(
+                fit: FlexFit.loose,
+                child: Column(
+                  crossAxisAlignment: isMe
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Sender name (hidden on reply messages; context line covers it)
+                    if (!isMe && isGroupStart && message.replyPreview == null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 46, bottom: 2),
+                        child: Text(
+                          message.sender.name,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 11,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (isMe) ...[
-                          const SizedBox(width: 4),
-                          _buildDeliveryStatusIcon(),
+                      ),
+
+                    // Bubble row (avatar + bubble)
+                    Row(
+                      mainAxisAlignment: isMe
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        if (!isMe) ...<Widget>[
+                          if (showAvatar)
+                            ChatAvatar(
+                              name: message.sender.name,
+                              avatarUrl: message.sender.avatar,
+                              size: 28,
+                            )
+                          else
+                            const SizedBox(width: 30),
+                          const SizedBox(width: 6),
                         ],
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: GestureDetector(
+                            onLongPress: () => _showMessageActions(context),
+                            child: _buildMessageBody(context, isMe),
+                          ),
+                        ),
+                        if (isMe) const SizedBox(width: 8),
                       ],
                     ),
-                  ),
-              ],
-            ),
+
+                    if (message.reactions.isNotEmpty) _buildReactions(),
+
+                    if (isGroupEnd)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 3,
+                          left: isMe ? 0 : 46,
+                          right: isMe ? 8 : 0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: isMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              _formatTime(message.timestamp),
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 11,
+                              ),
+                            ),
+                            if (isMe) ...<Widget>[
+                              const SizedBox(width: 4),
+                              _buildDeliveryStatusIcon(),
+                            ],
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -174,14 +195,14 @@ class MessageBubble extends StatelessWidget {
     final double maxW = _bubbleMaxWidth(context);
 
     if (message.attachments.isNotEmpty) {
-      return _buildAttachmentsBody(isMe, maxW);
+      return _buildAttachmentsBody(context, isMe, maxW);
     }
 
-    return _buildTextBody(isMe, maxW);
+    return _buildTextBody(context, isMe, maxW);
   }
 
   /// Attachment messages: render files/media only (never [Message.content]).
-  Widget _buildAttachmentsBody(bool isMe, double maxW) {
+  Widget _buildAttachmentsBody(BuildContext context, bool isMe, double maxW) {
     if (_messageIsVisualMediaOnly(message) && message.replyPreview == null) {
       return _wrapHighlight(
         Column(
@@ -195,12 +216,6 @@ class MessageBubble extends StatelessWidget {
 
     final List<Widget> visualMedia = <Widget>[];
     final List<Widget> bubbleChildren = <Widget>[];
-
-    if (message.replyPreview != null) {
-      bubbleChildren
-        ..add(_buildReplyQuote(isMe))
-        ..add(const SizedBox(height: 8));
-    }
 
     for (final Attachment attachment in message.attachments) {
       if (_isVisualMedia(attachment)) {
@@ -249,14 +264,8 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildTextBody(bool isMe, double maxW) {
+  Widget _buildTextBody(BuildContext context, bool isMe, double maxW) {
     final List<Widget> bubbleChildren = <Widget>[];
-
-    if (message.replyPreview != null) {
-      bubbleChildren
-        ..add(_buildReplyQuote(isMe))
-        ..add(const SizedBox(height: 8));
-    }
 
     final String text = message.content.trim();
     if (text.isNotEmpty) {
@@ -374,45 +383,85 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildReplyQuote(bool isMe) {
-    final preview = message.replyPreview!;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: isMe
-            ? Colors.white.withValues(alpha: 0.15)
-            : Colors.black.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border(
-          left: BorderSide(
-            color: isMe ? Colors.white70 : AppColors.messengerBlue,
-            width: 3,
+  String _replyContextLabel(BuildContext context, bool bubbleIsMe) {
+    final MessageReplyPreview preview = message.replyPreview!;
+    final AppLocalizations l = AppLocalizations.of(context);
+
+    if (bubbleIsMe) {
+      if (preview.isMe) {
+        return l.translate('chat_you_replied_to_self');
+      }
+      return l.translate('chat_you_replied_to').replaceAll(
+            '{name}',
+            preview.senderName,
+          );
+    }
+
+    if (preview.isMe) {
+      return l.translate('chat_replied_to_you').replaceAll(
+            '{name}',
+            message.sender.name,
+          );
+    }
+
+    return l.translate('chat_replied_to_self').replaceAll(
+          '{name}',
+          message.sender.name,
+        );
+  }
+
+  /// Reply context + quoted message shown above the bubble (Messenger-style).
+  Widget _buildReplySection(
+    BuildContext context,
+    bool isMe,
+    double maxWidth,
+  ) {
+    final Color headerColor =
+        isMe ? AppColors.textSecondary : AppColors.messengerBlue;
+
+    return Column(
+      crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          _replyContextLabel(context, isMe),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: headerColor,
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            preview.senderName,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isMe ? Colors.white : AppColors.messengerBlue,
-            ),
+        const SizedBox(height: 4),
+        _buildReplyQuote(context, maxWidth),
+      ],
+    );
+  }
+
+  Widget _buildReplyQuote(BuildContext context, double maxWidth) {
+    final MessageReplyPreview preview = message.replyPreview!;
+    final AppLocalizations l = AppLocalizations.of(context);
+    final String body = preview.content.trim().isEmpty
+        ? l.translate('chat_reply_attachment')
+        : preview.content;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.bubbleGray,
+          borderRadius: BorderRadius.circular(_replyQuoteBorderRadius),
+        ),
+        child: Text(
+          body,
+          softWrap: true,
+          style: const TextStyle(
+            fontSize: 13,
+            height: 1.25,
+            color: AppColors.textSecondary,
           ),
-          const SizedBox(height: 2),
-          Text(
-            preview.content,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              color: isMe ? Colors.white70 : AppColors.textSecondary,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
