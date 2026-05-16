@@ -1,13 +1,22 @@
 import '../../../domain/entity/chat/chat_room.dart';
 import '../../../domain/entity/chat/chat_room_counter.dart';
+import '../../../domain/entity/chat/chat_room_last_message_update.dart';
 import '../../../domain/entity/chat/chat_room_seen_update.dart';
 import '../../../domain/entity/chat/in_app_notification.dart';
+import '../../../domain/entity/chat/message.dart';
 import '../../../domain/entity/chat/seen_info.dart';
 
 abstract class ChatRoomRepository {
   Stream<ChatRoomSeenUpdate> watchRoomSeenUpdates();
 
   Stream<InAppNotification> watchInAppNotifications();
+
+  Stream<ChatRoomLastMessageUpdate> watchLastMessageUpdates();
+
+  void notifyLastMessageUpdated({
+    required String chatRoomId,
+    required Message message,
+  });
   Future<List<ChatRoom>> getChatRooms({
     ChatRoomListQuery query = ChatRoomListQuery.inboxDefault,
   });

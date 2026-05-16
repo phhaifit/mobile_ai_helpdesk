@@ -2,16 +2,30 @@ import 'package:ai_helpdesk/core/domain/usecase/use_case.dart';
 import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 
 class SendMessageFromAgentToCustomerUseCase
     extends UseCase<Message, SendAgentToCustomerMessageParams> {
-  final ChatRepository _repository;
+  final ChatRepository _chatRepository;
+  final ChatRoomRepository _chatRoomRepository;
 
-  SendMessageFromAgentToCustomerUseCase(this._repository);
+  SendMessageFromAgentToCustomerUseCase(
+    this._chatRepository,
+    this._chatRoomRepository,
+  );
 
   @override
-  Future<Message> call({required SendAgentToCustomerMessageParams params}) {
-    return _repository.sendMessageFromAgentToCustomer(params: params);
+  Future<Message> call({required SendAgentToCustomerMessageParams params}) async {
+    final Message message = await _chatRepository.sendMessageFromAgentToCustomer(
+      params: params,
+    );
+
+    _chatRoomRepository.notifyLastMessageUpdated(
+      chatRoomId: params.chatRoomId,
+      message: message,
+    );
+
+    return message;
   }
 }
 

@@ -16,8 +16,10 @@ import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/chat/channel.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room_counter.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_room_last_message_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room_seen_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/in_app_notification.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart';
 import 'package:ai_helpdesk/domain/entity/chat/seen_info.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:dio/dio.dart';
@@ -30,6 +32,8 @@ class ChatRoomRepositoryImpl implements ChatRoomRepository {
       StreamController<ChatRoomSeenUpdate>.broadcast();
   final StreamController<InAppNotification> _notificationController =
       StreamController<InAppNotification>.broadcast();
+  final StreamController<ChatRoomLastMessageUpdate> _lastMessageController =
+      StreamController<ChatRoomLastMessageUpdate>.broadcast();
 
   bool _socketListening = false;
 
@@ -78,6 +82,21 @@ class ChatRoomRepositoryImpl implements ChatRoomRepository {
   Stream<InAppNotification> watchInAppNotifications() {
     _listenSocket();
     return _notificationController.stream;
+  }
+
+  @override
+  Stream<ChatRoomLastMessageUpdate> watchLastMessageUpdates() {
+    return _lastMessageController.stream;
+  }
+
+  @override
+  void notifyLastMessageUpdated({
+    required String chatRoomId,
+    required Message message,
+  }) {
+    _lastMessageController.add(
+      ChatRoomLastMessageUpdate(chatRoomId: chatRoomId, message: message),
+    );
   }
 
   @override

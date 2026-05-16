@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:ai_helpdesk/domain/entity/chat/chat_room.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_room_last_message_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_room_seen_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/in_app_notification.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart';
@@ -9,6 +10,7 @@ import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_last_message_updates_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart'
@@ -25,11 +27,14 @@ abstract class _ChatRoomStore with Store {
   final ObserveIncomingMessagesUseCase _observeIncomingMessages;
   final ObserveChatRoomSeenUseCase _observeChatRoomSeen;
   final ObserveInAppNotificationsUseCase _observeInAppNotifications;
+  final ObserveChatRoomLastMessageUpdatesUseCase
+      _observeChatRoomLastMessageUpdates;
   final SettingRepository _settingRepository;
 
   StreamSubscription<Message>? _incomingMessageSub;
   StreamSubscription<ChatRoomSeenUpdate>? _seenSub;
   StreamSubscription<InAppNotification>? _notificationSub;
+  StreamSubscription<ChatRoomLastMessageUpdate>? _lastMessageSub;
 
   @observable
   String? activeRoomId;
@@ -40,6 +45,7 @@ abstract class _ChatRoomStore with Store {
     this._observeIncomingMessages,
     this._observeChatRoomSeen,
     this._observeInAppNotifications,
+    this._observeChatRoomLastMessageUpdates,
     this._settingRepository,
   ) {
     _bindRealtime();
@@ -59,6 +65,7 @@ abstract class _ChatRoomStore with Store {
     _incomingMessageSub?.cancel();
     _seenSub?.cancel();
     _notificationSub?.cancel();
+    _lastMessageSub?.cancel();
 
     _incomingMessageSub = _observeIncomingMessages
         .call(params: const NoParams())
@@ -71,6 +78,12 @@ abstract class _ChatRoomStore with Store {
     _notificationSub = _observeInAppNotifications
         .call(params: const NoParams())
         .listen(_onInAppNotification);
+
+    _lastMessageSub = _observeChatRoomLastMessageUpdates
+        .call(params: const NoParams())
+        .listen((ChatRoomLastMessageUpdate update) {
+      updateLastMessage(update.chatRoomId, update.message);
+    });
   }
 
   @action
@@ -92,6 +105,7 @@ abstract class _ChatRoomStore with Store {
       lastMessageTime: message.timestamp,
       unreadCount: unread,
     );
+    _sortChatRoomsByLastMessageTime();
   }
 
   @action
@@ -125,6 +139,7 @@ abstract class _ChatRoomStore with Store {
       lastMessage: room.lastMessage.copyWith(content: notification.body),
       lastMessageTime: notification.createdAt ?? DateTime.now(),
     );
+    _sortChatRoomsByLastMessageTime();
   }
 
   @action
@@ -136,6 +151,7 @@ abstract class _ChatRoomStore with Store {
     chatRooms
       ..clear()
       ..addAll(rooms);
+    _sortChatRoomsByLastMessageTime();
     isLoading = false;
   }
 
@@ -178,6 +194,13 @@ abstract class _ChatRoomStore with Store {
     chatRooms[index] = chatRooms[index].copyWith(
       lastMessage: message,
       lastMessageTime: message.timestamp,
+    );
+    _sortChatRoomsByLastMessageTime();
+  }
+
+  void _sortChatRoomsByLastMessageTime() {
+    chatRooms.sort(
+      (ChatRoom a, ChatRoom b) => b.lastMessageTime.compareTo(a.lastMessageTime),
     );
   }
 
