@@ -10,13 +10,13 @@
 ///     _buildNavigationButtons()
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
-import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CampaignCreateScreen extends StatefulWidget {
   const CampaignCreateScreen({super.key});
@@ -264,7 +264,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
         Observer(
           builder:
               (_) => DropdownButtonFormField<CampaignChannel>(
-                initialValue: _store.draftChannel,
+                value: _store.draftChannel,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.send_outlined),
@@ -381,7 +381,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
               if (_store.draftFilterType == RecipientFilterType.segment) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue:
+                  value:
                       _store.draftSegmentValue.isEmpty
                           ? null
                           : _store.draftSegmentValue,
@@ -402,7 +402,7 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
               if (_store.draftFilterType == RecipientFilterType.channel) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<CampaignChannel>(
-                  initialValue: _store.draftChannelFilter,
+                  value: _store.draftChannelFilter,
                   decoration: const InputDecoration(
                     labelText: 'Kênh',
                     border: OutlineInputBorder(),

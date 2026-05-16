@@ -11,12 +11,12 @@
 ///       FilledButton('Lưu Template')
 library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TemplateCreateEditScreen extends StatefulWidget {
   final MarketingTemplate? template;
@@ -107,7 +107,7 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
                   ),
                   SizedBox(height: isSmall ? 6 : 8),
                   DropdownButtonFormField<TemplateCategory>(
-                    initialValue: _store.draftTemplateCategory,
+                    value: _store.draftTemplateCategory,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.category_outlined),
@@ -140,7 +140,7 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
                   ),
                   SizedBox(height: isSmall ? 6 : 8),
                   DropdownButtonFormField<CampaignChannel>(
-                    initialValue: _store.draftTemplateChannel,
+                    value: _store.draftTemplateChannel,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.send_outlined),

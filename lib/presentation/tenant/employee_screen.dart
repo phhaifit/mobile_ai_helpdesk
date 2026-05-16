@@ -371,7 +371,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
 
     final filter = DropdownButtonFormField<TeamRole?>(
-      initialValue: _memberRoleFilter,
+      value: _memberRoleFilter,
       onChanged: (value) => setState(() => _memberRoleFilter = value),
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -418,7 +418,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
 
     final filter = DropdownButtonFormField<InvitationStatus?>(
-      initialValue: _invitationStatusFilter,
+      value: _invitationStatusFilter,
       onChanged: (value) => setState(() => _invitationStatusFilter = value),
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -791,7 +791,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<TeamRole>(
-                      initialValue: _inviteRole,
+                      value: _inviteRole,
                       items:
                           TeamRole.values
                               .map(

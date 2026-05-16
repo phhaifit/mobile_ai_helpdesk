@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/ticket_detail_store.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_detail_header_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/delete_ticket_dialog.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_thread_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_assignment_section_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_customer_info_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_description_section_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/detail/comment_thread_widget.dart';
+import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_detail_header_widget.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/detail/ticket_history_timeline_widget.dart';
-import 'package:ai_helpdesk/presentation/ticket/widgets/delete_ticket_dialog.dart';
 import 'package:ai_helpdesk/presentation/ticket/widgets/status_badge_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
 final _getIt = GetIt.instance;
 

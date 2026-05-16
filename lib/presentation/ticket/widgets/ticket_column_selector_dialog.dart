@@ -1,6 +1,7 @@
+import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:ai_helpdesk/constants/colors.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 
 class TicketColumnSelectorDialog extends StatelessWidget {

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
+import 'package:flutter/material.dart';
+
 import '../store/ticket_column_visibility_store.dart';
 import 'ticket_table_columns.dart';
 

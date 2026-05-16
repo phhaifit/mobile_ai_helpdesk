@@ -370,36 +370,40 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                           );
                                         }
 
-                                        if (customer.phones.isNotEmpty)
+                                        if (customer.phones.isNotEmpty) {
                                           rows.add(
                                             buildRow(
                                               Icons.phone_outlined,
                                               customer.phones.first,
                                             ),
                                           );
-                                        if (customer.emails.isNotEmpty)
+                                        }
+                                        if (customer.emails.isNotEmpty) {
                                           rows.add(
                                             buildRow(
                                               Icons.email_outlined,
                                               customer.emails.first,
                                             ),
                                           );
-                                        if (customer.zalos.isNotEmpty)
+                                        }
+                                        if (customer.zalos.isNotEmpty) {
                                           rows.add(
                                             buildRow(
                                               Icons.chat_bubble_outline,
                                               '${AppLocalizations.of(context).translate('customer_list_zalo')}: ${customer.zalos.first}',
                                             ),
                                           );
-                                        if (customer.messengers.isNotEmpty)
+                                        }
+                                        if (customer.messengers.isNotEmpty) {
                                           rows.add(
                                             buildRow(
                                               Icons.message_outlined,
                                               '${AppLocalizations.of(context).translate('customer_list_messenger')}: ${customer.messengers.first}',
                                             ),
                                           );
+                                        }
 
-                                        if (rows.isEmpty)
+                                        if (rows.isEmpty) {
                                           return Text(
                                             AppLocalizations.of(
                                               context,
@@ -412,6 +416,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
                                               fontSize: 13,
                                             ),
                                           );
+                                        }
                                         return Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,

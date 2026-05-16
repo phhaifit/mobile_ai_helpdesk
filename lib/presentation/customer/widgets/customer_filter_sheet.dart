@@ -1,6 +1,6 @@
 import 'package:ai_helpdesk/constants/colors.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_store.dart';
+import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 

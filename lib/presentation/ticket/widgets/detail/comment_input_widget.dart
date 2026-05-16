@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class CommentInputWidget extends StatelessWidget {
   final String text;
