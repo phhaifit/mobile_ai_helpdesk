@@ -496,7 +496,7 @@ class _ChatScreenState extends State<ChatScreen> {
           if (_slashMode)
             Observer(
               builder: (_) {
-                final List<Prompt> filtered =
+                final List<ResponseTemplate> filtered =
                     _promptStore.slashFiltered(_slashQuery);
                 return SlashPromptPickerOverlay(
                   prompts: filtered,

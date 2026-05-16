@@ -16,7 +16,6 @@ class ChatRoomTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
-      splashColor: AppColors.messengerBlue.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
