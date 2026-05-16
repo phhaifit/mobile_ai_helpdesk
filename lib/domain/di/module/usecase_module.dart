@@ -89,7 +89,6 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.d
 import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
