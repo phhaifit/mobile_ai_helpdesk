@@ -375,7 +375,7 @@ abstract class _ChatStore with Store {
         Message(
           id: '',
           conversationId: chatRoomId,
-          order: currentMessages.isNotEmpty ? currentMessages.last.order : 0,
+          order: currentMessages.isNotEmpty ? currentMessages.first.order : 0,
           sender: const User(id: '', name: '', avatar: ''),
           isMe: true,
           content: e.message,

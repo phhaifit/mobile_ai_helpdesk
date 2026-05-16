@@ -63,7 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _typingIdleTimer;
   bool _isAgentTypingEmitted = false;
 
-  int _previousItemCount = 0;
   bool _slashMode = false;
   bool _showSearch = false;
   List<String> _searchResults = [];
@@ -136,15 +135,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _onItemPositionsChanged() {
-    final Iterable<ItemPosition> positions =
-        _itemPositionsListener.itemPositions.value;
+    final Iterable<ItemPosition> positions = _itemPositionsListener.itemPositions.value;
     if (positions.isEmpty) return;
 
-    final int topVisible = positions
+    // maxVisible is the item highest up on the screen (oldest)
+    final int maxVisible = positions
         .map((ItemPosition p) => p.index)
-        .reduce((int a, int b) => a < b ? a : b);
+        .reduce((int a, int b) => a > b ? a : b);
 
-    if (topVisible <= 2 &&
+    if (maxVisible >= _chatStore.currentMessages.length - 2 &&
         _chatStore.hasMoreOlderMessages &&
         !_chatStore.isLoadingOlderMessages) {
       _chatStore.loadOlderMessages();
@@ -196,10 +195,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final int messageCount = _chatStore.currentMessages.length;
-      if (messageCount == 0) return;
-      _itemScrollController.jumpTo(index: messageCount - 1);
+      if (_chatStore.currentMessages.isEmpty) return;
+      // Index 0 is the newest message at the bottom
+      _itemScrollController.jumpTo(index: 0);
     });
+  }
+
+  void _scrollToMessage(String messageId) {
+    final List<Message> reversedMessages = _chatStore.currentMessages.reversed.toList();
+    final int messageIndex = reversedMessages.indexWhere((Message m) => m.id == messageId);
+
+    if (messageIndex != -1) {
+      final int typingCount = _chatStore.isCustomerTyping ? 1 : 0;
+      final int scrollIndex = typingCount + messageIndex; // typing indicator is at 0
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _itemScrollController.scrollTo(
+          index: scrollIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
   }
 
   Future<void> _performSearch(String query) async {
@@ -233,23 +249,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     _scrollToMessage(_highlightedMessageId!);
-  }
-
-  void _scrollToMessage(String messageId) {
-    final List<Message> messages = _chatStore.currentMessages;
-    final int messageIndex = messages.indexWhere((Message m) => m.id == messageId);
-
-    if (messageIndex != -1) {
-      final int olderLoaderCount = _chatStore.isLoadingOlderMessages ? 1 : 0;
-      final int scrollIndex = olderLoaderCount + messageIndex;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _itemScrollController.scrollTo(
-          index: scrollIndex,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      });
-    }
   }
 
   void _closeSearch() {
@@ -426,17 +425,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 final bool showOlderLoader = _chatStore.isLoadingOlderMessages;
                 final int olderLoaderCount = showOlderLoader ? 1 : 0;
                 final int typingCount = _chatStore.isCustomerTyping ? 1 : 0;
-                final int itemCount =
-                    olderLoaderCount + messages.length + typingCount;
-
-                if (itemCount > _previousItemCount) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _scrollToBottom();
-                  });
-                  _previousItemCount = itemCount;
-                }
+                final int itemCount = typingCount + messages.length + olderLoaderCount;
 
                 return ScrollablePositionedList.builder(
+                  reverse: true,
                   itemScrollController: _itemScrollController,
                   itemPositionsListener: _itemPositionsListener,
                   padding: const EdgeInsets.symmetric(
@@ -445,53 +437,59 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   itemCount: itemCount,
                   itemBuilder: (BuildContext context, int index) {
-                    if (showOlderLoader && index == 0) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                      );
-                    }
-
-                    final int messageIndex = index - olderLoaderCount;
-
-                    if (messageIndex == messages.length) {
+                    // A. Typing Indicator at the Bottom (Index 0)
+                    if (typingCount > 0 && index == 0) {
                       return TypingIndicator(
                         senderName: _chatStore.typingActorLabel ?? room.name,
                       );
                     }
 
-                    final Message message = messages[messageIndex];
-                    final bool isGroupStart = messageIndex == 0 ||
-                        !_sameSender(messages[messageIndex - 1], message);
-                    final bool isGroupEnd = messageIndex == messages.length - 1 ||
-                        !_sameSender(message, messages[messageIndex + 1]);
+                    // B. Messages
+                    final int messageIndex = index - typingCount;
+                    if (messageIndex >= 0 && messageIndex < messages.length) {
+                      final Message message = messages[messageIndex];
+                      
+                      // Because list is reversed, visually "above" is messageIndex + 1
+                      final bool isGroupStart = messageIndex == messages.length - 1 ||
+                          !_sameSender(messages[messageIndex + 1], message);
+                          
+                      // Visually "below" is messageIndex - 1
+                      final bool isGroupEnd = messageIndex == 0 ||
+                          !_sameSender(message, messages[messageIndex - 1]);
 
-                    return MessageBubble(
-                      message: message,
-                      isGroupStart: isGroupStart,
-                      isGroupEnd: isGroupEnd,
-                      showAvatar: isGroupEnd,
-                      isHighlighted: _highlightedMessageId == message.id,
-                      onReply: () {
-                        setState(() => _replyingTo = message);
-                        _inputFocusNode.requestFocus();
-                      },
-                      onZaloReactionSelected: (String reactIcon) {
-                        unawaited(
-                          _chatStore.reactToMessage(
-                            message: message,
-                            reactIcon: reactIcon,
-                            chatRoomId: room.id,
-                            channelId: room.channel.id,
-                          ),
-                        );
-                      },
+                      return MessageBubble(
+                        message: message,
+                        isGroupStart: isGroupStart,
+                        isGroupEnd: isGroupEnd,
+                        showAvatar: isGroupEnd,
+                        isHighlighted: _highlightedMessageId == message.id,
+                        onReply: () {
+                          setState(() => _replyingTo = message);
+                          _inputFocusNode.requestFocus();
+                        },
+                        onZaloReactionSelected: (String reactIcon) {
+                          unawaited(
+                            _chatStore.reactToMessage(
+                              message: message,
+                              reactIcon: reactIcon,
+                              chatRoomId: room.id,
+                              channelId: room.channel.id,
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    // C. Loader at the Top (Highest Index)
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
                     );
                   },
                 );

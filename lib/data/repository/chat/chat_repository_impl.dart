@@ -233,10 +233,11 @@ class ChatRepositoryImpl implements ChatRepository {
     _messagesController.add(roomId);
   }
 
+  /// Newest-first (`messageOrder` DESC) for reversed chat list (index 0 = latest).
   int _compareMessages(Message a, Message b) {
-    final int byOrder = a.order.compareTo(b.order);
+    final int byOrder = b.order.compareTo(a.order);
     if (byOrder != 0) return byOrder;
-    return a.timestamp.compareTo(b.timestamp);
+    return b.timestamp.compareTo(a.timestamp);
   }
 
   List<Message> _sortedCopy(List<Message> source) {
@@ -317,7 +318,7 @@ class ChatRepositoryImpl implements ChatRepository {
     if (list == null || list.isEmpty) return;
     if (!(_hasMoreOlderByRoom[roomId] ?? true)) return;
 
-    final String oldestId = list.first.id;
+    final String oldestId = list.last.id;
     final List<Message> older = await getMessages(
       chatRoomId: roomId,
       lastMessageId: oldestId,
@@ -335,7 +336,7 @@ class ChatRepositoryImpl implements ChatRepository {
         .toList(growable: false);
 
     if (deduped.isNotEmpty) {
-      list.insertAll(0, deduped);
+      list.addAll(deduped);
     }
     list.sort(_compareMessages);
     _hasMoreOlderByRoom[roomId] = older.length >= _pageSize;
@@ -353,14 +354,14 @@ class ChatRepositoryImpl implements ChatRepository {
       }
     }
 
-    final String lastId = list.last.id;
-    if (lastId.isEmpty) {
+    final String newestId = list.first.id;
+    if (newestId.isEmpty) {
       return const <Message>[];
     }
 
     final List<Message> newer = await getNewerMessages(
       chatRoomId: roomId,
-      lastMessageId: lastId,
+      lastMessageId: newestId,
       limit: _pageSize,
     );
     if (newer.isEmpty) {
@@ -376,7 +377,7 @@ class ChatRepositoryImpl implements ChatRepository {
       return const <Message>[];
     }
 
-    list.addAll(deduped);
+    list.insertAll(0, deduped);
     list.sort(_compareMessages);
     _notifyRoomChanged(roomId);
     return deduped;
@@ -392,8 +393,8 @@ class ChatRepositoryImpl implements ChatRepository {
       () => <Message>[],
     );
 
-    if (list.isEmpty || message.order > list.last.order) {
-      list.add(message);
+    if (list.isEmpty || message.order > list.first.order) {
+      list.insert(0, message);
       _notifyRoomChanged(roomId);
       return;
     }
@@ -405,7 +406,8 @@ class ChatRepositoryImpl implements ChatRepository {
       return;
     }
 
-    final int insertIndex = list.indexWhere((Message m) => m.order > message.order);
+    final int insertIndex =
+        list.indexWhere((Message m) => m.order < message.order);
     if (insertIndex == -1) {
       list.add(message);
     } else {
