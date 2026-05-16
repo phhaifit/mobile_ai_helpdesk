@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:flutter/material.dart';
 
 class TicketCustomerInfoWidget extends StatelessWidget {
   final Ticket ticket;

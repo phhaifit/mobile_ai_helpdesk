@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class TicketSourceWidget extends StatelessWidget {
   final TicketSource source;

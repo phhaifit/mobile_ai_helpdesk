@@ -4,7 +4,6 @@ import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
-import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/jarvis/jarvis_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/media/media_api.dart';
 import 'package:ai_helpdesk/data/repository/jarvis/jarvis_repository_impl.dart';
@@ -20,6 +19,7 @@ import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart'
 import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
+import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';

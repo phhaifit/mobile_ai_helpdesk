@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
-
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:flutter/material.dart';
 
 import '../store/ticket_column_visibility_store.dart';
 import 'ticket_table_columns.dart';

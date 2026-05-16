@@ -39,7 +39,7 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
 
 const _$TeamRoleEnumMap = {
   TeamRole.admin: 'admin',
-  TeamRole.customer_support: 'customer_support',
+  TeamRole.customerSupport: 'customer_support',
 };
 
 const _$InvitationStatusEnumMap = {
@@ -48,5 +48,5 @@ const _$InvitationStatusEnumMap = {
   InvitationStatus.revoked: 'revoked',
   InvitationStatus.expired: 'expired',
   InvitationStatus.declined: 'declined',
-  InvitationStatus.expired_declined: 'expired_declined',
+  InvitationStatus.expiredDeclined: 'expired_declined',
 };

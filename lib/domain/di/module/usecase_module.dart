@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
@@ -85,6 +86,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';

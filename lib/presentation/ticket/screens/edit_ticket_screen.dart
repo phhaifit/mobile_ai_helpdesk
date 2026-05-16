@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/presentation/ticket/store/edit_ticket_store.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
 
 final _getIt = GetIt.instance;
 
@@ -172,7 +172,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Trạng thái', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketStatus>(
-            initialValue: _store.ticketStatus,
+            value: _store.ticketStatus,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -213,7 +213,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Mức độ ưu tiên', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketPriority>(
-            initialValue: _store.priority,
+            value: _store.priority,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -254,7 +254,7 @@ class _EditTicketScreenState extends State<EditTicketScreen> {
           const Text('Danh mục', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TicketCategory>(
-            initialValue: _store.category,
+            value: _store.category,
             decoration: InputDecoration(
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
