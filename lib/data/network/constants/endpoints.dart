@@ -305,6 +305,12 @@ class Endpoints {
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
 
+  /// Separate SSE channel BE exposes for `whole_sites` crawl progress events.
+  /// Same connection envelope as [knowledgeStatusSse]; intended for the UI's
+  /// whole-site crawl progress UI when that is wired up.
+  static String knowledgeWholeSitesSse(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/whole-sites-sse';
+
   // ---- AI Agent (real backend) --------------------------------------------
   static String aiAgentByTenant(String tenantId) =>
       '/api/v1/ai-agents/tenants/$tenantId';

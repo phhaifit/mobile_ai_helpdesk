@@ -3,12 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('KnowledgeSourceType.toApiType', () {
+    // Verified live against the AI-service backend: snake-case spellings
+    // (`local_file`, `google_drive`, `database_query`) return HTTP 500 on
+    // `GET /sources/{type}`. The endpoint requires kebab-case + the
+    // singular `file` for local files.
     const cases = {
       KnowledgeSourceType.web: 'web',
-      KnowledgeSourceType.wholeSite: 'whole_site',
-      KnowledgeSourceType.localFile: 'local_file',
-      KnowledgeSourceType.googleDrive: 'google_drive',
-      KnowledgeSourceType.databaseQuery: 'database_query',
+      KnowledgeSourceType.wholeSite: 'whole-site',
+      KnowledgeSourceType.localFile: 'file',
+      KnowledgeSourceType.googleDrive: 'google-drive',
+      KnowledgeSourceType.databaseQuery: 'database-query',
     };
 
     cases.forEach((type, api) {

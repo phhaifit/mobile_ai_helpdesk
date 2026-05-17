@@ -334,7 +334,12 @@ class KnowledgeRepositoryImpl implements KnowledgeRepository {
 
     final path = json['path'] as String?;
     if (path != null && path.isNotEmpty) {
-      // Strip leading directories so e.g. "data/knowledge/foo.docx" → "foo.docx".
+      // For URLs (web sources) and SQL queries (db sources), keep the full
+      // string. Only strip leading dirs for filesystem-style paths, where
+      // "data/knowledge/local-file_20260517.txt" → "local-file_20260517.txt".
+      final isUrl = path.startsWith('http://') || path.startsWith('https://');
+      final looksLikeQuery = path.trimLeft().toUpperCase().startsWith('SELECT');
+      if (isUrl || looksLikeQuery) return path;
       final slash = path.lastIndexOf(RegExp(r'[/\\]'));
       return slash >= 0 && slash < path.length - 1
           ? path.substring(slash + 1)

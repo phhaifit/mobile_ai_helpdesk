@@ -107,7 +107,7 @@ class _GoogleDriveFormScreenState extends State<GoogleDriveFormScreen> {
 
     if (!mounted) return;
     if (created != null) {
-      Navigator.pop(context);
+      Navigator.pop(context, created);
       return;
     }
     setState(() {

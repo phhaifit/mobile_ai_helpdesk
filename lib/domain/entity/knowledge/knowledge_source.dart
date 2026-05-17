@@ -29,18 +29,27 @@ enum DatabaseDialect { postgresql, sqlServer }
 // ---------------------------------------------------------------------------
 
 extension KnowledgeSourceTypeApiX on KnowledgeSourceType {
+  /// Path segment for `GET /sources/{type}`.
+  ///
+  /// Verified live against the BE: the AI-service expects **kebab-case** and
+  /// uses the singular `file` rather than `local_file`. Snake-case variants
+  /// return HTTP 500.
+  ///
+  /// Note: `wholeSite` is not listable separately — the BE folds it into
+  /// `web` for listing. The value below is best-effort kebab-case but
+  /// callers should avoid filtering by `wholeSite`.
   String toApiType() {
     switch (this) {
       case KnowledgeSourceType.web:
         return 'web';
       case KnowledgeSourceType.wholeSite:
-        return 'whole_site';
+        return 'whole-site';
       case KnowledgeSourceType.localFile:
-        return 'local_file';
+        return 'file';
       case KnowledgeSourceType.googleDrive:
-        return 'google_drive';
+        return 'google-drive';
       case KnowledgeSourceType.databaseQuery:
-        return 'database_query';
+        return 'database-query';
     }
   }
 

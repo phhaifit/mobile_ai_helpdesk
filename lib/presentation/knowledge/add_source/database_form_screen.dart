@@ -581,7 +581,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
     setState(() => _saving = false);
 
     if (result != null) {
-      Navigator.pop(context);
+      Navigator.pop(context, result);
     } else {
       setState(() {
         _step2Error =

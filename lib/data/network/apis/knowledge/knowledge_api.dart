@@ -261,16 +261,25 @@ class KnowledgeApi {
   }
 
   // ---------------------------------------------------------------------------
-  // 14. GET /status-sse
+  // 14. GET /status-sse  +  GET /whole-sites-sse
   // ---------------------------------------------------------------------------
 
   /// Yields raw `{sourceId: apiStatus}` maps as SSE events arrive.  Domain
   /// mapping happens in the repository.
   ///
   /// Errors are propagated so callers can implement reconnection.
-  Stream<Map<String, String>> statusSseStream(String tenantId) async* {
+  Stream<Map<String, String>> statusSseStream(String tenantId) =>
+      _sseStream(Endpoints.knowledgeStatusSse(tenantId));
+
+  /// Parallel SSE channel for whole-site crawl progress.  Event payload shape
+  /// matches [statusSseStream] (BE sends connected/heartbeat events the
+  /// parser silently drops).
+  Stream<Map<String, String>> wholeSitesSseStream(String tenantId) =>
+      _sseStream(Endpoints.knowledgeWholeSitesSse(tenantId));
+
+  Stream<Map<String, String>> _sseStream(String path) async* {
     final response = await _dio.get(
-      Endpoints.knowledgeStatusSse(tenantId),
+      path,
       options: Options(
         responseType: ResponseType.stream,
         headers: {'Accept': 'text/event-stream'},
