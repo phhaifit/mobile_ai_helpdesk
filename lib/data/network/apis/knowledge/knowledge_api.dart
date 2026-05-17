@@ -120,7 +120,7 @@ class KnowledgeApi {
     required String tenantId,
     required String webUrl,
     required String apiInterval,
-    required String webImportType, // 'single_url' | 'whole_site'
+    required String webImportType, // 'single_page' | 'whole_sites'
   }) async {
     final response = await _dio.post(
       Endpoints.knowledgeImportWeb(tenantId),

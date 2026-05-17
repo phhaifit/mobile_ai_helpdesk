@@ -19,18 +19,21 @@ void main() {
   });
 
   group('KnowledgeSourceType.toWebImportType', () {
-    test('web (single URL) → single_url', () {
-      expect(KnowledgeSourceType.web.toWebImportType(), 'single_url');
+    test('web (single page) → single_page', () {
+      expect(KnowledgeSourceType.web.toWebImportType(), 'single_page');
     });
-    test('wholeSite → whole_site', () {
-      expect(KnowledgeSourceType.wholeSite.toWebImportType(), 'whole_site');
+    test('wholeSite → whole_sites', () {
+      expect(KnowledgeSourceType.wholeSite.toWebImportType(), 'whole_sites');
     });
   });
 
   group('knowledgeSourceTypeFromApi', () {
     const cases = {
       'web': KnowledgeSourceType.web,
+      'single_page': KnowledgeSourceType.web,
+      'single_url': KnowledgeSourceType.web, // legacy spelling
       'whole_site': KnowledgeSourceType.wholeSite,
+      'whole_sites': KnowledgeSourceType.wholeSite,
       'local_file': KnowledgeSourceType.localFile,
       'google_drive': KnowledgeSourceType.googleDrive,
       'database_query': KnowledgeSourceType.databaseQuery,
