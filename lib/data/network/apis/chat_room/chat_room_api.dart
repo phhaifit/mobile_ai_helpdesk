@@ -70,7 +70,7 @@ class ChatRoomApi {
   /// empty map when the room is missing.
   Future<Map<String, dynamic>> getChatRoomDetail(String chatRoomId) async {
     final response = await _dio.get(
-      Endpoints.chatRoomDetail,
+      Endpoints.chatRoomDetail(),
       queryParameters: {'chatRoomID': chatRoomId},
     );
     final data = response.data;

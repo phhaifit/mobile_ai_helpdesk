@@ -23,4 +23,7 @@ class SettingRepositoryImpl extends SettingRepository {
 
   @override
   String? get currentLanguage => _sharedPrefsHelper.currentLanguage;
+
+  @override
+  String? get socketId => _sharedPrefsHelper.socketId;
 }
