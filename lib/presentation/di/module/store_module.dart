@@ -197,7 +197,7 @@ class StoreModule {
       ),
     );
 
-    // --- Session Store ---
+    // --- Session Store (shared by ticket + KB Drive flows) ---
     getIt.registerSingleton<SessionStore>(SessionStore());
 
     // --- Ticket Stores ---

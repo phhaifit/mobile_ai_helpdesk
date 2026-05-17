@@ -1,129 +1,214 @@
-import 'package:ai_helpdesk/constants/env.dart';
-import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
-import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'dart:convert';
+import 'dart:io' show Platform;
 
-/// Performs the Google Drive OAuth 2.0 implicit flow inside an in-app WebView,
-/// reusing the [WebViewBrowserClient] already used for Stack Auth.
+import 'package:ai_helpdesk/constants/env.dart';
+import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
+
+/// Outcome of a successful Google Drive sign-in.
 ///
-/// Implicit flow keeps the mobile app out of any client-secret handling — the
-/// access token is delivered straight to the redirect URL fragment.  We
-/// forward the resulting credentials object to the backend, which uses it to
-/// pull files from Drive on the user's behalf.
+/// Carries the two tokens the backend `/google-drive` import endpoint needs
+/// (`accessToken` + `refreshToken`) plus a few display-only fields so the UI
+/// can show *which* account was connected and when the access token expires.
+class GoogleDriveAuthResult {
+  final String accessToken;
+  final String refreshToken;
+  final String? idToken;
+  final DateTime? accessTokenExpiresAt;
+  final List<String> grantedScopes;
+
+  /// Email of the signed-in Google account, decoded from the OIDC id_token.
+  /// `null` if the id_token was absent or not a parseable JWT.
+  final String? accountEmail;
+
+  const GoogleDriveAuthResult({
+    required this.accessToken,
+    required this.refreshToken,
+    this.idToken,
+    this.accessTokenExpiresAt,
+    this.grantedScopes = const [],
+    this.accountEmail,
+  });
+
+  /// The exact `credentials` object the BE `POST /google-drive` endpoint
+  /// expects — per the API contract it carries only `accessToken` +
+  /// `refreshToken` (it treats the object as opaque otherwise).
+  GoogleDriveCredentials toCredentials() => GoogleDriveCredentials({
+        'accessToken': accessToken,
+        'refreshToken': refreshToken,
+      });
+}
+
+/// Runs Google's **OAuth 2.0 Authorization Code flow with PKCE** in the system
+/// browser (Chrome Custom Tabs on Android, `ASWebAuthenticationSession` on
+/// iOS) via `flutter_appauth`.
+///
+/// Why PKCE and not the old implicit/WebView flow:
+///  * Implicit flow only ever returns an `access_token` (no `refresh_token`),
+///    so periodic re-sync on the BE would die after ~1h.
+///  * PKCE proves "the client exchanging the code is the one that started the
+///    flow" via a `code_verifier`/`code_challenge` pair — **no `client_secret`
+///    is needed or used on-device**. flutter_appauth + the AppAuth SDKs handle
+///    the PKCE bookkeeping; we just request `access_type=offline` (ask for a
+///    refresh token) and `prompt=consent` (force the consent screen so Google
+///    *re-issues* the refresh token on every sign-in, not only the first one).
+///  * Google blocks OAuth inside embedded WebViews; the system browser is the
+///    only sanctioned path for mobile.
 class GoogleDriveOAuthService {
-  /// drive.readonly is the minimum scope to ingest files; openid+email gives
-  /// us a stable user identifier we ship along with the credentials so BE can
-  /// associate the source with a specific Google identity.
-  static const _scopes = [
+  // The Android + iOS OAuth client IDs (and the matching native redirect-scheme
+  // config in android/app/build.gradle and ios/Runner/Info.plist) live in
+  // [EnvConfig] — see the comment block there. [_redirectUrl] below derives the
+  // redirect scheme from whichever client ID is active.
+
+  /// Google's OpenID Connect discovery document. flutter_appauth reads the
+  /// authorization + token endpoints from here, so we never hardcode them.
+  static const String _discoveryUrl =
+      'https://accounts.google.com/.well-known/openid-configuration';
+
+  /// `drive.readonly` is the scope the BE needs to ingest the user's files;
+  /// `openid`+`email` give us a stable identifier (the account email) we show
+  /// in the UI. NOTE: `drive.readonly` is a Google "sensitive" scope — the
+  /// OAuth consent screen will need verification before going to production
+  /// with external users (it works for test users immediately).
+  static const List<String> _scopes = <String>[
     'https://www.googleapis.com/auth/drive.readonly',
     'openid',
     'email',
-    'profile',
   ];
 
-  /// Opens the Google consent screen, captures the redirect, and returns the
-  /// parsed credentials object suitable for the BE `/google-drive` endpoint.
-  ///
-  /// Returns `null` if the user cancels, throws on configuration / parsing
-  /// errors so callers can surface a meaningful message.
-  Future<GoogleDriveCredentials?> signIn() async {
-    final env = EnvConfig.instance;
-    if (!env.isGoogleOauthConfigured) {
-      throw const GoogleDriveOAuthException(
-        'Google OAuth chưa được cấu hình. '
-        'Thêm --dart-define=GOOGLE_OAUTH_CLIENT_ID=<id> khi build.',
-      );
-    }
+  final FlutterAppAuth _appAuth;
 
-    final clientId = env.googleOauthClientId;
-    final redirectUri = env.googleOauthRedirectUri;
-    final state = DateTime.now().microsecondsSinceEpoch.toString();
+  GoogleDriveOAuthService({FlutterAppAuth? appAuth})
+      : _appAuth = appAuth ?? const FlutterAppAuth();
 
-    final authorizeUri = Uri.https(
-      'accounts.google.com',
-      '/o/oauth2/v2/auth',
-      {
-        'client_id': clientId,
-        'redirect_uri': redirectUri,
-        'response_type': 'token',
-        'scope': _scopes.join(' '),
-        'include_granted_scopes': 'true',
-        'state': state,
-        'prompt': 'consent',
-      },
-    );
+  String get _clientId => Platform.isIOS
+      ? EnvConfig.instance.googleDriveIosClientId
+      : EnvConfig.instance.googleDriveAndroidClientId;
 
-    final client = WebViewBrowserClient(callbackUrlPrefix: redirectUri);
-
-    String resultUrl;
-    try {
-      resultUrl = await client.authenticate(
-        url: authorizeUri.toString(),
-        callbackUrlScheme: 'https',
-        forceAccountChooser: true,
-      );
-    } on OAuthCancelledException {
-      return null;
-    }
-
-    return _parseImplicitCallback(resultUrl, expectedState: state);
+  /// Custom-scheme redirect Google sends the authorization code back to,
+  /// derived from the reversed client ID (the scheme Google's mobile OAuth
+  /// clients are wired to). Must match the native config — see the big comment
+  /// on the client-ID constants above.
+  String get _redirectUrl {
+    // `123-abc.apps.googleusercontent.com` → `com.googleusercontent.apps.123-abc`
+    final reversed =
+        'com.googleusercontent.apps.${_clientId.split('.').first}';
+    return '$reversed:/oauth2redirect';
   }
 
-  GoogleDriveCredentials _parseImplicitCallback(
-    String url, {
-    required String expectedState,
-  }) {
-    final uri = Uri.parse(url);
-    // Implicit flow returns parameters in the URL fragment (#access_token=…).
-    final fragment = uri.fragment.isNotEmpty ? uri.fragment : '';
-    final fragMap = _parseQuery(fragment);
-    final queryMap = uri.queryParameters;
-
-    final error = fragMap['error'] ?? queryMap['error'];
-    if (error != null) {
-      throw GoogleDriveOAuthException('Google từ chối yêu cầu: $error');
+  /// Opens the Google consent screen, exchanges the returned code for tokens,
+  /// and returns them. Returns `null` when the user dismisses the browser;
+  /// throws [GoogleDriveOAuthException] (with a user-facing message) on any
+  /// real failure.
+  Future<GoogleDriveAuthResult?> signIn() async {
+    final AuthorizationTokenResponse response;
+    try {
+      response = await _appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          _clientId,
+          _redirectUrl,
+          discoveryUrl: _discoveryUrl,
+          scopes: _scopes,
+          // access_type=offline → request a refresh_token.
+          // prompt=consent      → always show consent so Google re-issues the
+          //                       refresh_token (it only sends one on the very
+          //                       first consent otherwise).
+          additionalParameters: const {
+            'access_type': 'offline',
+            'prompt': 'consent',
+          },
+          // PKCE (code_challenge_method=S256) is enabled by default — no need
+          // to generate the verifier/challenge ourselves.
+        ),
+      );
+    } on FlutterAppAuthUserCancelledException {
+      return null;
+    } on FlutterAppAuthPlatformException catch (e) {
+      if (_isCancellation(e)) return null;
+      throw GoogleDriveOAuthException(_describe(e));
+    } on Exception catch (e) {
+      throw GoogleDriveOAuthException('Đăng nhập Google thất bại: $e');
     }
 
-    final accessToken = fragMap['access_token'] ?? queryMap['access_token'];
+    final accessToken = response.accessToken;
     if (accessToken == null || accessToken.isEmpty) {
       throw const GoogleDriveOAuthException(
-        'Không nhận được access token từ Google.',
+        'Google không trả về access token. Vui lòng thử lại.',
       );
     }
 
-    final state = fragMap['state'] ?? queryMap['state'];
-    if (state != expectedState) {
+    final refreshToken = response.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      // Happens when the user previously granted access and Google decides not
+      // to mint a new refresh token. `prompt=consent` should prevent this, but
+      // guard anyway so we never silently send half-credentials to the BE.
       throw const GoogleDriveOAuthException(
-        'State không khớp — phiên đăng nhập có thể bị giả mạo.',
+        'Google không trả về refresh token. Hãy bấm "Đăng nhập lại" và đồng ý '
+        'lại trên màn hình cấp quyền của Google.',
       );
     }
 
-    final tokenType = fragMap['token_type'] ?? queryMap['token_type'];
-    final expiresInRaw = fragMap['expires_in'] ?? queryMap['expires_in'];
-    final scope = fragMap['scope'] ?? queryMap['scope'];
-
-    return GoogleDriveCredentials({
-      'accessToken': accessToken,
-      if (tokenType != null) 'tokenType': tokenType,
-      if (expiresInRaw != null) 'expiresIn': int.tryParse(expiresInRaw),
-      if (scope != null) 'scope': scope,
-      'obtainedAt': DateTime.now().toUtc().toIso8601String(),
-    });
+    return GoogleDriveAuthResult(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      idToken: response.idToken,
+      accessTokenExpiresAt: response.accessTokenExpirationDateTime,
+      grantedScopes: response.scopes ?? const [],
+      accountEmail: _emailFromIdToken(response.idToken),
+    );
   }
 
-  Map<String, String> _parseQuery(String input) {
-    if (input.isEmpty) return const {};
-    final out = <String, String>{};
-    for (final pair in input.split('&')) {
-      final eq = pair.indexOf('=');
-      if (eq <= 0) continue;
-      final k = Uri.decodeComponent(pair.substring(0, eq));
-      final v = Uri.decodeComponent(pair.substring(eq + 1));
-      out[k] = v;
+  // ───────────────────────────────────────────────────────────────────────────
+  // Helpers
+  // ───────────────────────────────────────────────────────────────────────────
+
+  bool _isCancellation(FlutterAppAuthPlatformException e) {
+    final haystack = [
+      e.code,
+      e.message,
+      e.platformErrorDetails.type,
+      e.platformErrorDetails.code,
+      e.platformErrorDetails.error,
+      e.platformErrorDetails.errorDescription,
+    ].whereType<String>().join(' ').toLowerCase();
+    return haystack.contains('cancel') || // "user cancelled flow", "user_cancelled"
+        haystack.contains('error -3'); // OIDErrorCodeUserCanceledAuthorizationFlow (iOS)
+  }
+
+  String _describe(FlutterAppAuthPlatformException e) {
+    final d = e.platformErrorDetails;
+    String? pick(String? s) {
+      final t = s?.trim();
+      return (t != null && t.isNotEmpty) ? t : null;
     }
-    return out;
+
+    final detail = pick(d.errorDescription) ??
+        pick(d.error) ??
+        pick(e.message) ??
+        e.code;
+    return 'Đăng nhập Google thất bại: $detail';
+  }
+
+  /// Decodes the `email` claim out of an OIDC id_token (an unsigned JWT for our
+  /// purposes — we only need it for display, the BE doesn't trust it).
+  static String? _emailFromIdToken(String? idToken) {
+    if (idToken == null) return null;
+    final parts = idToken.split('.');
+    if (parts.length < 2) return null;
+    try {
+      var payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      payload = payload.padRight((payload.length + 3) & ~3, '=');
+      final json = jsonDecode(utf8.decode(base64.decode(payload)));
+      if (json is Map && json['email'] is String) return json['email'] as String;
+    } catch (_) {
+      // not a parseable JWT — not fatal, the email is cosmetic.
+    }
+    return null;
   }
 }
 
+/// Surfaced to the UI when the Google Drive sign-in fails (configuration,
+/// network, server rejection, …). [message] is already user-facing Vietnamese.
 class GoogleDriveOAuthException implements Exception {
   final String message;
   const GoogleDriveOAuthException(this.message);

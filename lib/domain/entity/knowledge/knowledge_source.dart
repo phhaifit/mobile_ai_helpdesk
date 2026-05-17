@@ -4,8 +4,13 @@ part 'knowledge_source.g.dart';
 
 /// Source type — mirrors the backend `type` enum 1:1.
 ///
-/// Backend values:
-///   `web` (single URL) | `whole_site` | `local_file` | `google_drive` | `database_query`
+/// Backend values for `GET /sources/{type}` (path param) and the `type` field
+/// returned in list responses:
+///   `web` | `whole_site` | `local_file` | `google_drive` | `database_query`
+///
+/// `POST /web` uses a different vocabulary for its body's `type` field
+/// (`single_page` for a single URL, `whole_sites` for a full crawl) — see
+/// [KnowledgeSourceTypeApiX.toWebImportType].
 enum KnowledgeSourceType { web, wholeSite, localFile, googleDrive, databaseQuery }
 
 /// Processing status — mirrors the backend `status` enum 1:1.
@@ -24,39 +29,60 @@ enum DatabaseDialect { postgresql, sqlServer }
 // ---------------------------------------------------------------------------
 
 extension KnowledgeSourceTypeApiX on KnowledgeSourceType {
+  /// Path segment for `GET /sources/{type}`.
+  ///
+  /// Verified live against the BE: the AI-service expects **kebab-case** and
+  /// uses the singular `file` rather than `local_file`. Snake-case variants
+  /// return HTTP 500.
+  ///
+  /// Note: `wholeSite` is not listable separately — the BE folds it into
+  /// `web` for listing. The value below is best-effort kebab-case but
+  /// callers should avoid filtering by `wholeSite`.
   String toApiType() {
     switch (this) {
       case KnowledgeSourceType.web:
         return 'web';
       case KnowledgeSourceType.wholeSite:
-        return 'whole_site';
+        return 'whole-site';
       case KnowledgeSourceType.localFile:
-        return 'local_file';
+        return 'file';
       case KnowledgeSourceType.googleDrive:
-        return 'google_drive';
+        return 'google-drive';
       case KnowledgeSourceType.databaseQuery:
-        return 'database_query';
+        return 'database-query';
     }
   }
 
-  /// Used for the body field `type` of `POST /web` (single_url|whole_site).
+  /// Used for the body field `type` of `POST /web` (`single_page`|`whole_sites`).
+  /// Distinct from [toApiType] — the BE deliberately uses a different
+  /// vocabulary for the import endpoint than for the list/path endpoints.
   String toWebImportType() {
-    if (this == KnowledgeSourceType.wholeSite) return 'whole_site';
-    return 'single_url';
+    if (this == KnowledgeSourceType.wholeSite) return 'whole_sites';
+    return 'single_page';
   }
 }
 
 KnowledgeSourceType knowledgeSourceTypeFromApi(String? raw) {
   switch (raw) {
     case 'web':
+    case 'single_page':
+    case 'single_url': // legacy spelling, kept for backward compat
       return KnowledgeSourceType.web;
     case 'whole_site':
+    case 'whole-site':
+    case 'whole_sites': // POST /web body spelling
       return KnowledgeSourceType.wholeSite;
     case 'local_file':
+    case 'local-file':
+    case 'file':
       return KnowledgeSourceType.localFile;
     case 'google_drive':
+    case 'google-drive':
+    case 'drive':
       return KnowledgeSourceType.googleDrive;
     case 'database_query':
+    case 'database-query':
+    case 'database':
       return KnowledgeSourceType.databaseQuery;
     default:
       return KnowledgeSourceType.web;
@@ -85,12 +111,19 @@ extension KnowledgeSourceStatusApiX on KnowledgeSourceStatus {
 KnowledgeSourceStatus knowledgeSourceStatusFromApi(String? raw) {
   switch (raw) {
     case 'pending':
+    case 'queued':
       return KnowledgeSourceStatus.pending;
     case 'processing':
+    case 'indexing':
+    case 'crawling':
       return KnowledgeSourceStatus.processing;
     case 'completed':
+    case 'active':
+    case 'inactive':
+    case 'ready':
       return KnowledgeSourceStatus.completed;
     case 'failed':
+    case 'error':
       return KnowledgeSourceStatus.failed;
     default:
       return KnowledgeSourceStatus.pending;

@@ -343,7 +343,7 @@ class _WebSourceFormScreenState extends State<WebSourceFormScreen> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (result != null) {
-      Navigator.pop(context);
+      Navigator.pop(context, result);
     } else {
       setState(() {
         _submitError =

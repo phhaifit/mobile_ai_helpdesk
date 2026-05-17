@@ -46,6 +46,17 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // flutter_appauth: the custom URL scheme the Google Drive OAuth redirect
+        // (Authorization Code + PKCE) comes back on. This is the *reversed*
+        // Google Android OAuth client ID — i.e. the reversed form of
+        // `368520637250-XXX.apps.googleusercontent.com`. ⚠️ Placeholder: update
+        // this to the real value when DevOps issues the Android client ID, and
+        // keep it in sync with `_androidClientId` in
+        // lib/presentation/knowledge/add_source/google_drive_oauth_service.dart.
+        manifestPlaceholders += [
+            appAuthRedirectScheme: 'com.googleusercontent.apps.368520637250-XXX_ANDROID'
+        ]
     }
 
     signingConfigs {
@@ -60,6 +71,16 @@ android {
     }
 
     buildTypes {
+        // Debug builds (flutter run) are signed with the SAME release keystore —
+        // whenever android/key.properties is present — so local dev installs and
+        // store/CI builds share one SHA-1 fingerprint (the one registered against
+        // the Google OAuth Android client ID). Falls back to the stock Android
+        // debug key when key.properties is absent (fresh clone without the keystore).
+        debug {
+            signingConfig keystoreProperties.containsKey('keyAlias')
+                ? signingConfigs.release
+                : signingConfigs.debug
+        }
         release {
             signingConfig keystoreProperties.containsKey('keyAlias')
                 ? signingConfigs.release

@@ -1,3 +1,4 @@
+import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/presentation/knowledge/add_source/database_form_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/add_source/file_source_form_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/add_source/google_drive_form_screen.dart';
@@ -10,7 +11,18 @@ import 'package:flutter/material.dart';
 class AddSourceTypeScreen extends StatefulWidget {
   final KnowledgeStore store;
 
-  const AddSourceTypeScreen({required this.store, super.key});
+  /// Fired when a form successfully creates a source.  We cannot rely on the
+  /// bottom-sheet's modal result because the sheet is popped *before* the
+  /// form is pushed (so the form animates in over the list, not over the
+  /// sheet — better UX).  The list screen passes a closure that shows the
+  /// confirmation snackbar.
+  final ValueChanged<KnowledgeSource>? onCreated;
+
+  const AddSourceTypeScreen({
+    required this.store,
+    this.onCreated,
+    super.key,
+  });
 
   @override
   State<AddSourceTypeScreen> createState() => _AddSourceTypeScreenState();
@@ -196,9 +208,11 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
     );
   }
 
-  void _goNext() {
-    Navigator.pop(context);
+  Future<void> _goNext() async {
+    // Snapshot navigators and the onCreated callback before any `await`,
+    // since `Navigator.pop` will unmount this widget before the form returns.
     final navigator = Navigator.of(context, rootNavigator: false);
+    final onCreated = widget.onCreated;
     Widget form;
     switch (_selectedIndex) {
       case 0:
@@ -216,7 +230,11 @@ class _AddSourceTypeScreenState extends State<AddSourceTypeScreen> {
       default:
         return;
     }
-    navigator.push(MaterialPageRoute<void>(builder: (_) => form));
+    Navigator.pop(context);
+    final created = await navigator.push<KnowledgeSource>(
+      MaterialPageRoute<KnowledgeSource>(builder: (_) => form),
+    );
+    if (created != null && onCreated != null) onCreated(created);
   }
 }
 

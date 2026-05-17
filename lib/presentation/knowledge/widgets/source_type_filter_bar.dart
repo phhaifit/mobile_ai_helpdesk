@@ -14,10 +14,13 @@ class SourceTypeFilterBar extends StatelessWidget {
     super.key,
   });
 
+  // The `wholeSite` filter is intentionally absent: the BE folds whole-site
+  // imports into `type: web` for listing (verified against
+  // `GET /sources/whole-site*` which returns 500), so a dedicated pill would
+  // always be empty.
   static const _filters = <_Filter>[
     _Filter(null, 'Tất cả', Icons.apps_outlined),
     _Filter(KnowledgeSourceType.web, 'Web', Icons.link),
-    _Filter(KnowledgeSourceType.wholeSite, 'Toàn site', Icons.language),
     _Filter(KnowledgeSourceType.localFile, 'Tệp tin',
         Icons.insert_drive_file_outlined),
     _Filter(KnowledgeSourceType.googleDrive, 'Drive', Icons.add_to_drive),

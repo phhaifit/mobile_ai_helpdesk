@@ -70,11 +70,19 @@ abstract class _KnowledgeStore with Store {
   @observable
   KnowledgeSourceType? typeFilter;
 
+  /// Free-text query forwarded to BE on the next `loadSources` call.  Mutated
+  /// via [setSearchQuery] which debounces 350 ms before re-querying.
+  @observable
+  String? searchQuery;
+
   @observable
   ObservableFuture<void>? loadFuture;
 
   @observable
   String? errorMessage;
+
+  Timer? _searchDebounce;
+  static const _searchDebounceDuration = Duration(milliseconds: 350);
 
   /// True when the last load failed because the user has no tenant assigned.
   /// UI shows a dedicated empty state with a "Đặt Tenant ID" action instead
@@ -135,7 +143,8 @@ abstract class _KnowledgeStore with Store {
 
   @action
   Future<void> loadSources({String? query}) async {
-    final future = ObservableFuture(_loadSources(query: query));
+    if (query != null) searchQuery = query.isEmpty ? null : query;
+    final future = ObservableFuture(_loadSources());
     loadFuture = future;
     try {
       await future;
@@ -144,7 +153,35 @@ abstract class _KnowledgeStore with Store {
     }
   }
 
-  Future<void> _loadSources({String? query}) async {
+  /// Re-fetches the list **without** tripping [isLoading]/[loadFuture].
+  /// Used after an import (the placeholder source is already rendered, we
+  /// just need to swap it for the real record) and on debounced search input
+  /// so the existing list doesn't flicker behind a skeleton.
+  @action
+  Future<void> silentReload() async {
+    try {
+      await _loadSources();
+    } catch (_) {
+      // already mapped to errorMessage in _loadSources
+    }
+  }
+
+  /// Updates the BE `query` filter with a 350 ms debounce.  Pass empty / null
+  /// to clear and re-load all sources.
+  @action
+  void setSearchQuery(String? raw) {
+    final normalized = (raw == null || raw.trim().isEmpty) ? null : raw.trim();
+    if (normalized == searchQuery) return;
+    searchQuery = normalized;
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(_searchDebounceDuration, () {
+      // Use the silent variant so the existing list stays visible while a
+      // search round-trip is in flight.
+      silentReload();
+    });
+  }
+
+  Future<void> _loadSources() async {
     errorMessage = null;
     tenantMissing = false;
     try {
@@ -154,7 +191,7 @@ abstract class _KnowledgeStore with Store {
       // list response already carries `type` per source, server-side filtering
       // brings no benefit and breaks the UX.
       final list = await _getSources(
-        params: GetKnowledgeSourcesParams(query: query),
+        params: GetKnowledgeSourcesParams(query: searchQuery),
       );
       runInAction(() {
         sources = ObservableList.of(list);
@@ -287,6 +324,11 @@ abstract class _KnowledgeStore with Store {
         params: ImportWebSourceParams(url: url, type: type, interval: interval),
       );
       _addOrUpdate(s);
+      // Web import is fire-and-forget on BE — the synthetic placeholder we
+      // just inserted carries a `task-` or `pending-` id, not the real source
+      // id.  Reload the list so the actual source record (created by the
+      // indexing job) replaces the placeholder.
+      unawaited(silentReload());
       _ensureLiveStatus();
       return s;
     });
@@ -313,6 +355,11 @@ abstract class _KnowledgeStore with Store {
           ),
         );
         _addOrUpdate(s);
+        // File upload is processed asynchronously on BE — the response carries
+        // a placeholder source with `indexing` status; reload so the list
+        // picks up the real record once the worker creates it (matches the
+        // web/drive/db import flow below).
+        unawaited(silentReload());
         _ensureLiveStatus();
         return s;
       } finally {
@@ -342,6 +389,9 @@ abstract class _KnowledgeStore with Store {
         ),
       );
       _addOrUpdate(s);
+      // Drive import is fire-and-forget on BE — reload to replace the
+      // synthetic placeholder with the real source.
+      unawaited(silentReload());
       _ensureLiveStatus();
       return s;
     });
@@ -366,6 +416,9 @@ abstract class _KnowledgeStore with Store {
         ),
       );
       _addOrUpdate(s);
+      // DB import is fire-and-forget on BE — reload to replace the
+      // synthetic placeholder with the real source.
+      unawaited(silentReload());
       _ensureLiveStatus();
       return s;
     });
@@ -575,5 +628,7 @@ abstract class _KnowledgeStore with Store {
 
   void dispose() {
     stopLiveStatus();
+    _searchDebounce?.cancel();
+    _searchDebounce = null;
   }
 }
