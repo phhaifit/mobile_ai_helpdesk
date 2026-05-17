@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
-import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
-import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
@@ -32,6 +29,8 @@ import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -77,6 +76,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/select_facebook_a
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
@@ -91,8 +91,10 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_useca
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/stream_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -366,8 +368,14 @@ class UseCaseModule {
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
     );
+    getIt.registerSingleton<GetDraftResponseUseCase>(
+      GetDraftResponseUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<StreamDraftResponseUseCase>(
+      StreamDraftResponseUseCase(getIt<PlaygroundRepository>()),
+    );
 
-    // Jarvis Agent Use Cases:--------------------------------------------------
+    // --- Jarvis Use Cases ---
     getIt.registerSingleton<SendJarvisMessageUseCase>(
       SendJarvisMessageUseCase(getIt<JarvisRepository>()),
     );

@@ -17,7 +17,10 @@ import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 import '/data/network/apis/account/account_api.dart';
+import '/data/network/apis/ai_agent/ai_agent_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
+import '/data/network/apis/jarvis/jarvis_agent_api.dart';
+import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
@@ -99,6 +102,7 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
+      getIt<StackHeadersInterceptor>(),
       getIt<AuthInterceptor>(),
       getIt<TenantHeaderInterceptor>(),
       getIt<RefreshTokenInterceptor>(),
@@ -117,12 +121,13 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     getIt.registerSingleton<DioClient>(authDio, instanceName: authDioName);
     getIt.registerSingleton<DioClient>(
@@ -149,6 +154,16 @@ class NetworkModule {
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );
 
+    // api classes:-------------------------------------------------------------
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<PlaygroundApi>(
+      PlaygroundApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<JarvisAgentApi>(
+      JarvisAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
     // realtime:---------------------------------------------------------------
     getIt.registerSingleton<SocketService>(
       SocketService(getIt<SharedPreferenceHelper>()),

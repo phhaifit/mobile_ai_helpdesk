@@ -44,6 +44,7 @@ class SharedPreferenceHelper {
     return _sharedPreference.setBool(Preferences.isLoggedIn, value);
   }
 
+  // Tenant:--------------------------------------------------------------------
   // Account JSON cache (serialised `Account` payload):-------------------------
   Future<String?> get accountJson async {
     return _sharedPreference.getString(Preferences.accountJson);

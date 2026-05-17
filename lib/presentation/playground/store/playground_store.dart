@@ -5,12 +5,16 @@ import 'package:mobx/mobx.dart';
 import '/core/stores/error/error_store.dart';
 import '/domain/entity/playground/playground_message.dart';
 import '/domain/entity/playground/playground_session.dart';
+import '/domain/repository/playground/playground_repository.dart';
 import '/domain/usecase/playground/create_session_usecase.dart';
+import '/domain/usecase/playground/get_draft_response_usecase.dart';
 import '/domain/usecase/playground/get_sessions_usecase.dart';
 import '/domain/usecase/playground/send_playground_message_usecase.dart';
+import '/domain/usecase/playground/stream_draft_response_usecase.dart';
 
 part 'playground_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class PlaygroundStore = _PlaygroundStore with _$PlaygroundStore;
 
 abstract class _PlaygroundStore with Store {
@@ -18,6 +22,8 @@ abstract class _PlaygroundStore with Store {
     this._getSessionsUseCase,
     this._createSessionUseCase,
     this._sendMessageUseCase,
+    this._getDraftResponseUseCase,
+    this._streamDraftResponseUseCase,
     this.errorStore,
   );
 
@@ -25,6 +31,8 @@ abstract class _PlaygroundStore with Store {
   final GetSessionsUseCase _getSessionsUseCase;
   final CreateSessionUseCase _createSessionUseCase;
   final SendPlaygroundMessageUseCase _sendMessageUseCase;
+  final GetDraftResponseUseCase _getDraftResponseUseCase;
+  final StreamDraftResponseUseCase _streamDraftResponseUseCase;
 
   // stores:--------------------------------------------------------------------
   final ErrorStore errorStore;
@@ -50,6 +58,18 @@ abstract class _PlaygroundStore with Store {
   @observable
   bool isStreaming = false;
 
+  // draft response state:------------------------------------------------------
+  @observable
+  String draftResponse = '';
+
+  @observable
+  bool isDraftLoading = false;
+
+  @observable
+  bool isDraftStreaming = false;
+
+  StreamSubscription<String>? _draftStreamSubscription;
+
   // computed:------------------------------------------------------------------
   @computed
   bool get isLoadingSessions =>
@@ -65,14 +85,17 @@ abstract class _PlaygroundStore with Store {
     errorStore.errorMessage = '';
     final future = _getSessionsUseCase.call(params: null);
     fetchSessionsFuture = ObservableFuture(future);
-    await future.then((result) {
-      sessions = ObservableList.of(result);
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await future
+        .then((result) {
+          sessions = ObservableList.of(result);
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void openSession(PlaygroundSession session) {
     activeSession = session;
   }
@@ -184,9 +207,10 @@ abstract class _PlaygroundStore with Store {
   @action
   void editMessage(String messageId, String newContent) {
     if (activeSession == null) return;
-    final updatedMessages = activeSession!.messages.map((m) {
-      return m.id == messageId ? m.copyWith(content: newContent) : m;
-    }).toList();
+    final updatedMessages =
+        activeSession!.messages.map((m) {
+          return m.id == messageId ? m.copyWith(content: newContent) : m;
+        }).toList();
     activeSession = activeSession!.copyWith(messages: updatedMessages);
   }
 
@@ -194,5 +218,51 @@ abstract class _PlaygroundStore with Store {
   void closeSession() {
     activeSession = null;
     isStreaming = false;
+  }
+
+  // draft response actions:----------------------------------------------------
+
+  @action
+  Future<void> fetchDraftResponse(DraftResponseParams params) async {
+    isDraftLoading = true;
+    draftResponse = '';
+    errorStore.errorMessage = '';
+    await _getDraftResponseUseCase
+        .call(params: params)
+        .then((text) {
+          draftResponse = text;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        })
+        .whenComplete(() {
+          isDraftLoading = false;
+        });
+  }
+
+  @action
+  void startDraftStream(DraftResponseParams params) {
+    _draftStreamSubscription?.cancel();
+    draftResponse = '';
+    isDraftStreaming = true;
+    errorStore.errorMessage = '';
+
+    final stream = _streamDraftResponseUseCase.call(params: params);
+    _draftStreamSubscription = stream.listen(
+      (chunk) => runInAction(() => draftResponse += chunk),
+      onError:
+          (dynamic e) => runInAction(() {
+            errorStore.errorMessage = e.toString();
+            isDraftStreaming = false;
+          }),
+      onDone: () => runInAction(() => isDraftStreaming = false),
+    );
+  }
+
+  @action
+  void cancelDraftStream() {
+    _draftStreamSubscription?.cancel();
+    _draftStreamSubscription = null;
+    isDraftStreaming = false;
   }
 }

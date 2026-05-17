@@ -30,13 +30,13 @@ class LoggingInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    logPrint('[DIO][HEADERS]');
-    options.headers.forEach((key, value) {
-      logPrint('$key:$value');
-    });
+    // logPrint('[DIO][HEADERS]');
+    // options.headers.forEach((key, value) {
+    //   logPrint('$key:$value');
+    // });
 
     if (level == Level.headers) {
-      logPrint('[DIO][HEADERS]--> END ${options.method}');
+      // logPrint('[DIO][HEADERS]--> END ${options.method}');
       return handler.next(options);
     }
 
@@ -73,10 +73,10 @@ class LoggingInterceptor extends Interceptor {
       return handler.next(response);
     }
 
-    logPrint('[DIO][HEADER]');
-    response.headers.forEach((key, value) {
-      logPrint('$key:$value');
-    });
+    // logPrint('[DIO][HEADER]');
+    // response.headers.forEach((key, value) {
+    //   logPrint('$key:$value');
+    // });
 
     if (level == Level.headers) {
       return handler.next(response);

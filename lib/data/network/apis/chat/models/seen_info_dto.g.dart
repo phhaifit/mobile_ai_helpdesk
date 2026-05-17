@@ -14,8 +14,12 @@ _$SeenInfoDtoImpl _$$SeenInfoDtoImplFromJson(Map<String, dynamic> json) =>
       messageId: json['messageID'] as String? ?? '',
       messageOrder: (json['messageOrder'] as num?)?.toInt() ?? 0,
       numberMessageSeen: (json['numberMessageSeen'] as num?)?.toInt() ?? 0,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt:
+          DateTime.tryParse((json['createdAt'] ?? '').toString()) ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt:
+          DateTime.tryParse((json['updatedAt'] ?? '').toString()) ??
+          DateTime.fromMillisecondsSinceEpoch(0),
     );
 
 Map<String, dynamic> _$$SeenInfoDtoImplToJson(_$SeenInfoDtoImpl instance) =>

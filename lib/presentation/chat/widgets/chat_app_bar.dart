@@ -36,34 +36,52 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Row(
         children: [
-          ChatAvatar(name: room.name, avatarUrl: room.avatarUrl, appAvatarUrl: room.appAvatarUrl, size: 36),
+          ChatAvatar(
+            name: room.name,
+            avatarUrl: room.avatarUrl,
+            appAvatarUrl: room.appAvatarUrl,
+            size: 36,
+          ),
           const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                room.name,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                spacing: 4,
-                children: [
-                  ChatAvatar(name: room.channel.name, avatarUrl: room.channel.avatarUrl, size: 16),
-                  Text(
-                    room.channel.name,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 12,
-                    ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  room.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    ChatAvatar(
+                      name: room.channel.name,
+                      avatarUrl: room.channel.avatarUrl,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        room.channel.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -18,11 +18,18 @@ import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/create_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/delete_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/get_agent_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/get_agents_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ai_agent/update_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
@@ -86,6 +93,11 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/stream_draft_response_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/sign_in_email/store/sign_in_email_store.dart';
 import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/auth/verify_otp/store/verify_otp_store.dart';
@@ -121,11 +133,9 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
-import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/presentation/auth/profile/store/profile_store.dart';
 import 'package:ai_helpdesk/presentation/customer/store/customer_detail_store.dart';
+import 'package:ai_helpdesk/presentation/jarvis/store/jarvis_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/audience_selection_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
 import 'package:ai_helpdesk/presentation/team/store/team_store.dart';
@@ -136,14 +146,6 @@ import 'package:get_it/get_it.dart';
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
 import '../../../domain/usecase/chat/search/flat_search_message_list_usecase.dart';
-import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/delete_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/get_agent_usecase.dart';
-import '../../../domain/usecase/ai_agent/get_agents_usecase.dart';
-import '../../../domain/usecase/ai_agent/update_agent_usecase.dart';
-import '../../../domain/usecase/playground/create_session_usecase.dart';
-import '../../../domain/usecase/playground/get_sessions_usecase.dart';
-import '../../../domain/usecase/playground/send_playground_message_usecase.dart';
 
 class StoreModule {
   static Future<void> configureStoreModuleInjection() async {
@@ -398,6 +400,8 @@ class StoreModule {
         getIt<GetSessionsUseCase>(),
         getIt<CreateSessionUseCase>(),
         getIt<SendPlaygroundMessageUseCase>(),
+        getIt<GetDraftResponseUseCase>(),
+        getIt<StreamDraftResponseUseCase>(),
         getIt<ErrorStore>(),
       ),
     );

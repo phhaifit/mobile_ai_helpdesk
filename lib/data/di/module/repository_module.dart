@@ -28,6 +28,7 @@ import 'package:ai_helpdesk/data/network/apis/invitation/invitation_api.dart';
 import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
 import 'package:ai_helpdesk/data/network/apis/marketing/marketing_broadcast_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
+import 'package:ai_helpdesk/data/network/apis/playground/playground_api.dart';
 import 'package:ai_helpdesk/data/network/apis/prompt/prompt_template_api.dart';
 import 'package:ai_helpdesk/data/network/apis/team/team_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tenant/tenant_api.dart';
@@ -35,7 +36,6 @@ import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simulator.dart';
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/ai_agent/mock_ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat_room/customer_chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
@@ -88,36 +88,33 @@ class RepositoryModule {
     final getIt = GetIt.instance;
 
     // --- AI Agent Repository ---
-    getIt.registerSingleton<AiAgentApi>(
-      AiAgentApi(getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName)),
-    );
+    getIt.registerSingleton<AiAgentDataSource>(AiAgentDataSource());
     getIt.registerSingleton<AiAgentRepository>(
       AiAgentRepositoryImpl(
         getIt<AiAgentApi>(),
-        MockAiAgentRepositoryImpl(getIt<AiAgentDataSource>()),
+        getIt<SharedPreferenceHelper>(),
+        getIt<AiAgentDataSource>(),
       ),
     );
 
     // --- Playground Repository ---
     getIt.registerSingleton<PlaygroundRepository>(
-      PlaygroundRepositoryImpl(getIt<PlaygroundDataSource>()),
+      PlaygroundRepositoryImpl(
+        getIt<PlaygroundDataSource>(),
+        getIt<AiAgentApi>(),
+        getIt<PlaygroundApi>(),
+        getIt<SharedPreferenceHelper>(),
+      ),
     );
 
     // --- Jarvis Agent Repository ---
-    getIt.registerSingleton<JarvisAgentApi>(
-      JarvisAgentApi(
-        getIt<DioClient>(instanceName: NetworkModule.aiServiceDioName),
-      ),
-    );
     getIt.registerSingleton<JarvisRepository>(
       JarvisRepositoryImpl(getIt<JarvisAgentApi>()),
     );
 
     // --- Media (file upload) Repository ---
     getIt.registerSingleton<MediaApi>(
-      MediaApi(
-        getIt<DioClient>(instanceName: NetworkModule.helpdeskDioName),
-      ),
+      MediaApi(getIt<DioClient>(instanceName: NetworkModule.helpdeskDioName)),
     );
     getIt.registerSingleton<MediaRepository>(
       MediaRepositoryImpl(getIt<MediaApi>()),
@@ -265,7 +262,8 @@ class RepositoryModule {
       getIt.registerSingleton<MarketingRepository>(
         MockMarketingRepositoryImpl(),
       );
-    } else { // ignore: dead_code
+      // ignore: dead_code
+    } else {
       getIt.registerSingleton<MarketingBroadcastApi>(
         MarketingBroadcastApi(getIt<DioClient>()),
       );
