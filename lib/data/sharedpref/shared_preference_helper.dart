@@ -71,6 +71,19 @@ class SharedPreferenceHelper {
     return _sharedPreference.remove(Preferences.tenantId);
   }
 
+  // Socket.IO session id (written on connect, cleared on disconnect):----------
+  String? get socketId {
+    return _sharedPreference.getString(Preferences.socketId);
+  }
+
+  Future<bool> saveSocketId(String id) async {
+    return _sharedPreference.setString(Preferences.socketId, id);
+  }
+
+  Future<bool> removeSocketId() async {
+    return _sharedPreference.remove(Preferences.socketId);
+  }
+
   // Theme:---------------------------------------------------------------------
   bool get isDarkMode {
     return _sharedPreference.getBool(Preferences.isDarkMode) ?? false;

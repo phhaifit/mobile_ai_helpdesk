@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import 'sidebar_profile_section.dart';
-import 'tenant_switcher.dart';
 
 class MenuCategory {
   final String title;
@@ -30,11 +29,13 @@ class SidebarMenuContent extends StatefulWidget {
   final List<MenuCategory> categories;
   final String selectedCategory;
   final Function(String) onCategorySelected;
+  final Widget tenantSwitcher;
 
   const SidebarMenuContent({
     required this.categories,
     required this.selectedCategory,
     required this.onCategorySelected,
+    required this.tenantSwitcher,
     super.key,
   });
 
@@ -103,7 +104,7 @@ class _SidebarMenuContentState extends State<SidebarMenuContent> {
             ],
           ),
         ),
-        const TenantSwitcher(),
+        widget.tenantSwitcher,
         // Menu categories
         Expanded(
           child: SingleChildScrollView(
@@ -221,12 +222,14 @@ class SidebarMenuPanel extends StatefulWidget {
   final VoidCallback onClose;
   final String selectedCategory;
   final Function(String) onCategorySelected;
+  final Widget tenantSwitcher;
 
   const SidebarMenuPanel({
     required this.slideAnimation,
     required this.onClose,
     required this.selectedCategory,
     required this.onCategorySelected,
+    this.tenantSwitcher = const SizedBox.shrink(),
     super.key,
   });
 
@@ -391,7 +394,7 @@ class _SidebarMenuPanelState extends State<SidebarMenuPanel> {
                 ],
               ),
             ),
-            const TenantSwitcher(),
+            widget.tenantSwitcher,
             // Menu categories
             Expanded(
               child: SingleChildScrollView(

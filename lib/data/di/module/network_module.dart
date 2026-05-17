@@ -24,7 +24,8 @@ import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
-import '/data/network/rest_client.dart';
+import '/data/realtime/socket/socket_service.dart';
+import '/data/realtime/sse/draft_response_sse_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
 import '/domain/repository/auth/auth_repository.dart';
@@ -81,9 +82,6 @@ class NetworkModule {
         dio: () => getIt<DioClient>(instanceName: helpdeskDioName).dio,
       ),
     );
-
-    // rest client:-------------------------------------------------------------
-    getIt.registerSingleton(RestClient());
 
     // dio clients:-------------------------------------------------------------
     final authDio = DioClient(
@@ -166,10 +164,21 @@ class NetworkModule {
     getIt.registerSingleton<JarvisAgentApi>(
       JarvisAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
     );
+    // realtime:---------------------------------------------------------------
+    getIt.registerSingleton<SocketService>(
+      SocketService(getIt<SharedPreferenceHelper>()),
+    );
+
+    getIt.registerSingleton<DraftResponseSseClient>(
+      DraftResponseSseClient(getIt<DioClient>()),
+    );
+
     // websocket:---------------------------------------------------------------
     getIt.registerSingleton<TicketWebSocketService>(
       TicketWebSocketService(
         getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+        getTenantId: () async =>
+            await getIt<SharedPreferenceHelper>().tenantId,
       ),
     );
 

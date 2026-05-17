@@ -19,6 +19,24 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
           ))
           .value;
 
+  late final _$activeRoomIdAtom = Atom(
+    name: '_ChatRoomStore.activeRoomId',
+    context: context,
+  );
+
+  @override
+  String? get activeRoomId {
+    _$activeRoomIdAtom.reportRead();
+    return super.activeRoomId;
+  }
+
+  @override
+  set activeRoomId(String? value) {
+    _$activeRoomIdAtom.reportWrite(value, super.activeRoomId, () {
+      super.activeRoomId = value;
+    });
+  }
+
   late final _$chatRoomsAtom = Atom(
     name: '_ChatRoomStore.chatRooms',
     context: context,
@@ -65,25 +83,71 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
     return _$fetchChatRoomsAsyncAction.run(() => super.fetchChatRooms());
   }
 
+  late final _$markAsReadAsyncAction = AsyncAction(
+    '_ChatRoomStore.markAsRead',
+    context: context,
+  );
+
+  @override
+  Future<void> markAsRead(ChatRoom room) {
+    return _$markAsReadAsyncAction.run(() => super.markAsRead(room));
+  }
+
   late final _$_ChatRoomStoreActionController = ActionController(
     name: '_ChatRoomStore',
     context: context,
   );
 
   @override
-  void markAsRead(String roomId) {
+  void setActiveRoomId(String? roomId) {
     final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
-      name: '_ChatRoomStore.markAsRead',
+      name: '_ChatRoomStore.setActiveRoomId',
     );
     try {
-      return super.markAsRead(roomId);
+      return super.setActiveRoomId(roomId);
     } finally {
       _$_ChatRoomStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void updateLastMessage(String roomId, String message, {bool isMe = true}) {
+  void _onRoomSeen(ChatRoomSeenUpdate update) {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore._onRoomSeen',
+    );
+    try {
+      return super._onRoomSeen(update);
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _onInAppNotification(InAppNotification notification) {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore._onInAppNotification',
+    );
+    try {
+      return super._onInAppNotification(notification);
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearRooms() {
+    final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
+      name: '_ChatRoomStore.clearRooms',
+    );
+    try {
+      return super.clearRooms();
+    } finally {
+      _$_ChatRoomStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void updateLastMessage(String roomId, Message message, {bool isMe = true}) {
     final _$actionInfo = _$_ChatRoomStoreActionController.startAction(
       name: '_ChatRoomStore.updateLastMessage',
     );
@@ -97,6 +161,7 @@ mixin _$ChatRoomStore on _ChatRoomStore, Store {
   @override
   String toString() {
     return '''
+activeRoomId: ${activeRoomId},
 chatRooms: ${chatRooms},
 isLoading: ${isLoading},
 totalUnread: ${totalUnread}

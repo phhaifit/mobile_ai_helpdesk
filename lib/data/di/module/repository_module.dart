@@ -3,19 +3,27 @@ import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/auth/oauth_browser_client.dart';
 import 'package:ai_helpdesk/data/di/module/network_module.dart';
 import 'package:ai_helpdesk/data/local/auth/auth_local_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/chat/chat_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/chat/chat_room_datasource.dart';
+import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
+import 'package:ai_helpdesk/data/network/apis/jarvis/jarvis_agent_api.dart';
+import 'package:ai_helpdesk/data/network/apis/media/media_api.dart';
+import 'package:ai_helpdesk/data/repository/jarvis/jarvis_repository_impl.dart';
+import 'package:ai_helpdesk/data/repository/media/media_repository_impl.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
+import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
+import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
+import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
+import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
+import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/customer/mock_customer_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/playground/playground_datasource.dart';
-import 'package:ai_helpdesk/data/local/datasources/tag/mock_tag_datasource.dart';
 import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/local/ticket/mock_ticket_local_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/account/account_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/auth/stack_auth_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
-import 'package:ai_helpdesk/data/network/apis/customer/customer_api.dart';
 import 'package:ai_helpdesk/data/network/apis/invitation/invitation_api.dart';
 import 'package:ai_helpdesk/data/network/apis/jarvis/jarvis_agent_api.dart';
 import 'package:ai_helpdesk/data/network/apis/knowledge/knowledge_api.dart';
@@ -24,7 +32,6 @@ import 'package:ai_helpdesk/data/network/apis/media/media_api.dart';
 import 'package:ai_helpdesk/data/network/apis/omnichannel/omnichannel_api.dart';
 import 'package:ai_helpdesk/data/network/apis/playground/playground_api.dart';
 import 'package:ai_helpdesk/data/network/apis/prompt/prompt_template_api.dart';
-import 'package:ai_helpdesk/data/network/apis/tag/tag_api.dart';
 import 'package:ai_helpdesk/data/network/apis/team/team_api.dart';
 import 'package:ai_helpdesk/data/network/apis/tenant/tenant_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
@@ -32,8 +39,6 @@ import 'package:ai_helpdesk/data/network/realtime/mock_broadcast_realtime_simula
 import 'package:ai_helpdesk/data/repository/account/account_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/auth/auth_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/chat/chat_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/chat/chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/chat_room/customer_chat_room_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/customer/customer_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/invitation/invitation_repository_impl.dart';
@@ -51,12 +56,13 @@ import 'package:ai_helpdesk/data/repository/playground/playground_repository_imp
 import 'package:ai_helpdesk/data/repository/prompt/mock_prompt_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/prompt/prompt_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/setting/setting_repository_impl.dart';
-import 'package:ai_helpdesk/data/repository/tag/tag_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/team/team_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/tenant/tenant_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/repository/ticket/ticket_repository_impl.dart';
 import 'package:ai_helpdesk/data/sharedpref/shared_preference_helper.dart';
+import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
+import 'package:ai_helpdesk/data/realtime/socket/socket_service.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
@@ -75,12 +81,13 @@ import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
 import 'package:ai_helpdesk/domain/repository/prompt/prompt_repository.dart';
 import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
-import 'package:ai_helpdesk/domain/repository/tag/tag_repository.dart';
 import 'package:ai_helpdesk/domain/repository/team/team_repository.dart';
 import 'package:ai_helpdesk/domain/repository/tenant/tenant_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
+import '../../repository/chat/chat_repository_impl.dart';
+import '../../repository/chat/chat_room_repository_impl.dart';
 
 class RepositoryModule {
   static Future<void> configureRepositoryModuleInjection() async {
@@ -149,9 +156,11 @@ class RepositoryModule {
       MockTicketRepositoryImpl(getIt<MockTicketLocalDataSource>()),
     );
 
+    // TicketApi + ChatRoomApi are registered in NetworkModule.
     getIt.registerSingleton<TicketRepository>(
       TicketRepositoryImpl(
         getIt<TicketApi>(),
+        getIt<ChatRoomApi>(),
         getIt<MockTicketRepositoryImpl>(),
         getIt<MockTicketDataSource>(),
       ),
@@ -166,9 +175,15 @@ class RepositoryModule {
     );
 
     // --- Chat Repositories ---
-    getIt.registerSingleton<ChatRepository>(
-      ChatRepositoryImpl(getIt<ChatDataSource>()),
+    getIt.registerSingleton<ChatApi>(ChatApi(getIt<DioClient>()));
+    getIt.registerSingleton<ChatRepositoryImpl>(
+      ChatRepositoryImpl(getIt<ChatApi>(), getIt<SocketService>()),
     );
+    getIt.registerSingleton<ChatRoomRepositoryImpl>(
+      ChatRoomRepositoryImpl(getIt<ChatApi>(), getIt<SocketService>()),
+    );
+
+    getIt.registerSingleton<ChatRepository>(getIt<ChatRepositoryImpl>());
 
     // --- Customer Repositories ---
     // MockCustomerDataSource is passed as an in-memory fallback used in debug builds when
@@ -197,7 +212,7 @@ class RepositoryModule {
     }
 
     getIt.registerSingleton<ChatRoomRepository>(
-      ChatRoomRepositoryImpl(getIt<ChatRoomDataSource>()),
+      getIt<ChatRoomRepositoryImpl>(),
     );
 
     // --- Setting Repository ---

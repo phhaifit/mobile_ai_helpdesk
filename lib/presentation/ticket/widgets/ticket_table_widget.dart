@@ -5,6 +5,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 
 import '../store/ticket_column_visibility_store.dart';
+import 'ticket_card_widget.dart';
 import 'ticket_column_selector_dialog.dart';
 import 'ticket_table_list_widget.dart';
 
@@ -32,7 +33,7 @@ class TicketTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     if (tickets.isEmpty) {
       return const Center(
@@ -43,7 +44,7 @@ class TicketTableWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.inbox_outlined,
-                size: 80,
+                size: 64,
                 color: AppColors.dividerColor,
               ),
               SizedBox(height: 16),
@@ -66,6 +67,21 @@ class TicketTableWidget extends StatelessWidget {
       );
     }
 
+    if (isMobile) {
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: tickets.length,
+        itemBuilder: (context, index) {
+          final ticket = tickets[index];
+          return TicketCardWidget(
+            ticket: ticket,
+            onTap: () => onViewDetails?.call(ticket),
+          );
+        },
+      );
+    }
+
+    final columnVisibilityStore = GetIt.instance<TicketColumnVisibilityStore>();
     return Observer(
       builder: (_) {
         return TicketTableListWidget(

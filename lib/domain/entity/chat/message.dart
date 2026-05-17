@@ -1,48 +1,84 @@
+import 'attachment.dart';
+import 'message_reply_preview.dart';
 import 'reaction.dart';
-
-enum MessageReadStatus { sent, delivered, read }
+import 'user.dart';
 
 class Message {
-  final int id;
-  final String content;
-  final DateTime timestamp;
+  final String id;
+  final String conversationId;
+  final int order;
+  final User sender;
   final bool isMe;
-  final String senderName;
-  final bool isPending;
-  final MessageReadStatus readStatus;
+  final String content;
+  final List<Attachment> attachments;
+  final MessageReplyPreview? replyPreview;
   final List<Reaction> reactions;
+  final DateTime timestamp;
 
-  Message({
+  /// Zalo channel message (reactions require [zaloMessageId] + [zaloAccountId]).
+  final bool isZalo;
+
+  /// Zalo platform message id from `contentInfo.zaloMessageID` or `zaloCliMsgID`.
+  final String? zaloMessageId;
+
+  /// Customer Zalo account id from contact info.
+  final String? zaloAccountId;
+
+  /// Same as [conversationId]; matches backend naming in socket/UI.
+  String get chatRoomId => conversationId;
+
+  bool get canReactOnZalo =>
+      isZalo &&
+      zaloMessageId != null &&
+      zaloMessageId!.isNotEmpty &&
+      zaloAccountId != null &&
+      zaloAccountId!.isNotEmpty;
+
+  const Message({
     required this.id,
-    required this.content,
-    required this.timestamp,
+    required this.conversationId,
+    required this.order,
+    required this.sender,
     required this.isMe,
-    required this.senderName,
-    required this.isPending,
-    this.readStatus = MessageReadStatus.sent,
-    this.reactions = const [],
+    required this.content,
+    required this.attachments,
+    required this.timestamp,
+    this.replyPreview,
+    required this.reactions,
+    this.isZalo = false,
+    this.zaloMessageId,
+    this.zaloAccountId,
   });
 
-  /// Create a copy with optional fields
   Message copyWith({
-    int? id,
-    String? content,
-    DateTime? timestamp,
+    String? id,
+    String? conversationId,
+    int? order,
+    User? sender,
     bool? isMe,
-    String? senderName,
-    bool? isPending,
-    MessageReadStatus? readStatus,
+    String? content,
+    List<Attachment>? attachments,
+    MessageReplyPreview? replyPreview,
     List<Reaction>? reactions,
+    DateTime? timestamp,
+    bool? isZalo,
+    String? zaloMessageId,
+    String? zaloAccountId,
   }) {
     return Message(
       id: id ?? this.id,
-      content: content ?? this.content,
-      timestamp: timestamp ?? this.timestamp,
+      conversationId: conversationId ?? this.conversationId,
+      order: order ?? this.order,
+      sender: sender ?? this.sender,
       isMe: isMe ?? this.isMe,
-      senderName: senderName ?? this.senderName,
-      isPending: isPending ?? this.isPending,
-      readStatus: readStatus ?? this.readStatus,
+      content: content ?? this.content,
+      attachments: attachments ?? this.attachments,
+      replyPreview: replyPreview ?? this.replyPreview,
       reactions: reactions ?? this.reactions,
+      timestamp: timestamp ?? this.timestamp,
+      isZalo: isZalo ?? this.isZalo,
+      zaloMessageId: zaloMessageId ?? this.zaloMessageId,
+      zaloAccountId: zaloAccountId ?? this.zaloAccountId,
     );
   }
 }
