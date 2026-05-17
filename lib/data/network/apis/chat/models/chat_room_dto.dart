@@ -13,10 +13,13 @@ part 'chat_room_dto.g.dart';
 class ChatRoomDto with _$ChatRoomDto {
   const factory ChatRoomDto({
     @JsonKey(name: 'chatRoomID') required String chatRoomId,
-    @JsonKey(name: 'lastMessageID') required String lastMessageId, @JsonKey(name: 'ticketID') required String ticketId, required DateTime createdAt, @JsonKey(name: 'customerID') String? customerId,
+    @JsonKey(name: 'customerID') String? customerId,
     @JsonKey(name: 'groupID') String? groupId,
+    @JsonKey(name: 'lastMessageID') required String lastMessageId,
     @Default(0) int totalMessage,
     @Default(0) int followupCount,
+    @JsonKey(name: 'ticketID') required String ticketId,
+    required DateTime createdAt,
     DateTime? updatedAt,
     MessageDto? lastMessage,
     CustomerInfoDto? customerInfo,

@@ -26,7 +26,7 @@ class TicketCardWidget extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: AppColors.dividerColor, width: 1),
+        side: BorderSide(color: AppColors.dividerColor, width: 1),
       ),
       child: InkWell(
         onTap: onTap,

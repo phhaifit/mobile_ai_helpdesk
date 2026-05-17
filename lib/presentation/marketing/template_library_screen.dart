@@ -98,7 +98,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<CampaignChannel>(
-                        initialValue: selectedChannel,
+                        value: selectedChannel,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),

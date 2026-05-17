@@ -211,7 +211,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
         );
       case RecipientFilterType.segment:
         return DropdownButtonFormField<String>(
-          initialValue:
+          value:
               _store.draftSegmentValue.isEmpty
                   ? null
                   : _store.draftSegmentValue,
@@ -230,7 +230,7 @@ class _RecipientTargetingScreenState extends State<RecipientTargetingScreen> {
         );
       case RecipientFilterType.channel:
         return DropdownButtonFormField<CampaignChannel>(
-          initialValue: _store.draftChannelFilter,
+          value: _store.draftChannelFilter,
           decoration: const InputDecoration(
             labelText: 'Kênh liên lạc',
             border: OutlineInputBorder(),

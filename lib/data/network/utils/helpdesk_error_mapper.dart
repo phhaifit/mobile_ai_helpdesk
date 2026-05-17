@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:ai_helpdesk/core/data/network/exceptions/network_exceptions.dart';
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:dio/dio.dart';
+import 'dart:developer';
 
 /// Maps Helpdesk API `DioException`s into typed [Failure]s using the backend
 /// error contract documented in `API_Error_Response`.
