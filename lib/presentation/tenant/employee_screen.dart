@@ -9,6 +9,7 @@ import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class EmployeeScreen extends StatefulWidget {
   const EmployeeScreen({super.key, this.onMenuTap});
@@ -29,8 +30,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       TextEditingController();
   final TextEditingController _inviteEmailController = TextEditingController();
 
-  List<Invitation> _accountInvitations = <Invitation>[];
-  bool _isLoadingInvitations = false;
+  late final ReactionDisposer _tenantReaction;
 
   int _selectedTab = 0;
   TeamRole? _memberRoleFilter;
@@ -42,36 +42,22 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   void initState() {
     super.initState();
     _teamStore.loadTeamData();
-    _loadAccountInvitations();
-  }
-
-  Future<void> _loadAccountInvitations() async {
-    if (_isLoadingInvitations) {
-      return;
-    }
-    setState(() {
-      _isLoadingInvitations = true;
+    _tenantReaction = reaction((_) => _tenantStore.currentTenant?.id, (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _memberRoleFilter = null;
+        _invitationStatusFilter = null;
+      });
+      _memberSearchController.clear();
+      _invitationSearchController.clear();
     });
-    try {
-      final invitations = await _invitationRepository.getAccountInvitations();
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _accountInvitations = invitations;
-      });
-    } finally {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isLoadingInvitations = false;
-      });
-    }
   }
 
   @override
   void dispose() {
+    _tenantReaction();
     _memberSearchController.dispose();
     _invitationSearchController.dispose();
     _inviteEmailController.dispose();
@@ -126,17 +112,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  List<Invitation> get _filteredAccountInvitations {
-    final query = _invitationSearchController.text.trim().toLowerCase();
-    return _accountInvitations.where((item) {
-      final hitQuery =
-          query.isEmpty || item.email.toLowerCase().contains(query);
-      final hitStatus =
-          _invitationStatusFilter == null ||
-          item.status == _invitationStatusFilter;
-      return hitQuery && hitStatus;
-    }).toList();
-  }
 
   Widget _buildTabs(AppLocalizations l) {
     return Row(
@@ -211,7 +186,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     List<Invitation> invitations,
     bool isMobile,
   ) {
-    if (_isLoadingInvitations && invitations.isEmpty) {
+    if (_teamStore.isLoading && invitations.isEmpty) {
       return _loadingInvitationsState(l, isMobile);
     }
 
@@ -230,9 +205,9 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         _panel(
           child: Column(
             children: [
-              if (_isLoadingInvitations)
+              if (_teamStore.isLoading)
                 const LinearProgressIndicator(minHeight: 2),
-              if (_isLoadingInvitations) const SizedBox(height: 12),
+              if (_teamStore.isLoading) const SizedBox(height: 12),
               _invitationFilters(l, isMobile),
               const SizedBox(height: 12),
               if (isMobile)
@@ -305,15 +280,19 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                ElevatedButton.icon(
-                  onPressed: _onExport,
-                  icon: const Icon(Icons.download, size: 16),
-                  label: Text(l.translate('employee_btn_export_excel')),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _onExport,
+                    style: _compactElevatedStyle(),
+                    icon: const Icon(Icons.download, size: 16),
+                    label: Text(l.translate('employee_btn_export_excel')),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => _openInviteDialog(l),
+                    style: _compactElevatedStyle(),
                     icon: const Icon(Icons.add, size: 16),
                     label: Text(l.translate('employee_btn_add_employee')),
                   ),
@@ -344,12 +323,14 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             ),
             ElevatedButton.icon(
               onPressed: _onExport,
+              style: _compactElevatedStyle(),
               icon: const Icon(Icons.download, size: 16),
               label: Text(l.translate('employee_btn_export_excel')),
             ),
             const SizedBox(width: 10),
             ElevatedButton.icon(
               onPressed: () => _openInviteDialog(l),
+              style: _compactElevatedStyle(),
               icon: const Icon(Icons.add, size: 16),
               label: Text(l.translate('employee_btn_add_employee')),
             ),
@@ -529,6 +510,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       return _emptyText(l.translate('employee_empty_invitations'));
     }
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children:
           invitations
               .map(
@@ -537,7 +519,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           item.email,
@@ -547,29 +529,10 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         Text(_roleLabel(l, item.role)),
                         Text(_formatDateTime(item.expiresAt)),
                         Text(_invitationStatusLabel(l, item.status)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (item.status == InvitationStatus.pending)
-                              OutlinedButton(
-                                onPressed: () => _handleResend(item.id, l),
-                                child: Text(l.translate('employee_btn_resend')),
-                              ),
-                            const SizedBox(width: 8),
-                            if (item.status == InvitationStatus.pending)
-                              ElevatedButton(
-                                onPressed:
-                                    () => _handleDeleteInvitation(item.id, l),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFF04E4E),
-                                ),
-                                child: Text(
-                                  l.translate('employee_btn_delete'),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                          ],
-                        ),
+                        if (item.status == InvitationStatus.pending) ...[
+                          const SizedBox(height: 8),
+                          _invitationActionButtons(l, item),
+                        ],
                       ],
                     ),
                   ),
@@ -658,25 +621,43 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     if (invitation.status != InvitationStatus.pending) {
       return const SizedBox.shrink();
     }
+    return _invitationActionButtons(l, invitation);
+  }
+
+  Widget _invitationActionButtons(AppLocalizations l, Invitation invitation) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        OutlinedButton(
-          onPressed: () => _handleResend(invitation.id, l),
-          child: Text(l.translate('employee_btn_resend')),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () => _handleDeleteInvitation(invitation.id, l),
+            style: _compactElevatedStyle(
+              backgroundColor: const Color(0xFFF04E4E),
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l.translate('employee_btn_delete')),
+          ),
         ),
         const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: () => _handleDeleteInvitation(invitation.id, l),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF04E4E),
-          ),
-          child: Text(
-            l.translate('employee_btn_delete'),
-            style: const TextStyle(color: Colors.white),
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => _handleResend(invitation.id, l),
+            child: Text(l.translate('employee_btn_resend')),
           ),
         ),
       ],
+    );
+  }
+
+  ButtonStyle _compactElevatedStyle({
+    Color? backgroundColor,
+    Color? foregroundColor,
+  }) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
   }
 
@@ -714,7 +695,15 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   }
 
   List<Invitation> _filteredInvitations() {
-    return _filteredAccountInvitations;
+    final query = _invitationSearchController.text.trim().toLowerCase();
+    return _teamStore.invitations.where((item) {
+      final hitQuery =
+          query.isEmpty || item.email.toLowerCase().contains(query);
+      final hitStatus =
+          _invitationStatusFilter == null ||
+          item.status == _invitationStatusFilter;
+      return hitQuery && hitStatus;
+    }).toList();
   }
 
   String _displayName(TeamMember member) {
@@ -874,7 +863,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       role: _inviteRole,
       invitedByMemberId: invitedByMemberId,
     );
-    await _loadAccountInvitations();
 
     if (!mounted) {
       return;
@@ -896,7 +884,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
       tenantId: _tenantStore.currentTenant?.id,
     );
     await _teamStore.loadTeamData();
-    await _loadAccountInvitations();
     if (!mounted) {
       return;
     }
@@ -909,7 +896,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
   ) async {
     await _invitationRepository.deleteInvitation(invitationId);
     await _teamStore.loadTeamData();
-    await _loadAccountInvitations();
     if (!mounted) {
       return;
     }
