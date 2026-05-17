@@ -124,11 +124,7 @@ class KnowledgeApi {
   }) async {
     final response = await _dio.post(
       Endpoints.knowledgeImportWeb(tenantId),
-      data: {
-        'webUrl': webUrl,
-        'interval': apiInterval,
-        'type': webImportType,
-      },
+      data: {'webUrl': webUrl, 'interval': apiInterval, 'type': webImportType},
     );
     return _asMap(response.data);
   }
@@ -202,12 +198,7 @@ class KnowledgeApi {
   }) async {
     final response = await _dio.post(
       Endpoints.knowledgeImportDatabaseQuery(tenantId),
-      data: {
-        'name': name,
-        'query': query,
-        'uri': uri,
-        'interval': apiInterval,
-      },
+      data: {'name': name, 'query': query, 'uri': uri, 'interval': apiInterval},
     );
     return _asMap(response.data);
   }
@@ -389,8 +380,7 @@ class KnowledgeApi {
     return const {};
   }
 
-  Map<String, String> _parseSseEvent(dynamic parsed) =>
-      _parseStatusMap(parsed);
+  Map<String, String> _parseSseEvent(dynamic parsed) => _parseStatusMap(parsed);
 
   dynamic _safeDecode(String payload) {
     try {
