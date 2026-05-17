@@ -464,18 +464,6 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   }
 
   @override
-  void setTypeFilter(KnowledgeSourceType? type) {
-    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
-      name: '_KnowledgeStore.setTypeFilter',
-    );
-    try {
-      return super.setTypeFilter(type);
-    } finally {
-      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void resetDbTest() {
     final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
       name: '_KnowledgeStore.resetDbTest',
