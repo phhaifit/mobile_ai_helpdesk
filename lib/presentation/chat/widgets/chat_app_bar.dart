@@ -11,8 +11,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSearchTap;
 
   const ChatAppBar({
-    super.key,
-    required this.room,
+    required this.room, super.key,
     this.onAIAnalysisTap,
     this.onBack,
     this.onInfoTap,

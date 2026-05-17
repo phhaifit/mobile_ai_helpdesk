@@ -1,8 +1,7 @@
-import 'package:dio/dio.dart';
-
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
 import 'package:ai_helpdesk/data/network/constants/endpoints.dart';
 import 'package:ai_helpdesk/data/network/dto/chat_room/chat_room_dto.dart';
+import 'package:dio/dio.dart';
 
 /// Low-level HTTP client for the chat-room endpoints.
 ///

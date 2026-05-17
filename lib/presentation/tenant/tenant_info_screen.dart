@@ -245,7 +245,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                 alignment: Alignment.centerLeft,
                                 child: Switch(
                                   value: _autoResolutionEnabled,
-                                  activeColor: AppColors.messengerBlue,
+                                  activeThumbColor: AppColors.messengerBlue,
                                   onChanged: (value) {
                                     setState(() {
                                       _autoResolutionEnabled = value;
@@ -330,7 +330,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                                   const Spacer(),
                                   Switch(
                                     value: _autoResolutionEnabled,
-                                    activeColor: AppColors.messengerBlue,
+                                    activeThumbColor: AppColors.messengerBlue,
                                     onChanged: (value) {
                                       setState(() {
                                         _autoResolutionEnabled = value;

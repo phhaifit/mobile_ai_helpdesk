@@ -142,7 +142,7 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
           _label('Loại CSDL'),
           const SizedBox(height: 6),
           DropdownButtonFormField<DatabaseDialect>(
-            value: _dialect,
+            initialValue: _dialect,
             decoration: _decoration(''),
             items: const [
               DropdownMenuItem(

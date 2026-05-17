@@ -449,7 +449,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (BuildContext context, int index) {
                     // A. Typing Indicator at the Bottom (Index 0)
                     if (typingCount > 0 && index == 0) {
-                      return TypingIndicator();
+                      return const TypingIndicator();
                     }
 
                     // B. Messages

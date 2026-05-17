@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
-import 'package:event_bus/event_bus.dart';
-
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/events/subscription_events.dart';
 import 'package:ai_helpdesk/data/network/utils/helpdesk_error_mapper.dart';
+import 'package:dio/dio.dart';
+import 'package:event_bus/event_bus.dart';
 
 class ErrorInterceptor extends Interceptor {
   final EventBus _eventBus;

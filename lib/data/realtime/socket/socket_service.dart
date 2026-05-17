@@ -24,13 +24,13 @@ import '../../../core/events/socket/server/messages/generic_new_message_event.da
 import '../../../core/events/socket/server/messages/lazada_message_event.dart';
 import '../../../core/events/socket/server/messages/lazada_recalled_message_event.dart';
 import '../../../core/events/socket/server/messages/phone_sms_message_event.dart';
+import '../../../core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import '../../../core/events/socket/server/messages/socket_message_payload.dart';
 import '../../../core/events/socket/server/messages/web_chat_message_event.dart';
 import '../../../core/events/socket/server/messages/zalo_message_event.dart';
 import '../../../core/events/socket/server/messages/zendesk_message_event.dart';
 import '../../../core/events/socket/server/messages/zohodesk_message_event.dart';
 import '../../../core/events/socket/server/tickets/socket_escalation_alert_event.dart';
-import '../../../core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import '../../../core/events/socket/server/tickets/socket_new_ticket_created_event.dart';
 import '../../../core/events/socket/server/tickets/socket_ticket_status_changed_event.dart';
 
@@ -88,6 +88,7 @@ class SocketService {
 
   bool get isConnected => _socket?.connected ?? false;
   String? get socketId => _socket?.id;
+  String? get tenantId => _tenantId;
 
   Future<void> connect({
     required String tenantId,
@@ -113,7 +114,7 @@ class SocketService {
           .build(),
     );
 
-    Completer<void> completer = Completer<void>();
+    final Completer<void> completer = Completer<void>();
 
     socket.onDisconnect((dynamic reason) {
       unawaited(_prefs.removeSocketId());
@@ -250,6 +251,10 @@ class SocketService {
   }
 
   Future<void> disconnect() async {
+    developer.log(
+      'disconnect tenantId=$_tenantId socketId=${_socket?.id}',
+      name: _logName,
+    );
     _socket?.disconnect();
     _socket?.destroy();
     _socket = null;

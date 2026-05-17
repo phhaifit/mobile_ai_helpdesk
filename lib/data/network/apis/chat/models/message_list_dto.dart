@@ -8,8 +8,7 @@ part 'message_list_dto.g.dart';
 @freezed
 class MessageListDto with _$MessageListDto {
   const factory MessageListDto({
-    @Default([]) List<MessageDto> messages,
-    required MessageEntitiesDto entities,
+    required MessageEntitiesDto entities, @Default([]) List<MessageDto> messages,
   }) = _MessageListDto;
 
   factory MessageListDto.fromJson(Map<String, dynamic> json) => 

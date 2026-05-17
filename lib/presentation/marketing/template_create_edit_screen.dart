@@ -107,7 +107,7 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
                   ),
                   SizedBox(height: isSmall ? 6 : 8),
                   DropdownButtonFormField<TemplateCategory>(
-                    value: _store.draftTemplateCategory,
+                    initialValue: _store.draftTemplateCategory,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.category_outlined),
@@ -140,7 +140,7 @@ class _TemplateCreateEditScreenState extends State<TemplateCreateEditScreen> {
                   ),
                   SizedBox(height: isSmall ? 6 : 8),
                   DropdownButtonFormField<CampaignChannel>(
-                    value: _store.draftTemplateChannel,
+                    initialValue: _store.draftTemplateChannel,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.send_outlined),
