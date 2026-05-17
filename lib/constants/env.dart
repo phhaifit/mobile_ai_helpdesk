@@ -30,7 +30,7 @@ enum EnvConfig {
     enableLogging: true,
     enableAnalytics: true,
     enableAnalyticsDebug: true,
-    enableRealOmnichannel: false,
+    enableRealOmnichannel: true,
   ),
   staging._(
     environment: Environment.staging,
@@ -118,6 +118,12 @@ enum EnvConfig {
   String get baseUrl => helpdeskApiBaseUrl;
 
   static const _envName = String.fromEnvironment('ENV', defaultValue: 'dev');
+  static const _baseUrlDevFromDefine =
+      String.fromEnvironment('BASE_URL_DEV', defaultValue: '');
+  static const _baseUrlStagingFromDefine =
+      String.fromEnvironment('BASE_URL_STAGING', defaultValue: '');
+  static const _baseUrlProdFromDefine =
+      String.fromEnvironment('BASE_URL_PROD', defaultValue: '');
   static const _useRealOmnichannelFromDefine = bool.fromEnvironment(
     'USE_REAL_OMNICHANNEL',
     defaultValue: false,
@@ -181,16 +187,20 @@ enum EnvConfig {
   /// Get the resolved base URL from .env → --dart-define → hardcoded default
   /// Priority: .env > dart-define > hardcoded defaults in enum
   static String getResolvedBaseUrl() {
-    String envKey = '';
+    String envKey;
+    String fromDartDefine;
     switch (instance.environment) {
       case Environment.prod:
         envKey = 'BASE_URL_PROD';
+        fromDartDefine = _baseUrlProdFromDefine;
         break;
       case Environment.staging:
         envKey = 'BASE_URL_STAGING';
+        fromDartDefine = _baseUrlStagingFromDefine;
         break;
       case Environment.dev:
         envKey = 'BASE_URL_DEV';
+        fromDartDefine = _baseUrlDevFromDefine;
         break;
     }
 
@@ -201,7 +211,6 @@ enum EnvConfig {
     }
 
     // Priority 2: --dart-define CLI
-    final fromDartDefine = String.fromEnvironment(envKey, defaultValue: '');
     if (fromDartDefine.isNotEmpty) {
       return fromDartDefine;
     }

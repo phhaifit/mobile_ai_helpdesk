@@ -21,6 +21,7 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
     final OmnichannelOverview fallback =
         await _fallbackRepository.getOverview();
 
+    // 1. Messenger logic
     final List<MessengerPageDto> pages = await _api.getMessengerPages();
     MessengerPageDto? connectedPage;
     for (final MessengerPageDto page in pages) {
@@ -30,54 +31,57 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
       }
     }
 
-    if (connectedPage == null) {
-      return fallback.copyWith(
-        messenger: fallback.messenger.copyWith(
-          connectionStatus: IntegrationConnectionStatus.disconnected,
-          oauthState: OAuthState.unverified,
-        ),
+    MessengerIntegrationState messengerState = fallback.messenger;
+    if (connectedPage != null) {
+      messengerState = fallback.messenger.copyWith(
+        connectionStatus: IntegrationConnectionStatus.connected,
+        oauthState: OAuthState.verified,
+        pageName:
+            connectedPage.name.isNotEmpty
+                ? connectedPage.name
+                : fallback.messenger.pageName,
+        autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
+        businessHours:
+            connectedPage.businessHours ?? fallback.messenger.businessHours,
+        lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
+      );
+    } else {
+      messengerState = fallback.messenger.copyWith(
+        connectionStatus: IntegrationConnectionStatus.disconnected,
+        oauthState: OAuthState.unverified,
       );
     }
 
-    final MessengerIntegrationState messengerState =
-        fallback.messenger.copyWith(
-      connectionStatus: IntegrationConnectionStatus.connected,
-      oauthState: OAuthState.verified,
-      pageName:
-          connectedPage.name.isNotEmpty
-              ? connectedPage.name
-              : fallback.messenger.pageName,
-      autoReply: connectedPage.autoReply ?? fallback.messenger.autoReply,
-      businessHours:
-          connectedPage.businessHours ?? fallback.messenger.businessHours,
-      lastSyncAt: connectedPage.lastSyncAt ?? fallback.messenger.lastSyncAt,
-    );
-
-    return fallback.copyWith(messenger: messengerState);
-  }
-
-  @override
-  Future<ActionFeedback> connectMessenger({String? authCode}) async {
-    final String normalizedCode = authCode?.trim() ?? '';
-    if (normalizedCode.isEmpty) {
-      return const ActionFeedback(
-        isSuccess: false,
-        messageKey: 'omnichannel_messenger_auth_code_required',
-      );
-    }
+    // 2. Zalo logic
+    List<ZaloAccountAssignment> assignments = [];
+    IntegrationConnectionStatus zaloConnStatus =
+        IntegrationConnectionStatus.disconnected;
+    OAuthState zaloOauthState = OAuthState.unverified;
+    SyncState zaloSyncState = SyncState.offline;
 
     try {
-      await _api.verifyMessengerAuthCode(normalizedCode);
-      return const ActionFeedback(
-        isSuccess: true,
-        messageKey: 'omnichannel_messenger_connect_success',
-      );
-    } on DioException {
-      return const ActionFeedback(
-        isSuccess: false,
-        messageKey: 'omnichannel_messenger_connect_failed',
-      );
+      final List<ZaloPersonalConnectionDto> zaloConnections =
+          await _api.getZaloPersonalConnections();
+      if (zaloConnections.isNotEmpty) {
+        zaloConnStatus = IntegrationConnectionStatus.connected;
+        zaloOauthState = OAuthState.verified;
+        zaloSyncState = SyncState.healthy;
+        assignments =
+            zaloConnections.map((c) => c.toAssignment()).toList();
+      }
+    } catch (_) {
+      // Keep disconnected on error
     }
+
+    return fallback.copyWith(
+      messenger: messengerState,
+      zalo: fallback.zalo.copyWith(
+        connectionStatus: zaloConnStatus,
+        oauthState: zaloOauthState,
+        syncState: zaloSyncState,
+        assignments: assignments.isNotEmpty ? assignments : fallback.zalo.assignments,
+      ),
+    );
   }
 
   @override
@@ -219,26 +223,75 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
   @override
   Future<ActionFeedback> disconnectZalo() async {
     try {
-      await _api.deleteZalo();
+      await _api.revokeZaloOauth();
       return const ActionFeedback(
         isSuccess: true,
         messageKey: 'omnichannel_zalo_disconnect_success',
       );
     } on DioException {
-      return _fallbackRepository.disconnectZalo();
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_disconnect_failed',
+      );
     }
   }
 
   @override
-  Future<ActionFeedback> retryZaloSync() {
-    return _fallbackRepository.retryZaloSync();
+  Future<ActionFeedback> retryZaloSync() async {
+    try {
+      await _api.syncZaloLatestMessages();
+      return const ActionFeedback(
+        isSuccess: true,
+        messageKey: 'omnichannel_zalo_sync_healthy',
+      );
+    } on DioException {
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_sync_failed',
+      );
+    }
   }
 
   @override
   Future<ActionFeedback> updateZaloAssignments(
     List<ZaloAssignmentUpdate> updates,
-  ) {
-    return _fallbackRepository.updateZaloAssignments(updates);
+  ) async {
+    try {
+      for (final update in updates) {
+        await _api.assignZaloCs(
+          channelId: update.accountId,
+          customerSupportId: update.assignedCs,
+        );
+      }
+      return const ActionFeedback(
+        isSuccess: true,
+        messageKey: 'omnichannel_zalo_assignment_saved',
+      );
+    } on DioException {
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_assignment_failed',
+      );
+    }
+  }
+
+  @override
+  Future<ActionFeedback> sendZaloMessage({
+    required String recipient,
+    required String message,
+  }) async {
+    try {
+      await _api.sendZaloMessage(recipient: recipient, message: message);
+      return const ActionFeedback(
+        isSuccess: true,
+        messageKey: 'omnichannel_zalo_message_send_success',
+      );
+    } on DioException {
+      return const ActionFeedback(
+        isSuccess: false,
+        messageKey: 'omnichannel_zalo_message_send_failed',
+      );
+    }
   }
 
   Future<String?> _resolveConnectedMessengerChannelId() async {
@@ -259,5 +312,4 @@ class OmnichannelRepositoryImpl implements OmnichannelRepository {
 
     return null;
   }
-
 }

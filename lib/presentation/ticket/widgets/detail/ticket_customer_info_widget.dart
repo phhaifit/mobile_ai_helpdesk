@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:flutter/material.dart';
 
 class TicketCustomerInfoWidget extends StatelessWidget {
   final Ticket ticket;
   final VoidCallback onViewHistory;
 
   const TicketCustomerInfoWidget({
-    super.key,
-    required this.ticket,
-    required this.onViewHistory,
+    required this.ticket, required this.onViewHistory, super.key,
   });
 
   @override

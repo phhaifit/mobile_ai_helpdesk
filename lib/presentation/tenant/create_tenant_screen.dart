@@ -127,7 +127,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         slug: _slugFromName(name).isEmpty ? null : _slugFromName(name),
         settings: const TenantSettings(
           allowInvitations: true,
-          defaultRole: TeamRole.member,
+          defaultRole: TeamRole.customerSupport,
           enableAuditLog: false,
         ),
         createdAt: now,
@@ -227,12 +227,17 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               builder: (_) {
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    final maxCard = constraints.maxWidth > 560 ? 520.0 : constraints.maxWidth - 32;
+                    final maxCard =
+                        constraints.maxWidth > 560
+                            ? 520.0
+                            : constraints.maxWidth - 32;
                     return SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                       child: Center(
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: maxCard.clamp(280, 560)),
+                          constraints: BoxConstraints(
+                            maxWidth: maxCard.clamp(280, 560),
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -247,7 +252,9 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                                   child: SizedBox(
                                     width: 28,
                                     height: 28,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -378,8 +385,10 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: fontSize,
-                        fontWeight: i == _stepIndex ? FontWeight.w700 : FontWeight.w500,
-                        color: i <= _stepIndex ? _brandBlue : Colors.grey.shade500,
+                        fontWeight:
+                            i == _stepIndex ? FontWeight.w700 : FontWeight.w500,
+                        color:
+                            i <= _stepIndex ? _brandBlue : Colors.grey.shade500,
                         height: 1.1,
                       ),
                     ),
@@ -402,16 +411,17 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
       height: size,
       decoration: BoxDecoration(shape: BoxShape.circle, color: bg),
       child: Center(
-        child: completed
-            ? Icon(Icons.check, color: Colors.white, size: size * 0.5)
-            : Text(
-                '${index + 1}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: size * 0.42,
+        child:
+            completed
+                ? Icon(Icons.check, color: Colors.white, size: size * 0.5)
+                : Text(
+                  '${index + 1}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: size * 0.42,
+                  ),
                 ),
-              ),
       ),
     );
   }
@@ -482,7 +492,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           const SizedBox(height: 8),
           Text(
             l.translate('create_tenant_step1_subtitle'),
-            style: TextStyle(fontSize: 13, height: 1.45, color: Colors.grey.shade600),
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.45,
+              color: Colors.grey.shade600,
+            ),
           ),
           const SizedBox(height: 22),
           Text(
@@ -495,10 +509,15 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: l.translate('create_tenant_org_name_hint'),
-              prefixIcon: const Icon(Icons.business_outlined, color: AppColors.textTertiary),
+              prefixIcon: const Icon(
+                Icons.business_outlined,
+                color: AppColors.textTertiary,
+              ),
               filled: true,
               fillColor: const Color(0xFFF9FAFB),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -514,7 +533,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           const SizedBox(height: 18),
           Text(
             l.translate('create_tenant_phone_label'),
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey.shade800),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Colors.grey.shade800,
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -522,10 +545,15 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               hintText: l.translate('create_tenant_phone_hint'),
-              prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textTertiary),
+              prefixIcon: const Icon(
+                Icons.phone_outlined,
+                color: AppColors.textTertiary,
+              ),
               filled: true,
               fillColor: const Color(0xFFF9FAFB),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -552,7 +580,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         const SizedBox(height: 8),
         Text(
           l.translate('create_tenant_step2_subtitle'),
-          style: TextStyle(fontSize: 13, height: 1.45, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.45,
+            color: Colors.grey.shade600,
+          ),
         ),
         const SizedBox(height: 20),
         Text(
@@ -576,20 +608,25 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               value: _industryKey,
               isExpanded: true,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              items: _industryKeys
-                  .map(
-                    (key) => DropdownMenuItem(
-                      value: key,
-                      child: Row(
-                        children: [
-                          Icon(Icons.local_cafe_outlined, size: 20, color: Colors.grey.shade700),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(l.translate(key))),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+              items:
+                  _industryKeys
+                      .map(
+                        (key) => DropdownMenuItem(
+                          value: key,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.local_cafe_outlined,
+                                size: 20,
+                                color: Colors.grey.shade700,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(l.translate(key))),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
               onChanged: (v) {
                 if (v != null) {
                   setState(() => _industryKey = v);
@@ -620,9 +657,15 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               value: _scaleKey,
               isExpanded: true,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              items: _scaleKeys
-                  .map((key) => DropdownMenuItem(value: key, child: Text(l.translate(key))))
-                  .toList(),
+              items:
+                  _scaleKeys
+                      .map(
+                        (key) => DropdownMenuItem(
+                          value: key,
+                          child: Text(l.translate(key)),
+                        ),
+                      )
+                      .toList(),
               onChanged: (v) {
                 if (v != null) {
                   setState(() => _scaleKey = v);
@@ -634,28 +677,35 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         const SizedBox(height: 18),
         Text(
           l.translate('create_tenant_problems_label'),
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey.shade800),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.grey.shade800,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _problemKeys.map((key) {
-            final sel = _selectedProblems.contains(key);
-            return FilterChip(
-              label: Text(l.translate(key)),
-              selected: sel,
-              onSelected: (_) => _toggleProblem(key),
-              selectedColor: _brandBlue.withValues(alpha: 0.15),
-              labelStyle: TextStyle(
-                color: sel ? _brandBlue : Colors.grey.shade800,
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-              side: BorderSide(color: sel ? _brandBlue : Colors.grey.shade300),
-              showCheckmark: false,
-            );
-          }).toList(),
+          children:
+              _problemKeys.map((key) {
+                final sel = _selectedProblems.contains(key);
+                return FilterChip(
+                  label: Text(l.translate(key)),
+                  selected: sel,
+                  onSelected: (_) => _toggleProblem(key),
+                  selectedColor: _brandBlue.withValues(alpha: 0.15),
+                  labelStyle: TextStyle(
+                    color: sel ? _brandBlue : Colors.grey.shade800,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                  side: BorderSide(
+                    color: sel ? _brandBlue : Colors.grey.shade300,
+                  ),
+                  showCheckmark: false,
+                );
+              }).toList(),
         ),
         const SizedBox(height: 14),
         TextField(
@@ -679,8 +729,20 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               padding: const EdgeInsets.only(bottom: 4),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_right, size: 18, color: Colors.grey.shade600),
-                  Expanded(child: Text(p, style: TextStyle(color: Colors.grey.shade700, fontSize: 13))),
+                  Icon(
+                    Icons.arrow_right,
+                    size: 18,
+                    color: Colors.grey.shade600,
+                  ),
+                  Expanded(
+                    child: Text(
+                      p,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -705,12 +767,20 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         const SizedBox(height: 8),
         Text(
           l.translate('create_tenant_step3_subtitle'),
-          style: TextStyle(fontSize: 13, height: 1.45, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.45,
+            color: Colors.grey.shade600,
+          ),
         ),
         const SizedBox(height: 20),
         Text(
           l.translate('create_tenant_website_label'),
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey.shade800),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.grey.shade800,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -718,7 +788,10 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           keyboardType: TextInputType.url,
           decoration: InputDecoration(
             hintText: l.translate('create_tenant_website_hint'),
-            prefixIcon: const Icon(Icons.language_outlined, color: AppColors.textTertiary),
+            prefixIcon: const Icon(
+              Icons.language_outlined,
+              color: AppColors.textTertiary,
+            ),
             filled: true,
             fillColor: const Color(0xFFF9FAFB),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -731,7 +804,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         const SizedBox(height: 18),
         Text(
           l.translate('create_tenant_docs_label'),
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey.shade800),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.grey.shade800,
+          ),
         ),
         const SizedBox(height: 8),
         Material(
@@ -742,10 +819,17 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
             child: CustomPaint(
               painter: _DottedRectPainter(color: Colors.grey.shade400),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 28,
+                  horizontal: 16,
+                ),
                 child: Column(
                   children: [
-                    Icon(Icons.cloud_upload_outlined, size: 40, color: _brandBlue.withValues(alpha: 0.9)),
+                    Icon(
+                      Icons.cloud_upload_outlined,
+                      size: 40,
+                      color: _brandBlue.withValues(alpha: 0.9),
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       l.translate('create_tenant_docs_drop_hint'),
@@ -760,7 +844,10 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                     Text(
                       l.translate('create_tenant_docs_formats'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                 ),
@@ -801,10 +888,14 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         const SizedBox(height: 8),
         Text(
           l.translate('create_tenant_step4_subtitle'),
-          style: TextStyle(fontSize: 13, height: 1.45, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.45,
+            color: Colors.grey.shade600,
+          ),
         ),
         const SizedBox(height: 16),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade300),
@@ -814,11 +905,18 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
-                  border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(11),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey.shade200),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -827,14 +925,23 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                       height: 32,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        gradient: const LinearGradient(colors: [_brandBlue, _brandPurple]),
+                        gradient: const LinearGradient(
+                          colors: [_brandBlue, _brandPurple],
+                        ),
                       ),
-                      child: const Icon(Icons.smart_toy_outlined, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.smart_toy_outlined,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Text(
                       l.translate('create_tenant_trial_agent_name'),
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
                     ),
                   ],
                 ),
@@ -846,20 +953,28 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                   children: [
                     Text(
                       l.translate('create_tenant_trial_hint'),
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: _trialQuickReplyKeys.map((key) {
-                        return ActionChip(
-                          label: Text(l.translate(key), style: const TextStyle(fontSize: 12)),
-                          onPressed: () => _sendTrialMessage(l, l.translate(key)),
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: Colors.grey.shade300),
-                        );
-                      }).toList(),
+                      children:
+                          _trialQuickReplyKeys.map((key) {
+                            return ActionChip(
+                              label: Text(
+                                l.translate(key),
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              onPressed:
+                                  () => _sendTrialMessage(l, l.translate(key)),
+                              backgroundColor: Colors.white,
+                              side: BorderSide(color: Colors.grey.shade300),
+                            );
+                          }).toList(),
                     ),
                     const SizedBox(height: 12),
                     ConstrainedBox(
@@ -871,21 +986,35 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                         itemBuilder: (context, i) {
                           final b = _trialBubbles[i];
                           return Align(
-                            alignment: b.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                            alignment:
+                                b.isUser
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               constraints: const BoxConstraints(maxWidth: 280),
                               decoration: BoxDecoration(
                                 color: b.isUser ? _brandBlue : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border: b.isUser ? null : Border.all(color: Colors.grey.shade200),
+                                border:
+                                    b.isUser
+                                        ? null
+                                        : Border.all(
+                                          color: Colors.grey.shade200,
+                                        ),
                               ),
                               child: Text(
                                 b.text,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: b.isUser ? Colors.white : Colors.grey.shade800,
+                                  color:
+                                      b.isUser
+                                          ? Colors.white
+                                          : Colors.grey.shade800,
                                   height: 1.35,
                                 ),
                               ),
@@ -905,11 +1034,18 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                       child: TextField(
                         controller: _trialInputController,
                         decoration: InputDecoration(
-                          hintText: l.translate('create_tenant_trial_input_hint'),
+                          hintText: l.translate(
+                            'create_tenant_trial_input_hint',
+                          ),
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide(color: Colors.grey.shade300),
@@ -924,10 +1060,18 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                       shape: const CircleBorder(),
                       child: InkWell(
                         customBorder: const CircleBorder(),
-                        onTap: () => _sendTrialMessage(l, _trialInputController.text),
+                        onTap:
+                            () => _sendTrialMessage(
+                              l,
+                              _trialInputController.text,
+                            ),
                         child: const Padding(
                           padding: EdgeInsets.all(12),
-                          child: Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                          child: Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -957,7 +1101,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                 colors: [_brandBlue, _brandPurple],
               ),
             ),
-            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -974,7 +1122,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         Text(
           l.translate('create_tenant_step5_subtitle'),
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, height: 1.45, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.45,
+            color: Colors.grey.shade600,
+          ),
         ),
         const SizedBox(height: 20),
         Container(
@@ -989,7 +1141,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
             children: [
               Text(
                 l.translate('create_tenant_step5_website_optional'),
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey.shade800),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: Colors.grey.shade800,
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
@@ -997,10 +1153,15 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
                 keyboardType: TextInputType.url,
                 decoration: InputDecoration(
                   hintText: l.translate('create_tenant_website_hint'),
-                  prefixIcon: const Icon(Icons.language_outlined, color: AppColors.textTertiary),
+                  prefixIcon: const Icon(
+                    Icons.language_outlined,
+                    color: AppColors.textTertiary,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -1010,7 +1171,11 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
               const SizedBox(height: 10),
               Text(
                 l.translate('create_tenant_step5_website_helper'),
-                style: TextStyle(fontSize: 12, height: 1.4, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  color: Colors.grey.shade600,
+                ),
               ),
             ],
           ),
@@ -1037,7 +1202,7 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-              child: _primaryButton(
+            child: _primaryButton(
               label: l.translate('create_tenant_finish'),
               onPressed: _tenantStore.isLoading ? null : _finishAndCreateTenant,
             ),
@@ -1064,7 +1229,10 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
     );
   }
 
-  Widget _secondaryButton({required String label, required VoidCallback? onPressed}) {
+  Widget _secondaryButton({
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
@@ -1075,29 +1243,32 @@ class _CreateTenantScreenState extends State<CreateTenantScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         side: BorderSide(color: _brandBlue.withValues(alpha: 0.35)),
       ),
-      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
     );
   }
 
   Widget _primaryButton({
-  required String label,
-  required VoidCallback? onPressed,
-}) {
-  return ElevatedButton(
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
+    return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: _brandBlue,
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        elevation: 0, 
+        elevation: 0,
       ),
       child: Text(
-        label, 
+        label,
         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
       ),
     );
-}
+  }
 }
 
 class _TrialBubble {
@@ -1112,10 +1283,11 @@ class _DottedRectPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = 1.2
+          ..style = PaintingStyle.stroke;
     const dash = 5.0;
     const gap = 4.0;
     const radius = Radius.circular(12);

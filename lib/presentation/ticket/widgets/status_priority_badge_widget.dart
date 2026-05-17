@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 class StatusPriorityBadgeWidget extends StatelessWidget {
   final TicketStatus status;
   final TicketPriority priority;
 
   const StatusPriorityBadgeWidget({
-    super.key,
-    required this.status,
-    required this.priority,
+    required this.status, required this.priority, super.key,
   });
 
   Color _getStatusBadgeColor(TicketStatus status) {

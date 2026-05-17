@@ -12,9 +12,7 @@ class SessionHistoryDrawer extends StatelessWidget {
   final VoidCallback onNewSession;
 
   const SessionHistoryDrawer({
-    super.key,
-    required this.store,
-    required this.onNewSession,
+    required this.store, required this.onNewSession, super.key,
   });
 
   @override

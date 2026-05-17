@@ -113,8 +113,7 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
         ),
         child: Column(
           children: [
-            Icon(Icons.cloud_upload_outlined,
-                size: 40, color: Colors.grey[400]),
+            Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey[400]),
             const SizedBox(height: 10),
             const Text(
               'Nhấn để chọn tệp',

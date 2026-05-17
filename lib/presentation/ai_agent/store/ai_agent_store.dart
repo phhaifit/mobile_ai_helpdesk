@@ -10,6 +10,7 @@ import '/domain/usecase/ai_agent/update_agent_usecase.dart';
 
 part 'ai_agent_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class AiAgentStore = _AiAgentStore with _$AiAgentStore;
 
 abstract class _AiAgentStore with Store {
@@ -61,64 +62,79 @@ abstract class _AiAgentStore with Store {
     errorStore.errorMessage = '';
     final future = _getAgentsUseCase.call(params: null);
     fetchAgentsFuture = ObservableFuture(future);
-    await future.then((result) {
-      agents = ObservableList.of(result);
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await future
+        .then((result) {
+          agents = ObservableList.of(result);
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
   Future<void> loadAgentById(String id) async {
     errorStore.errorMessage = '';
-    await _getAgentUseCase.call(params: id).then((agent) {
-      selectedAgent = agent;
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await _getAgentUseCase
+        .call(params: id)
+        .then((agent) {
+          selectedAgent = agent;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
   Future<void> createAgent(AiAgent agent) async {
     success = false;
     errorStore.errorMessage = '';
-    await _createAgentUseCase.call(params: agent).then((created) {
-      agents.insert(0, created);
-      selectedAgent = created;
-      success = true;
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await _createAgentUseCase
+        .call(params: agent)
+        .then((created) {
+          agents.insert(0, created);
+          selectedAgent = created;
+          success = true;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
   Future<void> updateAgent(AiAgent agent) async {
     success = false;
     errorStore.errorMessage = '';
-    await _updateAgentUseCase.call(params: agent).then((updated) {
-      final idx = agents.indexWhere((a) => a.id == updated.id);
-      if (idx >= 0) agents[idx] = updated;
-      selectedAgent = updated;
-      success = true;
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await _updateAgentUseCase
+        .call(params: agent)
+        .then((updated) {
+          final idx = agents.indexWhere((a) => a.id == updated.id);
+          if (idx >= 0) agents[idx] = updated;
+          selectedAgent = updated;
+          success = true;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
   Future<void> deleteAgent(String id) async {
     success = false;
     errorStore.errorMessage = '';
-    await _deleteAgentUseCase.call(params: id).then((_) {
-      agents.removeWhere((a) => a.id == id);
-      if (selectedAgent?.id == id) selectedAgent = null;
-      success = true;
-    }).catchError((e) {
-      errorStore.errorMessage = e.toString();
-    });
+    await _deleteAgentUseCase
+        .call(params: id)
+        .then((_) {
+          agents.removeWhere((a) => a.id == id);
+          if (selectedAgent?.id == id) selectedAgent = null;
+          success = true;
+        })
+        .catchError((e) {
+          errorStore.errorMessage = e.toString();
+        });
   }
 
   @action
+  // ignore: use_setters_to_change_properties
   void selectAgent(AiAgent? agent) {
     selectedAgent = agent;
   }

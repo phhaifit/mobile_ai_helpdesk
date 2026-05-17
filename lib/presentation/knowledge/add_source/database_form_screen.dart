@@ -229,7 +229,6 @@ class _DatabaseFormScreenState extends State<DatabaseFormScreen> {
     );
   }
 
-
   Widget _field({
     required String label,
     required TextEditingController controller,

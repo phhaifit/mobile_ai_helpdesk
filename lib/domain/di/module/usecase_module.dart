@@ -3,7 +3,13 @@ import 'dart:async';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
@@ -11,6 +17,7 @@ import 'package:ai_helpdesk/domain/repository/monetization/monetization_reposito
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ticket/ticket_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/account/delete_avatar_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/get_current_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/update_account_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/account/upload_avatar_usecase.dart';
@@ -24,6 +31,7 @@ import 'package:ai_helpdesk/domain/usecase/auth/send_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -37,6 +45,7 @@ import 'package:ai_helpdesk/domain/usecase/knowledge/test_database_query_usecase
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_database_query_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_crawl_interval_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/update_source_status_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/knowledge/upload_local_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/watch_source_statuses_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/connect_facebook_admin_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing/create_campaign_usecase.dart';
@@ -70,7 +79,6 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_messenger_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/disconnect_zalo_usecase.dart';
@@ -78,6 +86,7 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/generate_zalo_qr_usecase.
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_omnichannel_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/get_zalo_qr_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/retry_zalo_sync_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/omnichannel/send_zalo_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
@@ -115,7 +124,6 @@ class UseCaseModule {
     getIt.registerSingleton<SignInWithGoogleUseCase>(
       SignInWithGoogleUseCase(getIt<AuthRepository>()),
     );
-
     // Account Use Cases:-------------------------------------------------------
     getIt.registerSingleton<GetCurrentAccountUseCase>(
       GetCurrentAccountUseCase(getIt<AccountRepository>()),
@@ -126,62 +134,53 @@ class UseCaseModule {
     getIt.registerSingleton<UploadAvatarUseCase>(
       UploadAvatarUseCase(getIt<AccountRepository>()),
     );
-
+    getIt.registerSingleton<DeleteAvatarUseCase>(
+      DeleteAvatarUseCase(getIt<AccountRepository>()),
+    );
     // Ticket Use Cases:--------------------------------------------------------
     getIt.registerSingleton<GetTicketsUseCase>(
       GetTicketsUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<GetTicketByIdUseCase>(
       GetTicketByIdUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<CreateTicketUseCase>(
       CreateTicketUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<UpdateTicketUseCase>(
       UpdateTicketUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<DeleteTicketUseCase>(
       DeleteTicketUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<GetAvailableAgentsUseCase>(
       GetAvailableAgentsUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<AssignAgentUseCase>(
       AssignAgentUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<AddCommentUseCase>(
       AddCommentUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<GetCustomerHistoryUseCase>(
       GetCustomerHistoryUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<UpdateTicketStatusUseCase>(
       UpdateTicketStatusUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<GetCommentsUseCase>(
       GetCommentsUseCase(getIt<TicketRepository>()),
     );
-
     getIt.registerSingleton<GetTicketHistoryUseCase>(
       GetTicketHistoryUseCase(getIt<TicketRepository>()),
     );
-
+    // Customer Conversation Use Cases:----------------------------------------
+    getIt.registerSingleton<GetCustomerChatRoomsUseCase>(
+      GetCustomerChatRoomsUseCase(getIt<CustomerChatRoomRepository>()),
+    );
     // Omnichannel Use Cases:---------------------------------------------------
     getIt.registerSingleton<GetOmnichannelOverviewUseCase>(
       GetOmnichannelOverviewUseCase(getIt<OmnichannelRepository>()),
-    );
-    getIt.registerSingleton<ConnectMessengerUseCase>(
-      ConnectMessengerUseCase(getIt<OmnichannelRepository>()),
     );
     getIt.registerSingleton<DisconnectMessengerUseCase>(
       DisconnectMessengerUseCase(getIt<OmnichannelRepository>()),
@@ -210,16 +209,16 @@ class UseCaseModule {
     getIt.registerSingleton<UpdateZaloAssignmentsUseCase>(
       UpdateZaloAssignmentsUseCase(getIt<OmnichannelRepository>()),
     );
-
+    getIt.registerSingleton<SendZaloMessageUseCase>(
+      SendZaloMessageUseCase(getIt<OmnichannelRepository>()),
+    );
     // Monetization Use Cases:--------------------------------------------------
     getIt.registerSingleton<GetMonetizationOverviewUseCase>(
       GetMonetizationOverviewUseCase(getIt<MonetizationRepository>()),
     );
-
     getIt.registerSingleton<SimulateUpgradeUseCase>(
       SimulateUpgradeUseCase(getIt<MonetizationRepository>()),
     );
-
     // Marketing Use Cases:-----------------------------------------------------
     getIt.registerSingleton<GetMarketingOverviewUseCase>(
       GetMarketingOverviewUseCase(getIt<MarketingRepository>()),
@@ -239,7 +238,6 @@ class UseCaseModule {
     getIt.registerSingleton<CreateCampaignUseCase>(
       CreateCampaignUseCase(getIt<MarketingRepository>()),
     );
-
     getIt.registerSingleton<EstimateAudienceUseCase>(
       EstimateAudienceUseCase(getIt<MarketingRepository>()),
     );
@@ -249,7 +247,6 @@ class UseCaseModule {
     getIt.registerSingleton<DisconnectFacebookAdminUseCase>(
       DisconnectFacebookAdminUseCase(getIt<MarketingRepository>()),
     );
-
     // Marketing Broadcast Use Cases:------------------------------------------
     getIt.registerSingleton<GetBroadcastTemplatesUseCase>(
       GetBroadcastTemplatesUseCase(getIt<MarketingBroadcastRepository>()),
@@ -316,7 +313,6 @@ class UseCaseModule {
     getIt.registerSingleton<SelectFacebookAdminPageUseCase>(
       SelectFacebookAdminPageUseCase(getIt<MarketingBroadcastRepository>()),
     );
-
     // --- AI Agent Use Cases ---
     getIt.registerSingleton<GetAgentsUseCase>(
       GetAgentsUseCase(getIt<AiAgentRepository>()),
@@ -333,7 +329,6 @@ class UseCaseModule {
     getIt.registerSingleton<DeleteAgentUseCase>(
       DeleteAgentUseCase(getIt<AiAgentRepository>()),
     );
-
     // --- Playground Use Cases ---
     getIt.registerSingleton<GetSessionsUseCase>(
       GetSessionsUseCase(getIt<PlaygroundRepository>()),
@@ -343,6 +338,19 @@ class UseCaseModule {
     );
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
+    );
+
+    // Jarvis Agent Use Cases:--------------------------------------------------
+    getIt.registerSingleton<SendJarvisMessageUseCase>(
+      SendJarvisMessageUseCase(getIt<JarvisRepository>()),
+    );
+    getIt.registerSingleton<ConfirmHitlUseCase>(
+      ConfirmHitlUseCase(getIt<JarvisRepository>()),
+    );
+
+    // Media (file upload) Use Cases:-------------------------------------------
+    getIt.registerSingleton<UploadFileUseCase>(
+      UploadFileUseCase(getIt<MediaRepository>()),
     );
 
     // Knowledge Use Cases:-----------------------------------------------------
@@ -388,6 +396,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<WatchSourceStatusesUseCase>(
       WatchSourceStatusesUseCase(knowledgeRepo),
+    );
+    getIt.registerSingleton<UploadLocalFileUseCase>(
+      UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
     );
   }
 }

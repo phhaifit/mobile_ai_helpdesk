@@ -1,9 +1,9 @@
-import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:uuid/uuid.dart';
 
-import '/domain/analytics/analytics_service.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
+import '/domain/analytics/analytics_service.dart';
 
 /// Data class for first launch detection results.
 class FirstLaunchData {

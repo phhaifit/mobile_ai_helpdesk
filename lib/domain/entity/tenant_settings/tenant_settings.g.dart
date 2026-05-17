@@ -11,6 +11,9 @@ TenantSettings _$TenantSettingsFromJson(Map<String, dynamic> json) =>
       allowInvitations: json['allowInvitations'] as bool,
       defaultRole: $enumDecode(_$TeamRoleEnumMap, json['defaultRole']),
       enableAuditLog: json['enableAuditLog'] as bool,
+      autoResolutionEnabled: json['autoResolutionEnabled'] as bool? ?? false,
+      autoResolutionTimeoutHours:
+          (json['autoResolutionTimeoutHours'] as num?)?.toInt() ?? 24,
     );
 
 Map<String, dynamic> _$TenantSettingsToJson(TenantSettings instance) =>
@@ -18,10 +21,11 @@ Map<String, dynamic> _$TenantSettingsToJson(TenantSettings instance) =>
       'allowInvitations': instance.allowInvitations,
       'defaultRole': _$TeamRoleEnumMap[instance.defaultRole]!,
       'enableAuditLog': instance.enableAuditLog,
+      'autoResolutionEnabled': instance.autoResolutionEnabled,
+      'autoResolutionTimeoutHours': instance.autoResolutionTimeoutHours,
     };
 
 const _$TeamRoleEnumMap = {
-  TeamRole.owner: 'owner',
   TeamRole.admin: 'admin',
-  TeamRole.member: 'member',
+  TeamRole.customerSupport: 'customer_support',
 };

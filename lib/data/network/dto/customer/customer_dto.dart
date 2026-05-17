@@ -1,6 +1,6 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:ai_helpdesk/domain/entity/customer/customer.dart';
 import 'package:ai_helpdesk/domain/entity/customer/tag.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'customer_dto.g.dart';
 
@@ -42,7 +42,7 @@ class CustomerDto {
     final List<String> z = [];
     final List<String> m = [];
     String? foundAvatar = avatar;
-    
+
     for (var contact in contacts) {
       if (contact.name == 'EMAIL') {
         final val = contact.email ?? contact.value;
@@ -53,7 +53,7 @@ class CustomerDto {
         if (val != null) p.add(val);
       }
       if (contact.name == 'ZALO_PERSONAL' && contact.zaloAccountName != null) {
-        z.add(contact.zaloAccountName!); 
+        z.add(contact.zaloAccountName!);
         if (contact.zalophone != null && contact.zalophone!.isNotEmpty) {
           p.add(contact.zalophone!);
         }
@@ -61,7 +61,9 @@ class CustomerDto {
           foundAvatar = contact.zaloAccountAvatar;
         }
       }
-      if (contact.name == 'MESSENGER' && contact.value != null) m.add(contact.value!);
+      if (contact.name == 'MESSENGER' && contact.value != null) {
+        m.add(contact.value!);
+      }
     }
 
     return Customer(
@@ -72,11 +74,15 @@ class CustomerDto {
       zalos: z.toSet().toList(),
       messengers: m.toSet().toList(),
       createdAt: createdAt ?? DateTime.now(),
-      tags: tags.map((t) => Tag(id: t.tagID ?? '', name: t.tagName ?? '')).toList(),
+      tags:
+          tags
+              .map((t) => Tag(id: t.tagID ?? '', name: t.tagName ?? ''))
+              .toList(),
       avatarUrl: foundAvatar,
       tenantId: tenantID,
       updatedAt: updatedAt,
-      groups: groups.map((g) => g.name ?? '').where((n) => n.isNotEmpty).toList(),
+      groups:
+          groups.map((g) => g.name ?? '').where((n) => n.isNotEmpty).toList(),
     );
   }
 

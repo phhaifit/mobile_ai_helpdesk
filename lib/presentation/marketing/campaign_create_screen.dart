@@ -8,14 +8,15 @@
 ///       if step==1: _buildAudienceStep() (inline RecipientTargetingForm)
 ///       if step==2: _buildScheduleStep()
 ///     _buildNavigationButtons()
+library;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/entity/marketing/marketing.dart';
-import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/presentation/marketing/store/marketing_broadcast_store.dart';
+import 'package:ai_helpdesk/presentation/marketing/store/marketing_store.dart';
 import 'package:ai_helpdesk/utils/locale/app_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CampaignCreateScreen extends StatefulWidget {
   const CampaignCreateScreen({super.key});
@@ -687,8 +688,9 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                                       ? null
                                       : () async {
                                         await _store.createCampaign();
-                                        if (mounted && _store.actionWasSuccess)
+                                        if (mounted && _store.actionWasSuccess) {
                                           Navigator.pop(context);
+                                        }
                                       },
                               child:
                                   _store.isSubmitting
@@ -738,8 +740,9 @@ class _CampaignCreateScreenState extends State<CampaignCreateScreen> {
                                       ? null
                                       : () async {
                                         await _store.createCampaign();
-                                        if (mounted && _store.actionWasSuccess)
+                                        if (mounted && _store.actionWasSuccess) {
                                           Navigator.pop(context);
+                                        }
                                       },
                               child:
                                   _store.isSubmitting

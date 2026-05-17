@@ -10,10 +10,7 @@ class DraftResponsePanel extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const DraftResponsePanel({
-    super.key,
-    required this.drafts,
-    required this.onUse,
-    required this.onDismiss,
+    required this.drafts, required this.onUse, required this.onDismiss, super.key,
   });
 
   @override

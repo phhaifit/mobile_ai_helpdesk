@@ -6,14 +6,11 @@ class Endpoints {
   // Helpdesk host (tenant-scoped endpoints).
   static String get baseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
   static String get helpdeskBaseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
-
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
-
   // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
   // media. Separate from BE Helpdesk.
   static String get aiServiceBaseUrl => EnvConfig.instance.aiServiceApiBaseUrl;
-
   static int get receiveTimeout => EnvConfig.instance.receiveTimeout;
   static int get connectionTimeout => EnvConfig.instance.connectionTimeout;
 
@@ -29,6 +26,7 @@ class Endpoints {
 
   // ---- Helpdesk Account ---------------------------------------------------
   static const String accountSsoValidate = '/api/account/sso-validate';
+  static const String accountList = '/account';
   static const String accountMe = '/api/account/me';
   static const String accountAvatar = '/api/account/me/avatar';
 
@@ -46,44 +44,55 @@ class Endpoints {
       '/api/playground/sessions/$sessionId/messages';
 
   // Tenant endpoints
+  static String accountTenants() => '/api/v1/accounts/tenants';
   static String tenants() => '/api/v1/tenants';
-    static String createTenantOnFirstLogin() => '/api/v1/tenants/create-first-login';
+  static String createTenantOnFirstLogin() =>
+      '/api/v1/tenants/create-first-login';
   static String tenant(String tenantId) => '/api/v1/tenants/$tenantId';
-    static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
-  static String switchTenant(String tenantId) => '/api/v1/tenants/$tenantId/switch';
-  static String tenantSettings(String tenantId) =>
-      '/api/v1/tenants/$tenantId/settings';
+  static String tenantInvitationJoinInfo() => '/api/v1/tenants/invitation';
+  static String switchTenant(String tenantId) =>
+      '/api/v1/tenants/$tenantId/switch';
+
+  // Tenant Auto-Resolution settings (GET to fetch, PUT to update)
+  static String tenantAutoResolution(String tenantId) =>
+      '/api/v1/tenants/$tenantId/auto-resolution';
 
   // Team member endpoints
-  static String tenantMembers(String tenantId) => '/api/v1/tenants/$tenantId/members';
+  // Legacy: with tenantId in path (deprecated — use members endpoints instead)
+  static String tenantMembers(String tenantId) =>
+      '/api/v1/tenants/$tenantId/members';
   static String tenantMember(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId';
   static String tenantMemberPermissions(String tenantId, String memberId) =>
       '/api/v1/tenants/$tenantId/members/$memberId/permissions';
+  // New: tenantId injected via header interceptor (preferred)
+  static String members() => '/api/v1/members';
+  static String member(String memberId) => '/api/v1/members/$memberId';
 
   // Invitation endpoints
+  static String invitations() => '/api/v1/invitations';
+  // Legacy: with tenantId in path (deprecated — use invitations endpoints instead)
   static String tenantInvitations(String tenantId) =>
       '/api/v1/tenants/$tenantId/invitations';
-  static String resendInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/resend';
-  static String acceptInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/accept';
-  static String declineInvitation(String invitationId) =>
-      '/api/v1/invitations/$invitationId/decline';
+  static String sendTenantInvitation() => '/api/v1/tenants/invitation';
+  // New: tenantId injected via header interceptor (preferred)
+  static String sendInvitation() => '/api/v1/tenants/invitation';
+  static String resendInvitation() => '/api/v1/invitations/resend';
+  static String acceptInvitation() => '/api/v1/invitations/accept';
+  static String declineInvitation() => '/api/v1/invitations/decline';
   static String deleteInvitation(String invitationId) =>
       '/api/v1/invitations/$invitationId';
+
   // Marketing/Broadcasting endpoints (Phase A contract baseline)
   // Templates
   static String marketingTemplates() => '/api/marketing/templates';
   static String marketingTemplate(String id) => '/api/marketing/templates/$id';
   static String marketingTemplateSearch() => '/api/marketing/templates/search';
-
   // Marketing/Broadcasting endpoints (Phase C backend aligned)
   static String marketingV1BroadcastTemplates() =>
       '/api/v1/marketing/templates';
   static String marketingV1BroadcastTemplate(String id) =>
       '/api/v1/marketing/templates/$id';
-
   static String marketingV1Broadcasts() => '/api/v1/marketing/broadcasts';
   static String marketingV1Broadcast(String id) =>
       '/api/v1/marketing/broadcasts/$id';
@@ -101,7 +110,6 @@ class Endpoints {
       '/api/v1/marketing/broadcasts/$id/status-timeline';
   static String marketingV1BroadcastStatusSse(String id) =>
       '/api/v1/marketing/broadcasts/$id/events';
-
   static String marketingV1FacebookAdminAccounts() =>
       '/api/v1/marketing/ad-accounts';
   static String marketingV1FacebookAdminAccountsFetch() =>
@@ -116,7 +124,6 @@ class Endpoints {
       '/api/v1/marketing/facebook-admin/accounts/$id/pages';
   static String marketingV1FacebookAdminSelectPage(String id) =>
       '/api/v1/marketing/facebook-admin/accounts/$id/select-page';
-
   // Campaigns
   static String marketingCampaigns() => '/api/marketing/campaigns';
   static String marketingCampaign(String id) => '/api/marketing/campaigns/$id';
@@ -126,12 +133,10 @@ class Endpoints {
       '/api/marketing/campaigns/$id/stop';
   static String marketingCampaignResume(String id) =>
       '/api/marketing/campaigns/$id/resume';
-
   // Audience / recipient resolution
   static String marketingAudienceEstimate() =>
       '/api/marketing/audience/estimate';
   static String marketingAudienceResolve() => '/api/marketing/audience/resolve';
-
   // Facebook admin
   static String marketingFacebookConnect() =>
       '/api/marketing/facebook-admin/connect';
@@ -143,17 +148,14 @@ class Endpoints {
       '/api/marketing/facebook-admin/pages';
   static String marketingFacebookSelectPage() =>
       '/api/marketing/facebook-admin/select-page';
-
   // Delivery receipts / status timeline
   static String marketingDeliveryReceipts(String campaignId) =>
       '/api/marketing/campaigns/$campaignId/receipts';
   static String marketingCampaignStatusTimeline(String campaignId) =>
       '/api/marketing/campaigns/$campaignId/status-timeline';
-
   // Realtime
   static String marketingCampaignStatusSse(String campaignId) =>
       '/api/marketing/campaigns/$campaignId/events';
-
   static Uri marketingV1BroadcastStatusWsUri(String broadcastId) {
     final base = Uri.parse(baseUrl);
     final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
@@ -163,7 +165,6 @@ class Endpoints {
       query: '',
     );
   }
-
   static Uri marketingCampaignStatusWsUri(String campaignId) {
     final base = Uri.parse(baseUrl);
     final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
@@ -177,33 +178,51 @@ class Endpoints {
   // Omnichannel: Messenger endpoints
   static String messengerCustomers() => '/api/messenger/messenger-customers';
   static String verifyMessengerAuthCode() => '/api/messenger/verify-auth-code';
+  static String messengerConnectPage() => '/api/messenger/connect-page';
   static String updateMessengerPageConfig() =>
       '/api/messenger/update-page-config';
   static String messengerPages() => '/api/messenger/pages';
   static String deleteMessengerPage(String channelId) =>
       '/api/messenger/page/$channelId';
   static String resyncMessengerPage() => '/api/messenger/resync-page';
+
   // Omnichannel: Zalo endpoints
-  static String zaloGenerateQr() => '/api/v1/zalo/qr/generate';
+  static String zaloGenerateQr() => '/api/v1/zalo/qr';
   static String zaloQrStatus(String code) => '/api/v1/zalo/qr/$code/status';
   static String verifyZaloAuthCode() => '/api/v1/zalo/oauth/verify';
+  static String zaloRevoke() => '/api/v1/zalo/oauth/revoke';
   static String zaloConnect() => '/api/v1/zalo/connect';
   static String zaloDisconnect() => '/api/v1/zalo/disconnect';
-  static String zaloConnections() => '/api/v1/zalo/connections';
+  static String zaloLatestCustomer() => '/api/v1/zalo/latest-customer';
+  static String zaloLatestMessages() => '/api/v1/zalo/latest-messages';
+  static String zaloPersonalConnections() => '/api/v1/zalo/personal/connections';
+  static String zaloPersonalStatus(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/status';
+  static String zaloPersonalConnect() => '/api/v1/zalo/personal/connect';
+  static String zaloPersonalDisconnect() => '/api/v1/zalo/personal/disconnect';
+  static String zaloPersonalAssignCs(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/assign-cs';
+  static String zaloPersonalUnassignCs(String channelId) =>
+      '/api/v1/zalo/personal/$channelId/unassign-cs';
   static String sendZaloMessage() => '/api/v1/zalo/messages/send';
-  static String syncZaloMessages() => '/api/v1/zalo/sync/messages';
-  static String syncZaloCustomers() => '/api/v1/zalo/sync/customers';
+  static String zaloMessageDetail(String messageId) =>
+      '/api/v1/zalo/messages/$messageId';
 
   // Tag Management
   static String get tags => '/api/v1/tags';
   static String tag(String id) => '/api/v1/tags/$id';
-
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // ---- Prompt / Response Templates ----------------------------------------
+  static String responseTemplates() => '/api/v1/response-templates';
+  static String responseTemplate(String id) => '/api/v1/response-templates/$id';
+  static String activateResponseTemplate(String id) =>
+      '/api/v1/response-templates/$id/activate';
 
   // Customer Management
   static String customerList() => '/api/customer';
   static String customerDetail(String id) => '/api/customer/$id';
-  static String checkValidEmail() => '/api/customer/check-valid-email';
+  static String checkEmailAvailability() => '/api/customer/check-valid-email';
   static String createCustomer() => '/api/customer';
   static String updateCustomer(String id) =>
       '/api/customer/update-customer/$id';
@@ -217,38 +236,56 @@ class Endpoints {
       '/api/customer/delete-customer-contact';
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 
-  // Ticket endpoints
+  // ---- Ticket -------------------------------------------------------------
   static const String ticketAll = '/api/ticket/all';
   static const String ticketMy = '/api/ticket/my-ticket';
   static const String ticketMyByStatus = '/api/ticket/mine-by-status';
   static const String ticketUnassigned = '/api/ticket/unassigned';
+  static String ticketHistoryCustomer(String customerId) =>
+      '/api/ticket/ticket-history-customer/$customerId';
   static String ticketDetail(String ticketId) => '/api/ticket/$ticketId';
   static const String ticketUpdateStatus = '/api/ticket/update-status';
   static const String ticketCreate = '/api/ticket/new';
   static String ticketUpdateDetail(String ticketId) =>
       '/api/ticket/my-ticket/$ticketId/detail';
   static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
+  // Customer-scoped ticket history (feat/customer-management)
+  static String ticketHistoryByCustomer(String customerId) =>
+      '/api/ticket/ticket-history-customer/$customerId';
   static String ticketComments(String ticketId) =>
       '/api/ticket/comment/get-comment/$ticketId';
   static const String ticketAddComment = '/api/ticket/comment/add-comment';
   static String ticketDeleteComment(String commentId) =>
       '/api/ticket/comment/$commentId';
 
-  // ---- Knowledge Base ------------------------------------------------------
+  // ---- Chat Room ----------------------------------------------------------
+  // Sub-issue B uses these constants for REST + Socket.io chat-room flows;
+  // the customer-scoped placeholder (customerConversations) is from main and
+  // remains pending until BE finalises the customer-scoped variant.
+  static const String chatRoomMessages = '/api/chat-room/message';
+  static const String chatRoomSendMessage =
+      '/api/chat-room/message/cs-to-customer';
+  static const String chatRoomDetail = '/api/chat-room/detail';
+  static String customerConversations(String customerId) =>
+      '/api/customer/$customerId/conversations';
+
+  // Socket.io
+  static String get socketUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+  static const String socketPath = '/api/socket';
+  static String socketNamespace(String tenantId) => '/tenant-$tenantId';
+
+  // ---- Knowledge Base -----------------------------------------------------
   static String knowledgeSources(String tenantId) =>
       '/api/v1/knowledges/$tenantId/sources';
   static String knowledgeSourcesByType(String tenantId, String apiType) =>
       '/api/v1/knowledges/$tenantId/sources/$apiType';
-
   /// PATCH (status) and DELETE both use this path; method disambiguates.
   static String knowledgeSource(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId';
-
   static String knowledgeReindex(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId/reindex';
   static String knowledgeInterval(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId/interval';
-
   static String knowledgeImportWeb(String tenantId) =>
       '/api/v1/knowledges/$tenantId/web';
   static String knowledgeImportLocalFile(String tenantId) =>
@@ -261,16 +298,31 @@ class Endpoints {
     String tenantId,
     String sourceId,
   ) => '/api/v1/knowledges/$tenantId/database-query/$sourceId';
-
   static const String knowledgeTestDatabaseQuery =
       '/api/v1/knowledges/test-database-query';
   static const String knowledgePollStatus =
       '/api/v1/knowledges/sources/poll-status';
-
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
 
-  // WebSocket
+  // ---- AI Agent (real backend) --------------------------------------------
+  static String aiAgentByTenant(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId';
+  static String aiAgentById(String agentId) => '/api/v1/ai-agents/$agentId';
+
+  // Jarvis Agent endpoints
+  static String jarvisMessage(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/message';
+  static String jarvisConfirm(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/confirm';
+
+  // Media endpoints
+  static String uploadFile(String tenantId) => '/api/v1/media/save-file/$tenantId';
+
+  // ---- WebSocket ----------------------------------------------------------
+  // Plain WebSocket helper from main — distinct from the Socket.io transport
+  // (socketUrl + socketPath + socketNamespace) used by the ticket comments
+  // stream above.
   static String ticketWebSocket(String ticketId) {
     final wsBase = baseUrl
         .replaceFirst('https://', 'wss://')

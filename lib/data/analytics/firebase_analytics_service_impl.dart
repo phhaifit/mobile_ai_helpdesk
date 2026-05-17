@@ -217,17 +217,16 @@ class FirebaseAnalyticsServiceImpl implements AnalyticsService {
   /// - Trimmed, truncated string without special characters
   String _sanitizeParameter(String key, String value) {
     // Remove leading/trailing whitespace
-    String sanitized = value.trim();
+    final trimmed = value.trim();
 
     // Truncate to max length
-    if (sanitized.length > _maxParameterLength) {
-      sanitized = sanitized.substring(0, _maxParameterLength);
-    }
+    final truncated =
+        trimmed.length > _maxParameterLength
+            ? trimmed.substring(0, _maxParameterLength)
+            : trimmed;
 
     // Remove or replace problematic characters
-    sanitized = sanitized.replaceAll(RegExp(r'[^\w\s\-\.]'), '');
-
-    return sanitized;
+    return truncated.replaceAll(RegExp(r'[^\w\s\-\.]'), '');
   }
 
   /// Checks if a parameter contains potential PII.

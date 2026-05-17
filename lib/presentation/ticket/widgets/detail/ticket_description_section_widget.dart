@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
+import 'package:flutter/material.dart';
 
 class TicketDescriptionSectionWidget extends StatelessWidget {
   final Ticket ticket;
 
-  const TicketDescriptionSectionWidget({super.key, required this.ticket});
+  const TicketDescriptionSectionWidget({required this.ticket, super.key});
 
   @override
   Widget build(BuildContext context) {

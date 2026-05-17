@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:ai_helpdesk/constants/colors.dart';
 import 'package:ai_helpdesk/core/widgets/badge_widget.dart';
 import 'package:ai_helpdesk/domain/entity/enums.dart';
+import 'package:flutter/material.dart';
 
 /// Badge widget for displaying ticket status with appropriate color
 class StatusBadgeWidget extends StatelessWidget {
