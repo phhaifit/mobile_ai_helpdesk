@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/core/data/network/dio/configs/dio_configs.dart';
 import 'package:ai_helpdesk/core/data/network/dio/dio_client.dart';
+import 'package:ai_helpdesk/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import 'package:ai_helpdesk/data/network/apis/ai_agent/ai_agent_api.dart';
 import 'package:ai_helpdesk/data/network/models/request/update_ai_agent_request.dart';
 import 'package:ai_helpdesk/data/repository/ai_agent/ai_agent_repository_impl.dart';
@@ -96,7 +97,7 @@ void main() {
     test('getAgents throws when tenantId is missing', () async {
       final api = _FakeAiAgentApi();
       final prefs = await _buildPrefs(<String, Object>{});
-      final repo = AiAgentRepositoryImpl(api, prefs);
+      final repo = AiAgentRepositoryImpl(api, prefs, AiAgentDataSource());
 
       await expectLater(repo.getAgents(), throwsA(isA<Exception>()));
       expect(api.getAgentByTenantCallCount, 0);
@@ -105,7 +106,7 @@ void main() {
     test('createAgent throws when tenantId is missing', () async {
       final api = _FakeAiAgentApi();
       final prefs = await _buildPrefs(<String, Object>{});
-      final repo = AiAgentRepositoryImpl(api, prefs);
+      final repo = AiAgentRepositoryImpl(api, prefs, AiAgentDataSource());
 
       await expectLater(repo.createAgent(_sampleAgent()), throwsA(isA<Exception>()));
       expect(api.createAgentCallCount, 0);
@@ -126,7 +127,7 @@ void main() {
       final prefs = await _buildPrefs(<String, Object>{
         Preferences.tenantId: 'tn-001',
       });
-      final repo = AiAgentRepositoryImpl(api, prefs);
+      final repo = AiAgentRepositoryImpl(api, prefs, AiAgentDataSource());
 
       final agents = await repo.getAgents();
 
@@ -151,7 +152,7 @@ void main() {
       final prefs = await _buildPrefs(<String, Object>{
         Preferences.tenantId: 'tn-abc',
       });
-      final repo = AiAgentRepositoryImpl(api, prefs);
+      final repo = AiAgentRepositoryImpl(api, prefs, AiAgentDataSource());
 
       final created = await repo.createAgent(_sampleAgent());
 
