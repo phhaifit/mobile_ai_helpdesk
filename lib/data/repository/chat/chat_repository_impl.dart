@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
 import 'package:ai_helpdesk/core/events/socket/server/ai/socket_draft_response_progress_event.dart';
 import 'package:ai_helpdesk/core/events/socket/server/interactions/socket_typing_payload.dart';
 import 'package:ai_helpdesk/core/events/socket/server/interactions/message_reaction_update_event.dart';
@@ -123,13 +124,33 @@ class ChatRepositoryImpl implements ChatRepository {
       messageReactionId: event.messageReactionId,
       messageId: event.messageId,
       chatRoomId: event.chatRoomId,
-      emoji: event.emoji,
+      emoji: ZaloReactionIcons.normalizeReactIcon(event.emoji),
       amount: event.amount,
       customerId: event.customerId,
       customerSupportId: event.customerSupportId,
       customerSupportName: event.customerSupportName,
       customerSupportAvatar: event.customerSupportAvatar,
       isRemoved: isRemoved,
+    );
+  }
+
+  void _applyReactionFromDto(
+    MessageReactionDto dto, {
+    required String chatRoomId,
+  }) {
+    _applyReactionUpdate(
+      MessageReactionUpdate(
+        messageReactionId: dto.messageReactionId,
+        messageId: dto.messageId,
+        chatRoomId: chatRoomId,
+        emoji: ZaloReactionIcons.normalizeReactIcon(dto.emoji),
+        amount: dto.amount,
+        customerId: dto.customerId,
+        customerSupportId: dto.customerSupportId,
+        customerSupportName: dto.customerSupportName,
+        customerSupportAvatar: dto.customerSupportAvatar,
+        isRemoved: dto.amount <= 0,
+      ),
     );
   }
 
@@ -142,19 +163,29 @@ class ChatRepositoryImpl implements ChatRepository {
     if (messageIndex < 0) return;
 
     final Message message = list[messageIndex];
-    List<Reaction> reactions = List<Reaction>.from(message.reactions);
+    final List<Reaction> reactions = List<Reaction>.from(message.reactions);
+    final String normalizedEmoji =
+        ZaloReactionIcons.normalizeReactIcon(update.emoji);
 
     if (update.isRemoved) {
-      reactions.removeWhere(
-        (Reaction r) =>
-            r.id == update.messageReactionId ||
-            (r.emoji == update.emoji &&
-                r.user.id ==
-                    (update.customerSupportId ?? update.customerId ?? '')),
-      );
+      reactions.removeWhere((Reaction r) {
+        if (update.messageReactionId.isNotEmpty &&
+            r.id == update.messageReactionId) {
+          return true;
+        }
+        if (ZaloReactionIcons.normalizeReactIcon(r.emoji) != normalizedEmoji) {
+          return false;
+        }
+        final String actorId =
+            update.customerSupportId ?? update.customerId ?? '';
+        return actorId.isEmpty || r.user.id == actorId;
+      });
     } else {
       final int existingIndex = reactions.indexWhere(
-        (Reaction r) => r.id == update.messageReactionId || r.emoji == update.emoji,
+        (Reaction r) =>
+            (update.messageReactionId.isNotEmpty &&
+                r.id == update.messageReactionId) ||
+            ZaloReactionIcons.normalizeReactIcon(r.emoji) == normalizedEmoji,
       );
       final Reaction mapped = Reaction(
         id: update.messageReactionId,
@@ -163,7 +194,7 @@ class ChatRepositoryImpl implements ChatRepository {
           name: update.customerSupportName ?? 'Unknown',
           avatar: update.customerSupportAvatar ?? '',
         ),
-        emoji: update.emoji,
+        emoji: normalizedEmoji,
         amount: update.amount,
       );
       if (existingIndex >= 0) {
@@ -499,6 +530,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Reaction> reactToMessage(ReactToMessageRequest request) async {
     try {
       final dto = await _chatApi.reactToMessage(params: _mapReactParams(request));
+      _applyReactionFromDto(dto, chatRoomId: request.chatRoomId);
       return dto.toDomain();
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
@@ -508,7 +540,21 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<bool> unreactToMessage(ReactToMessageRequest request) async {
     try {
-      return await _chatApi.unreactMessage(params: _mapReactParams(request));
+      final bool ok =
+          await _chatApi.unreactMessage(params: _mapReactParams(request));
+      if (ok) {
+        _applyReactionUpdate(
+          MessageReactionUpdate(
+            messageReactionId: '',
+            messageId: request.messageId,
+            chatRoomId: request.chatRoomId,
+            emoji: ZaloReactionIcons.normalizeReactIcon(request.reactIcon),
+            amount: 0,
+            isRemoved: true,
+          ),
+        );
+      }
+      return ok;
     } on DioException catch (e) {
       throw HelpdeskErrorMapper.map(e);
     }
@@ -804,7 +850,7 @@ ReactMessageParams _mapReactParams(ReactToMessageRequest request) {
   return ReactMessageParams(
     messageId: request.messageId,
     zaloMessageId: request.zaloMessageId,
-    reactIcon: request.reactIcon,
+    reactIcon: ZaloReactionIcons.normalizeReactIcon(request.reactIcon),
     zaloAccountId: request.zaloAccountId,
     chatRoomId: request.chatRoomId,
     socketId: request.socketId,

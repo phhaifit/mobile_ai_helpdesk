@@ -4,27 +4,49 @@ class ZaloReactionIcons {
 
   static const String cdnBase = 'https://helpdesk.jarvis.cx/images';
 
+  /// Values accepted by `reactIcon` when calling the react message API.
+  static const Set<String> apiReactIcons = <String>{
+    '/-strong',
+    '/-heart',
+    ':>',
+    ':-((',
+    ':-h',
+  };
+
   static const List<ZaloReactionOption> pickerOptions = <ZaloReactionOption>[
-    ZaloReactionOption(type: 'like', reactIcon: '/-like'),
+    ZaloReactionOption(type: 'like', reactIcon: '/-strong'),
     ZaloReactionOption(type: 'heart', reactIcon: '/-heart'),
-    ZaloReactionOption(type: 'haha', reactIcon: '/-haha'),
-    ZaloReactionOption(type: 'wow', reactIcon: '/-wow'),
-    ZaloReactionOption(type: 'angry', reactIcon: '/-angry'),
+    ZaloReactionOption(type: 'haha', reactIcon: ':>'),
+    ZaloReactionOption(type: 'wow', reactIcon: ':-h'),
+    ZaloReactionOption(type: 'angry', reactIcon: ':-(('),
   ];
 
   /// CDN URL: `https://helpdesk.jarvis.cx/images/zalo-{type}-emoji.png`
   static String imageUrlForType(String type) => '$cdnBase/zalo-$type-emoji.png';
 
-  /// Resolves API `emoji` / `reactIcon` (e.g. `/-like`) to CDN [type].
-  static String? typeFromReactIcon(String reactIcon) {
+  /// Returns the API `reactIcon` for the given value, mapping legacy codes when needed.
+  static String normalizeReactIcon(String reactIcon) {
     final String normalized = reactIcon.trim();
+    if (apiReactIcons.contains(normalized)) {
+      return normalized;
+    }
+    return _legacyReactIconToApi[normalized] ?? normalized;
+  }
+
+  /// Resolves API `emoji` / `reactIcon` to CDN [type] for image display.
+  static String? typeFromReactIcon(String reactIcon) {
+    final String normalized = normalizeReactIcon(reactIcon);
+    final String? fromMap = _reactIconToCdnType[normalized];
+    if (fromMap != null) {
+      return fromMap;
+    }
     if (normalized.startsWith('/-')) {
       final String type = normalized.substring(2);
-      if (_knownTypes.contains(type)) {
+      if (_knownCdnTypes.contains(type)) {
         return type;
       }
     }
-    return _legacyReactIconToType[normalized];
+    return null;
   }
 
   static String imageUrlForReactIcon(String reactIcon) {
@@ -36,22 +58,23 @@ class ZaloReactionIcons {
   }
 
   static ZaloReactionOption? optionForReactIcon(String reactIcon) {
+    final String normalized = normalizeReactIcon(reactIcon);
     for (final ZaloReactionOption option in pickerOptions) {
-      if (option.reactIcon == reactIcon) {
+      if (option.reactIcon == normalized) {
         return option;
       }
     }
-    final String? type = typeFromReactIcon(reactIcon);
+    final String? type = typeFromReactIcon(normalized);
     if (type == null) {
       return null;
     }
     return pickerOptions.firstWhere(
       (ZaloReactionOption o) => o.type == type,
-      orElse: () => ZaloReactionOption(type: type, reactIcon: '/-$type'),
+      orElse: () => ZaloReactionOption(type: type, reactIcon: normalized),
     );
   }
 
-  static const Set<String> _knownTypes = <String>{
+  static const Set<String> _knownCdnTypes = <String>{
     'like',
     'heart',
     'haha',
@@ -59,10 +82,21 @@ class ZaloReactionIcons {
     'angry',
   };
 
-  /// Legacy API codes still present on older messages.
-  static const Map<String, String> _legacyReactIconToType = <String, String>{
+  static const Map<String, String> _reactIconToCdnType = <String, String>{
     '/-strong': 'like',
-    '/-cry': 'angry',
+    '/-heart': 'heart',
+    ':>': 'haha',
+    ':-h': 'wow',
+    ':-((': 'angry',
+  };
+
+  /// Older clients / messages may still use these codes.
+  static const Map<String, String> _legacyReactIconToApi = <String, String>{
+    '/-like': '/-strong',
+    '/-haha': ':>',
+    '/-wow': ':-h',
+    '/-angry': ':-((',
+    '/-cry': ':-((',
   };
 }
 

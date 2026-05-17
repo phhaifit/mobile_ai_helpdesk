@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../constants/dimens.dart';
 import '../../../constants/zalo_reaction_icons.dart';
 
-/// Horizontal picker for Zalo reactions; emits API codes like `/-like`.
+/// Horizontal picker for Zalo reactions; emits API codes like `/-strong`.
 class ReactionPicker extends StatelessWidget {
   const ReactionPicker({
     required this.onReactionSelected,
@@ -64,7 +64,7 @@ class ReactionPicker extends StatelessWidget {
   }
 }
 
-/// Renders a Zalo reaction from CDN by [reactIcon] (`/-like`, `/-heart`, …).
+/// Renders a Zalo reaction from CDN by [reactIcon] (`/-strong`, `/-heart`, …).
 class ZaloReactionImage extends StatelessWidget {
   const ZaloReactionImage({
     required this.reactIcon,

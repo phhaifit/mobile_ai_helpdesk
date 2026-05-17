@@ -7,6 +7,7 @@ import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_typing_event.dart';
 import 'package:ai_helpdesk/domain/entity/chat/draft_response_progress.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
+import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message_reaction_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
 import 'package:ai_helpdesk/domain/entity/chat/user.dart' show User;
@@ -424,14 +425,19 @@ abstract class _ChatStore with Store {
       return;
     }
 
-    _applyOptimisticReaction(messageId: message.id, emoji: reactIcon);
+    final String normalizedReactIcon =
+        ZaloReactionIcons.normalizeReactIcon(reactIcon);
+    _applyOptimisticReaction(
+      messageId: message.id,
+      emoji: normalizedReactIcon,
+    );
 
     try {
       await _reactToMessage.call(
         params: ReactToMessageRequest(
           messageId: message.id,
           zaloMessageId: message.zaloMessageId!,
-          reactIcon: reactIcon,
+          reactIcon: normalizedReactIcon,
           zaloAccountId: message.zaloAccountId!,
           chatRoomId: chatRoomId,
           channelId: channelId ?? _currentChannelId,
@@ -451,8 +457,11 @@ abstract class _ChatStore with Store {
     if (index == -1) return;
 
     final Message message = currentMessages[index];
-    final int reactionIndex =
-        message.reactions.indexWhere((Reaction r) => r.emoji == emoji);
+    final int reactionIndex = message.reactions.indexWhere(
+      (Reaction r) =>
+          ZaloReactionIcons.normalizeReactIcon(r.emoji) ==
+          ZaloReactionIcons.normalizeReactIcon(emoji),
+    );
 
     if (reactionIndex != -1) {
       final Reaction existingReaction = message.reactions[reactionIndex];
