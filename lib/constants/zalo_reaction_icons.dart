@@ -9,6 +9,7 @@ class ZaloReactionIcons {
     '/-strong',
     '/-heart',
     ':>',
+    ':o',
     ':-((',
     ':-h',
   };
@@ -17,8 +18,9 @@ class ZaloReactionIcons {
     ZaloReactionOption(type: 'like', reactIcon: '/-strong'),
     ZaloReactionOption(type: 'heart', reactIcon: '/-heart'),
     ZaloReactionOption(type: 'haha', reactIcon: ':>'),
-    ZaloReactionOption(type: 'wow', reactIcon: ':-h'),
-    ZaloReactionOption(type: 'angry', reactIcon: ':-(('),
+    ZaloReactionOption(type: 'wow', reactIcon: ':o'),
+    ZaloReactionOption(type: 'sad', reactIcon: ':-(('),
+    ZaloReactionOption(type: 'angry', reactIcon: ':-h'),
   ];
 
   /// CDN URL: `https://helpdesk.jarvis.cx/images/zalo-{type}-emoji.png`
@@ -79,24 +81,28 @@ class ZaloReactionIcons {
     'heart',
     'haha',
     'wow',
+    'sad',
     'angry',
   };
 
+  /// Maps API [reactIcon] to CDN filename segment (`zalo-{type}-emoji.png`).
   static const Map<String, String> _reactIconToCdnType = <String, String>{
     '/-strong': 'like',
     '/-heart': 'heart',
     ':>': 'haha',
-    ':-h': 'wow',
-    ':-((': 'angry',
+    ':o': 'wow',
+    ':-((': 'sad',
+    ':-h': 'angry',
   };
 
   /// Older clients / messages may still use these codes.
   static const Map<String, String> _legacyReactIconToApi = <String, String>{
     '/-like': '/-strong',
+    '/-string': '/-strong',
     '/-haha': ':>',
-    '/-wow': ':-h',
-    '/-angry': ':-((',
+    '/-wow': ':o',
     '/-cry': ':-((',
+    '/-angry': ':-h',
   };
 }
 
