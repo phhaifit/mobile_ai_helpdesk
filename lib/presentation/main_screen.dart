@@ -9,7 +9,6 @@ import 'package:ai_helpdesk/presentation/auth/store/auth_store.dart';
 import 'package:ai_helpdesk/presentation/chat/store/chat_room_store.dart';
 import 'package:ai_helpdesk/presentation/tenant/create_tenant_screen.dart';
 import 'package:ai_helpdesk/presentation/tenant/store/tenant_store.dart';
-import 'package:ai_helpdesk/utils/locale/app_localization.dart';
 import 'package:ai_helpdesk/utils/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

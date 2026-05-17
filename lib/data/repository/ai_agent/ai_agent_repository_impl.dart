@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
+import '/data/local/datasources/ai_agent/ai_agent_datasource.dart';
 import '/data/network/apis/ai_agent/ai_agent_api.dart';
 import '/data/network/models/request/update_ai_agent_request.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
@@ -9,8 +11,9 @@ import '/domain/repository/ai_agent/ai_agent_repository.dart';
 class AiAgentRepositoryImpl implements AiAgentRepository {
   final AiAgentApi _api;
   final SharedPreferenceHelper _prefs;
+  final AiAgentDataSource _fallbackDataSource;
 
-  AiAgentRepositoryImpl(this._api, this._prefs);
+  AiAgentRepositoryImpl(this._api, this._prefs, this._fallbackDataSource);
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -136,9 +139,28 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
 
     try {
       final json = await _api.getAgentByTenant(tenantId);
-      if (json.isEmpty) return [];
-      return [_fromJson(json)];
+      final remote = json.isEmpty ? <AiAgent>[] : <AiAgent>[_fromJson(json)];
+      final fallback = await _fallbackDataSource.getAgents();
+
+      if (remote.isEmpty) {
+        return fallback;
+      }
+
+      // Keep unique by id, remote first.
+      final byId = <String, AiAgent>{
+        for (final agent in remote) agent.id: agent,
+        for (final agent in fallback) agent.id: agent,
+      };
+      return byId.values.toList();
     } on DioException catch (e) {
+      final fallback = await _fallbackDataSource.getAgents();
+      if (fallback.isNotEmpty) {
+        debugPrint(
+          '[AiAgentRepository] getAgents fallback to in-memory cache '
+          '(remote failed: ${e.response?.statusCode ?? e.message})',
+        );
+        return fallback;
+      }
       throw Exception('Failed to load agents: ${e.message}');
     }
   }
@@ -182,6 +204,13 @@ class AiAgentRepositoryImpl implements AiAgentRepository {
         'configs': _toConfigRequest(agent).toJson(),
       });
     } on DioException catch (e) {
+      if (e.response?.statusCode == 500) {
+        debugPrint(
+          '[AiAgentRepository] createAgent received 500, '
+          'fallback to in-memory cache.',
+        );
+        return _fallbackDataSource.createAgent(agent);
+      }
       throw Exception('Failed to create agent: ${e.message}');
     }
   }

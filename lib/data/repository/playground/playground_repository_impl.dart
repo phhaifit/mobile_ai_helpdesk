@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '/data/local/datasources/playground/playground_datasource.dart';
 import '/data/network/apis/ai_agent/ai_agent_api.dart';
@@ -12,6 +13,8 @@ import '/domain/entity/playground/playground_session.dart';
 import '/domain/repository/playground/playground_repository.dart';
 
 class PlaygroundRepositoryImpl implements PlaygroundRepository {
+  static const String _draftSeparator = '\n<<<DRAFT_SPLIT>>>\n';
+
   final PlaygroundDataSource _dataSource;
   final AiAgentApi _aiAgentApi;
   final PlaygroundApi _api;
@@ -97,6 +100,19 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
         assistantResponse: realText,
       );
     } on DioException catch (e) {
+      if (_isInternalServerError(e)) {
+        debugPrint(
+          '[PlaygroundRepository] sendMessage fallback to local datasource '
+          'because API returned 500.',
+        );
+        return _dataSource.sendMessage(
+          sessionId,
+          content,
+          attachments,
+          assistantResponse:
+              'Xin lỗi, hệ thống đang bận. Tin nhắn đã được lưu cục bộ.',
+        );
+      }
       throw Exception('Failed to send message: ${e.message}');
     }
   }
@@ -118,6 +134,13 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
     try {
       return await _api.getDraftResponse(tenantId, req);
     } on DioException catch (e) {
+      if (_isInternalServerError(e)) {
+        debugPrint(
+          '[PlaygroundRepository] getDraftResponse fallback with local drafts '
+          'because API returned 500.',
+        );
+        return _buildLocalDraftFallback(params);
+      }
       throw Exception('Failed to get draft response: ${e.message}');
     }
   }
@@ -129,7 +152,38 @@ class PlaygroundRepositoryImpl implements PlaygroundRepository {
             ? params.tenantID
             : await _requireTenantId();
     final req = _toRequest(params, tenantId);
-    yield* _api.streamDraftResponse(tenantId, req);
+    try {
+      yield* _api.streamDraftResponse(tenantId, req);
+    } on DioException catch (e) {
+      if (_isInternalServerError(e)) {
+        debugPrint(
+          '[PlaygroundRepository] streamDraftResponse fallback with empty '
+          'stream because API returned 500.',
+        );
+        return;
+      }
+      rethrow;
+    }
+  }
+
+  bool _isInternalServerError(DioException e) => e.response?.statusCode == 500;
+
+  String _buildLocalDraftFallback(DraftResponseParams params) {
+    final latestUserMessage = params.chatHistory.reversed.firstWhere(
+      (item) => (item['role'] ?? '').toLowerCase() == 'user',
+      orElse: () => const <String, String>{},
+    )['content']?.trim();
+    final summary =
+        (latestUserMessage == null || latestUserMessage.isEmpty)
+            ? 'vấn đề của bạn'
+            : latestUserMessage;
+
+    final drafts = <String>[
+      'Chào bạn, mình đã nhận được thông tin về "$summary". Mình sẽ kiểm tra và phản hồi chi tiết cho bạn trong ít phút nhé.',
+      'Cảm ơn bạn đã chia sẻ về "$summary". Để hỗ trợ nhanh hơn, bạn vui lòng cho mình thêm mã đơn hoặc ảnh liên quan nếu có.',
+      'Mình rất tiếc vì bất tiện liên quan đến "$summary". Mình đã ghi nhận và đang ưu tiên xử lý để cập nhật kết quả sớm nhất cho bạn.',
+    ];
+    return drafts.join(_draftSeparator);
   }
 
   DraftResponseRequest _toRequest(

@@ -46,6 +46,7 @@ class PlaygroundScreen extends StatefulWidget {
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
   static const String _defaultTenant = 'default_tenant';
   static const String _playgroundUserId = 'playground-user';
+  static const String _draftSeparator = '<<<DRAFT_SPLIT>>>';
 
   late final PlaygroundStore _store;
   late final JarvisStore _jarvisStore;
@@ -157,7 +158,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     }
 
     final draft = _store.draftResponse.trim();
-    _setDraftVisibility(draft.isEmpty ? <String>[] : <String>[draft]);
+    _setDraftVisibility(_extractDrafts(draft));
   }
 
   DraftResponseParams _buildDraftParams(PlaygroundSession session) {
@@ -215,6 +216,20 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       _drafts = drafts;
       _showDrafts = drafts.isNotEmpty;
     });
+  }
+
+  List<String> _extractDrafts(String rawDraft) {
+    if (rawDraft.trim().isEmpty) {
+      return <String>[];
+    }
+    if (!rawDraft.contains(_draftSeparator)) {
+      return <String>[rawDraft];
+    }
+    return rawDraft
+        .split(_draftSeparator)
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
   }
 
   void _dismissDrafts() {
