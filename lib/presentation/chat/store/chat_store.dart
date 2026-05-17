@@ -1,183 +1,496 @@
 import 'dart:async';
-import 'dart:math';
 
+import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
+import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
+import 'package:ai_helpdesk/core/domain/error/failure.dart';
+import 'package:ai_helpdesk/core/stores/error/error_store.dart';
+import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
+import 'package:ai_helpdesk/domain/entity/chat/chat_typing_event.dart';
+import 'package:ai_helpdesk/domain/entity/chat/draft_response_progress.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
+import 'package:ai_helpdesk/domain/entity/chat/message_reaction_update.dart';
+import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
+import 'package:ai_helpdesk/domain/entity/chat/user.dart' show User;
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart'
+    show NoParams;
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
+
 import '../../../constants/analytics_events.dart';
 import '../../../domain/analytics/analytics_service.dart';
-import '../../../domain/entity/chat/message.dart';
-import '../../../domain/entity/chat/reaction.dart';
-import '../../../domain/repository/chat/chat_repository.dart';
 
-part 'chat_store.g.dart'; // File này sẽ tự sinh ra sau khi chạy build_runner
+part 'chat_store.g.dart';
 
 // ignore: library_private_types_in_public_api
 class ChatStore = _ChatStore with _$ChatStore;
 
 abstract class _ChatStore with Store {
-  final ChatRepository _chatRepository;
+  final SendMessageFromAgentToCustomerUseCase _sendMessage;
+  final FlatSearchMessageListUseCase _flatSearchMessageList;
+  final ReactToMessageUseCase _reactToMessage;
+  final GenerateAiDraftResponseUseCase _generateAiDraftResponse;
+  final ObserveChatMessagesUseCase _observeChatMessages;
+  final ObserveReactionUpdatesUseCase _observeReactionUpdates;
+  final ObserveSupportTypingUseCase _observeSupportTyping;
+  final ObserveDraftProgressUseCase _observeDraftProgress;
+  final SettingRepository _settingRepository;
   final AnalyticsService _analyticsService;
+  final ErrorStore _errorStore;
+  final ChatRepository _chatRepository;
 
-  // Canned responses for auto-reply simulation
-  static const List<String> _defaultResponses = [
-    'Cảm ơn bạn đã liên hệ! Tôi sẽ giúp bạn trong vài phút.',
-    'Tôi đã ghi nhận vấn đề của bạn. Đang xử lý...',
-    'Đó là một câu hỏi hay! Hãy cho tôi một giây để tìm câu trả lời.',
-    'Tôi hiểu rồi. Để tôi kiểm tra thêm một chút.',
-    'Cảm ơn! Tôi đang xử lý yêu cầu của bạn.',
-    'Bạn có thể cung cấp thêm chi tiết không?',
-    'Mình sẽ giúp bạn giải quyết vấn đề này.',
-    'Tôi đang tìm kiếm thông tin phù hợp cho bạn.',
-  ];
+  StreamSubscription<List<Message>>? _messagesSub;
+  StreamSubscription<MessageReactionUpdate>? _reactionSub;
+  StreamSubscription<ChatTypingEvent>? _typingSub;
+  StreamSubscription<DraftResponseProgress>? _draftProgressSub;
 
-  _ChatStore(this._chatRepository, this._analyticsService);
+  String? _currentTicketId;
+  String? _currentChannelId;
+
+  _ChatStore(
+    this._sendMessage,
+    this._flatSearchMessageList,
+    this._reactToMessage,
+    this._generateAiDraftResponse,
+    this._analyticsService,
+    this._errorStore,
+    this._chatRepository,
+    this._observeChatMessages,
+    this._observeReactionUpdates,
+    this._observeSupportTyping,
+    this._observeDraftProgress,
+    this._settingRepository,
+  );
 
   @observable
-  ObservableList<Message> messageList = ObservableList<Message>();
+  ObservableList<Message> currentMessages = ObservableList<Message>();
+
+  @observable
+  String? currentChatRoomId;
 
   @observable
   bool isLoading = false;
 
   @observable
-  bool isTyping = false;
+  bool isLoadingOlderMessages = false;
+
+  @observable
+  bool isSendingMessage = false;
+
+  @observable
+  bool isSupportTyping = false;
+
+  @observable
+  String? typingActorLabel;
+
+  @observable
+  String? suggestedReply;
+
+  @observable
+  bool isSuggestedReplyLoading = false;
+
+  @observable
+  bool isSuggestedReplyPanelExpanded = true;
+
+  @observable
+  String? activeDraftTaskId;
+
+  @observable
+  String? draftError;
 
   @observable
   String searchQuery = '';
 
   @computed
-  List<Message> get filteredMessages {
-    if (searchQuery.isEmpty) return messageList.toList();
+  bool get hasMoreOlderMessages {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return false;
+    return _chatRepository.hasMoreOlderMessages(roomId);
+  }
 
-    return messageList
+  @computed
+  bool get showSuggestedReplyPanel =>
+      isSuggestedReplyLoading ||
+      suggestedReply != null ||
+      draftError != null;
+
+  @computed
+  List<Message> get filteredMessages {
+    if (searchQuery.isEmpty) return currentMessages.toList();
+
+    return currentMessages
         .where(
-          (msg) =>
+          (Message msg) =>
               msg.content.toLowerCase().contains(searchQuery.toLowerCase()),
         )
         .toList();
   }
 
   @action
-  // ignore: use_setters_to_change_properties
-  void setSearchQuery(String query) {
-    searchQuery = query;
-  }
+  void setSearchQuery(String query) => searchQuery = query;
 
   @action
-  Future<void> getMessages() async {
-    isLoading = true;
-    messageList.clear(); // Clear sebelum load pesan baru
-    final messages = await _chatRepository.getMessages();
-    messageList.addAll(messages);
+  void resetAfterTenantSwitch() {
+    _cancelRealtimeSubscriptions();
+    _chatRepository.resetMessageCache();
+    currentChatRoomId = null;
+    _currentTicketId = null;
+    _currentChannelId = null;
     isLoading = false;
+    isLoadingOlderMessages = false;
+    isSendingMessage = false;
+    isSupportTyping = false;
+    typingActorLabel = null;
+    searchQuery = '';
+    currentMessages.clear();
+    _clearSuggestedReplyState();
+    activeDraftTaskId = null;
+  }
+
+  void _cancelRealtimeSubscriptions() {
+    unawaited(_messagesSub?.cancel());
+    _messagesSub = null;
+    unawaited(_reactionSub?.cancel());
+    _reactionSub = null;
+    unawaited(_typingSub?.cancel());
+    _typingSub = null;
+    unawaited(_draftProgressSub?.cancel());
+    _draftProgressSub = null;
   }
 
   @action
-  void sendMessage(String text) {
-    if (text.trim().isEmpty) return;
-    final newMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch,
-      content: text,
-      timestamp: DateTime.now(),
-      isMe: true,
-      senderName: 'User',
-      isPending: false,
-      readStatus: MessageReadStatus.sent,
-    );
-    messageList.add(newMessage);
-
-    // Track message sent event
-    _analyticsService.trackEvent(
-      AnalyticsEvents.messageSent,
-      parameters: {'channel': 'chat'},
-    );
-
-    // Simulate delivery status progression
-    _simulateReadStatusProgression(newMessage.id);
-
-    // Simulate auto-reply from AI Assistant after 2 seconds
-    _simulateAutoReply();
+  void _clearSuggestedReplyState() {
+    suggestedReply = null;
+    isSuggestedReplyLoading = false;
+    draftError = null;
   }
 
   @action
-  void addReactionToMessage(int messageId, String emoji) {
-    final index = messageList.indexWhere((m) => m.id == messageId);
-    if (index != -1) {
-      final message = messageList[index];
+  Future<void> observeRoom(
+    String roomId, {
+    int unreadCount = 0,
+    String? ticketId,
+    String? channelId,
+  }) async {
+    currentChatRoomId = roomId;
+    _currentTicketId = ticketId;
+    _currentChannelId = channelId;
+    isSupportTyping = false;
+    typingActorLabel = null;
 
-      // Check if emoji reaction already exists
-      final reactionIndex = message.reactions.indexWhere(
-        (r) => r.emoji == emoji,
+    _cancelRealtimeSubscriptions();
+
+    _messagesSub = _observeChatMessages
+        .call(params: ObserveMessagesParams(roomId: roomId))
+        .listen((List<Message> messages) {
+      currentMessages
+        ..clear()
+        ..addAll(messages);
+    });
+
+    _reactionSub = _observeReactionUpdates
+        .call(params: const NoParams())
+        .listen((MessageReactionUpdate update) {
+      if (update.chatRoomId != roomId) return;
+      // Messages stream refreshes from repository cache after reaction merge.
+    });
+
+    _typingSub = _observeSupportTyping.call(params: const NoParams()).listen(
+      (ChatTypingEvent event) {
+        if (event.chatRoomId != roomId) return;
+        isSupportTyping = event.isTyping;
+        typingActorLabel = event.isTyping ? event.actorName : null;
+      },
+    );
+
+    _draftProgressSub =
+        _observeDraftProgress.call(params: const NoParams()).listen(
+      _onDraftProgress,
+    );
+
+    if (unreadCount > 0 && suggestedReply == null && !isSuggestedReplyLoading) {
+      await generateSuggestedReply(
+        chatRoomId: roomId,
+        ticketId: ticketId,
       );
+    }
+  }
 
-      if (reactionIndex != -1) {
-        // Add user to existing reaction
-        final existingReaction = message.reactions[reactionIndex];
-        final updatedReaction = existingReaction.copyWith(
-          userNames: [
-            ...existingReaction.userNames,
-            if (!existingReaction.userNames.contains('You')) 'You',
-          ],
-        );
+  @action
+  void _onDraftProgress(DraftResponseProgress progress) {
+    if (activeDraftTaskId != null && progress.taskId != activeDraftTaskId) {
+      return;
+    }
 
-        final updatedReactions = List<Reaction>.from(message.reactions);
-        updatedReactions[reactionIndex] = updatedReaction;
+    if (progress.isInProgress) {
+      isSuggestedReplyLoading = true;
+      draftError = null;
+      return;
+    }
 
-        messageList[index] = message.copyWith(reactions: updatedReactions);
+    if (progress.isFailed) {
+      isSuggestedReplyLoading = false;
+      draftError = progress.errorMessage ?? 'Draft generation failed';
+      return;
+    }
+
+    if (progress.isCompleted) {
+      isSuggestedReplyLoading = false;
+      draftError = null;
+      final String? text = progress.suggestionText;
+      if (text != null && text.isNotEmpty) {
+        suggestedReply = text;
+        isSuggestedReplyPanelExpanded = true;
       } else {
-        // Add new reaction
-        final newReaction = Reaction(emoji: emoji, userNames: ['You']);
-        messageList[index] = message.copyWith(
-          reactions: [...message.reactions, newReaction],
-        );
+        draftError = 'No suggestion returned';
       }
     }
   }
 
   @action
-  void _updateMessageReadStatus(int messageId, MessageReadStatus newStatus) {
-    final index = messageList.indexWhere((m) => m.id == messageId);
-    if (index != -1) {
-      messageList[index] = messageList[index].copyWith(readStatus: newStatus);
+  Future<void> generateSuggestedReply({
+    required String chatRoomId,
+    String? ticketId,
+  }) async {
+    if (currentChatRoomId != chatRoomId) {
+      currentChatRoomId = chatRoomId;
+    }
+
+    suggestedReply = null;
+    draftError = null;
+    isSuggestedReplyLoading = true;
+    isSuggestedReplyPanelExpanded = true;
+    activeDraftTaskId = null;
+
+    try {
+      final Map<String, dynamic> data = await _generateAiDraftResponse.call(
+        params: GenerateAiDraftResponseParams(
+          chatRoomId: chatRoomId,
+          ticketId: ticketId ?? _currentTicketId,
+        ),
+      );
+      final String? taskId = data['taskId']?.toString();
+      if (taskId == null || taskId.isEmpty) {
+        isSuggestedReplyLoading = false;
+        draftError = 'Missing draft task id';
+        return;
+      }
+      activeDraftTaskId = taskId;
+    } on Failure catch (e) {
+      isSuggestedReplyLoading = false;
+      draftError = e.message;
+      _errorStore.setErrorMessage(e.message);
+    } catch (e) {
+      isSuggestedReplyLoading = false;
+      draftError = e.toString();
+      _errorStore.setErrorMessage(e.toString());
     }
   }
 
-  Future<void> _simulateReadStatusProgression(int messageId) async {
-    // Sent → Delivered (after 500ms)
-    await Future.delayed(const Duration(milliseconds: 500), () {
-      _updateMessageReadStatus(messageId, MessageReadStatus.delivered);
-    });
-
-    // Delivered → Read (after 2 seconds)
-    await Future.delayed(const Duration(milliseconds: 2000), () {
-      _updateMessageReadStatus(messageId, MessageReadStatus.read);
-    });
+  @action
+  Future<void> regenerateSuggestedReply() async {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return;
+    await generateSuggestedReply(
+      chatRoomId: roomId,
+      ticketId: _currentTicketId,
+    );
   }
 
-  Future<void> _simulateAutoReply() async {
-    // Show typing indicator after 3 second from sending message
-    await Future.delayed(const Duration(milliseconds: 3000), () {
-      isTyping = true;
-    });
+  @action
+  void dismissSuggestedReply() {
+    suggestedReply = null;
+    draftError = null;
+    isSuggestedReplyLoading = false;
+    activeDraftTaskId = null;
+  }
 
-    // Send auto-reply after 2 seconds
-    await Future.delayed(const Duration(milliseconds: 2000), () {
-      final randomResponse =
-          _defaultResponses[Random().nextInt(_defaultResponses.length)];
+  @action
+  void toggleSuggestedReplyPanel() {
+    isSuggestedReplyPanelExpanded = !isSuggestedReplyPanelExpanded;
+  }
 
-      final autoReplyMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch,
-        content: randomResponse,
-        timestamp: DateTime.now(),
-        isMe: false,
-        senderName: 'AI Assistant',
-        isPending: false,
-        readStatus: MessageReadStatus.sent,
+  @action
+  Future<void> prefetchMessagesForRooms(Iterable<String> roomIds) async {
+    await _chatRepository.prefetchMessagesForRooms(roomIds);
+  }
+
+  @action
+  Future<void> loadOlderMessages() async {
+    final String? roomId = currentChatRoomId;
+    if (roomId == null) return;
+    if (isLoadingOlderMessages) return;
+    if (!_chatRepository.hasMoreOlderMessages(roomId)) return;
+
+    try {
+      isLoadingOlderMessages = true;
+      await _chatRepository.loadOlderMessages(roomId);
+    } on ApiFailure catch (e) {
+      _errorStore.setErrorMessage(e.toString());
+    } finally {
+      isLoadingOlderMessages = false;
+    }
+  }
+
+  @action
+  Future<void> sendMessage(
+    String chatRoomId,
+    String channelId,
+    String contactId,
+    String ticketId,
+    String text,
+    List<Attachment>? attachments, {
+    String? replyMessageId,
+  }) async {
+    if (text.trim().isEmpty && (attachments?.isEmpty ?? true)) return;
+
+    try {
+      final Message newMessage = await _sendMessage.call(
+        params: SendAgentToCustomerMessageParams(
+          chatRoomId: chatRoomId,
+          channelId: channelId,
+          contactId: contactId,
+          ticketId: ticketId,
+          content: text,
+          attachments: attachments,
+          replyMessageId: replyMessageId,
+          socketId: _settingRepository.socketId,
+        ),
       );
 
-      messageList.add(autoReplyMessage);
-      isTyping = false; // Hide typing indicator
+      _chatRepository.mergeMessage(roomId: chatRoomId, message: newMessage);
+    } on Failure catch (e) {
+      _errorStore.setErrorMessage(e.message);
 
-      // Simulate delivery status progression for auto-reply
-      _simulateReadStatusProgression(autoReplyMessage.id);
-    });
+      currentMessages.add(
+        Message(
+          id: '',
+          conversationId: chatRoomId,
+          order: currentMessages.isNotEmpty ? currentMessages.first.order : 0,
+          sender: const User(id: '', name: '', avatar: ''),
+          isMe: true,
+          content: e.message,
+          attachments: attachments ?? <Attachment>[],
+          timestamp: DateTime.now(),
+          replyPreview: null,
+          reactions: const <Reaction>[],
+        ),
+      );
+    } finally {
+      isSendingMessage = false;
+    }
+
+    unawaited(
+      _analyticsService.trackEvent(
+        AnalyticsEvents.messageSent,
+        parameters: <String, String>{'channel': 'chat'},
+      ),
+    );
+  }
+
+  @action
+  Future<List<Message>> searchMessages(String keyword) async {
+    if (currentChatRoomId == null) return <Message>[];
+
+    return _flatSearchMessageList(
+      params: FlatSearchMessageListParams(
+        chatRoomId: currentChatRoomId!,
+        keyword: keyword,
+      ),
+    );
+  }
+
+  @action
+  Future<void> reactToMessage({
+    required Message message,
+    required String reactIcon,
+    required String chatRoomId,
+    String? channelId,
+  }) async {
+    if (!message.canReactOnZalo) {
+      _errorStore.setErrorMessage(
+        'Reactions are only available for Zalo messages with valid Zalo IDs.',
+      );
+      return;
+    }
+
+    final String normalizedReactIcon =
+        ZaloReactionIcons.normalizeReactIcon(reactIcon);
+    _applyOptimisticReaction(
+      messageId: message.id,
+      emoji: normalizedReactIcon,
+    );
+
+    try {
+      await _reactToMessage.call(
+        params: ReactToMessageRequest(
+          messageId: message.id,
+          zaloMessageId: message.zaloMessageId!,
+          reactIcon: normalizedReactIcon,
+          zaloAccountId: message.zaloAccountId!,
+          chatRoomId: chatRoomId,
+          channelId: channelId ?? _currentChannelId,
+          socketId: _settingRepository.socketId,
+        ),
+      );
+    } on Failure catch (e) {
+      _errorStore.setErrorMessage(e.message);
+    }
+  }
+
+  void _applyOptimisticReaction({
+    required String messageId,
+    required String emoji,
+  }) {
+    final int index = currentMessages.indexWhere((Message m) => m.id == messageId);
+    if (index == -1) return;
+
+    final Message message = currentMessages[index];
+    final int reactionIndex = message.reactions.indexWhere(
+      (Reaction r) =>
+          ZaloReactionIcons.normalizeReactIcon(r.emoji) ==
+          ZaloReactionIcons.normalizeReactIcon(emoji),
+    );
+
+    if (reactionIndex != -1) {
+      final Reaction existingReaction = message.reactions[reactionIndex];
+      final List<Reaction> updatedReactions = message.reactions.toList();
+      updatedReactions[reactionIndex] = existingReaction.copyWith(
+        user: const User(id: 'You', name: 'You', avatar: ''),
+        amount: existingReaction.amount + 1,
+      );
+      currentMessages[index] =
+          message.copyWith(reactions: updatedReactions);
+    } else {
+      currentMessages[index] = message.copyWith(
+        reactions: <Reaction>[
+          ...message.reactions,
+          Reaction(
+            id: '',
+            user: const User(id: 'You', name: 'You', avatar: ''),
+            emoji: emoji,
+            amount: 1,
+          ),
+        ],
+      );
+    }
+  }
+
+  /// @deprecated Use [generateSuggestedReply] instead.
+  @action
+  Future<void> generateDraftResponses({required String chatRoomId}) async {
+    await generateSuggestedReply(chatRoomId: chatRoomId);
+  }
+
+  Future<void> dispose() async {
+    _cancelRealtimeSubscriptions();
   }
 }

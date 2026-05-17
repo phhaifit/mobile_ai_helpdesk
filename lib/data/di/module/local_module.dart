@@ -11,8 +11,6 @@ import '/data/local/datasources/chat_room/mock_chat_room_datasource.dart';
 import '/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '../../local/datasources/ai_agent/ai_agent_datasource.dart';
-import '../../local/datasources/chat/chat_datasource.dart';
-import '../../local/datasources/chat/chat_room_datasource.dart';
 import '../../local/datasources/customer/mock_customer_datasource.dart';
 // import '../../local/datasources/customer_management/customer_datasource.dart';
 import '../../local/datasources/playground/playground_datasource.dart';
@@ -24,10 +22,6 @@ class LocalModule {
     // --- AI Agent DataSources ---
     getIt.registerSingleton<AiAgentDataSource>(AiAgentDataSource());
     getIt.registerSingleton<PlaygroundDataSource>(PlaygroundDataSource());
-
-    // --- Chat DataSources ---
-    getIt.registerSingleton<ChatDataSource>(ChatDataSource());
-    getIt.registerSingleton<ChatRoomDataSource>(ChatRoomDataSource());
 
     // --- Customer DataSources ---
     getIt.registerSingleton<MockCustomerDataSource>(MockCustomerDataSource());

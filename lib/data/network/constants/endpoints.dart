@@ -213,6 +213,27 @@ class Endpoints {
   static String tag(String id) => '/api/v1/tags/$id';
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
 
+  // Chat endpoints
+  static String chatRoom() => '/api/chat-room';
+  static String chatRoomCounter() => '${chatRoom()}/counter';
+  static String chatRoomDetail() => '${chatRoom()}/detail';
+  static String chatRoomSeen() => '${chatRoom()}/seen';
+  static String chatRoomAnalyzeTicket() => '${chatRoom()}/ticket-analysis';
+
+  // Message endpoints
+  static String message() => '${chatRoom()}/message';
+  static String newerMessage() => '${message()}/newer-message';
+  static String csToCustomer() => '${message()}/cs-to-customer';
+  static String countSearchResult(String chatRoomId) => '${message()}/$chatRoomId/count-search';
+  static String searchGroupedByChatRoomMessage() => '${message()}/search-group';
+  static String flatSearchMessageList() => '${message()}/search-list';
+  static String reactToMessage() => '${message()}/react';
+  static String unreactToMessage() => '${message()}/unreact';
+
+  // AI Draft Response endpoints
+  static String draftResponse() => '${chatRoom()}/draft-response';
+  static String streamDraftResponse() => '${draftResponse()}/stream';
+
   // ---- Prompt / Response Templates ----------------------------------------
   static String responseTemplates() => '/api/v1/response-templates';
   static String responseTemplate(String id) => '/api/v1/response-templates/$id';
@@ -265,7 +286,6 @@ class Endpoints {
   static const String chatRoomMessages = '/api/chat-room/message';
   static const String chatRoomSendMessage =
       '/api/chat-room/message/cs-to-customer';
-  static const String chatRoomDetail = '/api/chat-room/detail';
   static String customerConversations(String customerId) =>
       '/api/customer/$customerId/conversations';
 

@@ -19,7 +19,7 @@ class TenantHeaderInterceptor extends Interceptor {
     }
     final id = await tenantId();
     if (id != null && id.isNotEmpty) {
-      options.headers.putIfAbsent('tenantID', () => id);
+      options.headers.putIfAbsent('Tenantid', () => id);
     }
     handler.next(options);
   }

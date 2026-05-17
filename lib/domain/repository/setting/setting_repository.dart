@@ -10,4 +10,7 @@ abstract class SettingRepository {
   Future<void> changeLanguage(String value);
 
   String? get currentLanguage;
+
+  // Realtime: cached Socket.IO id (SharedPreferences) ------------------------
+  String? get socketId;
 }

@@ -4,6 +4,7 @@ import '../../../constants/colors.dart';
 class ChatInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
+  final bool sendEnabled;
   final FocusNode? focusNode;
 
   /// Shown in the composer (e.g. localized “type / for prompts”).
@@ -13,6 +14,7 @@ class ChatInputBar extends StatefulWidget {
     required this.controller,
     required this.onSend,
     super.key,
+    this.sendEnabled = true,
     this.focusNode,
     this.hintText,
   });
@@ -123,12 +125,14 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   Widget _sendButton() {
     return GestureDetector(
-      onTap: widget.onSend,
+      onTap: widget.sendEnabled ? widget.onSend : null,
       child: Container(
         width: 40,
         height: 40,
-        decoration: const BoxDecoration(
-          color: AppColors.messengerBlue,
+        decoration: BoxDecoration(
+          color: widget.sendEnabled
+              ? AppColors.messengerBlue
+              : AppColors.messengerBlue.withValues(alpha: 0.4),
           shape: BoxShape.circle,
         ),
         child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),

@@ -97,6 +97,7 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                   const SizedBox(height: 10),
                   _buildCard(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (isMobile)
                           Column(
@@ -157,55 +158,52 @@ class _TenantInfoScreenState extends State<TenantInfoScreen> {
                             ],
                           ),
                         const SizedBox(height: 16),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            spacing: 12,
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                            ElevatedButton(
-                              onPressed: _isSavingName ? null : _handleCancelOrganizationName,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: AppColors.textTertiary,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 12,
+                              TextButton(
+                                onPressed: _isSavingName
+                                    ? null
+                                    : _handleCancelOrganizationName,
+                                child: Text(l.translate('tenant_info_cancel')),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed:
+                                    (_tenantStore.currentTenant == null ||
+                                        _isSavingName ||
+                                        _tenantStore.isLoading)
+                                    ? null
+                                    : _handleSaveOrganizationName,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.messengerBlue,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
+                                child: _isSavingName
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(l.translate('tenant_info_save')),
                               ),
-                              child: Text(l.translate('tenant_info_cancel'), style: const TextStyle()),
-                            ),
-                            ElevatedButton(
-                            onPressed:
-                                (_tenantStore.currentTenant == null ||
-                                    _isSavingName ||
-                                    _tenantStore.isLoading)
-                                ? null
-                                : _handleSaveOrganizationName,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.messengerBlue,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                            child: _isSavingName
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(l.translate('tenant_info_save')),
+                            ],
                           ),
-                          ],)
+                        ),
                       ],
                     ),
                   ),

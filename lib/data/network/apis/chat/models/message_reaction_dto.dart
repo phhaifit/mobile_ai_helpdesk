@@ -1,0 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'message_reaction_dto.freezed.dart';
+part 'message_reaction_dto.g.dart';
+
+@freezed
+class MessageReactionDto with _$MessageReactionDto {
+  const factory MessageReactionDto({
+    @JsonKey(name: 'messageReactionID') @Default('') String messageReactionId,
+    @JsonKey(name: 'messageID') @Default('') String messageId,
+    @Default('') String emoji,
+    @Default(0) int amount,
+    @JsonKey(name: 'customerID') String? customerId,
+    @JsonKey(name: 'customerSupportID') String? customerSupportId,
+    @JsonKey(name: 'customerSupportName') String? customerSupportName,
+    @JsonKey(name: 'customerSupportAvatar') String? customerSupportAvatar,
+    @JsonKey(name: 'customerName') String? customerName,
+    @JsonKey(name: 'customerAvatar') String? customerAvatar,
+  }) = _MessageReactionDto;
+
+  factory MessageReactionDto.fromJson(Map<String, dynamic> json) => 
+      _$MessageReactionDtoFromJson(json);
+}
