@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
 import 'package:ai_helpdesk/core/events/socket/server/ai/socket_draft_response_progress_event.dart';
-import 'package:ai_helpdesk/core/events/socket/server/interactions/socket_typing_payload.dart';
 import 'package:ai_helpdesk/core/events/socket/server/interactions/message_reaction_update_event.dart';
+import 'package:ai_helpdesk/core/events/socket/server/interactions/socket_typing_payload.dart';
 import 'package:ai_helpdesk/core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/chat_api.dart';
 import 'package:ai_helpdesk/data/network/apis/chat/models/contact_info_dto.dart';
@@ -21,9 +21,9 @@ import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_typing_event.dart';
 import 'package:ai_helpdesk/domain/entity/chat/draft_response_progress.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
-import 'package:ai_helpdesk/domain/entity/chat/message_reply_preview.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message_group.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message_reaction_update.dart';
+import 'package:ai_helpdesk/domain/entity/chat/message_reply_preview.dart';
 import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
 import 'package:ai_helpdesk/domain/entity/chat/user.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
@@ -865,8 +865,8 @@ extension ReactionMapper on MessageReactionDto {
       user: User(
         id: customerId ?? customerSupportId ?? '',
         name: customerName ?? customerSupportName ?? 'Unknown',
-        avatar: customerSupportAvatar ?? customerAvatar ?? ''
-        ),
+        avatar: customerSupportAvatar ?? customerAvatar ?? '',
+      ),
       emoji: emoji,
       amount: amount,
     );

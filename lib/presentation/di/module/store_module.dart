@@ -134,7 +134,6 @@ import 'package:event_bus/event_bus.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
-import '../../../domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
 import '../../../domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
 import '../../../domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 import '../../../domain/usecase/ai_agent/create_agent_usecase.dart';
@@ -258,7 +257,6 @@ class StoreModule {
         getIt<SendMessageFromAgentToCustomerUseCase>(),
         getIt<FlatSearchMessageListUseCase>(),
         getIt<ReactToMessageUseCase>(),
-        getIt<UnreactToMessageUseCase>(),
         getIt<GenerateAiDraftResponseUseCase>(),
         getIt<AnalyticsService>(),
         getIt<ErrorStore>(),

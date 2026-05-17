@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
 import 'package:ai_helpdesk/core/domain/error/api_failure.dart';
 import 'package:ai_helpdesk/core/domain/error/failure.dart';
 import 'package:ai_helpdesk/core/stores/error/error_store.dart';
@@ -7,22 +8,20 @@ import 'package:ai_helpdesk/domain/entity/chat/attachment.dart';
 import 'package:ai_helpdesk/domain/entity/chat/chat_typing_event.dart';
 import 'package:ai_helpdesk/domain/entity/chat/draft_response_progress.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message.dart' show Message;
-import 'package:ai_helpdesk/constants/zalo_reaction_icons.dart';
 import 'package:ai_helpdesk/domain/entity/chat/message_reaction_update.dart';
 import 'package:ai_helpdesk/domain/entity/chat/reaction.dart';
 import 'package:ai_helpdesk/domain/entity/chat/user.dart' show User;
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
-import 'package:ai_helpdesk/domain/repository/setting/setting_repository.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart'
     show NoParams;
 import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat/search/flat_search_message_list_usecase.dart';
 import 'package:mobx/mobx.dart' hide Reaction;
 
@@ -38,7 +37,6 @@ abstract class _ChatStore with Store {
   final SendMessageFromAgentToCustomerUseCase _sendMessage;
   final FlatSearchMessageListUseCase _flatSearchMessageList;
   final ReactToMessageUseCase _reactToMessage;
-  final UnreactToMessageUseCase _unreactToMessage;
   final GenerateAiDraftResponseUseCase _generateAiDraftResponse;
   final ObserveChatMessagesUseCase _observeChatMessages;
   final ObserveReactionUpdatesUseCase _observeReactionUpdates;
@@ -61,7 +59,6 @@ abstract class _ChatStore with Store {
     this._sendMessage,
     this._flatSearchMessageList,
     this._reactToMessage,
-    this._unreactToMessage,
     this._generateAiDraftResponse,
     this._analyticsService,
     this._errorStore,
