@@ -18,6 +18,7 @@ import 'store/chat_room_store.dart';
 import 'store/chat_store.dart';
 import 'widgets/chat_app_bar.dart';
 import 'widgets/chat_input_bar.dart';
+import 'widgets/chat_search_navigation_bar.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/reply_preview_bar.dart';
 import 'widgets/suggested_replies_panel.dart';
@@ -200,16 +201,23 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  /// Centers the target bubble vertically when jumping to a search hit.
+  static const double _searchResultScrollAlignment = 0.5;
+
   void _scrollToMessage(String messageId) {
-    final List<Message> reversedMessages = _chatStore.currentMessages.reversed.toList();
-    final int messageIndex = reversedMessages.indexWhere((Message m) => m.id == messageId);
+    // [currentMessages] is newest-first; with [reverse: true], index 0 is the
+    // bottom of the viewport and higher indices are visually above (older).
+    final List<Message> messages = _chatStore.currentMessages;
+    final int messageIndex =
+        messages.indexWhere((Message m) => m.id == messageId);
 
     if (messageIndex != -1) {
       final int typingCount = _chatStore.isSupportTyping ? 1 : 0;
-      final int scrollIndex = typingCount + messageIndex; // typing indicator is at 0
+      final int scrollIndex = typingCount + messageIndex;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _itemScrollController.scrollTo(
           index: scrollIndex,
+          alignment: _searchResultScrollAlignment,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
@@ -218,12 +226,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _performSearch(String query) async {
-    if (query.isEmpty) {
+    if (query.trim().isEmpty) {
       setState(() {
         _searchResults = [];
         _currentSearchIndex = -1;
         _highlightedMessageId = null;
       });
+      return;
     }
 
     final List<Message> results = await _chatStore.searchMessages(query);
@@ -235,15 +244,45 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     if (_searchResults.isNotEmpty) {
-      _navigateToNextSearchResult();
+      _showSearchResultAt(0);
     }
   }
 
-  void _navigateToNextSearchResult() {
+  void _showSearchResultAt(int index) {
+    if (_searchResults.isEmpty) return;
+
+    setState(() {
+      _currentSearchIndex = index;
+      _highlightedMessageId = _searchResults[index];
+    });
+
+    _scrollToMessage(_highlightedMessageId!);
+  }
+
+  /// Results are newest-first; older matches have a higher index and sit
+  /// visually above in the reversed message list.
+  void _navigateToOlderSearchResult() {
     if (_searchResults.isEmpty) return;
 
     setState(() {
       _currentSearchIndex = (_currentSearchIndex + 1) % _searchResults.length;
+      _highlightedMessageId = _searchResults[_currentSearchIndex];
+    });
+
+    _scrollToMessage(_highlightedMessageId!);
+  }
+
+  /// Results are newest-first; newer matches have a lower index and sit
+  /// visually below in the reversed message list.
+  void _navigateToNewerSearchResult() {
+    if (_searchResults.isEmpty) return;
+
+    setState(() {
+      if (_currentSearchIndex <= 0) {
+        _currentSearchIndex = _searchResults.length - 1;
+      } else {
+        _currentSearchIndex -= 1;
+      }
       _highlightedMessageId = _searchResults[_currentSearchIndex];
     });
 
@@ -278,11 +317,11 @@ class _ChatScreenState extends State<ChatScreen> {
           unawaited(_chatStore.regenerateSuggestedReply());
         },
         onSearchTap: () {
-          setState(() => _showSearch = !_showSearch);
           if (_showSearch) {
-            FocusScope.of(context).requestFocus(FocusNode()..attach(context));
-          } else {
             _closeSearch();
+          } else {
+            _emitAgentStopTyping();
+            setState(() => _showSearch = true);
           }
         },
       ),
@@ -319,63 +358,35 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white,
                 border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Tìm kiếm tin nhắn...',
-                        hintStyle: const TextStyle(fontSize: 13),
-                        prefixIcon: const Icon(Icons.search, size: 20),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, size: 18),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  _performSearch('');
-                                },
-                              )
-                            : null,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: const BorderSide(
-                            color: AppColors.messengerBlue,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        isDense: true,
-                      ),
-                      onChanged: _performSearch,
-                      onSubmitted: (_) => _navigateToNextSearchResult(),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm tin nhắn...',
+                  hintStyle: const TextStyle(fontSize: 13),
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: const BorderSide(
+                      color: AppColors.messengerBlue,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  if (_searchResults.isNotEmpty)
-                    Text(
-                      '${_currentSearchIndex + 1}/${_searchResults.length}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.messengerBlue,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: _closeSearch,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
                   ),
-                ],
+                  isDense: true,
+                ),
+                onSubmitted: (_) => _performSearch(_searchController.text),
               ),
             ),
           Expanded(
@@ -493,54 +504,63 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          if (_slashMode)
+          if (!_showSearch) ...[
+            if (_slashMode)
+              Observer(
+                builder: (_) {
+                  final List<ResponseTemplate> filtered =
+                      _promptStore.slashFiltered(_slashQuery);
+                  return SlashPromptPickerOverlay(
+                    prompts: filtered,
+                    onSelected: _applyPrompt,
+                  );
+                },
+              ),
+            if (_replyingTo != null)
+              ReplyPreviewBar(
+                message: _replyingTo!,
+                onCancel: () => setState(() => _replyingTo = null),
+              ),
             Observer(
-              builder: (_) {
-                final List<ResponseTemplate> filtered =
-                    _promptStore.slashFiltered(_slashQuery);
-                return SlashPromptPickerOverlay(
-                  prompts: filtered,
-                  onSelected: _applyPrompt,
-                );
-              },
-            ),
-          if (_replyingTo != null)
-            ReplyPreviewBar(
-              message: _replyingTo!,
-              onCancel: () => setState(() => _replyingTo = null),
-            ),
-          Observer(
-            builder: (_) => ChatInputBar(
-              controller: _textController,
-              sendEnabled: !_chatStore.isSendingMessage,
-              onSend: () async {
-                if (_chatStore.isSendingMessage) return;
+              builder: (_) => ChatInputBar(
+                controller: _textController,
+                sendEnabled: !_chatStore.isSendingMessage,
+                onSend: () async {
+                  if (_chatStore.isSendingMessage) return;
 
-                final String text = _textController.text.trim();
-                if (text.isEmpty) {
-                  return;
-                }
-                _emitAgentStopTyping();
-                final String? replyId = _replyingTo?.id;
-                setState(() {
-                  _slashMode = false;
-                  _replyingTo = null;
-                });
-                _textController.clear();
-                await _chatStore.sendMessage(
-                  room.id,
-                  room.channel.id,
-                  room.contactId,
-                  room.ticketId,
-                  text,
-                  null,
-                  replyMessageId: replyId,
-                );
-                _scrollToBottom();
-              },
-              focusNode: _inputFocusNode,
+                  final String text = _textController.text.trim();
+                  if (text.isEmpty) {
+                    return;
+                  }
+                  _emitAgentStopTyping();
+                  final String? replyId = _replyingTo?.id;
+                  setState(() {
+                    _slashMode = false;
+                    _replyingTo = null;
+                  });
+                  _textController.clear();
+                  await _chatStore.sendMessage(
+                    room.id,
+                    room.channel.id,
+                    room.contactId,
+                    room.ticketId,
+                    text,
+                    null,
+                    replyMessageId: replyId,
+                  );
+                  _scrollToBottom();
+                },
+                focusNode: _inputFocusNode,
+              ),
             ),
-          ),
+          ] else
+            ChatSearchNavigationBar(
+              currentIndex: _currentSearchIndex,
+              resultCount: _searchResults.length,
+              onGoUp: _navigateToOlderSearchResult,
+              onGoDown: _navigateToNewerSearchResult,
+              onClose: _closeSearch,
+            ),
         ],
       ),
     );

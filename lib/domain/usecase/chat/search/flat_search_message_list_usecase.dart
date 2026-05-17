@@ -15,7 +15,7 @@ class FlatSearchMessageListUseCase extends UseCase<List<Message>, FlatSearchMess
     );
 
     messages.sort(
-      (a, b) => a.order.compareTo(b.order),
+      (Message a, Message b) => b.order.compareTo(a.order),
     );
 
     return messages;
