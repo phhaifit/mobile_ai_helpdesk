@@ -137,18 +137,37 @@ enum EnvConfig {
     defaultValue: '',
   );
 
-  /// Google OAuth client ID for the Knowledge Base Google Drive import flow.
-  /// Pass via `--dart-define=GOOGLE_OAUTH_CLIENT_ID=<id>`.
-  static const _googleOauthClientId = String.fromEnvironment(
-    'GOOGLE_OAUTH_CLIENT_ID',
-    defaultValue: '',
+  // ───────────────────────────────────────────────────────────────────────────
+  // Google Drive import (Knowledge Base) — OAuth 2.0 Authorization Code + PKCE
+  // run in the system browser via flutter_appauth.  Google issues *separate*
+  // client IDs per mobile platform, so we keep one per OS.
+  //
+  // ⚠️ The defaults below are PLACEHOLDERS.  Swap them for the real client IDs
+  // once DevOps creates the Android + iOS OAuth clients in Google Cloud Console
+  // (package/bundle id `com.jarvis.helpdesk`; Android also needs the release
+  // SHA-1).  Two NATIVE config spots must stay in sync with whichever client ID
+  // ends up active — they take the *reversed* client ID
+  // (`368520637250-XXX.apps.googleusercontent.com`
+  //   → `com.googleusercontent.apps.368520637250-XXX`):
+  //   1. android/app/build.gradle → defaultConfig.manifestPlaceholders
+  //                                 ['appAuthRedirectScheme']
+  //   2. ios/Runner/Info.plist    → CFBundleURLTypes ▸ CFBundleURLSchemes
+  // GoogleDriveOAuthService derives the redirect URL from the active client ID,
+  // so in Dart you only edit (or --dart-define) the two values here.
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// Google OAuth **Android** client ID for the Google Drive import flow.
+  /// Override via `--dart-define=GOOGLE_DRIVE_ANDROID_CLIENT_ID=<id>`.
+  static const _googleDriveAndroidClientId = String.fromEnvironment(
+    'GOOGLE_DRIVE_ANDROID_CLIENT_ID',
+    defaultValue: '368520637250-XXX_ANDROID.apps.googleusercontent.com',
   );
 
-  /// Where Google redirects after the user grants consent.  We capture this
-  /// URL inside the in-app WebView; nothing is actually served at this URL.
-  static const _googleOauthRedirectUri = String.fromEnvironment(
-    'GOOGLE_OAUTH_REDIRECT_URI',
-    defaultValue: 'https://helpdesk.jarvis.cx/google-drive/callback',
+  /// Google OAuth **iOS** client ID for the Google Drive import flow.
+  /// Override via `--dart-define=GOOGLE_DRIVE_IOS_CLIENT_ID=<id>`.
+  static const _googleDriveIosClientId = String.fromEnvironment(
+    'GOOGLE_DRIVE_IOS_CLIENT_ID',
+    defaultValue: '368520637250-YYY_IOS.apps.googleusercontent.com',
   );
 
   static final EnvConfig instance = _fromName(_envName);
@@ -227,9 +246,8 @@ enum EnvConfig {
 
   bool get isSentryEnabled => sentryDsn.isNotEmpty;
 
-  String get googleOauthClientId => _googleOauthClientId;
-  String get googleOauthRedirectUri => _googleOauthRedirectUri;
-  bool get isGoogleOauthConfigured => _googleOauthClientId.isNotEmpty;
+  String get googleDriveAndroidClientId => _googleDriveAndroidClientId;
+  String get googleDriveIosClientId => _googleDriveIosClientId;
 
   // The dart-define flag can force-enable real omnichannel integration.
   bool get useRealOmnichannel =>

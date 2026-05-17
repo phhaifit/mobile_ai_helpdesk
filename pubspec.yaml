@@ -57,6 +57,14 @@ dependencies:
   # (DevOps-side change we cannot make from the mobile project).
   webview_flutter: ^4.10.0
 
+  # OAuth 2.0 Authorization Code + PKCE — used by the Knowledge Base
+  # "import from Google Drive" flow to obtain an access_token AND refresh_token
+  # entirely on-device (no client_secret, no BE token exchange). Backed by the
+  # OpenID AppAuth SDKs; uses Chrome Custom Tabs / ASWebAuthenticationSession.
+  # Requires the `appAuthRedirectScheme` manifest placeholder (android) and a
+  # CFBundleURLTypes entry (ios) — see google_drive_oauth_service.dart.
+  flutter_appauth: ^8.0.3
+
   # UI
   google_fonts: ^6.2.1
   another_flushbar: ^1.12.30

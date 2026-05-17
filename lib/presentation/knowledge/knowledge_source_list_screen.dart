@@ -3,6 +3,7 @@ import 'package:ai_helpdesk/domain/entity/knowledge/knowledge_source.dart';
 import 'package:ai_helpdesk/presentation/knowledge/add_source/add_source_type_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/config/crawl_interval_config_screen.dart';
 import 'package:ai_helpdesk/presentation/knowledge/store/knowledge_store.dart';
+import 'package:ai_helpdesk/presentation/knowledge/widgets/source_details_sheet.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/source_list_card.dart';
 import 'package:ai_helpdesk/presentation/knowledge/widgets/source_type_filter_bar.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,8 @@ class _KnowledgeSourceListScreenState
   static const _accent = Color(0xFF1A73E8);
 
   final KnowledgeStore _store = getIt<KnowledgeStore>();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
 
   @override
   void initState() {
@@ -48,6 +51,8 @@ class _KnowledgeSourceListScreenState
   @override
   void dispose() {
     _store.stopLiveStatus();
+    _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -58,6 +63,8 @@ class _KnowledgeSourceListScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _header(),
+          const SizedBox(height: 8),
+          _searchBar(),
           const SizedBox(height: 8),
           Observer(
             builder: (_) => SourceTypeFilterBar(
@@ -91,6 +98,7 @@ class _KnowledgeSourceListScreenState
                       builder: (_) => SourceListCard(
                         source: source,
                         isBusy: _store.busySourceIds.contains(source.id),
+                        onTap: () => _showDetails(source),
                         onConfigureInterval: () => _configureInterval(source),
                         onReindex: () => _reindex(source),
                         onDelete: () => _confirmDelete(source),
@@ -340,6 +348,81 @@ class _KnowledgeSourceListScreenState
   // Actions
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // Search
+  // ---------------------------------------------------------------------------
+
+  Widget _searchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocus,
+        textInputAction: TextInputAction.search,
+        onChanged: _store.setSearchQuery,
+        onSubmitted: (v) {
+          // Bypass the debounce when the user hits enter explicitly.
+          _store.setSearchQuery(v);
+        },
+        decoration: InputDecoration(
+          hintText: 'Tìm nguồn theo tên, URL, truy vấn…',
+          hintStyle: TextStyle(color: Colors.grey[500], fontSize: 13),
+          prefixIcon: Icon(Icons.search, size: 18, color: Colors.grey[500]),
+          suffixIcon: AnimatedBuilder(
+            animation: _searchController,
+            builder: (_, __) {
+              if (_searchController.text.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return IconButton(
+                tooltip: 'Xóa tìm kiếm',
+                iconSize: 16,
+                icon: Icon(Icons.close, color: Colors.grey[600]),
+                onPressed: () {
+                  _searchController.clear();
+                  _store.setSearchQuery(null);
+                  _searchFocus.unfocus();
+                },
+              );
+            },
+          ),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          filled: true,
+          fillColor: Colors.grey[100],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: _accent, width: 1.2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Details bottom sheet
+  // ---------------------------------------------------------------------------
+
+  void _showDetails(KnowledgeSource source) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SourceDetailsSheet(source: source),
+    );
+  }
+
   void _openAddSource() {
     showModalBottomSheet<void>(
       context: context,
@@ -347,7 +430,33 @@ class _KnowledgeSourceListScreenState
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => AddSourceTypeScreen(store: _store),
+      builder: (_) => AddSourceTypeScreen(
+        store: _store,
+        onCreated: _onSourceCreated,
+      ),
+    );
+  }
+
+  void _onSourceCreated(KnowledgeSource created) {
+    if (!mounted) return;
+    final displayName = created.name.isEmpty ? 'Nguồn mới' : created.name;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF16A34A),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Đã thêm "$displayName" — đang index',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 

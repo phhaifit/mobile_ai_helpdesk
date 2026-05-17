@@ -73,6 +73,24 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     });
   }
 
+  late final _$searchQueryAtom = Atom(
+    name: '_KnowledgeStore.searchQuery',
+    context: context,
+  );
+
+  @override
+  String? get searchQuery {
+    _$searchQueryAtom.reportRead();
+    return super.searchQuery;
+  }
+
+  @override
+  set searchQuery(String? value) {
+    _$searchQueryAtom.reportWrite(value, super.searchQuery, () {
+      super.searchQuery = value;
+    });
+  }
+
   late final _$loadFutureAtom = Atom(
     name: '_KnowledgeStore.loadFuture',
     context: context,
@@ -245,6 +263,16 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return _$loadSourcesAsyncAction.run(() => super.loadSources(query: query));
   }
 
+  late final _$silentReloadAsyncAction = AsyncAction(
+    '_KnowledgeStore.silentReload',
+    context: context,
+  );
+
+  @override
+  Future<void> silentReload() {
+    return _$silentReloadAsyncAction.run(() => super.silentReload());
+  }
+
   late final _$refreshTenantFromAccountAsyncAction = AsyncAction(
     '_KnowledgeStore.refreshTenantFromAccount',
     context: context,
@@ -412,6 +440,18 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
   );
 
   @override
+  void setSearchQuery(String? raw) {
+    final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
+      name: '_KnowledgeStore.setSearchQuery',
+    );
+    try {
+      return super.setSearchQuery(raw);
+    } finally {
+      _$_KnowledgeStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setTypeFilter(KnowledgeSourceType? type) {
     final _$actionInfo = _$_KnowledgeStoreActionController.startAction(
       name: '_KnowledgeStore.setTypeFilter',
@@ -464,6 +504,7 @@ mixin _$KnowledgeStore on _KnowledgeStore, Store {
     return '''
 sources: ${sources},
 typeFilter: ${typeFilter},
+searchQuery: ${searchQuery},
 loadFuture: ${loadFuture},
 errorMessage: ${errorMessage},
 tenantMissing: ${tenantMissing},
