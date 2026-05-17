@@ -24,13 +24,13 @@ import '../../../core/events/socket/server/messages/generic_new_message_event.da
 import '../../../core/events/socket/server/messages/lazada_message_event.dart';
 import '../../../core/events/socket/server/messages/lazada_recalled_message_event.dart';
 import '../../../core/events/socket/server/messages/phone_sms_message_event.dart';
+import '../../../core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import '../../../core/events/socket/server/messages/socket_message_payload.dart';
 import '../../../core/events/socket/server/messages/web_chat_message_event.dart';
 import '../../../core/events/socket/server/messages/zalo_message_event.dart';
 import '../../../core/events/socket/server/messages/zendesk_message_event.dart';
 import '../../../core/events/socket/server/messages/zohodesk_message_event.dart';
 import '../../../core/events/socket/server/tickets/socket_escalation_alert_event.dart';
-import '../../../core/events/socket/server/messages/socket_inapp_notification_event.dart';
 import '../../../core/events/socket/server/tickets/socket_new_ticket_created_event.dart';
 import '../../../core/events/socket/server/tickets/socket_ticket_status_changed_event.dart';
 
@@ -40,7 +40,6 @@ class SocketService {
   final SharedPreferenceHelper _prefs;
 
   io.Socket? _socket;
-  String? _tenantId;
 
   final _messageController = StreamController<Message>.broadcast();
   final _typingController = StreamController<SocketTypingPayload>.broadcast();
@@ -95,8 +94,6 @@ class SocketService {
     developer.log('connect requested tenantId=$tenantId', name: _logName);
     await disconnect();
 
-    _tenantId = tenantId;
-
     final token = await _prefs.authToken;
     if (token == null || token.isEmpty) {
       throw StateError('Missing auth token for socket connection');
@@ -113,7 +110,7 @@ class SocketService {
           .build(),
     );
 
-    Completer<void> completer = Completer<void>();
+    final Completer<void> completer = Completer<void>();
 
     socket.onDisconnect((dynamic reason) {
       unawaited(_prefs.removeSocketId());
@@ -253,7 +250,6 @@ class SocketService {
     _socket?.disconnect();
     _socket?.destroy();
     _socket = null;
-    _tenantId = null;
     await _prefs.removeSocketId();
   }
 
