@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:ai_helpdesk/di/service_locator.dart';
 import 'package:ai_helpdesk/domain/repository/account/account_repository.dart';
 import 'package:ai_helpdesk/domain/repository/ai_agent/ai_agent_repository.dart';
-import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
-import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
-import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/auth/auth_repository.dart';
 import 'package:ai_helpdesk/domain/repository/chat_room/customer_chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/repository/jarvis/jarvis_repository.dart';
 import 'package:ai_helpdesk/domain/repository/knowledge/knowledge_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_broadcast_repository.dart';
 import 'package:ai_helpdesk/domain/repository/marketing/marketing_repository.dart';
+import 'package:ai_helpdesk/domain/repository/media/media_repository.dart';
 import 'package:ai_helpdesk/domain/repository/monetization/monetization_repository.dart';
 import 'package:ai_helpdesk/domain/repository/omnichannel/omnichannel_repository.dart';
 import 'package:ai_helpdesk/domain/repository/playground/playground_repository.dart';
@@ -32,6 +29,8 @@ import 'package:ai_helpdesk/domain/usecase/auth/sign_in_with_google_usecase.dart
 import 'package:ai_helpdesk/domain/usecase/auth/sign_out_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/auth/verify_otp_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/chat_room/get_customer_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/confirm_hitl_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/jarvis/send_jarvis_message_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/delete_knowledge_source_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_by_type_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/knowledge/get_knowledge_sources_usecase.dart';
@@ -77,6 +76,7 @@ import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/select_facebook_a
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/stop_broadcast_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_template_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/marketing_broadcast/update_broadcast_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/media/upload_file_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/get_monetization_overview_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/monetization/simulate_upgrade_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/connect_zalo_usecase.dart';
@@ -91,8 +91,10 @@ import 'package:ai_helpdesk/domain/usecase/omnichannel/sync_messenger_data_useca
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_messenger_settings_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/omnichannel/update_zalo_assignments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/create_session_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/get_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/get_sessions_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/playground/send_playground_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/playground/stream_draft_response_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/add_comment_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/assign_agent_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/create_ticket_usecase.dart';
@@ -106,6 +108,33 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_priority_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
+import 'package:ai_helpdesk/domain/repository/chat/chat_room_repository.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/analyze_ticket_in_chat_room_ai_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/count_search_results_in_chat_room_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/flat_search_message_list_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/ai/generate_ai_draft_response_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_room_counters_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_room_detail_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/get_chat_rooms_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/get_newer_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_list/mark_chat_room_as_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/open_chat_room_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/react_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/send_message_from_agent_to_customer_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/chat_detail/unreact_to_message_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_stop_typing_indicator_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/emit_typing_indicator_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_seen_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_support_typing_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_draft_progress_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_chat_room_last_message_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_in_app_notifications_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_incoming_messages_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/realtime/observe_reaction_updates_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/chat/search/search_messages_grouped_by_chat_room_usecase.dart';
 
 class UseCaseModule {
   static Future<void> configureUseCaseModuleInjection() async {
@@ -343,8 +372,14 @@ class UseCaseModule {
     getIt.registerSingleton<SendPlaygroundMessageUseCase>(
       SendPlaygroundMessageUseCase(getIt<PlaygroundRepository>()),
     );
+    getIt.registerSingleton<GetDraftResponseUseCase>(
+      GetDraftResponseUseCase(getIt<PlaygroundRepository>()),
+    );
+    getIt.registerSingleton<StreamDraftResponseUseCase>(
+      StreamDraftResponseUseCase(getIt<PlaygroundRepository>()),
+    );
 
-    // Jarvis Agent Use Cases:--------------------------------------------------
+    // --- Jarvis Use Cases ---
     getIt.registerSingleton<SendJarvisMessageUseCase>(
       SendJarvisMessageUseCase(getIt<JarvisRepository>()),
     );
@@ -403,6 +438,89 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UploadLocalFileUseCase>(
       UploadLocalFileUseCase(getIt<KnowledgeRepository>()),
+    );
+
+    // -- Chat Use Cases --
+    getIt.registerSingleton<GetChatRoomsUseCase>(
+      GetChatRoomsUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatRoomCountersUseCase>(
+      GetChatRoomCountersUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatRoomDetailUseCase>(
+      GetChatRoomDetailUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<GetChatMessagesUseCase>(
+      GetChatMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveChatMessagesUseCase>(
+      ObserveChatMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<GetNewerChatMessagesUseCase>(
+      GetNewerChatMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<SendMessageFromAgentToCustomerUseCase>(
+      SendMessageFromAgentToCustomerUseCase(
+        getIt<ChatRepository>(),
+        getIt<ChatRoomRepository>(),
+      ),
+    );
+    getIt.registerSingleton<MarkChatRoomAsSeenUseCase>(
+      MarkChatRoomAsSeenUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<OpenChatRoomUseCase>(
+      OpenChatRoomUseCase(
+        getIt<GetChatMessagesUseCase>(),
+        getIt<MarkChatRoomAsSeenUseCase>(),
+      ),
+    );
+    getIt.registerSingleton<ReactToMessageUseCase>(
+      ReactToMessageUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<UnreactToMessageUseCase>(
+      UnreactToMessageUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<CountSearchResultsInChatRoomUseCase>(
+      CountSearchResultsInChatRoomUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<SearchMessagesGroupedByChatRoomUseCase>(
+      SearchMessagesGroupedByChatRoomUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<FlatSearchMessageListUseCase>(
+      FlatSearchMessageListUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<AnalyzeTicketInChatRoomAiUseCase>(
+      AnalyzeTicketInChatRoomAiUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<GenerateAiDraftResponseUseCase>(
+      GenerateAiDraftResponseUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveIncomingMessagesUseCase>(
+      ObserveIncomingMessagesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveReactionUpdatesUseCase>(
+      ObserveReactionUpdatesUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveSupportTypingUseCase>(
+      ObserveSupportTypingUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveDraftProgressUseCase>(
+      ObserveDraftProgressUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<ObserveChatRoomSeenUseCase>(
+      ObserveChatRoomSeenUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<ObserveInAppNotificationsUseCase>(
+      ObserveInAppNotificationsUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<ObserveChatRoomLastMessageUpdatesUseCase>(
+      ObserveChatRoomLastMessageUpdatesUseCase(getIt<ChatRoomRepository>()),
+    );
+    getIt.registerSingleton<EmitTypingIndicatorUseCase>(
+      EmitTypingIndicatorUseCase(getIt<ChatRepository>()),
+    );
+    getIt.registerSingleton<EmitStopTypingIndicatorUseCase>(
+      EmitStopTypingIndicatorUseCase(getIt<ChatRepository>()),
     );
   }
 }

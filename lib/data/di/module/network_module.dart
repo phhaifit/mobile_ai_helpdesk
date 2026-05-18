@@ -17,11 +17,15 @@ import '/core/monitoring/sentry/sentry_service.dart';
 import '/core/services/websocket/ticket_websocket_service.dart';
 import '/data/analytics/firebase_analytics_service_impl.dart';
 import '/data/network/apis/account/account_api.dart';
+import '/data/network/apis/ai_agent/ai_agent_api.dart';
 import '/data/network/apis/auth/stack_auth_api.dart';
+import '/data/network/apis/jarvis/jarvis_agent_api.dart';
+import '/data/network/apis/playground/playground_api.dart';
 import '/data/network/constants/endpoints.dart';
 import '/data/network/interceptors/error_interceptor.dart';
 import '/data/network/realtime/marketing_broadcast_realtime_service.dart';
-import '/data/network/rest_client.dart';
+import '/data/realtime/socket/socket_service.dart';
+import '/data/realtime/sse/draft_response_sse_client.dart';
 import '/data/sharedpref/shared_preference_helper.dart';
 import '/domain/analytics/analytics_service.dart';
 import '/domain/repository/auth/auth_repository.dart';
@@ -79,9 +83,6 @@ class NetworkModule {
       ),
     );
 
-    // rest client:-------------------------------------------------------------
-    getIt.registerSingleton(RestClient());
-
     // dio clients:-------------------------------------------------------------
     final authDio = DioClient(
       dioConfigs: DioConfigs(
@@ -101,6 +102,7 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
+      getIt<StackHeadersInterceptor>(),
       getIt<AuthInterceptor>(),
       getIt<TenantHeaderInterceptor>(),
       getIt<RefreshTokenInterceptor>(),
@@ -119,12 +121,13 @@ class NetworkModule {
         receiveTimeout: Endpoints.receiveTimeout,
       ),
     )..addInterceptors([
-        getIt<AuthInterceptor>(),
-        getIt<TenantHeaderInterceptor>(),
-        getIt<RefreshTokenInterceptor>(),
-        getIt<ErrorInterceptor>(),
-        getIt<LoggingInterceptor>(),
-      ]);
+      getIt<StackHeadersInterceptor>(),
+      getIt<AuthInterceptor>(),
+      getIt<TenantHeaderInterceptor>(),
+      getIt<RefreshTokenInterceptor>(),
+      getIt<ErrorInterceptor>(),
+      getIt<LoggingInterceptor>(),
+    ]);
 
     getIt.registerSingleton<DioClient>(authDio, instanceName: authDioName);
     getIt.registerSingleton<DioClient>(
@@ -151,10 +154,31 @@ class NetworkModule {
       AccountApi(getIt<DioClient>(instanceName: helpdeskDioName)),
     );
 
+    // api classes:-------------------------------------------------------------
+    getIt.registerSingleton<AiAgentApi>(
+      AiAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<PlaygroundApi>(
+      PlaygroundApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    getIt.registerSingleton<JarvisAgentApi>(
+      JarvisAgentApi(getIt<DioClient>(instanceName: aiServiceDioName)),
+    );
+    // realtime:---------------------------------------------------------------
+    getIt.registerSingleton<SocketService>(
+      SocketService(getIt<SharedPreferenceHelper>()),
+    );
+
+    getIt.registerSingleton<DraftResponseSseClient>(
+      DraftResponseSseClient(getIt<DioClient>()),
+    );
+
     // websocket:---------------------------------------------------------------
     getIt.registerSingleton<TicketWebSocketService>(
       TicketWebSocketService(
         getToken: () async => await getIt<SharedPreferenceHelper>().authToken,
+        getTenantId: () async =>
+            await getIt<SharedPreferenceHelper>().tenantId,
       ),
     );
 

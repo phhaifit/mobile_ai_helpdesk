@@ -345,7 +345,7 @@ class _FileSourceFormScreenState extends State<FileSourceFormScreen> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (result != null) {
-      Navigator.pop(context);
+      Navigator.pop(context, result);
     }
   }
 

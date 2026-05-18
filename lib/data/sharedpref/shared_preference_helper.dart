@@ -44,6 +44,7 @@ class SharedPreferenceHelper {
     return _sharedPreference.setBool(Preferences.isLoggedIn, value);
   }
 
+  // Tenant:--------------------------------------------------------------------
   // Account JSON cache (serialised `Account` payload):-------------------------
   Future<String?> get accountJson async {
     return _sharedPreference.getString(Preferences.accountJson);
@@ -68,6 +69,19 @@ class SharedPreferenceHelper {
 
   Future<bool> removeTenantId() async {
     return _sharedPreference.remove(Preferences.tenantId);
+  }
+
+  // Socket.IO session id (written on connect, cleared on disconnect):----------
+  String? get socketId {
+    return _sharedPreference.getString(Preferences.socketId);
+  }
+
+  Future<bool> saveSocketId(String id) async {
+    return _sharedPreference.setString(Preferences.socketId, id);
+  }
+
+  Future<bool> removeSocketId() async {
+    return _sharedPreference.remove(Preferences.socketId);
   }
 
   // Theme:---------------------------------------------------------------------

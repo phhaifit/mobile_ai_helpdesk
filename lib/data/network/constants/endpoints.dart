@@ -6,6 +6,9 @@ class Endpoints {
   // Helpdesk host (tenant-scoped endpoints).
   static String get baseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
   static String get helpdeskBaseUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+  static String get aiServiceApiBaseUrl =>
+      EnvConfig.instance.aiServiceApiBaseUrl;
+
   // Stack Auth host (token issuance / refresh / revoke).
   static String get authBaseUrl => EnvConfig.instance.authApiBaseUrl;
   // AI-Services host (NestJS) — knowledge base, AI agents, response templates,
@@ -33,6 +36,20 @@ class Endpoints {
   // Post endpoints (legacy)
   static const String getPosts = '/posts';
 
+  // AI Agent endpoints
+  static String agentsByTenant(String tenantId) =>
+      '/api/v1/ai-agents/tenants/$tenantId';
+  static String agentById(String id) => '/api/v1/ai-agents/$id';
+  static String agentInfo(String id) => '/api/v1/ai-agents/$id/information';
+  // Used by Playground chat testing.
+  static String agentAsk(String id) => '/api/v1/ai-agents/$id/ask';
+  static String agentChatComplete(String id) =>
+      '/api/v1/ai-agents/$id/chat-complete';
+  // Draft Response endpoints are tenant-scoped.
+  static String agentDraftResponse(String tenantId) =>
+      '/api/v1/ai-agents/$tenantId/draft-response';
+  static String agentDraftResponseStream(String tenantId) =>
+      '/api/v1/ai-agents/$tenantId/draft-response/stream';
   // AI Agent endpoints (stubs — mock data served locally)
   static String agents() => '/api/agents';
   static String agent(String id) => '/api/agents/$id';
@@ -165,6 +182,7 @@ class Endpoints {
       query: '',
     );
   }
+
   static Uri marketingCampaignStatusWsUri(String campaignId) {
     final base = Uri.parse(baseUrl);
     final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
@@ -195,7 +213,8 @@ class Endpoints {
   static String zaloDisconnect() => '/api/v1/zalo/disconnect';
   static String zaloLatestCustomer() => '/api/v1/zalo/latest-customer';
   static String zaloLatestMessages() => '/api/v1/zalo/latest-messages';
-  static String zaloPersonalConnections() => '/api/v1/zalo/personal/connections';
+  static String zaloPersonalConnections() =>
+      '/api/v1/zalo/personal/connections';
   static String zaloPersonalStatus(String channelId) =>
       '/api/v1/zalo/personal/$channelId/status';
   static String zaloPersonalConnect() => '/api/v1/zalo/personal/connect';
@@ -212,6 +231,27 @@ class Endpoints {
   static String get tags => '/api/v1/tags';
   static String tag(String id) => '/api/v1/tags/$id';
   static String assignZaloCs() => '/api/v1/zalo/assign-cs';
+
+  // Chat endpoints
+  static String chatRoom() => '/api/chat-room';
+  static String chatRoomCounter() => '${chatRoom()}/counter';
+  static String chatRoomDetail() => '${chatRoom()}/detail';
+  static String chatRoomSeen() => '${chatRoom()}/seen';
+  static String chatRoomAnalyzeTicket() => '${chatRoom()}/ticket-analysis';
+
+  // Message endpoints
+  static String message() => '${chatRoom()}/message';
+  static String newerMessage() => '${message()}/newer-message';
+  static String csToCustomer() => '${message()}/cs-to-customer';
+  static String countSearchResult(String chatRoomId) => '${message()}/$chatRoomId/count-search';
+  static String searchGroupedByChatRoomMessage() => '${message()}/search-group';
+  static String flatSearchMessageList() => '${message()}/search-list';
+  static String reactToMessage() => '${message()}/react';
+  static String unreactToMessage() => '${message()}/unreact';
+
+  // AI Draft Response endpoints
+  static String draftResponse() => '${chatRoom()}/draft-response';
+  static String streamDraftResponse() => '${draftResponse()}/stream';
 
   // ---- Prompt / Response Templates ----------------------------------------
   static String responseTemplates() => '/api/v1/response-templates';
@@ -238,12 +278,14 @@ class Endpoints {
 
   // ---- Ticket -------------------------------------------------------------
   // Helpdesk BE expects ticket routes WITHOUT the `/api` prefix (verified
-  // against the production web client). The OpenAPI doc still lists
-  // `/api/ticket/...` but the gateway only routes `/ticket/...`.
+  // against the production web client + curl traces). The OpenAPI doc still
+  // lists `/api/ticket/...` but the gateway only routes `/ticket/...`.
   static const String ticketAll = '/ticket/all';
   static const String ticketMy = '/ticket/my-ticket';
   static const String ticketMyByStatus = '/ticket/mine-by-status';
   static const String ticketUnassigned = '/ticket/unassigned';
+  static String ticketHistoryCustomer(String customerId) =>
+      '/ticket/ticket-history-customer/$customerId';
   static String ticketDetail(String ticketId) => '/ticket/$ticketId';
   static const String ticketUpdateStatus = '/ticket/update-status';
   static const String ticketCreate = '/ticket/new';
@@ -259,20 +301,26 @@ class Endpoints {
       '/ticket/comment/$commentId';
 
   // ---- Chat Room ----------------------------------------------------------
-  // NOTE: customer-scoped conversation endpoint is not yet finalised on BE;
-  // this placeholder URL deliberately returns 404 until BE chooses between
-  // adding a `customerID` filter to `/api/chat-room` or shipping a dedicated
-  // route. Until then the repository falls back to mock data in debug builds.
+  // Sub-issue B uses these constants for REST + Socket.io chat-room flows;
+  // the customer-scoped placeholder (customerConversations) is from main and
+  // remains pending until BE finalises the customer-scoped variant.
+  static const String chatRoomMessages = '/api/chat-room/message';
+  static const String chatRoomSendMessage =
+      '/api/chat-room/message/cs-to-customer';
   static String customerConversations(String customerId) =>
       '/api/customer/$customerId/conversations';
-  static String chatRoomDetail() => '/api/chat-room/detail';
-  static String chatRoomMessages() => '/api/chat-room/message';
+
+  // Socket.io
+  static String get socketUrl => EnvConfig.instance.helpdeskApiBaseUrl;
+  static const String socketPath = '/api/socket';
+  static String socketNamespace(String tenantId) => '/tenant-$tenantId';
 
   // ---- Knowledge Base -----------------------------------------------------
   static String knowledgeSources(String tenantId) =>
       '/api/v1/knowledges/$tenantId/sources';
   static String knowledgeSourcesByType(String tenantId, String apiType) =>
       '/api/v1/knowledges/$tenantId/sources/$apiType';
+
   /// PATCH (status) and DELETE both use this path; method disambiguates.
   static String knowledgeSource(String tenantId, String sourceId) =>
       '/api/v1/knowledges/$tenantId/sources/$sourceId';
@@ -299,6 +347,12 @@ class Endpoints {
   static String knowledgeStatusSse(String tenantId) =>
       '/api/v1/knowledges/$tenantId/status-sse';
 
+  /// Separate SSE channel BE exposes for `whole_sites` crawl progress events.
+  /// Same connection envelope as [knowledgeStatusSse]; intended for the UI's
+  /// whole-site crawl progress UI when that is wired up.
+  static String knowledgeWholeSitesSse(String tenantId) =>
+      '/api/v1/knowledges/$tenantId/whole-sites-sse';
+
   // ---- AI Agent (real backend) --------------------------------------------
   static String aiAgentByTenant(String tenantId) =>
       '/api/v1/ai-agents/tenants/$tenantId';
@@ -311,9 +365,13 @@ class Endpoints {
       '/api/v1/ai-agents/tenants/$tenantId/jarvis-agent/confirm';
 
   // Media endpoints
-  static String uploadFile(String tenantId) => '/api/v1/media/save-file/$tenantId';
+  static String uploadFile(String tenantId) =>
+      '/api/v1/media/save-file/$tenantId';
 
   // ---- WebSocket ----------------------------------------------------------
+  // Plain WebSocket helper from main — distinct from the Socket.io transport
+  // (socketUrl + socketPath + socketNamespace) used by the ticket comments
+  // stream above.
   static String ticketWebSocket(String ticketId) {
     final wsBase = baseUrl
         .replaceFirst('https://', 'wss://')

@@ -164,6 +164,12 @@ ticket_widget_trees.md
 .cursor/
 .claude/settings.local.json
 
-pubspec.yaml
 testplan.md
 plan-ai-agent-playground.md
+
+# Local planning docs
+docs/tasklist-api-integration-ai-agent.md
+# Release signing credentials write-up (contains plaintext keystore passwords)
+docs/PUBLISH_APP_CREDENTIALS.md
+requirements.md
+cicd-plan.md

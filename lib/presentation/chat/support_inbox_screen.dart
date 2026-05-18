@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import '../../constants/colors.dart';
 import '../../di/service_locator.dart';
 import '../../domain/entity/chat/chat_room.dart';
+import '../tenant/store/tenant_store.dart';
 import 'chat_screen.dart';
 import 'contact_info_panel.dart';
 import 'store/chat_room_store.dart';
+import 'store/chat_store.dart';
 import 'widgets/chat_room_tile.dart';
 
 class SupportInboxScreen extends StatefulWidget {
@@ -19,22 +24,51 @@ class SupportInboxScreen extends StatefulWidget {
 
 class _SupportInboxScreenState extends State<SupportInboxScreen> {
   final ChatRoomStore _store = getIt<ChatRoomStore>();
+  final ChatStore _chatStore = getIt<ChatStore>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   ChatRoom? _selectedRoom;
   bool _showContactInfo = true; // Track ContactInfoPanel visibility for desktop
 
+  late final ReactionDisposer _tenantSelectionReaction;
+
   @override
   void initState() {
     super.initState();
-    _store.fetchChatRooms();
+    _tenantSelectionReaction = reaction(
+      (_) => getIt<TenantStore>().currentTenant?.id,
+      (_) {
+        if (!mounted) return;
+        getIt<ChatRoomStore>().setActiveRoomId(null);
+        setState(() => _selectedRoom = null);
+      },
+    );
+    _loadRoomsAndPrefetch();
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
   }
 
+  Future<void> _loadRoomsAndPrefetch() async {
+    await _store.fetchChatRooms();
+    if (!mounted) {
+      return;
+    }
+    if (_store.chatRooms.isEmpty) {
+      setState(() => _selectedRoom = null);
+    } else if (_selectedRoom != null &&
+        !_store.chatRooms.any((ChatRoom r) => r.id == _selectedRoom!.id)) {
+      setState(() => _selectedRoom = null);
+    }
+    // Silently warm the message cache for every room so opening a chat
+    // feels instant. Failures are swallowed inside the store per-room.
+    final Iterable<String> roomIds = _store.chatRooms.map((ChatRoom r) => r.id);
+    unawaited(_chatStore.prefetchMessagesForRooms(roomIds));
+  }
+
   @override
   void dispose() {
+    _tenantSelectionReaction();
     _searchController.dispose();
     super.dispose();
   }
@@ -42,7 +76,8 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
   void _selectRoom(ChatRoom room) {
     setState(() {
       _selectedRoom = room;
-      _store.markAsRead(room.id);
+      _store.setActiveRoomId(room.id);
+      _store.markAsRead(room);
     });
   }
 
@@ -283,10 +318,45 @@ class _SupportInboxScreenState extends State<SupportInboxScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final rooms =
-            _store.chatRooms
-                .where((r) => r.name.toLowerCase().contains(_searchQuery))
-                .toList();
+        final allRooms = _store.chatRooms;
+
+        if (allRooms.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.forum_outlined,
+                    size: 48,
+                    color: Colors.grey.shade300,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Chưa có cuộc trò chuyện nào',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Khi có tin nhắn từ khách hàng, các phòng chat sẽ hiển thị tại đây.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final rooms = allRooms
+            .where((r) => r.name.toLowerCase().contains(_searchQuery))
+            .toList();
 
         if (rooms.isEmpty) {
           return Center(

@@ -7,6 +7,7 @@ class Preferences {
   static const String authRefreshToken = 'authRefreshToken';
   static const String accountJson = 'accountJson';
   static const String tenantId = 'tenantId';
+  static const String socketId = 'socketId';
   static const String isDarkMode = 'is_dark_mode';
   static const String currentLanguage = 'current_language';
 

@@ -25,14 +25,31 @@ class KnowledgeApi {
     List<String>? ids,
     String? query,
   }) async {
-    final response = await _dio.get(
-      Endpoints.knowledgeSources(tenantId),
-      queryParameters: {
-        if (ids != null && ids.isNotEmpty) 'ids': ids.join(','),
-        if (query != null && query.isNotEmpty) 'query': query,
-      },
-    );
-    return _asListOfMaps(response.data);
+    // Page through results until BE reports hasNext=false.  BE caps each
+    // response at 100 items per page even when we ask for more, so paging
+    // is the only way to surface the full source list.
+    final all = <Map<String, dynamic>>[];
+    var offset = 0;
+    const pageSize = 100;
+    const maxPages = 50; // safety cap (5000 sources)
+
+    for (var page = 0; page < maxPages; page++) {
+      final response = await _dio.get(
+        Endpoints.knowledgeSources(tenantId),
+        queryParameters: {
+          'offset': offset,
+          'limit': pageSize,
+          if (ids != null && ids.isNotEmpty) 'ids': ids.join(','),
+          if (query != null && query.isNotEmpty) 'query': query,
+        },
+      );
+      final data = response.data;
+      all.addAll(_asListOfMaps(data));
+      final hasNext = data is Map && data['hasNext'] == true;
+      if (!hasNext) break;
+      offset += pageSize;
+    }
+    return all;
   }
 
   // ---------------------------------------------------------------------------
@@ -103,15 +120,11 @@ class KnowledgeApi {
     required String tenantId,
     required String webUrl,
     required String apiInterval,
-    required String webImportType, // 'single_url' | 'whole_site'
+    required String webImportType, // 'single_page' | 'whole_sites'
   }) async {
     final response = await _dio.post(
       Endpoints.knowledgeImportWeb(tenantId),
-      data: {
-        'webUrl': webUrl,
-        'interval': apiInterval,
-        'type': webImportType,
-      },
+      data: {'webUrl': webUrl, 'interval': apiInterval, 'type': webImportType},
     );
     return _asMap(response.data);
   }
@@ -135,7 +148,14 @@ class KnowledgeApi {
       data: formData,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
-      options: Options(contentType: 'multipart/form-data'),
+      // BE indexes the file synchronously before responding — large files or
+      // slow indexing can blow past the default 15s receive timeout, leaving
+      // the upload "stuck" with no response.  Give it 5 minutes here.
+      options: Options(
+        contentType: 'multipart/form-data',
+        sendTimeout: const Duration(minutes: 5),
+        receiveTimeout: const Duration(minutes: 5),
+      ),
     );
     return _asMap(response.data);
   }
@@ -178,12 +198,7 @@ class KnowledgeApi {
   }) async {
     final response = await _dio.post(
       Endpoints.knowledgeImportDatabaseQuery(tenantId),
-      data: {
-        'name': name,
-        'query': query,
-        'uri': uri,
-        'interval': apiInterval,
-      },
+      data: {'name': name, 'query': query, 'uri': uri, 'interval': apiInterval},
     );
     return _asMap(response.data);
   }
@@ -216,6 +231,11 @@ class KnowledgeApi {
       Endpoints.knowledgeTestDatabaseQuery,
       data: {'query': query, 'uri': uri},
     );
+    // Backend may return rows as a top-level List instead of Map.
+    // Normalize to {'rows': [...]} so _parsePreview works uniformly.
+    if (response.data is List) {
+      return {'rows': response.data};
+    }
     return _asMap(response.data);
   }
 
@@ -232,16 +252,25 @@ class KnowledgeApi {
   }
 
   // ---------------------------------------------------------------------------
-  // 14. GET /status-sse
+  // 14. GET /status-sse  +  GET /whole-sites-sse
   // ---------------------------------------------------------------------------
 
   /// Yields raw `{sourceId: apiStatus}` maps as SSE events arrive.  Domain
   /// mapping happens in the repository.
   ///
   /// Errors are propagated so callers can implement reconnection.
-  Stream<Map<String, String>> statusSseStream(String tenantId) async* {
+  Stream<Map<String, String>> statusSseStream(String tenantId) =>
+      _sseStream(Endpoints.knowledgeStatusSse(tenantId));
+
+  /// Parallel SSE channel for whole-site crawl progress.  Event payload shape
+  /// matches [statusSseStream] (BE sends connected/heartbeat events the
+  /// parser silently drops).
+  Stream<Map<String, String>> wholeSitesSseStream(String tenantId) =>
+      _sseStream(Endpoints.knowledgeWholeSitesSse(tenantId));
+
+  Stream<Map<String, String>> _sseStream(String path) async* {
     final response = await _dio.get(
-      Endpoints.knowledgeStatusSse(tenantId),
+      path,
       options: Options(
         responseType: ResponseType.stream,
         headers: {'Accept': 'text/event-stream'},
@@ -278,14 +307,31 @@ class KnowledgeApi {
   // Helpers
   // ---------------------------------------------------------------------------
 
+  /// Accepts the BE list envelope shapes we have seen:
+  ///   * `[ ... ]`                          (raw list)
+  ///   * `{ "data": [ ... ] }`              (legacy/dev wrapper)
+  ///   * `{ "items": [ ... ], "total": n }` (paginated AI-services wrapper)
+  ///   * `{ "data": { "items": [ ... ] } }` (paginated wrapped in `data`)
   List<Map<String, dynamic>> _asListOfMaps(dynamic data) {
     if (data is List) {
       return data.whereType<Map<String, dynamic>>().toList();
     }
-    if (data is Map && data['data'] is List) {
-      return (data['data'] as List)
-          .whereType<Map<String, dynamic>>()
-          .toList();
+    if (data is Map) {
+      if (data['items'] is List) {
+        return (data['items'] as List)
+            .whereType<Map<String, dynamic>>()
+            .toList();
+      }
+      if (data['data'] is List) {
+        return (data['data'] as List)
+            .whereType<Map<String, dynamic>>()
+            .toList();
+      }
+      if (data['data'] is Map && (data['data'] as Map)['items'] is List) {
+        return ((data['data'] as Map)['items'] as List)
+            .whereType<Map<String, dynamic>>()
+            .toList();
+      }
     }
     return const [];
   }
@@ -334,8 +380,7 @@ class KnowledgeApi {
     return const {};
   }
 
-  Map<String, String> _parseSseEvent(dynamic parsed) =>
-      _parseStatusMap(parsed);
+  Map<String, String> _parseSseEvent(dynamic parsed) => _parseStatusMap(parsed);
 
   dynamic _safeDecode(String payload) {
     try {

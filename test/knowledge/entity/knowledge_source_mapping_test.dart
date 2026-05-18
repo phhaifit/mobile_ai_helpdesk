@@ -3,12 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('KnowledgeSourceType.toApiType', () {
+    // Verified live against the AI-service backend: snake-case spellings
+    // (`local_file`, `google_drive`, `database_query`) return HTTP 500 on
+    // `GET /sources/{type}`. The endpoint requires kebab-case + the
+    // singular `file` for local files.
     const cases = {
       KnowledgeSourceType.web: 'web',
-      KnowledgeSourceType.wholeSite: 'whole_site',
-      KnowledgeSourceType.localFile: 'local_file',
-      KnowledgeSourceType.googleDrive: 'google_drive',
-      KnowledgeSourceType.databaseQuery: 'database_query',
+      KnowledgeSourceType.wholeSite: 'whole-site',
+      KnowledgeSourceType.localFile: 'file',
+      KnowledgeSourceType.googleDrive: 'google-drive',
+      KnowledgeSourceType.databaseQuery: 'database-query',
     };
 
     cases.forEach((type, api) {
@@ -19,18 +23,21 @@ void main() {
   });
 
   group('KnowledgeSourceType.toWebImportType', () {
-    test('web (single URL) → single_url', () {
-      expect(KnowledgeSourceType.web.toWebImportType(), 'single_url');
+    test('web (single page) → single_page', () {
+      expect(KnowledgeSourceType.web.toWebImportType(), 'single_page');
     });
-    test('wholeSite → whole_site', () {
-      expect(KnowledgeSourceType.wholeSite.toWebImportType(), 'whole_site');
+    test('wholeSite → whole_sites', () {
+      expect(KnowledgeSourceType.wholeSite.toWebImportType(), 'whole_sites');
     });
   });
 
   group('knowledgeSourceTypeFromApi', () {
     const cases = {
       'web': KnowledgeSourceType.web,
+      'single_page': KnowledgeSourceType.web,
+      'single_url': KnowledgeSourceType.web, // legacy spelling
       'whole_site': KnowledgeSourceType.wholeSite,
+      'whole_sites': KnowledgeSourceType.wholeSite,
       'local_file': KnowledgeSourceType.localFile,
       'google_drive': KnowledgeSourceType.googleDrive,
       'database_query': KnowledgeSourceType.databaseQuery,

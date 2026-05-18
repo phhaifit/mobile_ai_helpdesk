@@ -24,6 +24,8 @@ analyzer:
     unused_local_variable: warning
     # Allow TODO comments without triggering warnings
     todo: ignore
+    # Allow invalid annotation targets
+    invalid_annotation_target: ignore
   language:
     strict-casts: true
     strict-raw-types: true

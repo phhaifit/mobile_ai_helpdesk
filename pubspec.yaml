@@ -29,9 +29,9 @@ dependencies:
   dio: ^5.8.0+1
   http: ^1.4.0
   event_bus: ^2.0.0
+  socket_io_client: ^3.1.4
   web_socket_channel: ^3.0.3
   intl: '>=0.19.0 <0.21.0'
-
 
   # Firebase & Analytics
   package_info_plus: ^8.0.0
@@ -57,11 +57,23 @@ dependencies:
   # (DevOps-side change we cannot make from the mobile project).
   webview_flutter: ^4.10.0
 
+  # OAuth 2.0 Authorization Code + PKCE — used by the Knowledge Base
+  # "import from Google Drive" flow to obtain an access_token AND refresh_token
+  # entirely on-device (no client_secret, no BE token exchange). Backed by the
+  # OpenID AppAuth SDKs; uses Chrome Custom Tabs / ASWebAuthenticationSession.
+  # Requires the `appAuthRedirectScheme` manifest placeholder (android) and a
+  # CFBundleURLTypes entry (ios) — see google_drive_oauth_service.dart.
+  flutter_appauth: ^8.0.3
+
   # UI
   google_fonts: ^6.2.1
   another_flushbar: ^1.12.30
   flutter_markdown_plus: ^1.0.4
   file_picker: ^8.1.7
+  emoji_picker_flutter: ^4.4.0
+  scrollable_positioned_list: ^0.3.8
+
+  freezed_annotation: ^2.4.1
 
   # Serialization
   json_annotation: ^4.9.0
@@ -78,7 +90,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.9.0
-  build_runner: ^2.4.8
+  freezed: ^2.4.7
+  build_runner: ^2.4.9
   mobx_codegen: ^2.5.0
   flutter_lints: ^5.0.0
   firebase_core_platform_interface: ^6.0.2

@@ -1,6 +1,7 @@
 import 'package:ai_helpdesk/data/local/datasources/ticket/mock_ticket_datasource.dart';
 import 'package:ai_helpdesk/data/models/ticket/comment_api_model.dart';
 import 'package:ai_helpdesk/data/models/ticket/ticket_api_model.dart';
+import 'package:ai_helpdesk/data/network/apis/chat_room/chat_room_api.dart';
 import 'package:ai_helpdesk/data/network/apis/ticket/ticket_api.dart';
 import 'package:ai_helpdesk/data/repository/ticket/mock_ticket_repository_impl.dart';
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
@@ -15,20 +16,36 @@ import 'package:flutter/foundation.dart';
 
 /// Real [TicketRepository] implementation.
 ///
+/// **Comments** use the dedicated ticket-comment REST routes
+/// (`/ticket/comment/add-comment`, `GET /ticket/{id}` → `commentsOfTicket`).
+/// The earlier sub-issue-B design that piggy-backed on the chat-room
+/// REST + Socket.io channel was replaced after curl tracing against the
+/// production web client confirmed `/ticket/comment/*` is the canonical
+/// path. `_chatRoomApi` is preserved on the constructor for DI stability
+/// (NetworkModule still wires it) but no longer used here.
+///
 /// **Customer history** calls the real REST API via [TicketApi] and falls back
 /// to [MockTicketDataSource] in debug builds when the backend returns 404/5xx
 /// or a network error — so the customer-detail flow stays exercisable before
 /// the route is stable. 401/403 still propagate so auth flows behave
 /// realistically.
 ///
-/// **Comments** and **ticket core** (list, detail, create, update, assignment,
-/// status) use real REST APIs. Missing endpoints fall back to mock for now.
+/// **Ticket core** (list, detail, create, update, assignment, status) uses
+/// real REST APIs. Missing endpoints (delete, history, available-agents)
+/// still fall back to the mock for now.
 class TicketRepositoryImpl implements TicketRepository {
-  final TicketApi _api;
+  final TicketApi _ticketApi;
+  // ignore: unused_field
+  final ChatRoomApi _chatRoomApi;
   final MockTicketRepositoryImpl _mock;
   final MockTicketDataSource? _fallbackTickets;
 
-  TicketRepositoryImpl(this._api, this._mock, [this._fallbackTickets]);
+  TicketRepositoryImpl(
+    this._ticketApi,
+    this._chatRoomApi,
+    this._mock, [
+    this._fallbackTickets,
+  ]);
 
   // ── Debug fallback helper ─────────────────────────────────────────────────
 
@@ -46,8 +63,12 @@ class TicketRepositoryImpl implements TicketRepository {
   @override
   Future<List<Ticket>> getCustomerHistory(String customerId) async {
     try {
-      final dtos = await _api.getCustomerTickets(customerId);
-      return dtos.map((d) => d.toEntity()).toList(growable: false);
+      final raw = await _ticketApi.getCustomerHistory(customerId);
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map(TicketApiModel.fromJson)
+          .map((m) => m.toDomain())
+          .toList();
     } on DioException catch (e) {
       if (_shouldFallback(e)) {
         if (kDebugMode) {
@@ -63,11 +84,15 @@ class TicketRepositoryImpl implements TicketRepository {
     }
   }
 
-  // ── Comments ──────────────────────────────────────────────────────────────
+  // ── Ticket comments (canonical /ticket/comment/* endpoints) ──────────────
+  // Hot-fix: use the ticket-comment REST API the production web client
+  // verifiably hits (`POST /ticket/comment/add-comment` returns 201 + the
+  // populated comment object with `customerSupport` nested). The earlier
+  // chat-room based approach was not viable against the live BE.
 
   @override
   Future<List<Comment>> getComments(String ticketId) async {
-    final raw = await _api.getComments(ticketId);
+    final raw = await _ticketApi.getComments(ticketId);
     final comments = raw
         .whereType<Map<String, dynamic>>()
         .map(CommentApiModel.fromJson)
@@ -84,7 +109,7 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     required Comment comment,
   }) async {
-    final data = await _api.addComment(ticketId, comment.content);
+    final data = await _ticketApi.addComment(ticketId, comment.content);
     // BE response includes the full comment object (id, timestamps, author
     // resolved under `customerSupport`). Use it directly so the UI shows the
     // canonical record instead of the optimistic placeholder.
@@ -95,14 +120,14 @@ class TicketRepositoryImpl implements TicketRepository {
         return apiModel.toDomain().copyWith(type: comment.type);
       }
     }
-    // Fallback: keep the comment visible with a temp id when the response
-    // shape is unexpected (e.g., legacy gateway).
-    return comment.copyWith(
-      id: comment.id.isNotEmpty
-          ? comment.id
-          : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
-    );
+    return _optimisticComment(comment);
   }
+
+  Comment _optimisticComment(Comment comment) => comment.copyWith(
+        id: comment.id.isNotEmpty
+            ? comment.id
+            : 'tmp_${DateTime.now().millisecondsSinceEpoch}',
+      );
 
   // ── Ticket core APIs ──────────────────────────────────────────────────────
 
@@ -116,14 +141,14 @@ class TicketRepositoryImpl implements TicketRepository {
 
   @override
   Future<Ticket?> getTicketById(String id) async {
-    final data = await _api.getTicketDetail(id);
+    final data = await _ticketApi.getTicketDetail(id);
     if (data.isEmpty) return null;
     return TicketApiModel.fromJson(data).toDomain();
   }
 
   @override
   Future<Ticket> createTicket(Ticket ticket) async {
-    final data = await _api.createTicket(
+    final data = await _ticketApi.createTicket(
       title: ticket.title,
       description: ticket.description.isEmpty ? null : ticket.description,
       customerId: ticket.customerId,
@@ -139,8 +164,10 @@ class TicketRepositoryImpl implements TicketRepository {
   @override
   Future<Ticket> updateTicket(Ticket ticket) async {
     // Full-edit save: include every field the user could have changed in
-    // a single POST to /ticket/my-ticket/{id}/detail.
-    await _api.updateTicketDetail(
+    // a single POST to /ticket/my-ticket/{id}/detail. Hot-fix removes the
+    // legacy `_ticketApi.updateTicketStatus` follow-up — status now travels
+    // in the same payload (status / priority / customerSupportID).
+    await _ticketApi.updateTicketDetail(
       ticketId: ticket.id,
       title: ticket.title.isEmpty ? null : ticket.title,
       priority: _mapPriorityToApi(ticket.priority),
@@ -164,7 +191,7 @@ class TicketRepositoryImpl implements TicketRepository {
     // so the BE doesn't reinterpret the payload as an assignment.
     final mapped = _mapStatusToApi(status);
     if (mapped != null) {
-      await _api.updateTicketDetail(ticketId: ticketId, status: mapped);
+      await _ticketApi.updateTicketDetail(ticketId: ticketId, status: mapped);
     }
     final refreshed = await getTicketById(ticketId);
     if (refreshed != null) return refreshed;
@@ -177,7 +204,7 @@ class TicketRepositoryImpl implements TicketRepository {
     required TicketPriority priority,
   }) async {
     // Web sends only `{ticketID, priority}` for a priority change.
-    await _api.updateTicketDetail(
+    await _ticketApi.updateTicketDetail(
       ticketId: ticketId,
       priority: _mapPriorityToApi(priority),
     );
@@ -193,7 +220,6 @@ class TicketRepositoryImpl implements TicketRepository {
 
   @override
   Future<void> deleteTicket(String id) {
-    // TODO: Replace with delete ticket API when available.
     return _mock.deleteTicket(id);
   }
 
@@ -206,7 +232,7 @@ class TicketRepositoryImpl implements TicketRepository {
     // status so the BE keeps it (it can't infer from the payload alone).
     final current = await getTicketById(ticketId);
     final status = current != null ? _mapStatusToApi(current.status) : null;
-    await _api.updateTicketDetail(
+    await _ticketApi.updateTicketDetail(
       ticketId: ticketId,
       customerSupportId: agentId,
       includeCustomerSupportId: true,
@@ -219,13 +245,11 @@ class TicketRepositoryImpl implements TicketRepository {
 
   @override
   Future<List<Agent>> getAvailableAgents() {
-    // TODO: Replace with agents API when available.
     return _mock.getAvailableAgents();
   }
 
   @override
   Future<List<TicketHistory>> getTicketHistory(String ticketId) {
-    // TODO: Replace with ticket history API when available.
     return _mock.getTicketHistory(ticketId);
   }
 
@@ -237,17 +261,20 @@ class TicketRepositoryImpl implements TicketRepository {
         if (params.statuses != null && params.statuses!.length == 1) {
           final status = _mapStatusToApi(params.statuses!.first);
           if (status != null) {
-            return _api.getMyTicketsByStatus(status);
+            return _ticketApi.getMyTicketsByStatus(status);
           }
         }
-        return _api.getMyTickets(offset: params.offset, limit: params.limit);
+        return _ticketApi.getMyTickets(
+          offset: params.offset,
+          limit: params.limit,
+        );
       case TicketTabScope.unassigned:
-        return _api.getUnassignedTickets(
+        return _ticketApi.getUnassignedTickets(
           offset: params.offset,
           limit: params.limit,
         );
       case TicketTabScope.all:
-        return _api.getAllTickets(
+        return _ticketApi.getAllTickets(
           offset: params.offset,
           limit: params.limit,
           search: params.search,
@@ -274,6 +301,7 @@ class TicketRepositoryImpl implements TicketRepository {
           ? apiTicket.customerId
           : base.customerId,
       assignedAgentId: apiTicket.assignedAgentId,
+      chatRoomId: apiTicket.chatRoomId ?? base.chatRoomId,
       createdAt: apiTicket.createdAt,
       updatedAt: apiTicket.updatedAt,
     );

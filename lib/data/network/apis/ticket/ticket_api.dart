@@ -55,6 +55,13 @@ class TicketApi {
     return _parseGroupedList(response.data);
   }
 
+  /// GET /api/ticket/ticket-history-customer/{customerID}
+  Future<List<dynamic>> getCustomerHistory(String customerId) async {
+    final response =
+        await _dio.get(Endpoints.ticketHistoryCustomer(customerId));
+    return _parseList(response.data);
+  }
+
   /// GET /api/ticket/{ticketID}
   Future<Map<String, dynamic>> getTicketDetail(String ticketId) async {
     final response = await _dio.get(Endpoints.ticketDetail(ticketId));
