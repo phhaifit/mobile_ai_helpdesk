@@ -193,6 +193,35 @@ class MockTicketRepositoryImpl implements TicketRepository {
   }
 
   @override
+  Future<Ticket> updateStatus({
+    required String ticketId,
+    required TicketStatus status,
+  }) async {
+    final current = _localDataSource.getTicketById(ticketId);
+    if (current == null) throw Exception('Ticket not found');
+    return updateTicket(current.copyWith(status: status));
+  }
+
+  /// Local-only helper used by the real repository's fallback path; the
+  /// signature differs slightly to keep the public contract (`updateStatus`)
+  /// idiomatic.
+  Future<Ticket> updateTicketStatus({
+    required String ticketId,
+    required TicketStatus newStatus,
+  }) =>
+      updateStatus(ticketId: ticketId, status: newStatus);
+
+  @override
+  Future<Ticket> updatePriority({
+    required String ticketId,
+    required TicketPriority priority,
+  }) async {
+    final current = _localDataSource.getTicketById(ticketId);
+    if (current == null) throw Exception('Ticket not found');
+    return updateTicket(current.copyWith(priority: priority));
+  }
+
+  @override
   Future<void> deleteTicket(String id) async {
     await _simulateDelay();
     final deleted = _localDataSource.deleteTicket(id);

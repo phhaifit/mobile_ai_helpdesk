@@ -95,70 +95,71 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // getComments — flows through chat-room (resolves chatRoomId from ticket)
+  // getComments — hot-fix routes through TicketApi.getComments, which slices
+  // `commentsOfTicket` out of GET /ticket/{id}. The repository sorts the
+  // result oldest-first so the comment thread reads top-to-bottom.
   // ---------------------------------------------------------------------------
 
   group('getComments', () {
-    const kChatRoomId = 'chatroom-001';
-
-    test('returns empty list when ticket has no chatRoomId', () async {
-      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
-
-      final result = await repo.getComments(kTestTicketId);
-
-      expect(result, isEmpty);
-    });
-
-    test('resolves chatRoomId from ticket detail', () async {
-      fakeApi.ticketDetailResponse = {
-        'id': kTestTicketId,
-        'chatRoomId': kChatRoomId,
-      };
-      fakeChatRoomApi.messagesResponse = [];
+    test('delegates to TicketApi.getComments with the ticket id', () async {
+      fakeApi.commentsResponse = [];
 
       await repo.getComments(kTestTicketId);
 
-      expect(fakeApi.lastGetTicketDetailId, kTestTicketId);
-      expect(fakeChatRoomApi.lastGetMessagesChatRoomId, kChatRoomId);
+      expect(fakeApi.lastGetCommentsTicketId, kTestTicketId);
     });
 
-    test('returns empty list when chat-room has no messages', () async {
-      fakeApi.ticketDetailResponse = {
-        'id': kTestTicketId,
-        'chatRoomId': kChatRoomId,
-      };
-      fakeChatRoomApi.messagesResponse = [];
+    test('returns empty list when API yields no comments', () async {
+      fakeApi.commentsResponse = [];
 
       final result = await repo.getComments(kTestTicketId);
 
       expect(result, isEmpty);
     });
 
-    test('maps chat-room messages to Comment list', () async {
-      fakeApi.ticketDetailResponse = {
-        'id': kTestTicketId,
-        'chatRoomId': kChatRoomId,
-      };
-      fakeChatRoomApi.messagesResponse = [
+    test('maps ticket-comment JSON to Comment list', () async {
+      fakeApi.commentsResponse = [
         {
-          'messageID': 'msg-001',
-          'chatRoomID': kChatRoomId,
-          'contentInfo': {'content': 'Hello'},
-          'sender': {'id': 'agent-1', 'name': 'Agent 1'},
+          'commentID': 'cmt-001',
+          'ticketID': kTestTicketId,
+          'body': 'Hello',
+          'customerSupportID': 'agent-1',
+          'customerSupport': {'fullname': 'Agent 1'},
           'createdAt': '2024-06-01T10:00:00.000Z',
-        }
+        },
       ];
 
       final result = await repo.getComments(kTestTicketId);
 
       expect(result.length, 1);
-      expect(result.first.id, 'msg-001');
+      expect(result.first.id, 'cmt-001');
       expect(result.first.content, 'Hello');
       expect(result.first.authorName, 'Agent 1');
     });
 
+    test('sorts comments oldest-first', () async {
+      fakeApi.commentsResponse = [
+        // BE returns newest-first; repo flips so newer comments come last.
+        {
+          'commentID': 'cmt-newer',
+          'body': 'Newer',
+          'createdAt': '2024-06-02T10:00:00.000Z',
+        },
+        {
+          'commentID': 'cmt-older',
+          'body': 'Older',
+          'createdAt': '2024-06-01T10:00:00.000Z',
+        },
+      ];
+
+      final result = await repo.getComments(kTestTicketId);
+
+      expect(result.first.id, 'cmt-older');
+      expect(result.last.id, 'cmt-newer');
+    });
+
     test('returns empty list and swallows errors on API failure', () async {
-      // ticketDetailResponse is empty by default; getMessages will not be called.
+      // commentsResponse is empty by default; nothing to map.
       final result = await repo.getComments(kTestTicketId);
 
       expect(result, isEmpty);
@@ -166,38 +167,34 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // addComment — flows through chat-room (resolves chatRoomId + channelId)
+  // addComment — hot-fix posts to /ticket/comment/add-comment via
+  // TicketApi.addComment. The repository uses the server-issued comment
+  // when the response is populated, otherwise falls back to an optimistic
+  // placeholder (preserving a non-empty client id or generating tmp_*).
   // ---------------------------------------------------------------------------
 
   group('addComment', () {
-    const kChatRoomId = 'chatroom-001';
-    const kChannelId = 'chan-001';
+    test('delegates to TicketApi.addComment with the comment content',
+        () async {
+      fakeApi.addCommentResponse = {};
 
-    test('returns optimistic comment when ticket has no chatRoomId', () async {
-      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
-
-      final result = await repo.addComment(
+      await repo.addComment(
         ticketId: kTestTicketId,
         comment: kTestComment,
       );
 
-      expect(result.id, kTestComment.id);
-      expect(result.content, kTestComment.content);
+      expect(fakeApi.lastAddCommentTicketId, kTestTicketId);
+      expect(fakeApi.lastAddCommentContent, kTestComment.content);
     });
 
-    test('resolves chatRoomId then sends via chat-room API', () async {
-      fakeApi.ticketDetailResponse = {
-        'id': kTestTicketId,
-        'chatRoomId': kChatRoomId,
-      };
-      fakeChatRoomApi.chatRoomDetailResponse = {
-        'lastMessage': {'channelID': kChannelId, 'contactID': 'contact-1'},
-      };
-      fakeChatRoomApi.sendMessageResponse = {
-        'messageID': 'msg-server-001',
-        'chatRoomID': kChatRoomId,
-        'contentInfo': {'content': kTestComment.content},
-        'sender': {'id': 'agent-1', 'name': 'Agent 1'},
+    test('returns the server-issued comment when BE response is populated',
+        () async {
+      fakeApi.addCommentResponse = {
+        'commentID': 'cmt-server-001',
+        'ticketID': kTestTicketId,
+        'body': kTestComment.content,
+        'customerSupportID': 'agent-1',
+        'customerSupport': {'fullname': 'Agent 1'},
         'createdAt': '2024-06-01T10:00:00.000Z',
       };
 
@@ -206,18 +203,16 @@ void main() {
         comment: kTestComment,
       );
 
-      expect(fakeChatRoomApi.lastSendMessageChatRoomId, kChatRoomId);
-      expect(fakeChatRoomApi.lastSendMessageChannelId, kChannelId);
-      expect(fakeChatRoomApi.lastSendMessageContent, kTestComment.content);
-      expect(result.id, 'msg-server-001');
+      expect(result.id, 'cmt-server-001');
+      expect(result.content, kTestComment.content);
+      expect(result.authorName, 'Agent 1');
+      // The repository preserves the locally-chosen CommentType because BE
+      // doesn't model public/internal.
+      expect(result.type, kTestComment.type);
     });
 
-    test('returns optimistic comment when channelId is missing', () async {
-      fakeApi.ticketDetailResponse = {
-        'id': kTestTicketId,
-        'chatRoomId': kChatRoomId,
-      };
-      fakeChatRoomApi.chatRoomDetailResponse = {};
+    test('returns the optimistic comment when BE response is empty', () async {
+      fakeApi.addCommentResponse = {};
 
       final result = await repo.addComment(
         ticketId: kTestTicketId,
@@ -228,9 +223,9 @@ void main() {
       expect(result.content, kTestComment.content);
     });
 
-    test('assigns tmp_xxx id when chatRoomId missing and comment id empty',
+    test('assigns tmp_xxx id when response empty and comment id is empty',
         () async {
-      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
+      fakeApi.addCommentResponse = {};
       final commentWithNoId = kTestComment.copyWith(id: '');
 
       final result = await repo.addComment(
@@ -241,8 +236,8 @@ void main() {
       expect(result.id, startsWith('tmp_'));
     });
 
-    test('preserves original content when falling back', () async {
-      fakeApi.ticketDetailResponse = {'id': kTestTicketId};
+    test('preserves original content when falling back to optimistic', () async {
+      fakeApi.addCommentResponse = {};
 
       final result = await repo.addComment(
         ticketId: kTestTicketId,

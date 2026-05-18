@@ -277,26 +277,28 @@ class Endpoints {
   static String findAndDeleteContact() => '/api/customer/find-delete-contact';
 
   // ---- Ticket -------------------------------------------------------------
-  static const String ticketAll = '/api/ticket/all';
-  static const String ticketMy = '/api/ticket/my-ticket';
-  static const String ticketMyByStatus = '/api/ticket/mine-by-status';
-  static const String ticketUnassigned = '/api/ticket/unassigned';
+  // Helpdesk BE expects ticket routes WITHOUT the `/api` prefix (verified
+  // against the production web client + curl traces). The OpenAPI doc still
+  // lists `/api/ticket/...` but the gateway only routes `/ticket/...`.
+  static const String ticketAll = '/ticket/all';
+  static const String ticketMy = '/ticket/my-ticket';
+  static const String ticketMyByStatus = '/ticket/mine-by-status';
+  static const String ticketUnassigned = '/ticket/unassigned';
   static String ticketHistoryCustomer(String customerId) =>
-      '/api/ticket/ticket-history-customer/$customerId';
-  static String ticketDetail(String ticketId) => '/api/ticket/$ticketId';
-  static const String ticketUpdateStatus = '/api/ticket/update-status';
-  static const String ticketCreate = '/api/ticket/new';
+      '/ticket/ticket-history-customer/$customerId';
+  static String ticketDetail(String ticketId) => '/ticket/$ticketId';
+  static const String ticketUpdateStatus = '/ticket/update-status';
+  static const String ticketCreate = '/ticket/new';
   static String ticketUpdateDetail(String ticketId) =>
-      '/api/ticket/my-ticket/$ticketId/detail';
-  static const String ticketCustomerHistory = '/api/ticket/customer-ticket';
-  // Customer-scoped ticket history (feat/customer-management)
+      '/ticket/my-ticket/$ticketId/detail';
+  static const String ticketCustomerHistory = '/ticket/customer-ticket';
   static String ticketHistoryByCustomer(String customerId) =>
-      '/api/ticket/ticket-history-customer/$customerId';
+      '/ticket/ticket-history-customer/$customerId';
   static String ticketComments(String ticketId) =>
-      '/api/ticket/comment/get-comment/$ticketId';
-  static const String ticketAddComment = '/api/ticket/comment/add-comment';
+      '/ticket/comment/get-comment/$ticketId';
+  static const String ticketAddComment = '/ticket/comment/add-comment';
   static String ticketDeleteComment(String commentId) =>
-      '/api/ticket/comment/$commentId';
+      '/ticket/comment/$commentId';
 
   // ---- Chat Room ----------------------------------------------------------
   // Sub-issue B uses these constants for REST + Socket.io chat-room flows;

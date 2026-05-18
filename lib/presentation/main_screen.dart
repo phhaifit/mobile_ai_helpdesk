@@ -540,10 +540,12 @@ class _MainScreenState extends State<MainScreen> {
           showMenuButton: isMobile,
         );
       case 'pending_tickets':
-        contentWidget = _wrapWithMenuBar(
-          title: 'Phiếu chưa xử lý',
-          child: const TicketListScreen(),
-          showMenuButton: isMobile,
+        // Hot-fix: pass `onMenuTap` directly to the redesigned [TicketListScreen]
+        // — it owns its own AppBar/header and doesn't need the shared
+        // `_wrapWithMenuBar` wrapper. The mobile hamburger triggers the same
+        // sidebar toggle as other screens.
+        contentWidget = TicketListScreen(
+          onMenuTap: isMobile ? _toggleMobileSidebar : null,
         );
       case 'support_inbox':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);

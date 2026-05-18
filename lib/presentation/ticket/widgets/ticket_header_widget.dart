@@ -77,7 +77,15 @@ class TicketHeaderWidget extends StatelessWidget {
               ],
             ),
           ),
+          // Right side: Action buttons.
+          // Note: the global button theme (app_theme.dart) sets
+          // `minimumSize: Size.fromHeight(N)` which Flutter resolves to
+          // `Size(double.infinity, N)`. That works for full-width form
+          // buttons but crashes any button placed inside a Row (infinite
+          // width). We override `minimumSize` per-button here so the
+          // buttons size to their content.
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               OutlinedButton.icon(
                 onPressed: onExportPressed,
@@ -86,6 +94,7 @@ class TicketHeaderWidget extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryBlue,
                   side: const BorderSide(color: AppColors.primaryBlue),
+                  minimumSize: const Size(64, 40),
                 ),
               ),
               const SizedBox(width: 12),
@@ -96,6 +105,7 @@ class TicketHeaderWidget extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   foregroundColor: Colors.white,
+                  minimumSize: const Size(64, 40),
                 ),
               ),
             ],

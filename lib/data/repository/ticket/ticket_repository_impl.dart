@@ -16,11 +16,13 @@ import 'package:flutter/foundation.dart';
 
 /// Real [TicketRepository] implementation.
 ///
-/// **Sub-issue B (customer history + comments)** uses real REST APIs.
-/// Comments are sourced from the chat-room REST + Socket.io channel — the
-/// ticket's `chatRoomId` is resolved on demand from [TicketApi.getTicketDetail]
-/// before each load/send. Optimistic fallbacks keep the UI usable when
-/// `chatRoomId` or `channelID` are missing.
+/// **Comments** use the dedicated ticket-comment REST routes
+/// (`/ticket/comment/add-comment`, `GET /ticket/{id}` → `commentsOfTicket`).
+/// The earlier sub-issue-B design that piggy-backed on the chat-room
+/// REST + Socket.io channel was replaced after curl tracing against the
+/// production web client confirmed `/ticket/comment/*` is the canonical
+/// path. `_chatRoomApi` is preserved on the constructor for DI stability
+/// (NetworkModule still wires it) but no longer used here.
 ///
 /// **Customer history** calls the real REST API via [TicketApi] and falls back
 /// to [MockTicketDataSource] in debug builds when the backend returns 404/5xx
@@ -33,6 +35,7 @@ import 'package:flutter/foundation.dart';
 /// still fall back to the mock for now.
 class TicketRepositoryImpl implements TicketRepository {
   final TicketApi _ticketApi;
+  // ignore: unused_field
   final ChatRoomApi _chatRoomApi;
   final MockTicketRepositoryImpl _mock;
   final MockTicketDataSource? _fallbackTickets;
@@ -81,24 +84,24 @@ class TicketRepositoryImpl implements TicketRepository {
     }
   }
 
-  // ── Chat-room messages (surfaced as "comments") ───────────────────────────
+  // ── Ticket comments (canonical /ticket/comment/* endpoints) ──────────────
+  // Hot-fix: use the ticket-comment REST API the production web client
+  // verifiably hits (`POST /ticket/comment/add-comment` returns 201 + the
+  // populated comment object with `customerSupport` nested). The earlier
+  // chat-room based approach was not viable against the live BE.
 
   @override
   Future<List<Comment>> getComments(String ticketId) async {
-    try {
-      final ticketData = await _ticketApi.getTicketDetail(ticketId);
-      final chatRoomId = ticketData['chatRoomId'] as String?;
-      if (chatRoomId == null || chatRoomId.isEmpty) return const [];
-
-      final raw = await _chatRoomApi.getMessages(chatRoomId);
-      return raw
-          .whereType<Map<String, dynamic>>()
-          .map(CommentApiModel.fromJson)
-          .map((m) => m.toDomain())
-          .toList();
-    } catch (_) {
-      return const [];
-    }
+    final raw = await _ticketApi.getComments(ticketId);
+    final comments = raw
+        .whereType<Map<String, dynamic>>()
+        .map(CommentApiModel.fromJson)
+        .map((m) => m.toDomain())
+        .toList();
+    // BE returns newest-first; flip to oldest-first so the comment thread
+    // reads top-to-bottom like a conversation (latest at the bottom).
+    comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return comments;
   }
 
   @override
@@ -106,35 +109,18 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     required Comment comment,
   }) async {
-    try {
-      final ticketData = await _ticketApi.getTicketDetail(ticketId);
-      final chatRoomId = ticketData['chatRoomId'] as String?;
-      if (chatRoomId == null || chatRoomId.isEmpty) {
-        return _optimisticComment(comment);
+    final data = await _ticketApi.addComment(ticketId, comment.content);
+    // BE response includes the full comment object (id, timestamps, author
+    // resolved under `customerSupport`). Use it directly so the UI shows the
+    // canonical record instead of the optimistic placeholder.
+    if (data.isNotEmpty) {
+      final apiModel = CommentApiModel.fromJson(data);
+      if (apiModel.id.isNotEmpty) {
+        // BE doesn't model public/internal — preserve the local choice.
+        return apiModel.toDomain().copyWith(type: comment.type);
       }
-
-      final detail = await _chatRoomApi.getChatRoomDetail(chatRoomId);
-      final lastMessage = detail['lastMessage'] as Map?;
-      final channelId = lastMessage?['channelID'] as String? ?? '';
-      final contactId = lastMessage?['contactID'] as String?;
-
-      if (channelId.isEmpty) return _optimisticComment(comment);
-
-      final data = await _chatRoomApi.sendMessage(
-        chatRoomId: chatRoomId,
-        channelId: channelId,
-        content: comment.content,
-        contactId: contactId,
-      );
-
-      if (data.isNotEmpty) {
-        final model = CommentApiModel.fromJson(data);
-        return comment.copyWith(id: model.id, createdAt: model.createdAt);
-      }
-      return _optimisticComment(comment);
-    } catch (_) {
-      return _optimisticComment(comment);
     }
+    return _optimisticComment(comment);
   }
 
   Comment _optimisticComment(Comment comment) => comment.copyWith(
@@ -177,22 +163,59 @@ class TicketRepositoryImpl implements TicketRepository {
 
   @override
   Future<Ticket> updateTicket(Ticket ticket) async {
+    // Full-edit save: include every field the user could have changed in
+    // a single POST to /ticket/my-ticket/{id}/detail. Hot-fix removes the
+    // legacy `_ticketApi.updateTicketStatus` follow-up — status now travels
+    // in the same payload (status / priority / customerSupportID).
     await _ticketApi.updateTicketDetail(
       ticketId: ticket.id,
       title: ticket.title.isEmpty ? null : ticket.title,
       priority: _mapPriorityToApi(ticket.priority),
-      assigneeId: ticket.assignedAgentId,
-      includeAssigneeId: true,
+      status: _mapStatusToApi(ticket.status),
+      customerSupportId: ticket.assignedAgentId,
+      includeCustomerSupportId: true,
     );
-    final status = _mapStatusToApi(ticket.status);
-    if (status != null) {
-      await _ticketApi.updateTicketStatus(ticketId: ticket.id, status: status);
-    }
     final refreshed = await getTicketById(ticket.id);
     if (refreshed != null) {
       return _mergeTicket(ticket, refreshed);
     }
     return ticket.copyWith(updatedAt: DateTime.now());
+  }
+
+  @override
+  Future<Ticket> updateStatus({
+    required String ticketId,
+    required TicketStatus status,
+  }) async {
+    // Web sends only `{ticketID, status}` for a status change — mirror that
+    // so the BE doesn't reinterpret the payload as an assignment.
+    final mapped = _mapStatusToApi(status);
+    if (mapped != null) {
+      await _ticketApi.updateTicketDetail(ticketId: ticketId, status: mapped);
+    }
+    final refreshed = await getTicketById(ticketId);
+    if (refreshed != null) return refreshed;
+    return _mock.updateTicketStatus(ticketId: ticketId, newStatus: status);
+  }
+
+  @override
+  Future<Ticket> updatePriority({
+    required String ticketId,
+    required TicketPriority priority,
+  }) async {
+    // Web sends only `{ticketID, priority}` for a priority change.
+    await _ticketApi.updateTicketDetail(
+      ticketId: ticketId,
+      priority: _mapPriorityToApi(priority),
+    );
+    final refreshed = await getTicketById(ticketId);
+    if (refreshed != null) return refreshed;
+    // Mock fallback: synthesise the change locally.
+    final current = await _mock.getTicketById(ticketId);
+    if (current != null) {
+      return _mock.updateTicket(current.copyWith(priority: priority));
+    }
+    throw Exception('Ticket not found');
   }
 
   @override
@@ -205,10 +228,15 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     String? agentId,
   }) async {
+    // Web sends `{customerSupportID, ticketID, status}` — include the current
+    // status so the BE keeps it (it can't infer from the payload alone).
+    final current = await getTicketById(ticketId);
+    final status = current != null ? _mapStatusToApi(current.status) : null;
     await _ticketApi.updateTicketDetail(
       ticketId: ticketId,
-      assigneeId: agentId,
-      includeAssigneeId: true,
+      customerSupportId: agentId,
+      includeCustomerSupportId: true,
+      status: status,
     );
     final refreshed = await getTicketById(ticketId);
     if (refreshed != null) return refreshed;
@@ -279,32 +307,35 @@ class TicketRepositoryImpl implements TicketRepository {
     );
   }
 
+  /// BE enum is UPPERCASE — `OPEN | PENDING | SOLVED | CLOSED`. Client-only
+  /// states (`inProgress`, `processingByAI`) have no server equivalent.
   String? _mapStatusToApi(TicketStatus status) {
     switch (status) {
       case TicketStatus.open:
-        return 'open';
+        return 'OPEN';
       case TicketStatus.pending:
-        return 'pending';
+        return 'PENDING';
       case TicketStatus.resolved:
-        return 'solved';
+        return 'SOLVED';
       case TicketStatus.closed:
-        return 'closed';
+        return 'CLOSED';
       case TicketStatus.inProgress:
       case TicketStatus.processingByAI:
         return null;
     }
   }
 
+  /// BE enum is UPPERCASE — `LOW | MEDIUM | HIGH | URGENT`.
   String _mapPriorityToApi(TicketPriority priority) {
     switch (priority) {
       case TicketPriority.low:
-        return 'low';
+        return 'LOW';
       case TicketPriority.medium:
-        return 'medium';
+        return 'MEDIUM';
       case TicketPriority.high:
-        return 'high';
+        return 'HIGH';
       case TicketPriority.urgent:
-        return 'urgent';
+        return 'URGENT';
     }
   }
 }

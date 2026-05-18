@@ -130,6 +130,7 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_priority_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/ai_agent/store/ai_agent_store.dart';
@@ -225,6 +226,7 @@ class StoreModule {
         getIt<GetTicketByIdUseCase>(),
         getIt<UpdateTicketUseCase>(),
         getIt<UpdateTicketStatusUseCase>(),
+        getIt<UpdateTicketPriorityUseCase>(),
         getIt<AssignAgentUseCase>(),
         getIt<GetAvailableAgentsUseCase>(),
         getIt<DeleteTicketUseCase>(),

@@ -105,6 +105,7 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_customer_history_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_tickets_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_priority_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/domain/repository/chat/chat_repository.dart';
@@ -196,6 +197,9 @@ class UseCaseModule {
     );
     getIt.registerSingleton<UpdateTicketStatusUseCase>(
       UpdateTicketStatusUseCase(getIt<TicketRepository>()),
+    );
+    getIt.registerSingleton<UpdateTicketPriorityUseCase>(
+      UpdateTicketPriorityUseCase(getIt<TicketRepository>()),
     );
     getIt.registerSingleton<GetCommentsUseCase>(
       GetCommentsUseCase(getIt<TicketRepository>()),

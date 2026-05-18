@@ -8,7 +8,7 @@ class TicketApi {
 
   TicketApi(DioClient dioClient) : _dio = dioClient.dio;
 
-  /// GET /api/ticket/all
+  /// GET /ticket/all
   Future<List<dynamic>> getAllTickets({
     int offset = 0,
     int limit = 20,
@@ -22,16 +22,16 @@ class TicketApi {
         search: search,
       ),
     );
-    return _parseList(response.data);
+    return _parseGroupedList(response.data);
   }
 
-  /// GET /api/ticket/my-ticket
+  /// GET /ticket/my-ticket
   Future<List<dynamic>> getMyTickets({int offset = 0, int limit = 20}) async {
     final response = await _dio.get(
       Endpoints.ticketMy,
       queryParameters: _buildQuery(offset: offset, limit: limit),
     );
-    return _parseList(response.data);
+    return _parseGroupedList(response.data);
   }
 
   /// GET /api/ticket/mine-by-status?status={status}
@@ -40,10 +40,10 @@ class TicketApi {
       Endpoints.ticketMyByStatus,
       queryParameters: {'status': status},
     );
-    return _parseList(response.data);
+    return _parseGroupedList(response.data);
   }
 
-  /// GET /api/ticket/unassigned
+  /// GET /ticket/unassigned
   Future<List<dynamic>> getUnassignedTickets({
     int offset = 0,
     int limit = 20,
@@ -52,7 +52,7 @@ class TicketApi {
       Endpoints.ticketUnassigned,
       queryParameters: _buildQuery(offset: offset, limit: limit),
     );
-    return _parseList(response.data);
+    return _parseGroupedList(response.data);
   }
 
   /// GET /api/ticket/ticket-history-customer/{customerID}
@@ -87,36 +87,35 @@ class TicketApi {
     return _parseMap(response.data);
   }
 
-  /// POST /api/ticket/my-ticket/{id}/detail
+  /// POST /ticket/my-ticket/{ticketId}/detail
+  ///
+  /// BE-canonical "update ticket fields" endpoint. The web client posts ONLY
+  /// the fields it wants to change (plus `ticketID`), e.g.:
+  ///   - status change: `{ticketID, status: "SOLVED"}`
+  ///   - priority change: `{ticketID, priority: "HIGH"}`
+  ///   - assign agent: `{ticketID, customerSupportID, status: "OPEN"}`
+  ///
+  /// All enum string values are UPPERCASE. Callers map domain enums via
+  /// [TicketRepositoryImpl._mapStatusToApi] / `_mapPriorityToApi`.
   Future<Map<String, dynamic>> updateTicketDetail({
     required String ticketId,
     String? title,
     String? priority,
-    String? assigneeId,
-    bool includeAssigneeId = false,
+    String? status,
+    String? customerSupportId,
+    bool includeCustomerSupportId = false,
   }) async {
-    final data = <String, dynamic>{};
+    final data = <String, dynamic>{'ticketID': ticketId};
     if (title != null) data['title'] = title;
     if (priority != null) data['priority'] = priority;
-    if (includeAssigneeId || assigneeId != null) {
-      data['assigneeId'] = assigneeId;
+    if (status != null) data['status'] = status;
+    if (includeCustomerSupportId || customerSupportId != null) {
+      data['customerSupportID'] = customerSupportId;
     }
 
     final response = await _dio.post(
       Endpoints.ticketUpdateDetail(ticketId),
       data: data,
-    );
-    return _parseMap(response.data);
-  }
-
-  /// POST /api/ticket/update-status
-  Future<Map<String, dynamic>> updateTicketStatus({
-    required String ticketId,
-    required String status,
-  }) async {
-    final response = await _dio.post(
-      Endpoints.ticketUpdateStatus,
-      data: {'ticketId': ticketId, 'status': status},
     );
     return _parseMap(response.data);
   }
@@ -150,25 +149,71 @@ class TicketApi {
     }
   }
 
-  /// GET /api/ticket/comment/get-comment/{ticketId}
+  /// Comments live under the ticket detail at `GET /ticket/{ticketID}`
+  /// as the `commentsOfTicket` array — the BE doesn't ship a standalone
+  /// "list comments" route. We reuse the detail endpoint and slice out
+  /// just the comments list so callers don't have to know that.
+  ///
+  /// (Note: `loadTicket` in the store also fetches the same endpoint via
+  /// [getTicketDetail]; the double call is acceptable for now — see the
+  /// store-level TODO if we ever need to consolidate.)
   Future<List<dynamic>> getComments(String ticketId) async {
-    final response = await _dio.get(Endpoints.ticketComments(ticketId));
-    return _parseList(response.data);
+    final response = await _dio.get(Endpoints.ticketDetail(ticketId));
+    final body = response.data;
+    if (body is Map) {
+      final data = body['data'];
+      if (data is Map && data['commentsOfTicket'] is List) {
+        return data['commentsOfTicket'] as List;
+      }
+    }
+    return const <dynamic>[];
   }
 
-  /// POST /api/ticket/comment/add-comment
+  /// POST /ticket/comment/add-comment
+  ///
+  /// Payload uses the BE-canonical field names `ticketID` (note capital `D`)
+  /// and `body` — not `ticketId`/`content` like the OpenAPI spec implies.
+  ///
+  /// Response shape (success):
+  /// ```json
+  /// {
+  ///   "status": "OK",
+  ///   "data": [{ "commentID": "...", "body": "...", "customerSupport": {...} }],
+  ///   "message": "Tạo comment thành công"
+  /// }
+  /// ```
+  /// `data` is a single-element list containing the new comment with the
+  /// author resolved under `customerSupport`. Returns the first element so
+  /// callers see the populated comment object directly.
   Future<Map<String, dynamic>> addComment(
     String ticketId,
     String content,
   ) async {
     final response = await _dio.post(
       Endpoints.ticketAddComment,
-      data: {'ticketId': ticketId, 'content': content},
+      data: {
+        'ticketID': ticketId,
+        'body': content,
+        'files': const <dynamic>[],
+      },
     );
-    if (response.data is Map<String, dynamic>) {
-      return response.data as Map<String, dynamic>;
+    return _extractFirstComment(response.data);
+  }
+
+  /// Extracts the first comment object from the `addComment` response.
+  /// BE wraps the new comment in `data: [{...}]`; older / fallback shapes
+  /// may use `data: {...}` directly.
+  Map<String, dynamic> _extractFirstComment(dynamic body) {
+    if (body is Map) {
+      final data = body['data'];
+      if (data is List && data.isNotEmpty) {
+        final first = data.first;
+        if (first is Map<String, dynamic>) return first;
+        if (first is Map) return Map<String, dynamic>.from(first);
+      }
+      if (data is Map<String, dynamic>) return data;
     }
-    return {};
+    return const <String, dynamic>{};
   }
 
   /// DELETE /api/ticket/comment/{id}
@@ -191,11 +236,37 @@ class TicketApi {
     return const [];
   }
 
-  /// Handles direct object response and wrapped `{ "data": { ... } }` format.
+  /// Parses the helpdesk `/ticket/*` list response shape:
+  /// `{ status, message, data: [{ tickets: [...], total, totalAssigned, totalFollowed }] }`.
+  /// When `getCounter=true` the BE wraps results in a single-element `data`
+  /// array. Falls back to legacy shapes via [_parseList] if structure differs.
+  List<dynamic> _parseGroupedList(dynamic data) {
+    if (data is Map && data['data'] is List) {
+      final outer = data['data'] as List;
+      if (outer.isNotEmpty && outer.first is Map) {
+        final first = outer.first as Map;
+        if (first['tickets'] is List) {
+          return first['tickets'] as List;
+        }
+      }
+    }
+    return _parseList(data);
+  }
+
+  /// Unwraps the helpdesk envelope `{ status, message, data: {...} }` and
+  /// returns the inner object. Falls back to the body itself when no envelope
+  /// is present (legacy / mock paths).
+  ///
+  /// Order matters: BE responses are `Map<String, dynamic>` at the OUTER
+  /// level too, so we must check for `data` first — otherwise we'd return
+  /// the wrapper and lose the actual ticket payload.
   Map<String, dynamic> _parseMap(dynamic data) {
-    if (data is Map<String, dynamic>) return data;
-    if (data is Map && data['data'] is Map<String, dynamic>) {
-      return data['data'] as Map<String, dynamic>;
+    if (data is Map) {
+      final inner = data['data'];
+      if (inner is Map<String, dynamic>) return inner;
+      if (inner is Map) return Map<String, dynamic>.from(inner);
+      if (data is Map<String, dynamic>) return data;
+      return Map<String, dynamic>.from(data);
     }
     return const {};
   }
@@ -205,7 +276,16 @@ class TicketApi {
     int limit = 20,
     String? search,
   }) {
-    final query = <String, dynamic>{'offset': offset, 'limit': limit};
+    final query = <String, dynamic>{
+      'offset': offset,
+      'limit': limit,
+      // BE requires these flags to return the grouped `{tickets, total, ...}`
+      // payload. Without them the response shape changes and `_parseGroupedList`
+      // would have to fall back to legacy parsing.
+      'getCounter': true,
+      'getTotal': true,
+      'page': (limit > 0) ? (offset ~/ limit) + 1 : 1,
+    };
     if (search != null && search.trim().isNotEmpty) {
       query['search'] = search.trim();
     }

@@ -17,19 +17,12 @@ class UpdateTicketStatusUseCase
   UpdateTicketStatusUseCase(this._repository);
 
   @override
-  Future<Ticket> call({required UpdateTicketStatusParams params}) async {
-    final ticket = await _repository.getTicketById(params.ticketId);
-    if (ticket == null) {
-      throw Exception('Ticket not found');
-    }
-
-    final updatedTicket = ticket.copyWith(
+  Future<Ticket> call({required UpdateTicketStatusParams params}) {
+    // Single POST `{ticketID, status}` — repository handles the BE call and
+    // refetches the canonical ticket. Web mirror.
+    return _repository.updateStatus(
+      ticketId: params.ticketId,
       status: params.newStatus,
-      resolvedAt:
-          params.newStatus == TicketStatus.resolved
-              ? DateTime.now()
-              : ticket.resolvedAt,
     );
-    return _repository.updateTicket(updatedTicket);
   }
 }

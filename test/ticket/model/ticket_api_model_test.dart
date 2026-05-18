@@ -18,7 +18,7 @@ void main() {
       expect(model.status, 'open');
       expect(model.priority, 'high');
       expect(model.customerId, kTestCustomerId);
-      expect(model.channelType, 'web');
+      expect(model.source, 'web');
       expect(model.createdAt, DateTime.utc(2024, 6, 1, 10, 0, 0));
     });
 
@@ -31,7 +31,7 @@ void main() {
       expect(model.priority, 'medium');
       expect(model.customerId, '');
       expect(model.assigneeId, isNull);
-      expect(model.channelType, isNull);
+      expect(model.source, isNull);
     });
 
     test('parses assigneeId when present', () {

@@ -1,5 +1,6 @@
 import 'package:ai_helpdesk/domain/entity/agent/agent.dart';
 import 'package:ai_helpdesk/domain/entity/comment/comment.dart';
+import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket_query_params.dart';
 import 'package:ai_helpdesk/domain/entity/ticket_history/ticket_history.dart';
@@ -58,6 +59,22 @@ class FakeTicketRepository implements TicketRepository {
 
   @override
   Future<Ticket> updateTicket(Ticket ticket) async => ticket;
+
+  @override
+  Future<Ticket> updateStatus({
+    required String ticketId,
+    required TicketStatus status,
+  }) async =>
+      ticketByIdResult ??
+      ticketsToReturn.firstWhere((t) => t.id == ticketId);
+
+  @override
+  Future<Ticket> updatePriority({
+    required String ticketId,
+    required TicketPriority priority,
+  }) async =>
+      ticketByIdResult ??
+      ticketsToReturn.firstWhere((t) => t.id == ticketId);
 
   @override
   Future<void> deleteTicket(String id) async {}

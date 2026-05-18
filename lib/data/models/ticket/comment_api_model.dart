@@ -33,25 +33,52 @@ class CommentApiModel {
     this.updatedAt,
   });
 
+  /// Parses the BE comment shape. Field names are normalised across:
+  ///   - `commentID` / `id`            — comment id
+  ///   - `ticketID` / `ticketId`       — owning ticket id
+  ///   - `body`     / `content`        — comment text
+  ///   - `customerSupportID` / `authorId` — author id
+  ///   - `customerSupport.fullname`    — author display name (top-level
+  ///     `fullname` is usually `null` on freshly-created comments)
+  ///   - `customerSupport.profilePicture` / `profilePicture` — avatar URL
   factory CommentApiModel.fromJson(Map<String, dynamic> json) {
+    // Ticket-comment shape (BE-canonical, hot-fix path).
+    final cs = json['customerSupport'];
+    final csMap = cs is Map<String, dynamic>
+        ? cs
+        : (cs is Map ? Map<String, dynamic>.from(cs) : null);
+
+    // Chat-room message shape (kept as a fallback so CommentApiModel still
+    // parses SOCKET_MESSAGE / `/api/chat-room/message` payloads cleanly).
     final sender = json['sender'] as Map<String, dynamic>?;
     final contentInfo = json['contentInfo'] as Map<String, dynamic>?;
-    final content = contentInfo?['content'] as String? ??
-        json['content'] as String? ??
-        '';
 
     return CommentApiModel(
-      id: json['messageID'] as String? ?? json['id'] as String? ?? '',
-      ticketId: json['chatRoomID'] as String? ??
-          json['ticketId'] as String? ??
+      id: (json['commentID'] ??
+              json['messageID'] ??
+              json['id']) as String? ??
           '',
-      content: content,
-      authorId: sender?['id'] as String? ?? json['authorId'] as String? ?? '',
-      authorName: sender?['name'] as String? ??
-          json['authorName'] as String? ??
+      ticketId: (json['ticketID'] ??
+              json['chatRoomID'] ??
+              json['ticketId']) as String? ??
+          '',
+      content: (json['body'] ??
+              contentInfo?['content'] ??
+              json['content']) as String? ??
+          '',
+      authorId: (json['customerSupportID'] ??
+              sender?['id'] ??
+              json['authorId']) as String? ??
+          '',
+      authorName: (csMap?['fullname'] ??
+              sender?['name'] ??
+              json['fullname'] ??
+              json['authorName']) as String? ??
           'Unknown',
-      authorAvatar:
-          sender?['avatar'] as String? ?? json['authorAvatar'] as String?,
+      authorAvatar: (csMap?['profilePicture'] ??
+              sender?['avatar'] ??
+              json['profilePicture'] ??
+              json['authorAvatar']) as String?,
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDateTime(json['updatedAt']),
     );
