@@ -15,6 +15,7 @@ import 'package:ai_helpdesk/domain/usecase/ticket/get_available_agents_usecase.d
 import 'package:ai_helpdesk/domain/usecase/ticket/get_comments_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_by_id_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/get_ticket_history_usecase.dart';
+import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_priority_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_status_usecase.dart';
 import 'package:ai_helpdesk/domain/usecase/ticket/update_ticket_usecase.dart';
 import 'package:ai_helpdesk/presentation/stores/session_store.dart';
@@ -28,6 +29,7 @@ abstract class _TicketDetailStoreBase with Store {
   final GetTicketByIdUseCase _getTicketByIdUseCase;
   final UpdateTicketUseCase _updateTicketUseCase;
   final UpdateTicketStatusUseCase _updateTicketStatusUseCase;
+  final UpdateTicketPriorityUseCase _updateTicketPriorityUseCase;
   final AssignAgentUseCase _assignAgentUseCase;
   final GetAvailableAgentsUseCase _getAvailableAgentsUseCase;
   final DeleteTicketUseCase _deleteTicketUseCase;
@@ -44,6 +46,7 @@ abstract class _TicketDetailStoreBase with Store {
     this._getTicketByIdUseCase,
     this._updateTicketUseCase,
     this._updateTicketStatusUseCase,
+    this._updateTicketPriorityUseCase,
     this._assignAgentUseCase,
     this._getAvailableAgentsUseCase,
     this._deleteTicketUseCase,
@@ -129,10 +132,27 @@ abstract class _TicketDetailStoreBase with Store {
 
   void _onIncomingComment(Comment comment) {
     runInAction(() {
-      // Deduplicate: skip if the same id already exists (e.g. echoed back after addComment).
-      if (!comments.any((c) => c.id == comment.id)) {
-        comments = [...comments, comment];
+      // Skip if the same id already exists (server echoed an already-stored comment).
+      if (comments.any((c) => c.id == comment.id)) return;
+
+      // Replace any optimistic placeholder (tmp_*) that matches this
+      // comment's author + content. tmp_* ids are only assigned when the BE
+      // add-comment response omits the comment object — the happy path uses
+      // the server-issued id directly.
+      final tmpIndex = comments.indexWhere(
+        (c) =>
+            c.id.startsWith('tmp_') &&
+            c.authorId == comment.authorId &&
+            c.content == comment.content,
+      );
+      if (tmpIndex != -1) {
+        final updated = [...comments];
+        updated[tmpIndex] = comment;
+        comments = updated;
+        return;
       }
+
+      comments = [...comments, comment];
     });
   }
 
@@ -161,6 +181,33 @@ abstract class _TicketDetailStoreBase with Store {
           'ticket_id': updated.id,
           'field_updated': 'status',
           'new_value': newStatus.name,
+        },
+      );
+    } catch (e) {
+      errorMessage = e.toString();
+    }
+  }
+
+  @action
+  Future<void> updatePriority(TicketPriority newPriority) async {
+    if (ticket == null) return;
+    errorMessage = null;
+
+    try {
+      final updated = await _updateTicketPriorityUseCase.call(
+        params: UpdateTicketPriorityParams(
+          ticketId: ticket!.id,
+          newPriority: newPriority,
+        ),
+      );
+      ticket = updated;
+
+      _analyticsService.trackEvent(
+        AnalyticsEvents.ticketUpdated,
+        parameters: {
+          'ticket_id': updated.id,
+          'field_updated': 'priority',
+          'new_value': newPriority.name,
         },
       );
     } catch (e) {
@@ -214,25 +261,27 @@ abstract class _TicketDetailStoreBase with Store {
   @action
   Future<void> addComment() async {
     if (ticket == null || newCommentText.trim().isEmpty) return;
+    final pending = newCommentText.trim();
+    final ticketId = ticket!.id;
     errorMessage = null;
 
     try {
-      final now = DateTime.now();
       final comment = Comment(
         id: '',
-        ticketId: ticket!.id,
+        ticketId: ticketId,
         authorId: _sessionStore.currentAgentId,
         authorName: _sessionStore.currentAgentName,
-        content: newCommentText.trim(),
+        content: pending,
         type: commentType,
-        createdAt: now,
+        createdAt: DateTime.now(),
       );
 
+      // BE returns the canonical comment (real id, server timestamp, author
+      // resolved from `customerSupport`). The repository surfaces it directly,
+      // so no refetch is needed — WS echo, if any, is deduped in
+      // [_onIncomingComment].
       final created = await _addCommentUseCase.call(
-        params: AddCommentParams(
-          ticketId: ticket!.id,
-          comment: comment,
-        ),
+        params: AddCommentParams(ticketId: ticketId, comment: comment),
       );
 
       comments = [...comments, created];

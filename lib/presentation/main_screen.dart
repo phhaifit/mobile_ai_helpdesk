@@ -299,7 +299,9 @@ class _MainScreenState extends State<MainScreen> {
           showMenuButton: isMobile,
         );
       case 'pending_tickets':
-        contentWidget = const TicketListScreen();
+        contentWidget = TicketListScreen(
+          onMenuTap: isMobile ? _toggleMobileSidebar : null,
+        );
       case 'support_inbox':
         contentWidget = SupportInboxScreen(onMenuTap: _toggleMobileSidebar);
       case 'knowledge':

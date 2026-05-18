@@ -26,14 +26,36 @@ class CommentApiModel {
     this.updatedAt,
   });
 
+  /// Parses the BE comment shape. Field names are normalised across:
+  ///   - `commentID` / `id`            — comment id
+  ///   - `ticketID` / `ticketId`       — owning ticket id
+  ///   - `body`     / `content`        — comment text
+  ///   - `customerSupportID` / `authorId` — author id
+  ///   - `customerSupport.fullname`    — author display name (top-level
+  ///     `fullname` is usually `null` on freshly-created comments)
+  ///   - `customerSupport.profilePicture` / `profilePicture` — avatar URL
   factory CommentApiModel.fromJson(Map<String, dynamic> json) {
+    final cs = json['customerSupport'];
+    final csMap = cs is Map<String, dynamic>
+        ? cs
+        : (cs is Map ? Map<String, dynamic>.from(cs) : null);
+
+    final csName = csMap?['fullname'] as String?;
+    final csAvatar = csMap?['profilePicture'] as String?;
+
     return CommentApiModel(
-      id: json['id'] as String? ?? '',
-      ticketId: json['ticketId'] as String? ?? '',
-      content: json['content'] as String? ?? '',
-      authorId: json['authorId'] as String? ?? '',
-      authorName: json['authorName'] as String? ?? 'Unknown',
-      authorAvatar: json['authorAvatar'] as String?,
+      id: (json['commentID'] ?? json['id']) as String? ?? '',
+      ticketId: (json['ticketID'] ?? json['ticketId']) as String? ?? '',
+      content: (json['body'] ?? json['content']) as String? ?? '',
+      authorId:
+          (json['customerSupportID'] ?? json['authorId']) as String? ?? '',
+      authorName: csName ??
+          json['fullname'] as String? ??
+          json['authorName'] as String? ??
+          'Unknown',
+      authorAvatar: csAvatar ??
+          json['profilePicture'] as String? ??
+          json['authorAvatar'] as String?,
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDateTime(json['updatedAt']),
     );

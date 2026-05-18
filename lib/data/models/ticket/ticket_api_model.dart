@@ -1,46 +1,114 @@
 import 'package:ai_helpdesk/domain/entity/enums.dart';
 import 'package:ai_helpdesk/domain/entity/ticket/ticket.dart';
 
-/// Maps the API Ticket JSON response to the domain [Ticket] entity.
+/// Maps the helpdesk BE ticket JSON to the domain [Ticket] entity.
 ///
-/// API schema (from GET /api/ticket/{ticketID}):
-///   id, title, status, priority, assigneeId, customerId,
-///   chatRoomId, channelType, createdAt, updatedAt
+/// Real BE payload (from `/ticket/all`, `/ticket/my-ticket`, etc.) uses
+/// camelCase IDs with capital suffix and nested objects:
+///   ticketID, title, body, status, priority, source,
+///   customerID, customerSupportID, chatRoomID,
+///   customer: { name, contactInfo: [...] },
+///   author / customerSupport: { fullname, ... },
+///   createdAt, updatedAt
 ///
-/// Fields missing from the API are filled with safe defaults so that the
-/// existing UI (which expects the full entity) continues to work.
+/// We tolerate both the BE shape and the legacy spec shape (id, customerId,
+/// assigneeId, chatRoomId, channelType) so older fixtures + mock paths still
+/// parse cleanly.
 class TicketApiModel {
   final String id;
   final String title;
+  final String description;
   final String status;
   final String priority;
   final String? assigneeId;
   final String customerId;
+  final String customerName;
+  final String customerEmail;
   final String? chatRoomId;
-  final String? channelType;
+  final String? source;
+  final String? customerSupportName;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   const TicketApiModel({
     required this.id,
     required this.title,
+    required this.description,
     required this.status,
     required this.priority,
-    required this.customerId, required this.createdAt, required this.updatedAt, this.assigneeId,
+    required this.customerId,
+    required this.customerName,
+    required this.customerEmail,
+    required this.createdAt,
+    required this.updatedAt,
+    this.assigneeId,
     this.chatRoomId,
-    this.channelType,
+    this.source,
+    this.customerSupportName,
   });
 
   factory TicketApiModel.fromJson(Map<String, dynamic> json) {
+    // Customer name: BE detail-response promotes it to a top-level
+    // `customerName`; list-response keeps it nested under `customer.name`.
+    String customerName = (json['customerName'] as String?) ?? '';
+    String customerEmail = '';
+
+    final customer = json['customer'];
+    if (customer is Map) {
+      if (customerName.isEmpty) {
+        customerName = (customer['name'] as String?) ?? '';
+      }
+      final nestedContacts = customer['contactInfo'];
+      if (nestedContacts is List) {
+        for (final c in nestedContacts) {
+          if (c is Map &&
+              (c['name'] as String?)?.toUpperCase() == 'EMAIL') {
+            customerEmail = (c['email'] as String?) ?? '';
+            break;
+          }
+        }
+      }
+    }
+
+    // Detail-response also exposes a top-level `contacts` array. Pick the
+    // first entry that has an `email` field.
+    if (customerEmail.isEmpty) {
+      final contacts = json['contacts'];
+      if (contacts is List) {
+        for (final c in contacts) {
+          if (c is Map && c['email'] is String) {
+            final value = c['email'] as String;
+            if (value.isNotEmpty) {
+              customerEmail = value;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Assigned-agent name. The detail endpoint uses `CustomerSupport`
+    // (capital C); list/comment endpoints use `customerSupport`.
+    String? customerSupportName;
+    final cs = json['CustomerSupport'] ?? json['customerSupport'];
+    if (cs is Map) {
+      customerSupportName = cs['fullname'] as String?;
+    }
+
     return TicketApiModel(
-      id: json['id'] as String? ?? '',
+      id: (json['ticketID'] ?? json['id']) as String? ?? '',
       title: json['title'] as String? ?? '',
+      description: (json['body'] ?? json['description']) as String? ?? '',
       status: json['status'] as String? ?? 'open',
       priority: json['priority'] as String? ?? 'medium',
-      assigneeId: json['assigneeId'] as String?,
-      customerId: json['customerId'] as String? ?? '',
-      chatRoomId: json['chatRoomId'] as String?,
-      channelType: json['channelType'] as String?,
+      assigneeId:
+          (json['customerSupportID'] ?? json['assigneeId']) as String?,
+      customerId: (json['customerID'] ?? json['customerId']) as String? ?? '',
+      customerName: customerName,
+      customerEmail: customerEmail,
+      chatRoomId: (json['chatRoomID'] ?? json['chatRoomId']) as String?,
+      source: (json['source'] ?? json['channelType']) as String?,
+      customerSupportName: customerSupportName,
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDateTime(json['updatedAt']) ?? DateTime.now(),
     );
@@ -50,17 +118,20 @@ class TicketApiModel {
     return Ticket(
       id: id,
       title: title,
-      description: '',
+      description: description,
       status: _mapStatus(status),
       priority: _mapPriority(priority),
       category: TicketCategory.general,
-      source: _mapChannelType(channelType),
+      source: _mapSource(source),
       customerId: customerId,
-      customerName: '',
-      customerEmail: '',
+      customerName: customerName,
+      customerEmail: customerEmail,
       createdByID: '',
       createdByName: '',
       assignedAgentId: assigneeId,
+      assignedAgentName: customerSupportName,
+      chatRoomId: chatRoomId,
+      customerSupportName: customerSupportName,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -104,16 +175,20 @@ class TicketApiModel {
     }
   }
 
-  static TicketSource _mapChannelType(String? raw) {
+  static TicketSource _mapSource(String? raw) {
     switch (raw?.toLowerCase()) {
       case 'messenger':
+      case 'facebook':
         return TicketSource.messenger;
       case 'zalo':
+      case 'zalo_personal':
         return TicketSource.zalo;
       case 'email':
         return TicketSource.email;
       case 'phone':
         return TicketSource.phone;
+      case 'webchat':
+      case 'web':
       default:
         return TicketSource.web;
     }

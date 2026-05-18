@@ -81,7 +81,7 @@ class TicketAssignmentSectionWidget extends StatelessWidget {
                   value: ticket.status,
                   underline: const SizedBox(),
                   isDense: true,
-                  items: TicketStatus.values.map((status) {
+                  items: _statusOptions.map((status) {
                     return DropdownMenuItem(
                       value: status,
                       child: Row(
@@ -102,8 +102,48 @@ class TicketAssignmentSectionWidget extends StatelessWidget {
                     );
                   }).toList(),
                   onChanged: (status) {
-                    if (status != null) {
+                    if (status != null && status != ticket.status) {
                       store.updateStatus(status);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            // Priority dropdown
+            Row(
+              children: [
+                const Icon(Icons.priority_high, size: 20, color: AppColors.textSecondary),
+                const SizedBox(width: 8),
+                const Text('Mức ưu tiên:', style: TextStyle(fontSize: 14)),
+                const SizedBox(width: 12),
+                DropdownButton<TicketPriority>(
+                  value: ticket.priority,
+                  underline: const SizedBox(),
+                  isDense: true,
+                  items: TicketPriority.values.map((priority) {
+                    return DropdownMenuItem(
+                      value: priority,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: AppColors.getPriorityColor(priority),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(priority.displayName, style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (priority) {
+                    if (priority != null && priority != ticket.priority) {
+                      store.updatePriority(priority);
                     }
                   },
                 ),
@@ -113,5 +153,19 @@ class TicketAssignmentSectionWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Client-only states (inProgress / processingByAI) have no BE equivalent
+  // and aren't user-selectable. The dropdown still renders the current value
+  // even if it's client-only so the UI never shows an empty selection.
+  List<TicketStatus> get _statusOptions {
+    const serverSelectable = <TicketStatus>[
+      TicketStatus.open,
+      TicketStatus.pending,
+      TicketStatus.resolved,
+      TicketStatus.closed,
+    ];
+    if (serverSelectable.contains(ticket.status)) return serverSelectable;
+    return [ticket.status, ...serverSelectable];
   }
 }

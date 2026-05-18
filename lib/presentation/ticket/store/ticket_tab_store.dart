@@ -194,16 +194,22 @@ abstract class _TicketTabStoreBase with Store {
 
   List<Ticket> _applyTabFilter(List<Ticket> tickets) {
     switch (selectedTabIndex) {
-      case 0: // "Phiếu hỗ trợ của tôi" - Assigned to current agent
-        if (currentAgentId.isEmpty) {
-          return tickets;
-        }
+      case 0:
+        // "Phiếu của tôi" — BE already filters via `/ticket/my-ticket` server-side,
+        // so we trust the API response and do NOT re-filter client-side. The old
+        // implementation compared `ticket.assignedAgentId == currentAgentId`,
+        // but `SessionStore.currentAgentId` is a hardcoded placeholder
+        // (`'agent_1'`) that never matches the real backend `customerSupportID`
+        // (`csp_…`) — so client-side filtering silently produced an empty list.
+        return tickets;
+      case 1: // "Phiếu chưa tiếp nhận" — fetched via `/ticket/unassigned`,
+        // but keep the null-check as defence in case BE returns extras.
         return tickets
-            .where((ticket) => ticket.assignedAgentId == currentAgentId)
-            .toList();
-      case 1: // "Phiếu chưa tiếp nhận"
-        return tickets
-            .where((ticket) => ticket.assignedAgentId == null)
+            .where(
+              (ticket) =>
+                  ticket.assignedAgentId == null ||
+                  ticket.assignedAgentId!.isEmpty,
+            )
             .toList();
       case 2: // "Tất cả phiếu hỗ trợ"
       default:

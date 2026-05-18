@@ -68,11 +68,15 @@ class TicketRepositoryImpl implements TicketRepository {
   @override
   Future<List<Comment>> getComments(String ticketId) async {
     final raw = await _api.getComments(ticketId);
-    return raw
+    final comments = raw
         .whereType<Map<String, dynamic>>()
         .map(CommentApiModel.fromJson)
         .map((m) => m.toDomain())
         .toList();
+    // BE returns newest-first; flip to oldest-first so the comment thread
+    // reads top-to-bottom like a conversation (latest at the bottom).
+    comments.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return comments;
   }
 
   @override
@@ -81,13 +85,18 @@ class TicketRepositoryImpl implements TicketRepository {
     required Comment comment,
   }) async {
     final data = await _api.addComment(ticketId, comment.content);
-    // If the server returned a populated object, use the server-assigned id and
-    // timestamp; otherwise fall back to the optimistic comment from the store.
-    if (data.isNotEmpty && ((data['id'] as String?)?.isNotEmpty ?? false)) {
+    // BE response includes the full comment object (id, timestamps, author
+    // resolved under `customerSupport`). Use it directly so the UI shows the
+    // canonical record instead of the optimistic placeholder.
+    if (data.isNotEmpty) {
       final apiModel = CommentApiModel.fromJson(data);
-      return comment.copyWith(id: apiModel.id, createdAt: apiModel.createdAt);
+      if (apiModel.id.isNotEmpty) {
+        // BE doesn't model public/internal — preserve the local choice.
+        return apiModel.toDomain().copyWith(type: comment.type);
+      }
     }
-    // Assign a temporary id so the UI can display the comment immediately.
+    // Fallback: keep the comment visible with a temp id when the response
+    // shape is unexpected (e.g., legacy gateway).
     return comment.copyWith(
       id: comment.id.isNotEmpty
           ? comment.id
@@ -129,22 +138,57 @@ class TicketRepositoryImpl implements TicketRepository {
 
   @override
   Future<Ticket> updateTicket(Ticket ticket) async {
+    // Full-edit save: include every field the user could have changed in
+    // a single POST to /ticket/my-ticket/{id}/detail.
     await _api.updateTicketDetail(
       ticketId: ticket.id,
       title: ticket.title.isEmpty ? null : ticket.title,
       priority: _mapPriorityToApi(ticket.priority),
-      assigneeId: ticket.assignedAgentId,
-      includeAssigneeId: true,
+      status: _mapStatusToApi(ticket.status),
+      customerSupportId: ticket.assignedAgentId,
+      includeCustomerSupportId: true,
     );
-    final status = _mapStatusToApi(ticket.status);
-    if (status != null) {
-      await _api.updateTicketStatus(ticketId: ticket.id, status: status);
-    }
     final refreshed = await getTicketById(ticket.id);
     if (refreshed != null) {
       return _mergeTicket(ticket, refreshed);
     }
     return ticket.copyWith(updatedAt: DateTime.now());
+  }
+
+  @override
+  Future<Ticket> updateStatus({
+    required String ticketId,
+    required TicketStatus status,
+  }) async {
+    // Web sends only `{ticketID, status}` for a status change — mirror that
+    // so the BE doesn't reinterpret the payload as an assignment.
+    final mapped = _mapStatusToApi(status);
+    if (mapped != null) {
+      await _api.updateTicketDetail(ticketId: ticketId, status: mapped);
+    }
+    final refreshed = await getTicketById(ticketId);
+    if (refreshed != null) return refreshed;
+    return _mock.updateTicketStatus(ticketId: ticketId, newStatus: status);
+  }
+
+  @override
+  Future<Ticket> updatePriority({
+    required String ticketId,
+    required TicketPriority priority,
+  }) async {
+    // Web sends only `{ticketID, priority}` for a priority change.
+    await _api.updateTicketDetail(
+      ticketId: ticketId,
+      priority: _mapPriorityToApi(priority),
+    );
+    final refreshed = await getTicketById(ticketId);
+    if (refreshed != null) return refreshed;
+    // Mock fallback: synthesise the change locally.
+    final current = await _mock.getTicketById(ticketId);
+    if (current != null) {
+      return _mock.updateTicket(current.copyWith(priority: priority));
+    }
+    throw Exception('Ticket not found');
   }
 
   @override
@@ -158,10 +202,15 @@ class TicketRepositoryImpl implements TicketRepository {
     required String ticketId,
     String? agentId,
   }) async {
+    // Web sends `{customerSupportID, ticketID, status}` — include the current
+    // status so the BE keeps it (it can't infer from the payload alone).
+    final current = await getTicketById(ticketId);
+    final status = current != null ? _mapStatusToApi(current.status) : null;
     await _api.updateTicketDetail(
       ticketId: ticketId,
-      assigneeId: agentId,
-      includeAssigneeId: true,
+      customerSupportId: agentId,
+      includeCustomerSupportId: true,
+      status: status,
     );
     final refreshed = await getTicketById(ticketId);
     if (refreshed != null) return refreshed;
@@ -230,32 +279,35 @@ class TicketRepositoryImpl implements TicketRepository {
     );
   }
 
+  /// BE enum is UPPERCASE — `OPEN | PENDING | SOLVED | CLOSED`. Client-only
+  /// states (`inProgress`, `processingByAI`) have no server equivalent.
   String? _mapStatusToApi(TicketStatus status) {
     switch (status) {
       case TicketStatus.open:
-        return 'open';
+        return 'OPEN';
       case TicketStatus.pending:
-        return 'pending';
+        return 'PENDING';
       case TicketStatus.resolved:
-        return 'solved';
+        return 'SOLVED';
       case TicketStatus.closed:
-        return 'closed';
+        return 'CLOSED';
       case TicketStatus.inProgress:
       case TicketStatus.processingByAI:
         return null;
     }
   }
 
+  /// BE enum is UPPERCASE — `LOW | MEDIUM | HIGH | URGENT`.
   String _mapPriorityToApi(TicketPriority priority) {
     switch (priority) {
       case TicketPriority.low:
-        return 'low';
+        return 'LOW';
       case TicketPriority.medium:
-        return 'medium';
+        return 'MEDIUM';
       case TicketPriority.high:
-        return 'high';
+        return 'HIGH';
       case TicketPriority.urgent:
-        return 'urgent';
+        return 'URGENT';
     }
   }
 }
